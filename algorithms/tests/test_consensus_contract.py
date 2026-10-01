@@ -220,6 +220,80 @@ def test_empty_sources_have_zero_signals_and_real_absence_of_contributions() -> 
     assert evaluate(previous_score=0.8).state == ConsensusState.REVOKED
 
 
+def test_consensus_result_rejects_invalid_direct_values() -> None:
+    valid = ConsensusResult(
+        "claim",
+        0.5,
+        0.5,
+        1,
+        ConsensusState.EMERGING,
+        0.5,
+        0.5,
+        0.5,
+        {"u": 0.5},
+    )
+    assert valid.user_contributions == {"u": 0.5}
+
+    with pytest.raises(ValueError):
+        _ = ConsensusResult("", 0.5, 0.5, 1, ConsensusState.EMERGING, 0.5, 0.5, 0.5, {})
+    with pytest.raises(ValueError):
+        _ = ConsensusResult("claim", nan, 0.5, 1, ConsensusState.EMERGING, 0.5, 0.5, 0.5, {})
+    with pytest.raises(ValueError):
+        _ = ConsensusResult("claim", 0.5, 1.01, 1, ConsensusState.EMERGING, 0.5, 0.5, 0.5, {})
+    with pytest.raises(ValueError):
+        _ = ConsensusResult(
+            "claim",
+            0.5,
+            0.5,
+            cast(int, cast(object, True)),
+            ConsensusState.EMERGING,
+            0.5,
+            0.5,
+            0.5,
+            {},
+        )
+    with pytest.raises(ValueError):
+        _ = ConsensusResult("claim", 0.5, 0.5, 201, ConsensusState.EMERGING, 0.5, 0.5, 0.5, {})
+    with pytest.raises(ValueError):
+        _ = ConsensusResult(
+            "claim",
+            0.5,
+            0.5,
+            1,
+            cast(ConsensusState, cast(object, "emerging")),
+            0.5,
+            0.5,
+            0.5,
+            {},
+        )
+    with pytest.raises(ValueError):
+        _ = ConsensusResult("claim", 0.5, 0.5, 1, ConsensusState.EMERGING, inf, 0.5, 0.5, {})
+    with pytest.raises(ValueError):
+        _ = ConsensusResult("claim", 0.5, 0.5, 1, ConsensusState.EMERGING, 0.5, -0.01, 0.5, {})
+    with pytest.raises(ValueError):
+        _ = ConsensusResult("claim", 0.5, 0.5, 1, ConsensusState.EMERGING, 0.5, 0.5, 1.01, {})
+    with pytest.raises(ValueError):
+        _ = ConsensusResult(
+            "claim", 0.5, 0.5, 1, ConsensusState.EMERGING, 0.5, 0.5, 0.5, {"": 0.5}
+        )
+    with pytest.raises(ValueError):
+        _ = ConsensusResult(
+            "claim", 0.5, 0.5, 1, ConsensusState.EMERGING, 0.5, 0.5, 0.5, {"u": nan}
+        )
+    with pytest.raises(ValueError):
+        _ = ConsensusResult(
+            "claim",
+            0.5,
+            0.5,
+            1,
+            ConsensusState.EMERGING,
+            0.5,
+            0.5,
+            0.5,
+            cast(dict[str, float], cast(object, [])),
+        )
+
+
 def test_single_source_cannot_agree_with_itself() -> None:
     result = evaluate(source(quality_score=1, evidence_score=1, user_id="u", vote=1))
     assert result.term_agreement == result.fact_agreement == 0

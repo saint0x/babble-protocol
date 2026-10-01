@@ -124,6 +124,28 @@ class ConsensusResult:
     fact_agreement: float
     user_contributions: dict[str, float] = field(default_factory=dict)
 
+    def __post_init__(self) -> None:
+        _ = _text_size(self.content_id, "content_id", MAX_ID_BYTES, nonblank=True)
+        for name, value in (
+            ("consensus_score", self.consensus_score),
+            ("reliability_score", self.reliability_score),
+            ("temporal_weight", self.temporal_weight),
+            ("term_agreement", self.term_agreement),
+            ("fact_agreement", self.fact_agreement),
+        ):
+            object.__setattr__(self, name, _number(value, name, unit=True))
+        if type(self.validation_count) is not int or not 0 <= self.validation_count <= MAX_SOURCES:
+            raise ValueError(f"validation_count must be an integer in [0, {MAX_SOURCES}]")
+        if type(self.state) is not ConsensusState:
+            raise ValueError("state must be a ConsensusState")
+        if type(self.user_contributions) is not dict:
+            raise ValueError("user_contributions must be a dict")
+        contributions: dict[str, float] = {}
+        for user_id, contribution in self.user_contributions.items():
+            _ = _text_size(user_id, "user_contributions user_id", MAX_ID_BYTES, nonblank=True)
+            contributions[user_id] = _number(contribution, "user_contributions score", unit=True)
+        object.__setattr__(self, "user_contributions", contributions)
+
 
 @dataclass(frozen=True, slots=True)
 class _SourceFeatures:
