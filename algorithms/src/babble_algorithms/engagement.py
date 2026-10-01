@@ -1,12 +1,41 @@
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, get_args
 
 from babble_algorithms.types import clamp_score
 
 InteractionType = Literal["view", "expand", "react", "reply", "share", "save", "surface_open"]
+MAX_SAFE_INTEGER = 9007199254740991
+
+
+def _finite_number(
+    value: object,
+    name: str,
+    *,
+    minimum: float = -math.inf,
+    maximum: float = math.inf,
+) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{name} must be a finite real number")
+    try:
+        number = float(value)
+    except OverflowError as error:
+        raise ValueError(f"{name} must be a finite real number") from error
+    if not math.isfinite(number) or not minimum <= number <= maximum:
+        raise ValueError(f"{name} must be a finite real number")
+    return number
+
+
+def _nonempty_string(value: object, name: str) -> None:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{name} must be a nonempty string")
+    try:
+        _ = value.encode("utf-8", errors="strict")
+    except UnicodeError:
+        raise ValueError(f"{name} must contain Unicode scalar values") from None
 
 
 @dataclass(frozen=True, slots=True)
@@ -17,6 +46,20 @@ class EngagementEvent:
     session_duration_seconds: float
     scroll_depth: float
     interaction: InteractionType = "view"
+
+    def __post_init__(self) -> None:
+        _nonempty_string(self.user_id, "engagement user_id")
+        _nonempty_string(self.content_id, "engagement content_id")
+        _ = _finite_number(self.timestamp, "engagement timestamp")
+        _ = _finite_number(
+            self.session_duration_seconds,
+            "engagement session_duration_seconds",
+            minimum=0,
+            maximum=MAX_SAFE_INTEGER,
+        )
+        _ = _finite_number(self.scroll_depth, "engagement scroll_depth", minimum=0, maximum=1)
+        if self.interaction not in get_args(InteractionType):
+            raise ValueError("engagement interaction must be a supported literal")
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,6 +83,12 @@ class EngagementSummary:
     content_performance: dict[str, ContentPerformance]
 
 
+@dataclass(frozen=True, slots=True)
+class _ScoredEvent:
+    event: EngagementEvent
+    score: float
+
+
 class EngagementAnalyzer:
     def summarize(
         self,
@@ -48,52 +97,60 @@ class EngagementAnalyzer:
         reference_time: float,
         window_seconds: float,
     ) -> EngagementSummary:
+        reference_time = _finite_number(reference_time, "reference_time")
+        window_seconds = _finite_number(window_seconds, "window_seconds", minimum=0)
         if window_seconds <= 0.0:
             raise ValueError("window_seconds must be positive")
         start = reference_time - window_seconds
-        scoped = tuple(event for event in events if start <= event.timestamp <= reference_time)
+        scoped = tuple(
+            _ScoredEvent(event, _event_score(event))
+            for event in events
+            if start <= event.timestamp <= reference_time
+        )
         if not scoped:
             return EngagementSummary(0, 0.0, 0.0, (), {}, {}, {})
 
         return EngagementSummary(
             total_sessions=len(scoped),
-            avg_session_duration_seconds=sum(event.session_duration_seconds for event in scoped)
+            avg_session_duration_seconds=sum(
+                item.event.session_duration_seconds for item in scoped
+            )
             / len(scoped),
-            avg_scroll_depth=sum(event.scroll_depth for event in scoped) / len(scoped),
+            avg_scroll_depth=sum(item.event.scroll_depth for item in scoped) / len(scoped),
             peak_hours=self._peak_hours(scoped),
             trend=self._trend(scoped, start, window_seconds),
             user_segments=self._segments(scoped),
             content_performance=self._content_performance(scoped),
         )
 
-    def _peak_hours(self, events: tuple[EngagementEvent, ...]) -> tuple[int, ...]:
+    def _peak_hours(self, events: tuple[_ScoredEvent, ...]) -> tuple[int, ...]:
         counts: dict[int, int] = defaultdict(int)
-        for event in events:
-            hour = int((event.timestamp % 86_400) // 3_600)
+        for item in events:
+            hour = int((item.event.timestamp % 86_400) // 3_600)
             counts[hour] += 1
         average = sum(counts.values()) / max(1, len(counts))
         return tuple(sorted(hour for hour, count in counts.items() if count > average))
 
     def _trend(
         self,
-        events: tuple[EngagementEvent, ...],
+        events: tuple[_ScoredEvent, ...],
         start: float,
         window_seconds: float,
     ) -> dict[str, float]:
         period = window_seconds / 6.0
         buckets: dict[str, list[float]] = {f"period_{index + 1}": [] for index in range(6)}
-        for event in events:
-            index = min(5, max(0, int((event.timestamp - start) / period)))
-            buckets[f"period_{index + 1}"].append(_event_score(event))
+        for item in events:
+            index = min(5, max(0, int((item.event.timestamp - start) / period)))
+            buckets[f"period_{index + 1}"].append(item.score)
         return {
             name: (sum(values) / len(values) if values else 0.0)
             for name, values in buckets.items()
         }
 
-    def _segments(self, events: tuple[EngagementEvent, ...]) -> dict[str, int]:
+    def _segments(self, events: tuple[_ScoredEvent, ...]) -> dict[str, int]:
         by_user: dict[str, list[float]] = defaultdict(list)
-        for event in events:
-            by_user[event.user_id].append(_event_score(event))
+        for item in events:
+            by_user[item.event.user_id].append(item.score)
 
         segments = {"highly_engaged": 0, "moderately_engaged": 0, "low_engagement": 0}
         for scores in by_user.values():
@@ -107,26 +164,26 @@ class EngagementAnalyzer:
         return segments
 
     def _content_performance(
-        self, events: tuple[EngagementEvent, ...]
+        self, events: tuple[_ScoredEvent, ...]
     ) -> dict[str, ContentPerformance]:
-        by_content: dict[str, list[EngagementEvent]] = defaultdict(list)
-        for event in events:
-            by_content[event.content_id].append(event)
+        by_content: dict[str, list[_ScoredEvent]] = defaultdict(list)
+        for item in events:
+            by_content[item.event.content_id].append(item)
 
         result: dict[str, ContentPerformance] = {}
         for content_id, values in by_content.items():
             sessions = len(values)
-            interaction_count = sum(1 for event in values if event.interaction != "view")
+            interaction_count = sum(1 for item in values if item.event.interaction != "view")
             result[content_id] = ContentPerformance(
                 content_id=content_id,
                 sessions=sessions,
                 avg_session_duration_seconds=sum(
-                    event.session_duration_seconds for event in values
+                    item.event.session_duration_seconds for item in values
                 )
                 / sessions,
-                avg_scroll_depth=sum(event.scroll_depth for event in values) / sessions,
+                avg_scroll_depth=sum(item.event.scroll_depth for item in values) / sessions,
                 interaction_rate=interaction_count / sessions,
-                engagement_score=sum(_event_score(event) for event in values) / sessions,
+                engagement_score=sum(item.score for item in values) / sessions,
             )
         return result
 

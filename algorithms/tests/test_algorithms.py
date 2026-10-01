@@ -1,3 +1,7 @@
+from typing import cast
+
+import pytest
+
 from babble_algorithms import (
     CandidateEngine,
     CommunityModerator,
@@ -21,6 +25,7 @@ from babble_algorithms import (
     UserProfile,
 )
 from babble_algorithms.discovery import DiscoveryRequest
+from babble_algorithms.engagement import InteractionType
 from babble_algorithms.lens import BuiltInLens, LensWeight
 from babble_algorithms.types import (
     Candidate,
@@ -209,6 +214,27 @@ def test_engagement_analyzer_summarizes_segments_and_content_performance() -> No
     assert summary.content_performance["obj:a"].engagement_score > summary.content_performance[
         "obj:b"
     ].engagement_score
+
+
+def test_engagement_analyzer_validates_domain_inputs() -> None:
+    with pytest.raises(ValueError, match="user_id"):
+        _ = EngagementEvent("", "obj", 0.0, 0.0, 0.0)
+    with pytest.raises(ValueError, match="content_id"):
+        _ = EngagementEvent("user", "", 0.0, 0.0, 0.0)
+    with pytest.raises(ValueError, match="timestamp"):
+        _ = EngagementEvent("user", "obj", True, 0.0, 0.0)
+    with pytest.raises(ValueError, match="session_duration_seconds"):
+        _ = EngagementEvent("user", "obj", 0.0, -1.0, 0.0)
+    with pytest.raises(ValueError, match="scroll_depth"):
+        _ = EngagementEvent("user", "obj", 0.0, 0.0, 1.1)
+    with pytest.raises(ValueError, match="interaction"):
+        _ = EngagementEvent(
+            "user", "obj", 0.0, 0.0, 0.0, cast(InteractionType, cast(object, "unknown"))
+        )
+    with pytest.raises(ValueError, match="reference_time"):
+        _ = EngagementAnalyzer().summarize((), reference_time=True, window_seconds=1.0)
+    with pytest.raises(ValueError, match="window_seconds"):
+        _ = EngagementAnalyzer().summarize((), reference_time=1.0, window_seconds=float("nan"))
 
 
 def test_consensus_establishes_and_can_revoke_previous_consensus() -> None:
