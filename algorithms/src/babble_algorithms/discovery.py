@@ -23,6 +23,30 @@ class DiscoveryRequest:
     object_signals: dict[ObjectId, ObjectSignals] = field(default_factory=dict)
     exploration_slots: int = 2
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "followed", _object_ids(self.followed, "followed"))
+        object.__setattr__(self, "anchors", _object_ids(self.anchors, "anchors"))
+        object.__setattr__(
+            self,
+            "supporting_evidence",
+            _object_ids(self.supporting_evidence, "supporting_evidence"),
+        )
+        object.__setattr__(
+            self,
+            "contradicting_evidence",
+            _object_ids(self.contradicting_evidence, "contradicting_evidence"),
+        )
+        object.__setattr__(
+            self,
+            "semantic_neighbors",
+            _object_ids(self.semantic_neighbors, "semantic_neighbors"),
+        )
+        object.__setattr__(self, "emerging", _object_ids(self.emerging, "emerging"))
+        object.__setattr__(self, "object_signals", _object_signals(self.object_signals))
+        object.__setattr__(
+            self, "exploration_slots", _nonnegative_int(self.exploration_slots, "exploration_slots")
+        )
+
 
 class CandidateEngine:
     def candidates(self, request: DiscoveryRequest) -> tuple[Candidate, ...]:
@@ -93,26 +117,7 @@ class CandidateEngine:
 def _validate_request(request: DiscoveryRequest) -> DiscoveryRequest:
     if type(request) is not DiscoveryRequest:
         raise ValueError("discovery request must be DiscoveryRequest")
-    exploration_slots = _nonnegative_int(request.exploration_slots, "exploration_slots")
-    if type(request.object_signals) is not dict:
-        raise ValueError("object_signals must be a dict")
-    object_signals: dict[ObjectId, ObjectSignals] = {}
-    for object_id, signals in cast(dict[object, object], request.object_signals).items():
-        if type(signals) is not ObjectSignals:
-            raise ValueError("object_signals values must be ObjectSignals")
-        object_signals[_object_id(object_id)] = signals.normalized()
-    return DiscoveryRequest(
-        followed=_object_ids(request.followed, "followed"),
-        anchors=_object_ids(request.anchors, "anchors"),
-        supporting_evidence=_object_ids(request.supporting_evidence, "supporting_evidence"),
-        contradicting_evidence=_object_ids(
-            request.contradicting_evidence, "contradicting_evidence"
-        ),
-        semantic_neighbors=_object_ids(request.semantic_neighbors, "semantic_neighbors"),
-        emerging=_object_ids(request.emerging, "emerging"),
-        object_signals=object_signals,
-        exploration_slots=exploration_slots,
-    )
+    return request
 
 
 def _object_ids(values: object, label: str) -> tuple[ObjectId, ...]:
@@ -125,6 +130,17 @@ def _object_id(value: object, label: str = "object_id") -> ObjectId:
     if not isinstance(value, str) or not value.strip() or any(ch.isspace() for ch in value):
         raise ValueError(f"{label} must be a non-empty object id without whitespace")
     return ObjectId(value)
+
+
+def _object_signals(value: object) -> dict[ObjectId, ObjectSignals]:
+    if type(value) is not dict:
+        raise ValueError("object_signals must be a dict")
+    object_signals: dict[ObjectId, ObjectSignals] = {}
+    for object_id, signals in cast(dict[object, object], value).items():
+        if type(signals) is not ObjectSignals:
+            raise ValueError("object_signals values must be ObjectSignals")
+        object_signals[_object_id(object_id)] = signals.normalized()
+    return object_signals
 
 
 def _nonnegative_int(value: object, label: str) -> int:

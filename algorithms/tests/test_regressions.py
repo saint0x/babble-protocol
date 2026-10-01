@@ -589,6 +589,11 @@ def test_tokenizer_preserves_unicode_words() -> None:
 
 
 def test_candidate_engine_rejects_invalid_supplied_ids_and_slots() -> None:
+    signals = DiscoveryRequest(
+        object_signals={ObjectId("id"): ObjectSignals(relevance=2.0)}, exploration_slots=1
+    )
+    assert signals.object_signals[ObjectId("id")].relevance == 1.0
+
     with pytest.raises(ValueError, match="DiscoveryRequest"):
         _ = CandidateEngine().candidates(cast(DiscoveryRequest, object()))
     with pytest.raises(ValueError, match="followed"):
