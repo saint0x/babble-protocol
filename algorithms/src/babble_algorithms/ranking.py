@@ -8,15 +8,166 @@ from babble_algorithms.ranking_types import (
     BuiltInLens,
     Candidate,
     CandidateTrace,
+    DiversityPolicy,
+    EvidenceSignals,
     LensContribution,
+    LensStack,
     LensWeight,
     RankedCandidate,
     RankingRequest,
     RankingResult,
     RankingTrace,
     Reason,
+    Signals,
+    SourceFloor,
 )
-from babble_algorithms.types import CandidateSource
+from babble_algorithms.types import CandidateSource, CandidateSourceContribution, ReputationSignals
+
+_ALLOWED_SOURCES: tuple[CandidateSource, ...] = (
+    "Following",
+    "SocialGraph",
+    "SemanticNeighborhood",
+    "Temporal",
+    "Emerging",
+    "Evidence",
+    "Contradiction",
+    "Exploration",
+)
+
+
+def _unit_signal(value: object, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        raise ValueError(f"{label} must be a finite unit score")
+    result = float(value)
+    if not math.isfinite(result) or not 0.0 <= result <= 1.0:
+        raise ValueError(f"{label} must be a finite unit score")
+    return result
+
+
+def _nonnegative_signal(value: object, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        raise ValueError(f"{label} must be finite and non-negative")
+    result = float(value)
+    if not math.isfinite(result) or result < 0.0:
+        raise ValueError(f"{label} must be finite and non-negative")
+    return result
+
+
+def _exact_count(value: object, label: str, maximum: int = 200) -> int:
+    if type(value) is not int or not 0 <= value <= maximum:
+        raise ValueError(f"{label} must be a bounded integer")
+    return value
+
+
+def _validate_source(value: object, label: str) -> CandidateSource:
+    if value not in _ALLOWED_SOURCES:
+        raise ValueError(f"{label} must be a supported source")
+    return value
+
+
+def _validate_sources(candidate: Candidate) -> None:
+    if type(candidate.sources) is not tuple or not candidate.sources:
+        raise ValueError("candidate sources must be a nonempty tuple")
+    names: set[CandidateSource] = set()
+    for contribution in candidate.sources:
+        if type(contribution) is not CandidateSourceContribution:
+            raise ValueError("candidate source contributions must be typed")
+        source = _validate_source(contribution.source, "candidate source")
+        if source in names:
+            raise ValueError("candidate source contributions must be unique")
+        names.add(source)
+        _ = _unit_signal(contribution.weight, "candidate source weight")
+    if candidate.source not in names:
+        raise ValueError("candidate sources must include the primary source")
+
+
+def _validate_reputation(value: object) -> ReputationSignals:
+    if not isinstance(value, ReputationSignals):
+        raise ValueError("ranking reputation signals must be typed")
+    for label, signal in (
+        ("reputation epistemic_accuracy", value.epistemic_accuracy),
+        ("reputation evidence_quality", value.evidence_quality),
+        ("reputation social_constructiveness", value.social_constructiveness),
+        ("reputation creative_contribution", value.creative_contribution),
+        ("reputation moderation", value.moderation),
+        ("reputation domain_expertise", value.domain_expertise),
+    ):
+        _ = _unit_signal(signal, label)
+    return value
+
+
+def _validate_evidence(value: object) -> EvidenceSignals:
+    if not isinstance(value, EvidenceSignals):
+        raise ValueError("ranking evidence signals must be typed")
+    for label, signal in (
+        ("evidence human_support", value.human_support),
+        ("evidence judgment_support", value.judgment_support),
+        ("evidence human_contradiction", value.human_contradiction),
+        ("evidence judgment_contradiction", value.judgment_contradiction),
+    ):
+        _ = _nonnegative_signal(signal, label)
+    return value
+
+
+def _validate_signals(value: object) -> Signals:
+    if not isinstance(value, Signals):
+        raise ValueError("ranking signals must be typed")
+    if type(value.followed_author) is not bool:
+        raise ValueError("followed_author must be a boolean")
+    for label, signal in (
+        ("social_distance", value.social_distance),
+        ("relevance", value.relevance),
+        ("novelty", value.novelty),
+        ("evidence_quality", value.evidence_quality),
+        ("contradiction", value.contradiction),
+        ("temporal", value.temporal),
+        ("exploration", value.exploration),
+    ):
+        _ = _unit_signal(signal, label)
+    _ = _validate_evidence(value.evidence)
+    _ = _validate_reputation(value.reputation)
+    return value
+
+
+def _validate_candidate(candidate: object) -> Candidate:
+    if not isinstance(candidate, Candidate):
+        raise ValueError("ranking candidates must be typed")
+    if type(candidate.object_id) is not str or not candidate.object_id:
+        raise ValueError("ranking candidate object_id must be a nonempty string")
+    _ = _validate_source(candidate.source, "candidate primary source")
+    _validate_sources(candidate)
+    _ = timestamp_nanos(candidate.created_at)
+    _ = _validate_signals(candidate.signals)
+    return candidate
+
+
+def _validate_request(request: object) -> tuple[Candidate, ...]:
+    if not isinstance(request, RankingRequest):
+        raise ValueError("ranking request must be typed")
+    if type(request.candidates) is not tuple:
+        raise ValueError("ranking candidates must be a tuple")
+    if type(request.lens) is not LensStack:
+        raise ValueError("ranking lens stack must be typed")
+    if type(request.lens.id) is not str or not request.lens.id:
+        raise ValueError("ranking lens stack ID must be a nonempty string")
+    if type(request.lens.weights) is not tuple:
+        raise ValueError("ranking lens weights must be a tuple")
+    for weight in request.lens.weights:
+        if type(weight) is not LensWeight or type(weight.lens) is not BuiltInLens:
+            raise ValueError("ranking lens weights must be typed")
+        _ = _weight_value(weight.weight)
+    if type(request.diversity) is not DiversityPolicy:
+        raise ValueError("ranking diversity policy must be typed")
+    _ = _unit_signal(request.diversity.max_source_share, "diversity max_source_share")
+    if type(request.diversity.source_floors) is not tuple:
+        raise ValueError("diversity source floors must be a tuple")
+    for floor in request.diversity.source_floors:
+        if type(floor) is not SourceFloor:
+            raise ValueError("diversity source floors must be typed")
+        _ = _validate_source(floor.source, "diversity source floor")
+        _ = _exact_count(floor.minimum, "diversity source floor")
+    _ = _exact_count(request.limit, "ranking limit")
+    return tuple(_validate_candidate(candidate) for candidate in request.candidates)
 
 
 def normalized_weights(weights: tuple[LensWeight, ...]) -> tuple[LensWeight, ...]:
@@ -137,14 +288,12 @@ def sequential_sum(values: tuple[float, ...]) -> float:
 
 
 def rank(request: RankingRequest) -> RankingResult:
+    candidates = _validate_request(request)
     weights = normalized_weights(request.lens.weights)
     ranked: list[RankedCandidate] = []
     contributions: dict[str, tuple[LensContribution, ...]] = {}
-    times = {
-        candidate.object_id: timestamp_nanos(candidate.created_at)
-        for candidate in request.candidates
-    }
-    for candidate in request.candidates:
+    times = {candidate.object_id: timestamp_nanos(candidate.created_at) for candidate in candidates}
+    for candidate in candidates:
         reasons: list[Reason] = []
         lenses: list[LensContribution] = []
         score = 0.0

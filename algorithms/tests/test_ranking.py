@@ -197,6 +197,56 @@ def test_domain_ranking_rejects_bool_lens_weights() -> None:
         _ = rank(req)
 
 
+def test_domain_ranking_rejects_invalid_direct_signals() -> None:
+    base = candidate()
+    invalid = (
+        replace(base, signals=replace(base.signals, relevance=cast(float, cast(object, True)))),
+        replace(base, signals=replace(base.signals, novelty=math.nan)),
+        replace(
+            base,
+            signals=replace(
+                base.signals,
+                evidence=EvidenceSignals(math.inf, 0.0, 0.0, 0.0),
+            ),
+        ),
+        replace(
+            base,
+            signals=replace(
+                base.signals,
+                reputation=ReputationSignals(0.0, 0.0, math.nan, 0.0, 0.0, 0.0),
+            ),
+        ),
+    )
+    for item in invalid:
+        with pytest.raises(ValueError):
+            _ = rank(replace(request(1), candidates=(item,)))
+
+
+def test_domain_ranking_rejects_invalid_direct_policy_and_sources() -> None:
+    base = candidate()
+    invalid = (
+        replace(request(1), limit=cast(int, cast(object, True))),
+        replace(request(1), diversity=DiversityPolicy(math.nan, ())),
+        replace(request(1), diversity=DiversityPolicy(1.0, (SourceFloor("Evidence", -1),))),
+        replace(
+            request(1),
+            candidates=(
+                replace(
+                    base,
+                    sources=(
+                        CandidateSourceContribution(
+                            "Following", cast(float, cast(object, True))
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+    for req in invalid:
+        with pytest.raises(ValueError):
+            _ = rank(req)
+
+
 def test_nanosecond_and_equivalent_offset_ties_sort_ids_ascending() -> None:
     base = candidate()
     objects = (
