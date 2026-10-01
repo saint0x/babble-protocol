@@ -8,7 +8,7 @@ import pytest
 from babble_algorithms.agreement_wire import parse_source_agreement
 from babble_algorithms.consensus import ConsensusAnalyzer
 from babble_algorithms.execution import AlgorithmExecutor
-from babble_algorithms.wire import DEFINITIONS, Json, object_value
+from babble_algorithms.wire import DEFINITIONS, Json, json_value, object_value
 from babble_algorithms.worker import encode, handle
 
 from .test_worker import error, exchange, frame, health, judge, output, result
@@ -43,10 +43,10 @@ def test_real_worker_agreement_matches_pure_analyzer(count: int) -> None:
     assert len(DEFINITIONS) == 7
     actual = output(responses[1])
     parsed = parse_source_agreement(value)
-    expected = asdict(ConsensusAnalyzer().evaluate(
+    expected = object_value(json_value(asdict(ConsensusAnalyzer().evaluate(
         "obj_test", parsed.sources, reference_time=parsed.reference_time,
         previous_score=parsed.previous_score,
-    ))
+    ))))
     for key, expected_value in expected.items():
         assert actual[key] == expected_value
     assert actual["reference_time"] == 200.0

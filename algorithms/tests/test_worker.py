@@ -340,7 +340,7 @@ def test_bad_json_is_sanitized_and_next_frame_recovers(raw: bytes) -> None:
     error(responses[0])
     assert responses[0]["id"] is None
     assert responses[1]["id"] == 3
-    result(responses[1])
+    _ = result(responses[1])
 
 
 @pytest.mark.parametrize(
@@ -426,14 +426,14 @@ def test_depth_limit_counts_containers_and_ignores_braces_in_strings() -> None:
     valid = judge("spam", context={"nested": nested})
     invalid = judge("spam", context={"nested": [nested]})
     responses = exchange(frame(valid) + frame(invalid))
-    output(responses[0])
+    _ = output(responses[0])
     error(responses[1])
 
 
 def test_line_limit_includes_newline() -> None:
     base = frame(health()).rstrip(b"\n")
     exact = base + b" " * (MAX_LINE_BYTES - len(base) - 1) + b"\n"
-    result(exchange(exact)[0])
+    _ = result(exchange(exact)[0])
     responses = exchange(exact[:-1] + b" \n" + frame(health(3)))
     assert len(responses) == 1
     error(responses[0])
@@ -469,11 +469,11 @@ def test_seeded_invalid_byte_frames_recover_without_crashing() -> None:
     assert len(responses) == 101
     for response in responses[:-1]:
         error(response)
-    result(responses[-1])
+    _ = result(responses[-1])
 
 
 def test_maximum_dotted_moderation_text_has_bounded_runtime() -> None:
-    output(exchange(frame(judge("moderation", "a." * (MAX_TEXT_BYTES // 2))))[0])
+    _ = output(exchange(frame(judge("moderation", "a." * (MAX_TEXT_BYTES // 2))))[0])
 
 
 def test_moderation_email_marker_survives_punctuation() -> None:
@@ -485,7 +485,7 @@ def test_moderation_email_marker_survives_punctuation() -> None:
 @pytest.mark.parametrize("value", [-1, True, float("nan"), float("inf"), MAX_ID + 1])
 def test_domain_context_rejects_invalid_account_age(value: float) -> None:
     with pytest.raises(ValueError):
-        ModerationContext(account_age_days=value)
+        _ = ModerationContext(account_age_days=value)
 
 
 def test_response_is_flushed_before_stdin_closes() -> None:
@@ -497,18 +497,18 @@ def test_response_is_flushed_before_stdin_closes() -> None:
     ) as process:
         try:
             assert process.stdin is not None and process.stdout is not None
-            process.stdin.write(frame(health()))
+            _ = process.stdin.write(frame(health()))
             process.stdin.flush()
             readable, _, _ = select.select([process.stdout], [], [], 5)
             assert readable
-            response = cast(dict[str, Json], json.loads(process.stdout.readline()))
-            result(response)
+            response = object_value(cast(Json, json.loads(cast(bytes, process.stdout.readline()))))
+            _ = result(response)
             process.stdin.close()
             assert process.wait(timeout=5) == 0
         finally:
             if process.poll() is None:
                 process.kill()
-                process.wait(timeout=5)
+                _ = process.wait(timeout=5)
 
 
 def test_algorithm_failure_is_sanitized(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -564,10 +564,10 @@ def test_judgment_response_node_budget(monkeypatch: pytest.MonkeyPatch, nodes: i
 @pytest.mark.parametrize("value", [-1, True, 0.5, MAX_ID + 1])
 def test_domain_context_rejects_invalid_counts(value: int) -> None:
     with pytest.raises(ValueError):
-        ModerationContext(reports=value)
+        _ = ModerationContext(reports=value)
 
 
 @pytest.mark.parametrize("value", [-1, True, float("nan"), float("inf"), 1.1])
 def test_domain_policy_rejects_invalid_thresholds(value: float) -> None:
     with pytest.raises(ValueError):
-        ModerationPolicy(spam_limit=value)
+        _ = ModerationPolicy(spam_limit=value)

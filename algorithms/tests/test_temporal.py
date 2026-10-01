@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 from dataclasses import asdict, replace
 from pathlib import Path
-from typing import cast
+from typing import cast, override
 
 import pytest
 
@@ -288,9 +288,9 @@ def test_maximum_safe_counts_and_zero_counts() -> None:
 @pytest.mark.parametrize("invalid", [True, -1, 1.0, MAX_ID + 1])
 def test_domain_engagement_rejects_invalid_counts(invalid: int) -> None:
     with pytest.raises(ValueError):
-        EngagementWindow(total_views=invalid)
+        _ = EngagementWindow(total_views=invalid)
     with pytest.raises(ValueError):
-        EngagementWindow(recent_interactions=1)
+        _ = EngagementWindow(recent_interactions=1)
 
 
 @pytest.mark.parametrize("invalid", [True, float("nan"), float("inf"), -math.inf, 10**400])
@@ -298,39 +298,39 @@ def test_domain_public_methods_reject_nonfinite_or_bool(invalid: float) -> None:
     scorer = TemporalScorer()
     domain = TemporalInput("test", 0)
     with pytest.raises(ValueError):
-        replace(domain, published_at=invalid)
+        _ = replace(domain, published_at=invalid)
     with pytest.raises(ValueError):
-        replace(domain, quality_score=invalid)
+        _ = replace(domain, quality_score=invalid)
     with pytest.raises(ValueError):
-        scorer.score(domain, reference_time=invalid)
+        _ = scorer.score(domain, reference_time=invalid)
     with pytest.raises(ValueError):
-        scorer.score_at_age(domain, age_hours=invalid)
+        _ = scorer.score_at_age(domain, age_hours=invalid)
     with pytest.raises(ValueError):
-        scorer.recency(invalid, ContentTimeClass.NEWS)
+        _ = scorer.recency(invalid, ContentTimeClass.NEWS)
     with pytest.raises(ValueError):
-        scorer.engagement_velocity(EngagementWindow(), invalid)
+        _ = scorer.engagement_velocity(EngagementWindow(), invalid)
     for field in ("quality_score", "engagement_velocity", "time_sensitivity"):
         values = dict.fromkeys(("quality_score", "engagement_velocity", "time_sensitivity"), 0.5)
         values[field] = invalid
         with pytest.raises(ValueError):
-            scorer.decay_rate(**values)
+            _ = scorer.decay_rate(**values)
 
 
 def test_domain_rejects_negative_age_bad_tags_and_timestamp_overflow() -> None:
     scorer = TemporalScorer()
     domain = TemporalInput("test", -1e308)
     with pytest.raises(ValueError):
-        scorer.score(domain, reference_time=1e308)
+        _ = scorer.score(domain, reference_time=1e308)
     with pytest.raises(ValueError):
-        scorer.recency(-1, ContentTimeClass.NEWS)
+        _ = scorer.recency(-1, ContentTimeClass.NEWS)
     with pytest.raises(ValueError):
-        scorer.engagement_velocity(EngagementWindow(), -1)
+        _ = scorer.engagement_velocity(EngagementWindow(), -1)
     with pytest.raises(ValueError):
-        replace(domain, tags=("x" * 65,))
+        _ = replace(domain, tags=("x" * 65,))
     with pytest.raises(ValueError):
-        scorer.time_sensitivity(ContentTimeClass.NEWS, ("\ud800",))
+        _ = scorer.time_sensitivity(ContentTimeClass.NEWS, ("\ud800",))
     with pytest.raises(ValueError):
-        scorer.time_sensitivity(cast(ContentTimeClass, cast(object, "unknown")), ())
+        _ = scorer.time_sensitivity(cast(ContentTimeClass, cast(object, "unknown")), ())
     assert scorer.score(TemporalInput("future", 2), reference_time=1).age_hours == 0
 
 
@@ -339,15 +339,15 @@ def test_domain_rejects_outside_unit_interval(invalid: float) -> None:
     scorer = TemporalScorer()
     domain = TemporalInput("test", 0)
     with pytest.raises(ValueError):
-        replace(domain, quality_score=invalid)
+        _ = replace(domain, quality_score=invalid)
     for field in ("quality_score", "engagement_velocity", "time_sensitivity"):
         values = dict.fromkeys(("quality_score", "engagement_velocity", "time_sensitivity"), 0.5)
         values[field] = invalid
         with pytest.raises(ValueError):
-            scorer.decay_rate(**values)
+            _ = scorer.decay_rate(**values)
     score = scorer.score(domain, reference_time=0)
     with pytest.raises(ValueError):
-        replace(score, survival_score=invalid)
+        _ = replace(score, survival_score=invalid)
 
 
 def test_mixed_worker_stream_and_failure_privacy() -> None:
@@ -355,6 +355,7 @@ def test_mixed_worker_stream_and_failure_privacy() -> None:
     assert all(response["error"] is None for response in responses)
 
     class BrokenExecutor(AlgorithmExecutor):
+        @override
         def temporal(self, request: TemporalRequest) -> TemporalResult:
             raise RuntimeError("PRIVATE_SECRET")
 

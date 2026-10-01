@@ -8,6 +8,7 @@ import subprocess
 import sys
 from dataclasses import asdict, replace
 from pathlib import Path
+from typing import cast
 
 import pytest
 
@@ -418,11 +419,11 @@ def test_persistent_worker_flushes_rank_before_eof_with_deadline() -> None:
         try:
             assert process.stdin is not None and process.stdout is not None
             for identity in range(1, 4):
-                process.stdin.write(frame(envelope(payload(request()), identity)))
+                _ = process.stdin.write(frame(envelope(payload(request()), identity)))
                 process.stdin.flush()
                 ready, _, _ = select.select([process.stdout], [], [], 5)
                 assert ready, "ranking worker missed response deadline"
-                response = object_value(decode(process.stdout.readline()))
+                response = object_value(decode(cast(bytes, process.stdout.readline())))
                 assert response["id"] == identity and response["error"] is None
             process.stdin.close()
             assert process.wait(timeout=5) == 0

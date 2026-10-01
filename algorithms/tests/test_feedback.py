@@ -49,13 +49,13 @@ def test_empty_neutral_and_disabled_feedback_preserve_normalized_weights() -> No
 @pytest.mark.parametrize("value", [-0.01, 1.01, math.nan, math.inf, -math.inf])
 def test_feedback_rejects_invalid_ratings(value: float) -> None:
     with pytest.raises(ValueError, match="feedback ratings"):
-        RecommendationFeedback(relevance=value)
+        _ = RecommendationFeedback(relevance=value)
 
 
 @pytest.mark.parametrize("value", [-0.01, 1.01, math.nan, math.inf, -math.inf])
 def test_feedback_rejects_invalid_learning_rates(value: float) -> None:
     with pytest.raises(ValueError, match="learning_rate"):
-        RecommendationWeights().with_feedback((), learning_rate=value)
+        _ = RecommendationWeights().with_feedback((), learning_rate=value)
 
 
 def test_repeated_extreme_feedback_keeps_weights_bounded_and_normalized() -> None:

@@ -39,9 +39,9 @@ def evaluate(*sources: ConsensusSource, previous_score: float | None = None) -> 
 def test_ids_reject_invalid_domain_values(field: str, value: object) -> None:
     with pytest.raises(ValueError, match=field):
         if field == "content_id":
-            ConsensusAnalyzer().evaluate(cast(str, value), (), reference_time=100.0)
+            _ = ConsensusAnalyzer().evaluate(cast(str, value), (), reference_time=100.0)
         else:
-            source(**{field: value})
+            _ = source(**{field: value})
 
 
 @pytest.mark.parametrize("value", ["plain-library-id", "x" * MAX_ID_BYTES, "\u00e9" * 256])
@@ -57,18 +57,20 @@ def test_ids_accept_opaque_strings_through_utf8_byte_limit(value: str) -> None:
 def test_id_limit_counts_utf8_bytes(field: str) -> None:
     with pytest.raises(ValueError, match=field):
         if field == "content_id":
-            ConsensusAnalyzer().evaluate("\u00e9" * 257, (), reference_time=100.0)
+            _ = ConsensusAnalyzer().evaluate("\u00e9" * 257, (), reference_time=100.0)
         else:
-            source(**{field: "\u00e9" * 257})
+            _ = source(**{field: "\u00e9" * 257})
 
 
 @pytest.mark.parametrize("field", ["source_id", "content_id"])
 def test_required_ids_reject_null(field: str) -> None:
     with pytest.raises(ValueError, match=field):
         if field == "content_id":
-            ConsensusAnalyzer().evaluate(cast(str, cast(object, None)), (), reference_time=100.0)
+            _ = ConsensusAnalyzer().evaluate(
+                cast(str, cast(object, None)), (), reference_time=100.0
+            )
         else:
-            source(**{field: None})
+            _ = source(**{field: None})
 
 
 @pytest.mark.parametrize(
@@ -90,13 +92,13 @@ def test_source_kind_literals_are_supported(kind: SourceKind) -> None:
 @pytest.mark.parametrize("kind", ["unknown", "Official_docs", "", None, 1, True, [], {}])
 def test_source_kind_rejects_unknown_values_even_for_context(kind: object) -> None:
     with pytest.raises(ValueError, match="kind"):
-        source(kind=kind, is_context=True)
+        _ = source(kind=kind, is_context=True)
 
 
 @pytest.mark.parametrize("value", [0, 1, "true", None])
 def test_context_flag_is_boolean(value: object) -> None:
     with pytest.raises(ValueError, match="is_context"):
-        source(is_context=value)
+        _ = source(is_context=value)
 
 
 @pytest.mark.parametrize("field", ["quality_score", "evidence_score", "vote", "previous_score"])
@@ -104,15 +106,15 @@ def test_context_flag_is_boolean(value: object) -> None:
 def test_unit_scores_reject_invalid_values(field: str, value: object) -> None:
     with pytest.raises(ValueError, match=field):
         if field == "previous_score":
-            evaluate(previous_score=cast(float, value))
+            _ = evaluate(previous_score=cast(float, value))
         else:
-            source(**{field: value})
+            _ = source(**{field: value})
 
 
 @pytest.mark.parametrize("field", ["quality_score", "evidence_score"])
 def test_required_scores_reject_null(field: str) -> None:
     with pytest.raises(ValueError, match=field):
-        source(**{field: None})
+        _ = source(**{field: None})
 
 
 @pytest.mark.parametrize("value", [0, 0.0, 1, 1.0])
@@ -144,9 +146,9 @@ def test_unit_score_endpoints_are_inclusive(value: float) -> None:
 def test_timestamps_reject_invalid_values(field: str, value: object) -> None:
     with pytest.raises(ValueError, match=field):
         if field == "reference_time":
-            ConsensusAnalyzer().evaluate("claim", (), reference_time=cast(float, value))
+            _ = ConsensusAnalyzer().evaluate("claim", (), reference_time=cast(float, value))
         else:
-            source(timestamp=value)
+            _ = source(timestamp=value)
 
 
 @pytest.mark.parametrize("timestamp", [MIN_TIMESTAMP, -1, 0, nextafter(MAX_TIMESTAMP, -inf)])
@@ -162,13 +164,13 @@ def test_future_source_is_rejected_even_if_another_source_is_old(
     others: tuple[ConsensusSource, ...],
 ) -> None:
     with pytest.raises(ValueError, match="after reference_time"):
-        evaluate(*others, source("future", timestamp=nextafter(100.0, inf)))
+        _ = evaluate(*others, source("future", timestamp=nextafter(100.0, inf)))
 
 
 @pytest.mark.parametrize("value", [None, [], {}, "", (None,), ({},)])
 def test_sources_reject_null_and_wrong_container_or_item_types(value: object) -> None:
     with pytest.raises(ValueError, match="sources"):
-        ConsensusAnalyzer().evaluate(
+        _ = ConsensusAnalyzer().evaluate(
             "claim", cast(tuple[ConsensusSource, ...], value), reference_time=100.0
         )
 
@@ -177,15 +179,15 @@ def test_source_count_boundary_and_duplicate_ids() -> None:
     sources = tuple(source(str(index), text="") for index in range(MAX_SOURCES))
     assert evaluate(*sources).validation_count == MAX_SOURCES
     with pytest.raises(ValueError, match="at most 200"):
-        evaluate(*sources, source("overflow"))
+        _ = evaluate(*sources, source("overflow"))
     with pytest.raises(ValueError, match="unique"):
-        evaluate(source("duplicate"), source("duplicate", text="Different source text."))
+        _ = evaluate(source("duplicate"), source("duplicate", text="Different source text."))
 
 
 @pytest.mark.parametrize("value", [None, 123, b"text", "\ud800"])
 def test_text_rejects_non_strings_and_invalid_utf8(value: object) -> None:
     with pytest.raises(ValueError, match="text"):
-        source(text=value)
+        _ = source(text=value)
 
 
 @pytest.mark.parametrize("character", ["x", "\u00e9", "\U0001f600"])
@@ -193,7 +195,7 @@ def test_per_source_text_limit_is_utf8_bytes(character: str) -> None:
     text = character * (MAX_SOURCE_TEXT_BYTES // len(character.encode("utf-8")))
     assert evaluate(source(text=text)).validation_count == 1
     with pytest.raises(ValueError, match="text"):
-        source(text=text + "x")
+        _ = source(text=text + "x")
 
 
 def test_total_text_limit_includes_each_source_and_counts_utf8() -> None:
@@ -202,7 +204,7 @@ def test_total_text_limit_includes_each_source_and_counts_utf8() -> None:
     assert sum(len(item.text.encode("utf-8")) for item in sources) == MAX_TOTAL_TEXT_BYTES
     assert evaluate(*sources, source("empty", text="")).validation_count == 9
     with pytest.raises(ValueError, match="total source text"):
-        evaluate(*sources, source("extra", text="x"))
+        _ = evaluate(*sources, source("extra", text="x"))
 
 
 @pytest.mark.parametrize("text", ["", " \t\n", "...!!!", "the and of", "It is.", "Has is are."])

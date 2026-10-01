@@ -24,7 +24,7 @@ def test_nonfinite_scores_never_become_positive_evidence(value: float) -> None:
 @pytest.mark.parametrize("value", [-1.0, math.nan, math.inf, -math.inf])
 def test_recommendation_rejects_invalid_weights(value: float) -> None:
     with pytest.raises(ValueError, match="finite and non-negative"):
-        RecommendationEngine(RecommendationWeights(relevance=value))
+        _ = RecommendationEngine(RecommendationWeights(relevance=value))
 
 
 def test_recommendation_weight_normalization_does_not_overflow() -> None:
@@ -90,7 +90,7 @@ def test_empty_sources_revoke_previously_established_consensus() -> None:
 def test_duplicate_source_ids_cannot_inflate_validation_count() -> None:
     source = ConsensusSource("same", "official_docs", "The system has evidence.", 100.0)
     with pytest.raises(ValueError, match="unique"):
-        ConsensusAnalyzer().evaluate("claim", (source, source), reference_time=100.0)
+        _ = ConsensusAnalyzer().evaluate("claim", (source, source), reference_time=100.0)
 
 
 def test_lens_normalizes_individual_signals_before_combining() -> None:

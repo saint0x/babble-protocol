@@ -15,8 +15,8 @@ def main() -> int:
         timeout=120,
     )
     if result.returncode:
-        sys.stdout.buffer.write(result.stdout)
-        sys.stderr.buffer.write(result.stderr)
+        _ = sys.stdout.buffer.write(result.stdout)
+        _ = sys.stderr.buffer.write(result.stderr)
         return result.returncode
     print("worker subprocess checks passed")
     return 0
