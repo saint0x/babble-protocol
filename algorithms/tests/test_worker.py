@@ -12,12 +12,13 @@ from typing import cast
 import pytest
 
 from babble_algorithms import worker as worker_module
+from babble_algorithms.agreement_wire import SourceAgreementInput
 from babble_algorithms.content import ContentAnalyzer
 from babble_algorithms.execution import PROVIDER, AlgorithmExecutor
 from babble_algorithms.judgment import LocalJudgmentProvider
 from babble_algorithms.moderation import CommunityModerator, ModerationContext, ModerationPolicy
-from babble_algorithms.ranking_types import RANKING_PROVIDER
-from babble_algorithms.temporal_types import TEMPORAL_PROVIDER
+from babble_algorithms.ranking_types import RANKING_PROVIDER, RankingRequest
+from babble_algorithms.temporal_types import TEMPORAL_PROVIDER, TemporalRequest
 from babble_algorithms.wire import (
     DEFINITIONS,
     MAX_ID,
@@ -25,7 +26,16 @@ from babble_algorithms.wire import (
     MAX_LINE_BYTES,
     MAX_TEXT_BYTES,
     PROTOCOL,
+    Definition,
+    HealthRequest,
     Json,
+    JudgeRequest,
+    JudgmentRequest,
+    JudgmentState,
+    Parameters,
+    RankRequest,
+    Relation,
+    TemporalWorkerRequest,
     decode,
     json_value,
     object_value,
@@ -106,6 +116,45 @@ def error(response: dict[str, Json], code: str = "invalid_request") -> None:
     assert set(value) == {"code", "message"}
     assert value["code"] == code
     assert response["result"] is None
+
+
+def test_worker_wire_dtos_reject_invalid_direct_values() -> None:
+    state = JudgmentState("obj_test", {"text": "hello"}, "hello")
+    request = JudgmentRequest("babble.judgment.spam.v1", state, Parameters())
+    assert JudgeRequest(1, request).request == request
+
+    with pytest.raises(ValueError, match="positive safe integer"):
+        _ = HealthRequest(cast(int, cast(object, True)))
+    with pytest.raises(ValueError, match="positive safe integer"):
+        _ = HealthRequest(0)
+    with pytest.raises(ValueError, match="query"):
+        _ = Parameters(query=cast(str, cast(object, False)))
+    with pytest.raises(ValueError, match="relationship relation"):
+        _ = Parameters(relation=cast(Relation, cast(object, "near")))
+    with pytest.raises(ValueError, match="moderation context"):
+        _ = Parameters(context=cast(ModerationContext, object()))
+    with pytest.raises(ValueError, match="subject"):
+        _ = JudgmentState(" ", {}, "text")
+    with pytest.raises(ValueError, match="judgment context"):
+        _ = JudgmentState("obj", cast(dict[str, Json], cast(object, [])), "text")
+    with pytest.raises(ValueError, match="text"):
+        _ = JudgmentState("obj", {}, "")
+    with pytest.raises(ValueError, match="source_agreement"):
+        _ = JudgmentState("obj", {}, "text", source_agreement=cast(SourceAgreementInput, object()))
+    with pytest.raises(ValueError, match="unsupported Judgment definition"):
+        _ = JudgmentRequest(
+            cast(Definition, cast(object, "babble.judgment.unknown.v1")), state, Parameters()
+        )
+    with pytest.raises(ValueError, match="judgment state"):
+        _ = JudgmentRequest("babble.judgment.spam.v1", cast(JudgmentState, object()), Parameters())
+    with pytest.raises(ValueError, match="judgment parameters"):
+        _ = JudgmentRequest("babble.judgment.spam.v1", state, cast(Parameters, object()))
+    with pytest.raises(ValueError, match="judge request"):
+        _ = JudgeRequest(1, cast(JudgmentRequest, object()))
+    with pytest.raises(ValueError, match="rank request"):
+        _ = RankRequest(1, cast(RankingRequest, object()))
+    with pytest.raises(ValueError, match="temporal request"):
+        _ = TemporalWorkerRequest(1, cast(TemporalRequest, object()))
 
 
 def test_health_and_all_definitions_are_real() -> None:

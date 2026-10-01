@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Literal, TypeAlias
+from typing import TYPE_CHECKING, Literal, TypeAlias, cast
 
 from babble_algorithms.boundary import (
     MAX_ARRAY_ITEMS,
@@ -72,8 +72,11 @@ __all__ = (
 
 Definition: TypeAlias = (
     JudgmentDefinition
-    | Literal["babble.judgment.content_analysis.v1", "babble.judgment.moderation.v1",
-              "babble.judgment.source_agreement.v1"]
+    | Literal[
+        "babble.judgment.content_analysis.v1",
+        "babble.judgment.moderation.v1",
+        "babble.judgment.source_agreement.v1",
+    ]
 )
 Relation: TypeAlias = Literal["supports", "contradicts", "related"]
 ErrorCode: TypeAlias = Literal["invalid_request", "unsupported_definition", "algorithm_failure"]
@@ -99,6 +102,14 @@ class Parameters:
     context: ModerationContext = field(default_factory=ModerationContext)
     policy: ModerationPolicy = field(default_factory=ModerationPolicy)
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "query", _bounded_text(self.query, "query"))
+        object.__setattr__(self, "relation", _relation(self.relation))
+        if type(self.context) is not ModerationContext:
+            raise ValueError("moderation context must be ModerationContext")
+        if type(self.policy) is not ModerationPolicy:
+            raise ValueError("moderation policy must be ModerationPolicy")
+
 
 @dataclass(frozen=True, slots=True)
 class JudgmentState:
@@ -109,6 +120,26 @@ class JudgmentState:
     target_text: str | None = None
     source_agreement: SourceAgreementInput | None = None
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "subject", _bounded_text(self.subject, "subject", nonblank=True))
+        if type(self.context) is not dict:
+            raise ValueError("judgment context must be a dict")
+        validate_tree(cast(Json, self.context), MAX_NODES)
+        object.__setattr__(self, "text", _bounded_text(self.text, "text", nonblank=True))
+        if self.source_text is not None:
+            object.__setattr__(
+                self, "source_text", _bounded_text(self.source_text, "source_text", nonblank=True)
+            )
+        if self.target_text is not None:
+            object.__setattr__(
+                self, "target_text", _bounded_text(self.target_text, "target_text", nonblank=True)
+            )
+        if self.source_agreement is not None:
+            from babble_algorithms.agreement_wire import SourceAgreementInput
+
+            if type(self.source_agreement) is not SourceAgreementInput:
+                raise ValueError("source_agreement must be SourceAgreementInput")
+
 
 @dataclass(frozen=True, slots=True)
 class JudgmentRequest:
@@ -116,10 +147,20 @@ class JudgmentRequest:
     state: JudgmentState
     parameters: Parameters
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "definition", _definition(self.definition))
+        if type(self.state) is not JudgmentState:
+            raise ValueError("judgment state must be JudgmentState")
+        if type(self.parameters) is not Parameters:
+            raise ValueError("judgment parameters must be Parameters")
+
 
 @dataclass(frozen=True, slots=True)
 class HealthRequest:
     id: int
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "id", _request_identity(self.id))
 
 
 @dataclass(frozen=True, slots=True)
@@ -127,17 +168,61 @@ class JudgeRequest:
     id: int
     request: JudgmentRequest
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "id", _request_identity(self.id))
+        if type(self.request) is not JudgmentRequest:
+            raise ValueError("judge request must be JudgmentRequest")
+
 
 @dataclass(frozen=True, slots=True)
 class RankRequest:
     id: int
     request: RankingRequest
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "id", _request_identity(self.id))
+        from babble_algorithms.ranking_types import RankingRequest
+
+        if type(self.request) is not RankingRequest:
+            raise ValueError("rank request must be RankingRequest")
+
 
 @dataclass(frozen=True, slots=True)
 class TemporalWorkerRequest:
     id: int
     request: TemporalRequest
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "id", _request_identity(self.id))
+        from babble_algorithms.temporal_types import TemporalRequest
+
+        if type(self.request) is not TemporalRequest:
+            raise ValueError("temporal request must be TemporalRequest")
+
+
+def _request_identity(value: object) -> int:
+    if type(value) is not int or not 1 <= value <= MAX_ID:
+        raise ValueError("request id must be a positive safe integer")
+    return value
+
+
+def _bounded_text(value: object, label: str, *, nonblank: bool = False) -> str:
+    try:
+        return string(cast(Json, value), nonblank=nonblank)
+    except InvalidRequest as error:
+        raise ValueError(f"{label} must be bounded text") from error
+
+
+def _definition(value: object) -> Definition:
+    if value not in DEFINITIONS:
+        raise ValueError("unsupported Judgment definition")
+    return value
+
+
+def _relation(value: object) -> Relation:
+    if value not in ("supports", "contradicts", "related"):
+        raise ValueError("unsupported relationship relation")
+    return value
 
 
 def decode(line: bytes) -> Json:
