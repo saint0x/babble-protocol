@@ -12,7 +12,10 @@ from babble_algorithms.content import (
 )
 from babble_algorithms.discovery import CandidateEngine, DiscoveryRequest
 from babble_algorithms.diversity import (
+    DiversifiedCandidate,
     DiversityPolicy,
+    DiversityReason,
+    DiversityTrace,
     FeedDiversifier,
     FeedObjectContext,
     SourceFloor,
@@ -325,8 +328,18 @@ def test_lens_normalizes_individual_signals_before_combining() -> None:
 
 def test_lens_weight_normalization_does_not_overflow() -> None:
     candidate = Candidate(ObjectId("object"), "Following")
-    huge = LensStack((LensWeight(BuiltInLens.RESEARCH, 1e308),) * 2)
-    ordinary = LensStack((LensWeight(BuiltInLens.RESEARCH, 1.0),) * 2)
+    huge = LensStack(
+        (
+            LensWeight(BuiltInLens.RESEARCH, 1e308),
+            LensWeight(BuiltInLens.WEIRD, 1e308),
+        )
+    )
+    ordinary = LensStack(
+        (
+            LensWeight(BuiltInLens.RESEARCH, 1.0),
+            LensWeight(BuiltInLens.WEIRD, 1.0),
+        )
+    )
     assert huge.rank((candidate,)) == ordinary.rank((candidate,))
 
 
@@ -336,6 +349,29 @@ def test_lens_weights_reject_bool_domain_values() -> None:
         _ = LensStack((LensWeight(BuiltInLens.RESEARCH, cast(float, cast(object, True))),)).rank(
             (candidate,)
         )
+
+
+def test_lens_direct_boundaries_reject_ambiguous_values() -> None:
+    candidate = Candidate(ObjectId("object"), "Following")
+    with pytest.raises(ValueError, match="built-in lens"):
+        _ = LensWeight(cast(BuiltInLens, cast(object, "research")), 1.0)
+    with pytest.raises(ValueError, match="lens weights"):
+        _ = LensStack(
+            cast(tuple[LensWeight, ...], cast(object, [LensWeight(BuiltInLens.RESEARCH, 1.0)]))
+        )
+    with pytest.raises(ValueError, match="duplicate lens"):
+        _ = LensStack(
+            (
+                LensWeight(BuiltInLens.RESEARCH, 0.7),
+                LensWeight(BuiltInLens.RESEARCH, 0.3),
+            )
+        )
+    with pytest.raises(ValueError, match="candidates"):
+        _ = LensStack.following().rank(cast(tuple[Candidate, ...], cast(object, [candidate])))
+    with pytest.raises(ValueError, match="Candidate"):
+        _ = LensStack.following().rank((cast(Candidate, object()),))
+    with pytest.raises(ValueError, match="duplicate candidate"):
+        _ = LensStack.following().rank((candidate, candidate))
 
 
 def test_content_analyzer_rejects_invalid_domain_inputs() -> None:
@@ -531,20 +567,55 @@ def test_candidate_engine_rejects_invalid_supplied_ids_and_slots() -> None:
 
 def test_feed_diversifier_rejects_ambiguous_domains() -> None:
     ranked = ranked_candidate("obj:one", 0.9, "Following")
+    context = FeedObjectContext(ObjectId("obj:one"), "creator", ("Topic", "topic"), 0)
+    assert context.topics == ("topic",)
+
     with pytest.raises(ValueError, match="ranked score"):
         _ = FeedDiversifier().diversify(
             (RankedCandidate(ranked.candidate, cast(float, cast(object, True)), ()),), ()
         )
+    with pytest.raises(ValueError, match="ranked candidates"):
+        _ = FeedDiversifier().diversify(
+            cast(tuple[RankedCandidate, ...], cast(object, [ranked])), ()
+        )
+    with pytest.raises(ValueError, match="duplicate ranked candidate"):
+        _ = FeedDiversifier().diversify((ranked, ranked), ())
+    with pytest.raises(ValueError, match="contexts"):
+        _ = FeedDiversifier().diversify(
+            (ranked,), cast(tuple[FeedObjectContext, ...], cast(object, [context]))
+        )
+    with pytest.raises(ValueError, match="duplicate context"):
+        _ = FeedDiversifier().diversify((ranked,), (context, context))
     with pytest.raises(ValueError, match="limit"):
         _ = FeedDiversifier().diversify((ranked,), (), limit=cast(int, cast(object, True)))
     with pytest.raises(ValueError, match="creator_id"):
-        _ = FeedDiversifier().diversify((ranked,), (FeedObjectContext(ObjectId("obj:one"), "  "),))
-    with pytest.raises(ValueError, match="unknown candidate source"):
-        _ = FeedDiversifier(
-            DiversityPolicy(
-                source_floors=(SourceFloor(cast(CandidateSource, cast(object, "Unknown")), 1),)
-            )
+        _ = FeedObjectContext(ObjectId("obj:one"), "  ")
+    with pytest.raises(ValueError, match="topics"):
+        _ = FeedObjectContext(
+            ObjectId("obj:one"), "creator", cast(tuple[str, ...], cast(object, ["topic"]))
         )
+    with pytest.raises(ValueError, match="seen_count"):
+        _ = FeedObjectContext(ObjectId("obj:one"), "creator", (), -1)
+    with pytest.raises(ValueError, match="unknown candidate source"):
+        _ = SourceFloor(cast(CandidateSource, cast(object, "Unknown")), 1)
+    with pytest.raises(ValueError, match="source floor minimum"):
+        _ = SourceFloor("Following", -1)
+    with pytest.raises(ValueError, match="source_floors"):
+        _ = DiversityPolicy(
+            source_floors=cast(tuple[SourceFloor, ...], cast(object, [SourceFloor("Following", 1)]))
+        )
+    with pytest.raises(ValueError, match="diversity reason signal"):
+        _ = DiversityReason("", 0.0)
+    with pytest.raises(ValueError, match="diversity reason contribution"):
+        _ = DiversityReason("source_floor", math.nan)
+    with pytest.raises(ValueError, match="ranked"):
+        _ = DiversifiedCandidate(cast(RankedCandidate, object()), 0.5, ())
+    with pytest.raises(ValueError, match="diversity reasons"):
+        _ = DiversifiedCandidate(ranked, 0.5, cast(tuple[DiversityReason, ...], cast(object, [])))
+    with pytest.raises(ValueError, match="diversified candidates"):
+        _ = DiversityTrace(cast(tuple[DiversifiedCandidate, ...], cast(object, [])), ())
+    with pytest.raises(ValueError, match="filtered"):
+        _ = DiversityTrace((), cast(tuple[ObjectId, ...], cast(object, [ObjectId("obj:two")])))
 
 
 def ranked_candidate(

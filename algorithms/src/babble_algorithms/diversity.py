@@ -10,6 +10,7 @@ from __future__ import annotations
 import math
 from collections import Counter
 from dataclasses import dataclass, field
+from typing import cast
 
 from babble_algorithms.types import (
     Candidate,
@@ -17,6 +18,19 @@ from babble_algorithms.types import (
     ObjectId,
     RankedCandidate,
     clamp_score,
+)
+
+_ALLOWED_SOURCES: frozenset[CandidateSource] = frozenset(
+    {
+        "Following",
+        "SocialGraph",
+        "SemanticNeighborhood",
+        "Temporal",
+        "Emerging",
+        "Evidence",
+        "Contradiction",
+        "Exploration",
+    }
 )
 
 
@@ -27,11 +41,29 @@ class FeedObjectContext:
     topics: tuple[str, ...] = ()
     seen_count: int = 0
 
+    def __post_init__(self) -> None:
+        object_id, creator_id, topics, seen_count = _context_values(
+            self.object_id, self.creator_id, self.topics, self.seen_count
+        )
+        object.__setattr__(self, "object_id", object_id)
+        object.__setattr__(self, "creator_id", creator_id)
+        object.__setattr__(self, "topics", topics)
+        object.__setattr__(self, "seen_count", seen_count)
+
 
 @dataclass(frozen=True, slots=True)
 class SourceFloor:
     source: CandidateSource
     minimum: int
+
+    def __post_init__(self) -> None:
+        if self.source not in _ALLOWED_SOURCES:
+            raise ValueError(f"unknown candidate source: {self.source!r}")
+        minimum = cast(object, self.minimum)
+        if isinstance(minimum, bool) or not isinstance(minimum, int) or minimum < 0:
+            raise ValueError("source floor minimum must be a non-negative integer")
+        object.__setattr__(self, "source", self.source)
+        object.__setattr__(self, "minimum", minimum)
 
 
 @dataclass(frozen=True, slots=True)
@@ -43,6 +75,20 @@ class DiversityPolicy:
         SourceFloor("Exploration", 1),
         SourceFloor("Contradiction", 1),
     )
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self, "max_creator_share", _unit_score(self.max_creator_share, "max_creator_share")
+        )
+        object.__setattr__(
+            self, "max_topic_share", _unit_score(self.max_topic_share, "max_topic_share")
+        )
+        object.__setattr__(
+            self,
+            "saturation_strength",
+            _unit_score(self.saturation_strength, "saturation_strength"),
+        )
+        object.__setattr__(self, "source_floors", _source_floors(self.source_floors))
 
     def normalized(self) -> DiversityPolicy:
         return DiversityPolicy(
@@ -58,6 +104,14 @@ class DiversityReason:
     signal: str
     contribution: float
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "signal", _label(self.signal, "diversity reason signal"))
+        object.__setattr__(
+            self,
+            "contribution",
+            _finite_number(self.contribution, "diversity reason contribution"),
+        )
+
 
 @dataclass(frozen=True, slots=True)
 class DiversifiedCandidate:
@@ -66,11 +120,23 @@ class DiversifiedCandidate:
     reasons: tuple[DiversityReason, ...]
     context: FeedObjectContext | None = None
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "ranked", _ranked_value(self.ranked, "ranked"))
+        object.__setattr__(
+            self, "adjusted_score", _unit_score(self.adjusted_score, "adjusted_score")
+        )
+        object.__setattr__(self, "reasons", _diversity_reasons(self.reasons))
+        object.__setattr__(self, "context", _optional_context(self.context))
+
 
 @dataclass(frozen=True, slots=True)
 class DiversityTrace:
     ranked: tuple[DiversifiedCandidate, ...]
     filtered: tuple[ObjectId, ...]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "ranked", _diversified_candidates(self.ranked))
+        object.__setattr__(self, "filtered", _object_ids(self.filtered, "filtered"))
 
 
 class FeedDiversifier:
@@ -90,6 +156,7 @@ class FeedDiversifier:
         *,
         limit: int | None = None,
     ) -> DiversityTrace:
+        ranked = _ranked_candidates(ranked)
         target = (
             len(ranked) if limit is None else min(_nonnegative_int(limit, "limit"), len(ranked))
         )
@@ -210,23 +277,64 @@ class _DiversityState:
 def _contexts_by_object(
     contexts: tuple[FeedObjectContext, ...],
 ) -> dict[ObjectId, FeedObjectContext]:
+    if type(contexts) is not tuple:
+        raise ValueError("contexts must be a tuple")
     by_object: dict[ObjectId, FeedObjectContext] = {}
-    for context in contexts:
-        normalized = _context(context)
-        by_object[normalized.object_id] = normalized
+    for context in cast(tuple[object, ...], contexts):
+        if not isinstance(context, FeedObjectContext):
+            raise ValueError("contexts must contain FeedObjectContext values")
+        if context.object_id in by_object:
+            raise ValueError(f"duplicate context object_id: {context.object_id}")
+        by_object[context.object_id] = context
     return by_object
 
 
-def _context(context: FeedObjectContext) -> FeedObjectContext:
-    return FeedObjectContext(
-        object_id=_object_id(context.object_id),
-        creator_id=_label(context.creator_id, "creator_id"),
-        topics=tuple(dict.fromkeys(_topic(topic) for topic in context.topics)),
-        seen_count=_nonnegative_int(context.seen_count, "seen_count"),
+def _context_values(
+    object_id: object,
+    creator_id: object,
+    topics: object,
+    seen_count: object,
+) -> tuple[ObjectId, str, tuple[str, ...], int]:
+    return (
+        _object_id(object_id),
+        _label(creator_id, "creator_id"),
+        tuple(dict.fromkeys(_topic(topic) for topic in _topics(topics))),
+        _nonnegative_int(seen_count, "seen_count"),
     )
 
 
-def _ranked_candidate(ranked: RankedCandidate) -> RankedCandidate:
+def _ranked_value(value: object, label: str) -> RankedCandidate:
+    if not isinstance(value, RankedCandidate):
+        raise ValueError(f"{label} must be RankedCandidate")
+    if not isinstance(cast(object, value.candidate), Candidate):
+        raise ValueError(f"{label} must contain Candidate")
+    return value
+
+
+def _optional_context(value: object) -> FeedObjectContext | None:
+    if value is None or isinstance(value, FeedObjectContext):
+        return value
+    raise ValueError("context must be FeedObjectContext")
+
+
+def _ranked_candidates(ranked: object) -> tuple[RankedCandidate, ...]:
+    if type(ranked) is not tuple:
+        raise ValueError("ranked candidates must be a tuple")
+    normalized: list[RankedCandidate] = []
+    seen: set[ObjectId] = set()
+    for candidate in cast(tuple[object, ...], ranked):
+        ranked_candidate = _ranked_value(candidate, "ranked candidate")
+        if ranked_candidate.candidate.object_id in seen:
+            raise ValueError(
+                f"duplicate ranked candidate object_id: {ranked_candidate.candidate.object_id}"
+            )
+        seen.add(ranked_candidate.candidate.object_id)
+        normalized.append(ranked_candidate)
+    return tuple(normalized)
+
+
+def _ranked_candidate(ranked: object) -> RankedCandidate:
+    ranked = _ranked_value(ranked, "ranked candidate")
     score = _unit_score(ranked.score, "ranked score")
     candidate = ranked.candidate.normalized()
     source = _source(candidate.source)
@@ -242,6 +350,20 @@ def _ranked_candidate(ranked: RankedCandidate) -> RankedCandidate:
     )
 
 
+def _source_floors(floors: object) -> tuple[SourceFloor, ...]:
+    if type(floors) is not tuple:
+        raise ValueError("source_floors must be a tuple")
+    normalized: dict[CandidateSource, SourceFloor] = {}
+    for floor in cast(tuple[object, ...], floors):
+        if not isinstance(floor, SourceFloor):
+            raise ValueError("source_floors must contain SourceFloor values")
+        normalized_floor = _source_floor(floor)
+        current = normalized.get(normalized_floor.source)
+        if current is None or normalized_floor.minimum > current.minimum:
+            normalized[normalized_floor.source] = normalized_floor
+    return tuple(normalized.values())
+
+
 def _source_floor(floor: SourceFloor) -> SourceFloor:
     source = _source(floor.source)
     minimum = _nonnegative_int(floor.minimum, "source floor minimum")
@@ -249,21 +371,62 @@ def _source_floor(floor: SourceFloor) -> SourceFloor:
 
 
 def _source(source: CandidateSource) -> CandidateSource:
-    allowed: frozenset[CandidateSource] = frozenset(
-        {
-            "Following",
-            "SocialGraph",
-            "SemanticNeighborhood",
-            "Temporal",
-            "Emerging",
-            "Evidence",
-            "Contradiction",
-            "Exploration",
-        }
-    )
-    if source not in allowed:
+    if source not in _ALLOWED_SOURCES:
         raise ValueError(f"unknown candidate source: {source!r}")
     return source
+
+
+def _diversity_reasons(reasons: object) -> tuple[DiversityReason, ...]:
+    if type(reasons) is not tuple:
+        raise ValueError("diversity reasons must be a tuple")
+    normalized: list[DiversityReason] = []
+    for reason in cast(tuple[object, ...], reasons):
+        if not isinstance(reason, DiversityReason):
+            raise ValueError("diversity reasons must contain DiversityReason values")
+        normalized.append(reason)
+    return tuple(normalized)
+
+
+def _diversified_candidates(candidates: object) -> tuple[DiversifiedCandidate, ...]:
+    if type(candidates) is not tuple:
+        raise ValueError("diversified candidates must be a tuple")
+    normalized: list[DiversifiedCandidate] = []
+    seen: set[ObjectId] = set()
+    for candidate in cast(tuple[object, ...], candidates):
+        if not isinstance(candidate, DiversifiedCandidate):
+            raise ValueError("diversified candidates must contain DiversifiedCandidate values")
+        object_id = candidate.ranked.candidate.object_id
+        if object_id in seen:
+            raise ValueError(f"duplicate diversified candidate object_id: {object_id}")
+        seen.add(object_id)
+        normalized.append(candidate)
+    return tuple(normalized)
+
+
+def _object_ids(values: object, label: str) -> tuple[ObjectId, ...]:
+    if type(values) is not tuple:
+        raise ValueError(f"{label} must be a tuple")
+    normalized: list[ObjectId] = []
+    seen: set[ObjectId] = set()
+    for value in cast(tuple[object, ...], values):
+        object_id = _object_id(value)
+        if object_id in seen:
+            raise ValueError(f"duplicate {label} object_id: {object_id}")
+        seen.add(object_id)
+        normalized.append(object_id)
+    return tuple(normalized)
+
+
+def _topics(values: object) -> tuple[object, ...]:
+    if type(values) is not tuple:
+        raise ValueError("topics must be a tuple")
+    return cast(tuple[object, ...], values)
+
+
+def _finite_number(value: object, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, int | float) or not math.isfinite(value):
+        raise ValueError(f"{label} must be a finite number")
+    return float(value)
 
 
 def _unit_score(value: object, label: str) -> float:

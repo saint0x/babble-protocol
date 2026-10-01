@@ -11,10 +11,12 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import cast
 
 from babble_algorithms.types import (
     Candidate,
     LensContribution,
+    ObjectId,
     RankedCandidate,
     RankingTrace,
     clamp_score,
@@ -37,10 +39,17 @@ class LensWeight:
     lens: BuiltInLens
     weight: float
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "lens", _built_in_lens(self.lens))
+        object.__setattr__(self, "weight", _weight_value(self.weight))
+
 
 @dataclass(frozen=True, slots=True)
 class LensStack:
     weights: tuple[LensWeight, ...]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "weights", _lens_weights(self.weights))
 
     @classmethod
     def following(cls) -> LensStack:
@@ -50,7 +59,7 @@ class LensStack:
         weights = _normalize_weights(self.weights)
         ranked = tuple(
             sorted(
-                (self._rank_candidate(candidate, weights) for candidate in candidates),
+                (self._rank_candidate(candidate, weights) for candidate in _candidates(candidates)),
                 key=lambda ranked_candidate: ranked_candidate.score,
                 reverse=True,
             )
@@ -66,8 +75,44 @@ class LensStack:
         return RankedCandidate(candidate=candidate, score=score, contributions=contributions)
 
 
+def _built_in_lens(value: object) -> BuiltInLens:
+    if not isinstance(value, BuiltInLens):
+        raise ValueError("lens must be a built-in lens")
+    return value
+
+
+def _lens_weights(weights: object) -> tuple[LensWeight, ...]:
+    if type(weights) is not tuple:
+        raise ValueError("lens weights must be a tuple")
+    normalized: list[LensWeight] = []
+    seen: set[BuiltInLens] = set()
+    for weight in cast(tuple[object, ...], weights):
+        if not isinstance(weight, LensWeight):
+            raise ValueError("lens weights must contain LensWeight values")
+        if weight.lens in seen:
+            raise ValueError(f"duplicate lens weight: {weight.lens.value}")
+        seen.add(weight.lens)
+        normalized.append(weight)
+    return tuple(normalized)
+
+
+def _candidates(candidates: object) -> tuple[Candidate, ...]:
+    if type(candidates) is not tuple:
+        raise ValueError("candidates must be a tuple")
+    normalized: list[Candidate] = []
+    seen: set[ObjectId] = set()
+    for candidate in cast(tuple[object, ...], candidates):
+        if not isinstance(candidate, Candidate):
+            raise ValueError("candidates must contain Candidate values")
+        if candidate.object_id in seen:
+            raise ValueError(f"duplicate candidate object_id: {candidate.object_id}")
+        seen.add(candidate.object_id)
+        normalized.append(candidate)
+    return tuple(normalized)
+
+
 def _normalize_weights(weights: tuple[LensWeight, ...]) -> tuple[LensWeight, ...]:
-    normalized = tuple(LensWeight(weight.lens, _weight_value(weight.weight)) for weight in weights)
+    normalized = tuple(LensWeight(weight.lens, weight.weight) for weight in weights)
     valid = tuple(weight for weight in normalized if weight.weight > 0.0)
     if not valid:
         return LensStack.following().weights
