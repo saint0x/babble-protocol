@@ -4,7 +4,15 @@ import json
 from pathlib import Path
 from typing import cast
 
-from babble_algorithms import canonical_float, canonical_value_hex
+import pytest
+
+from babble_algorithms import (
+    canonical_float,
+    canonical_unsigned,
+    canonical_value_bytes,
+    canonical_value_hex,
+)
+from babble_algorithms.canonical import CanonicalValue
 from babble_algorithms.wire import Json, object_value
 
 
@@ -49,3 +57,33 @@ def test_signed_bundle_inventory_matches_rust_commitment_bytes() -> None:
     assert canonical_value_hex(sample) == fixture["bytes_hex"]
     first_file["size_bytes"] = cast(int, first_file["size_bytes"]) + 1
     assert canonical_value_hex(sample) != fixture["bytes_hex"]
+
+
+def test_canonical_wrappers_reject_ambiguous_runtime_values() -> None:
+    with pytest.raises(ValueError, match="canonical float must be numeric"):
+        _ = canonical_float(cast(object, "1.0"))
+    with pytest.raises(ValueError, match="canonical float must be numeric"):
+        _ = canonical_float(True)
+    with pytest.raises(ValueError, match="canonical unsigned integer must be an integer"):
+        _ = canonical_unsigned(True)
+    with pytest.raises(ValueError, match="canonical unsigned integer must be an integer"):
+        _ = canonical_unsigned(cast(object, 1.5))
+
+
+def test_canonical_encoder_rejects_unsupported_runtime_values() -> None:
+    with pytest.raises(ValueError, match="canonical object keys must be strings"):
+        _ = canonical_value_bytes(cast(CanonicalValue, {1: "value"}))
+    with pytest.raises(ValueError, match="unsupported canonical value: object"):
+        _ = canonical_value_bytes(cast(CanonicalValue, object()))
+    with pytest.raises(ValueError, match="unsupported canonical value: bytes"):
+        _ = canonical_value_bytes(cast(CanonicalValue, b"bytes"))
+    with pytest.raises(ValueError, match="canonical string must be valid UTF-8"):
+        _ = canonical_value_bytes("\ud800")
+
+
+def test_canonical_unsigned_encodes_u64_boundary() -> None:
+    assert canonical_value_hex(canonical_unsigned(18_446_744_073_709_551_615)).startswith(
+        "626162626c652e63616e6f6e6963616c2e76310075"
+    )
+    with pytest.raises(ValueError, match="canonical unsigned integer must fit in u64"):
+        _ = canonical_unsigned(18_446_744_073_709_551_616)

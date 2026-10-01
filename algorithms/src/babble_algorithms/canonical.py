@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import math
 import struct
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import TypeAlias
+from typing import TypeAlias, cast
 
 PREAMBLE = b"babble.canonical.v1\0"
 MAX_I64 = 9_223_372_036_854_775_807
@@ -27,16 +28,16 @@ CanonicalValue: TypeAlias = (
 )
 
 
-def canonical_float(value: float) -> CanonicalFloat:
-    if not _finite(value):
-        raise ValueError(f"canonical float must be finite: {value}")
-    return CanonicalFloat(value)
+def canonical_float(value: object) -> CanonicalFloat:
+    number = _finite_number(value, "canonical float")
+    return CanonicalFloat(number)
 
 
-def canonical_unsigned(value: int) -> CanonicalUnsigned:
-    if value < 0 or value > MAX_U64:
+def canonical_unsigned(value: object) -> CanonicalUnsigned:
+    unsigned = _unsigned_int(value, "canonical unsigned integer")
+    if unsigned > MAX_U64:
         raise ValueError(f"canonical unsigned integer must fit in u64: {value}")
-    return CanonicalUnsigned(value)
+    return CanonicalUnsigned(unsigned)
 
 
 def canonical_value_bytes(value: CanonicalValue) -> bytes:
@@ -49,7 +50,7 @@ def canonical_value_hex(value: CanonicalValue) -> str:
     return canonical_value_bytes(value).hex()
 
 
-def _encode_value(value: CanonicalValue, out: bytearray) -> None:
+def _encode_value(value: object, out: bytearray) -> None:
     if value is None:
         out.extend(b"n")
     elif isinstance(value, bool):
@@ -66,53 +67,84 @@ def _encode_value(value: CanonicalValue, out: bytearray) -> None:
     elif isinstance(value, str):
         _encode_string(value, out)
     elif isinstance(value, Mapping):
-        _encode_object(value, out)
-    else:
+        _encode_object(cast(Mapping[object, object], value), out)
+    elif isinstance(value, Sequence) and not isinstance(value, bytes | bytearray):
         out.extend(b"a")
         _encode_u64(len(value), out)
         for item in value:
             _encode_value(item, out)
+    else:
+        raise ValueError(f"unsupported canonical value: {type(value).__name__}")
 
 
-def _encode_int(value: int, out: bytearray) -> None:
-    if MIN_I64 <= value <= MAX_I64:
+def _encode_int(value: object, out: bytearray) -> None:
+    integer = _exact_int(value, "canonical integer")
+    if MIN_I64 <= integer <= MAX_I64:
         out.extend(b"i")
-        out.extend(value.to_bytes(8, "big", signed=True))
+        out.extend(integer.to_bytes(8, "big", signed=True))
         return
-    if 0 <= value <= MAX_U64:
+    if 0 <= integer <= MAX_U64:
         out.extend(b"u")
-        _encode_u64(value, out)
+        _encode_u64(integer, out)
         return
     raise ValueError(f"canonical integer must fit in i64 or u64: {value}")
 
 
-def _encode_float(value: float, out: bytearray) -> None:
-    if not _finite(value):
-        raise ValueError(f"canonical float must be finite: {value}")
+def _encode_float(value: object, out: bytearray) -> None:
+    number = _finite_number(value, "canonical float")
     out.extend(b"d")
-    out.extend(struct.pack(">d", value))
+    out.extend(struct.pack(">d", number))
 
 
-def _encode_string(value: str, out: bytearray) -> None:
-    encoded = value.encode("utf-8")
+def _encode_string(value: object, out: bytearray) -> None:
+    if not isinstance(value, str):
+        raise ValueError(f"canonical string must be str: {value}")
+    try:
+        encoded = value.encode("utf-8")
+    except UnicodeError as error:
+        raise ValueError("canonical string must be valid UTF-8") from error
     out.extend(b"s")
     _encode_u64(len(encoded), out)
     out.extend(encoded)
 
 
-def _encode_object(value: Mapping[str, CanonicalValue], out: bytearray) -> None:
+def _encode_object(value: Mapping[object, object], out: bytearray) -> None:
     out.extend(b"o")
     _encode_u64(len(value), out)
-    for key, item in sorted(value.items(), key=lambda entry: entry[0].encode("utf-8")):
+    entries: list[tuple[str, object]] = []
+    for key, item in value.items():
+        if not isinstance(key, str):
+            raise ValueError(f"canonical object keys must be strings: {key}")
+        entries.append((key, item))
+    for key, item in sorted(entries, key=lambda entry: entry[0].encode("utf-8")):
         _encode_string(key, out)
         _encode_value(item, out)
 
 
-def _encode_u64(value: int, out: bytearray) -> None:
-    if value < 0 or value > MAX_U64:
+def _encode_u64(value: object, out: bytearray) -> None:
+    unsigned = _unsigned_int(value, "canonical length/integer")
+    if unsigned > MAX_U64:
         raise ValueError(f"canonical length/integer must fit in u64: {value}")
-    out.extend(value.to_bytes(8, "big", signed=False))
+    out.extend(unsigned.to_bytes(8, "big", signed=False))
 
 
-def _finite(value: float) -> bool:
-    return value == value and value not in (float("inf"), float("-inf"))
+def _exact_int(value: object, label: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise ValueError(f"{label} must be an integer: {value}")
+    return value
+
+
+def _unsigned_int(value: object, label: str) -> int:
+    integer = _exact_int(value, label)
+    if integer < 0:
+        raise ValueError(f"{label} must be non-negative: {value}")
+    return integer
+
+
+def _finite_number(value: object, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        raise ValueError(f"{label} must be numeric: {value}")
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError(f"{label} must be finite: {value}")
+    return number
