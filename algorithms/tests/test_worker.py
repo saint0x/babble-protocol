@@ -15,7 +15,7 @@ from babble_algorithms import worker as worker_module
 from babble_algorithms.agreement_wire import SourceAgreementInput
 from babble_algorithms.content import ContentAnalyzer
 from babble_algorithms.execution import PROVIDER, AlgorithmExecutor
-from babble_algorithms.judgment import LocalJudgmentProvider
+from babble_algorithms.judgment import Judgment, JudgmentDefinition, LocalJudgmentProvider
 from babble_algorithms.moderation import CommunityModerator, ModerationContext, ModerationPolicy
 from babble_algorithms.ranking_types import RANKING_PROVIDER, RankingRequest
 from babble_algorithms.temporal_types import TEMPORAL_PROVIDER, TemporalRequest
@@ -116,6 +116,68 @@ def error(response: dict[str, Json], code: str = "invalid_request") -> None:
     assert set(value) == {"code", "message"}
     assert value["code"] == code
     assert response["result"] is None
+
+
+def test_local_judgment_rejects_invalid_direct_values() -> None:
+    valid = Judgment(
+        definition="babble.judgment.spam.v1",
+        score=1,
+        confidence=0.5,
+        label=" likely spam ",
+        reasons=(" marker found ",),
+    )
+    assert valid.score == 1.0
+    assert valid.label == "likely spam"
+    assert valid.reasons == ("marker found",)
+
+    with pytest.raises(ValueError, match="unsupported local Judgment definition"):
+        _ = Judgment(
+            definition=cast(JudgmentDefinition, cast(object, "babble.judgment.unknown.v1")),
+            score=0.5,
+            confidence=0.5,
+            label="label",
+            reasons=("reason",),
+        )
+    with pytest.raises(ValueError, match="judgment score"):
+        _ = Judgment(
+            definition="babble.judgment.spam.v1",
+            score=float("nan"),
+            confidence=0.5,
+            label="label",
+            reasons=("reason",),
+        )
+    with pytest.raises(ValueError, match="judgment confidence"):
+        _ = Judgment(
+            definition="babble.judgment.spam.v1",
+            score=0.5,
+            confidence=1.1,
+            label="label",
+            reasons=("reason",),
+        )
+    with pytest.raises(ValueError, match="judgment label"):
+        _ = Judgment(
+            definition="babble.judgment.spam.v1",
+            score=0.5,
+            confidence=0.5,
+            label=" ",
+            reasons=("reason",),
+        )
+    with pytest.raises(ValueError, match="judgment reasons"):
+        _ = Judgment(
+            definition="babble.judgment.spam.v1",
+            score=0.5,
+            confidence=0.5,
+            label="label",
+            reasons=cast(tuple[str, ...], cast(object, [])),
+        )
+    with pytest.raises(ValueError, match="judgment reason"):
+        _ = Judgment(
+            definition="babble.judgment.spam.v1",
+            score=0.5,
+            confidence=0.5,
+            label="label",
+            reasons=(" ",),
+        )
 
 
 def test_worker_wire_dtos_reject_invalid_direct_values() -> None:

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import math
 import re
 from dataclasses import dataclass
-from typing import ClassVar, Literal, Protocol
+from typing import ClassVar, Literal, Protocol, cast
 
 JudgmentDefinition = Literal[
     "babble.judgment.spam.v1",
@@ -28,6 +29,13 @@ class Judgment:
     confidence: float
     label: str
     reasons: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "definition", _definition(self.definition))
+        object.__setattr__(self, "score", _unit_score(self.score, "judgment score"))
+        object.__setattr__(self, "confidence", _unit_score(self.confidence, "judgment confidence"))
+        object.__setattr__(self, "label", _non_empty_text(self.label, "judgment label"))
+        object.__setattr__(self, "reasons", _reasons(self.reasons))
 
 
 class JudgmentProvider(Protocol):
@@ -72,6 +80,34 @@ def _text(value: object, label: str) -> str:
     if not isinstance(value, str):
         raise ValueError(f"{label} must be a string")
     return value
+
+
+def _unit_score(value: object, label: str) -> float:
+    if not isinstance(value, int | float) or isinstance(value, bool):
+        raise ValueError(f"{label} must be a finite number between 0 and 1")
+    numeric = float(value)
+    if not math.isfinite(numeric) or not 0.0 <= numeric <= 1.0:
+        raise ValueError(f"{label} must be a finite number between 0 and 1")
+    return numeric
+
+
+def _non_empty_text(value: object, label: str) -> str:
+    text = _text(value, label)
+    normalized = " ".join(text.split())
+    if not normalized:
+        raise ValueError(f"{label} must be non-empty")
+    return normalized
+
+
+def _reasons(value: object) -> tuple[str, ...]:
+    if type(value) is not tuple:
+        raise ValueError("judgment reasons must be a tuple")
+    normalized = tuple(
+        _non_empty_text(reason, "judgment reason") for reason in cast(tuple[object, ...], value)
+    )
+    if not normalized:
+        raise ValueError("judgment reasons must be non-empty")
+    return normalized
 
 
 def _normalize(text: str) -> str:
