@@ -125,6 +125,12 @@ class ConsensusResult:
     user_contributions: dict[str, float] = field(default_factory=dict)
 
 
+@dataclass(frozen=True, slots=True)
+class _SourceFeatures:
+    top_terms: set[str]
+    facts: set[str]
+
+
 class ConsensusAnalyzer:
     """Deterministic lexical consensus signals, never a truth assessment.
 
@@ -197,13 +203,14 @@ class ConsensusAnalyzer:
             )
 
         sources = tuple(sorted(sources, key=lambda source: source.source_id))
+        features = tuple(self._features(source.text) for source in sources)
         voters: dict[str, list[ConsensusSource]] = {}
         for source in sources:
             if source.user_id is not None and source.vote is not None:
                 voters.setdefault(source.user_id, []).append(source)
 
-        term_agreement = self._term_agreement(sources)
-        fact_agreement = self._fact_agreement(sources)
+        term_agreement = self._term_agreement(features)
+        fact_agreement = self._fact_agreement(features)
         reliability = self._reliability(sources)
         temporal_weight = self._temporal_weight(
             min(source.timestamp for source in sources), reference_time
@@ -241,11 +248,13 @@ class ConsensusAnalyzer:
             for source in sources
         ) / len(sources)
 
-    def _term_agreement(self, sources: tuple[ConsensusSource, ...]) -> float:
-        term_sets = [set(top_terms(source.text, limit=12)) for source in sources]
-        return _pairwise_average(term_sets)
+    def _features(self, text: str) -> _SourceFeatures:
+        return _SourceFeatures(set(top_terms(text, limit=12)), self._facts(text))
 
-    def _fact_agreement(self, sources: tuple[ConsensusSource, ...]) -> float:
+    def _term_agreement(self, features: tuple[_SourceFeatures, ...]) -> float:
+        return _pairwise_average([feature.top_terms for feature in features])
+
+    def _fact_agreement(self, features: tuple[_SourceFeatures, ...]) -> float:
         """Mean pairwise Jaccard overlap of indicator-bearing sentence vocabulary.
 
         Legacy fuzzy matching used token Jaccard with a 0.7 threshold; the prior
@@ -260,8 +269,7 @@ class ConsensusAnalyzer:
         lost: paraphrases, contradictions, entity roles and truth are NOT inferred.
         Opposite claims can therefore have high lexical overlap.
         """
-        fact_sets = [self._facts(source.text) for source in sources]
-        return _pairwise_average(fact_sets)
+        return _pairwise_average([feature.facts for feature in features])
 
     def _facts(self, text: str) -> set[str]:
         indicators = {"is", "are", "was", "were", "has", "have", "can", "will", "must", "should"}

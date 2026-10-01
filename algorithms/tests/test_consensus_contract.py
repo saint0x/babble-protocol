@@ -294,6 +294,26 @@ def test_permutations_preserve_every_result_field_and_contribution_order() -> No
         assert list(result.user_contributions.items()) == list(baseline.user_contributions.items())
 
 
+def test_consensus_extracts_lexical_features_once_per_source(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    analyzer = ConsensusAnalyzer()
+    calls = 0
+    original = analyzer._features  # pyright: ignore[reportPrivateUsage]
+
+    def counted(text: str) -> object:
+        nonlocal calls
+        calls += 1
+        return original(text)
+
+    monkeypatch.setattr(analyzer, "_features", counted)
+    sources = tuple(source(str(index), text=f"The bridge is open {index}.") for index in range(12))
+    baseline = evaluate(*sources)
+    optimized = analyzer.evaluate("claim", sources, reference_time=100.0)
+    assert optimized == baseline
+    assert calls == len(sources)
+
+
 @pytest.mark.parametrize(
     ("score", "previous", "expected"),
     [
