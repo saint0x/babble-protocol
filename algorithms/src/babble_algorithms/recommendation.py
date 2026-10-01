@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field, replace
+from typing import cast
 
 from babble_algorithms.temporal import TemporalInput, TemporalScorer
 from babble_algorithms.text import cosine, hashed_vector, tokens
@@ -33,6 +34,35 @@ def _vector(values: tuple[str, ...]) -> tuple[float, ...]:
     return hashed_vector(tokens(" ".join(values), remove_stop_words=True))
 
 
+def _text(value: object, name: str, *, nonblank: bool = False) -> str:
+    if not isinstance(value, str):
+        raise ValueError(f"{name} must be a string")
+    try:
+        _ = value.encode("utf-8", errors="strict")
+    except UnicodeError:
+        raise ValueError(f"{name} must contain Unicode scalar values") from None
+    if nonblank and not value.strip():
+        raise ValueError(f"{name} must be nonblank")
+    return value
+
+
+def _string_tuple(value: object, name: str, *, nonblank: bool = False) -> tuple[str, ...]:
+    if type(value) is not tuple:
+        raise ValueError(f"{name} must be a tuple")
+    values = cast(tuple[object, ...], value)
+    return tuple(_text(item, f"{name} entry", nonblank=nonblank) for item in values)
+
+
+def _interaction_tuple(value: object, name: str) -> tuple[Interaction, ...]:
+    if type(value) is not tuple:
+        raise ValueError(f"{name} must be a tuple")
+    values = cast(tuple[object, ...], value)
+    for item in values:
+        if type(item) is not Interaction:
+            raise ValueError(f"{name} entries must be Interaction")
+    return cast(tuple[Interaction, ...], values)
+
+
 @dataclass(frozen=True, slots=True)
 class UserProfile:
     user_id: str
@@ -40,12 +70,31 @@ class UserProfile:
     expertise: tuple[str, ...] = ()
     history: tuple[Interaction, ...] = ()
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "user_id", _text(self.user_id, "user_id", nonblank=True))
+        object.__setattr__(
+            self, "interests", _string_tuple(self.interests, "interests", nonblank=True)
+        )
+        object.__setattr__(
+            self, "expertise", _string_tuple(self.expertise, "expertise", nonblank=True)
+        )
+        object.__setattr__(self, "history", _interaction_tuple(self.history, "history"))
+
 
 @dataclass(frozen=True, slots=True)
 class Interaction:
     content_id: str
     engagement_score: float
     timestamp: float
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self, "content_id", _text(self.content_id, "interaction content_id", nonblank=True)
+        )
+        object.__setattr__(
+            self, "engagement_score", _number(self.engagement_score, "engagement_score", unit=True)
+        )
+        object.__setattr__(self, "timestamp", _number(self.timestamp, "interaction timestamp"))
 
 
 @dataclass(frozen=True, slots=True)
@@ -57,6 +106,23 @@ class ContentProfile:
     authenticity_score: float = 0.5
     temporal: TemporalInput | None = None
     signals: ObjectSignals = field(default_factory=ObjectSignals)
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "content_id", _text(self.content_id, "content_id", nonblank=True))
+        object.__setattr__(self, "text", _text(self.text, "content text"))
+        object.__setattr__(self, "topics", _string_tuple(self.topics, "topics", nonblank=True))
+        object.__setattr__(
+            self, "complexity_level", _number(self.complexity_level, "complexity_level", unit=True)
+        )
+        object.__setattr__(
+            self,
+            "authenticity_score",
+            _number(self.authenticity_score, "authenticity_score", unit=True),
+        )
+        if self.temporal is not None and type(self.temporal) is not TemporalInput:
+            raise ValueError("temporal must be TemporalInput")
+        if type(self.signals) is not ObjectSignals:
+            raise ValueError("signals must be ObjectSignals")
 
 
 @dataclass(frozen=True, slots=True)
@@ -116,6 +182,11 @@ class RecommendationWeights:
         This is bounded explicit-feedback adaptation, not a learned relevance model.
         Callers own per-user persistence and must avoid replaying an already applied batch.
         """
+        if type(feedback) is not tuple:
+            raise ValueError("feedback must be a tuple")
+        for item in feedback:
+            if type(item) is not RecommendationFeedback:
+                raise ValueError("feedback entries must be RecommendationFeedback")
         rate = _number(learning_rate, "learning_rate", unit=True)
         base = self.normalized()
 
@@ -147,6 +218,25 @@ class RecommendationScore:
     collaborative: float
     candidate: Candidate
 
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self, "content_id", _text(self.content_id, "score content_id", nonblank=True)
+        )
+        for field_name, value in (
+            ("final_score", self.final_score),
+            ("confidence", self.confidence),
+            ("relevance", self.relevance),
+            ("engagement", self.engagement),
+            ("authenticity", self.authenticity),
+            ("temporal", self.temporal),
+            ("collaborative", self.collaborative),
+        ):
+            object.__setattr__(self, field_name, _number(value, field_name, unit=True))
+        if type(self.candidate) is not Candidate:
+            raise ValueError("candidate must be Candidate")
+        if str(self.candidate.object_id) != self.content_id:
+            raise ValueError("candidate object_id must match content_id")
+
 
 @dataclass(frozen=True, slots=True)
 class _PeerFeatures:
@@ -167,6 +257,8 @@ class _RecommendationContext:
 
 class RecommendationEngine:
     def __init__(self, weights: RecommendationWeights | None = None) -> None:
+        if weights is not None and type(weights) is not RecommendationWeights:
+            raise ValueError("weights must be RecommendationWeights")
         self.weights: RecommendationWeights = (weights or RecommendationWeights()).normalized()
         self.temporal: TemporalScorer = TemporalScorer()
 
@@ -179,6 +271,20 @@ class RecommendationEngine:
         reference_time: float,
         limit: int | None = None,
     ) -> tuple[RecommendationScore, ...]:
+        if type(user) is not UserProfile:
+            raise ValueError("user must be UserProfile")
+        if type(content) is not tuple:
+            raise ValueError("content must be a tuple")
+        for item in content:
+            if type(item) is not ContentProfile:
+                raise ValueError("content entries must be ContentProfile")
+        if type(peers) is not tuple:
+            raise ValueError("peers must be a tuple")
+        for peer in peers:
+            if type(peer) is not UserProfile:
+                raise ValueError("peer entries must be UserProfile")
+        if limit is not None and (type(limit) is not int or limit < 0):
+            raise ValueError("limit must be a nonnegative integer")
         reference_time = _number(reference_time, "reference_time")
         context = self._context(user, peers, reference_time)
         ranked = tuple(
@@ -193,7 +299,7 @@ class RecommendationEngine:
         )
         if limit is None:
             return ranked
-        return ranked[: max(0, limit)]
+        return ranked[:limit]
 
     def _context(
         self, user: UserProfile, peers: tuple[UserProfile, ...], reference_time: float
@@ -339,7 +445,8 @@ def _profile_at(user: UserProfile, reference_time: float) -> UserProfile:
     return replace(
         user,
         history=tuple(
-            interaction for interaction in user.history
+            interaction
+            for interaction in user.history
             if _valid_historical_timestamp(interaction.timestamp, reference_time)
         ),
     )

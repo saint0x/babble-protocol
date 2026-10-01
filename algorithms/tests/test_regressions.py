@@ -36,6 +36,7 @@ from babble_algorithms.recommendation import (
     Interaction,
     RecommendationEngine,
     RecommendationFeedback,
+    RecommendationScore,
     RecommendationWeights,
     UserProfile,
 )
@@ -146,6 +147,81 @@ def test_future_interactions_do_not_change_historical_recommendations() -> None:
         reference_time=100.0,
     )
     assert result == baseline
+
+
+def test_recommendation_dtos_reject_invalid_direct_values() -> None:
+    candidate = Candidate(ObjectId("item"), "Exploration").normalized()
+    score = RecommendationScore("item", 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, candidate)
+    assert score.candidate == candidate
+
+    with pytest.raises(ValueError, match="user_id"):
+        _ = UserProfile("")
+    with pytest.raises(ValueError, match="interests"):
+        _ = UserProfile("user", interests=cast(tuple[str, ...], cast(object, ["protocol"])))
+    with pytest.raises(ValueError, match="history"):
+        _ = UserProfile("user", history=cast(tuple[Interaction, ...], cast(object, (object(),))))
+    with pytest.raises(ValueError, match="interaction content_id"):
+        _ = Interaction("", 0.5, 0.0)
+    with pytest.raises(ValueError, match="engagement_score"):
+        _ = Interaction("item", math.nan, 0.0)
+    with pytest.raises(ValueError, match="content_id"):
+        _ = ContentProfile("", "text")
+    with pytest.raises(ValueError, match="topics"):
+        _ = ContentProfile("item", "text", topics=("",))
+    with pytest.raises(ValueError, match="complexity_level"):
+        _ = ContentProfile("item", "text", complexity_level=cast(float, cast(object, True)))
+    with pytest.raises(ValueError, match="signals"):
+        _ = ContentProfile("item", "text", signals=cast(ObjectSignals, object()))
+    with pytest.raises(ValueError, match="candidate object_id"):
+        _ = RecommendationScore("other", 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, candidate)
+    with pytest.raises(ValueError, match="candidate"):
+        _ = RecommendationScore(
+            "item", 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, cast(Candidate, object())
+        )
+
+
+def test_recommendation_engine_rejects_invalid_collection_boundaries() -> None:
+    engine = RecommendationEngine()
+    user = UserProfile("user")
+    content = (ContentProfile("item", "text"),)
+    with pytest.raises(ValueError, match="weights"):
+        _ = RecommendationEngine(cast(RecommendationWeights, object()))
+    with pytest.raises(ValueError, match="content"):
+        _ = engine.recommend(
+            user,
+            cast(tuple[ContentProfile, ...], cast(object, [ContentProfile("item", "text")])),
+            reference_time=0.0,
+        )
+    with pytest.raises(ValueError, match="content entries"):
+        _ = engine.recommend(
+            user,
+            cast(tuple[ContentProfile, ...], cast(object, (object(),))),
+            reference_time=0.0,
+        )
+    with pytest.raises(ValueError, match="peers"):
+        _ = engine.recommend(
+            user,
+            content,
+            peers=cast(tuple[UserProfile, ...], cast(object, [UserProfile("peer")])),
+            reference_time=0.0,
+        )
+    with pytest.raises(ValueError, match="peer entries"):
+        _ = engine.recommend(
+            user,
+            content,
+            peers=cast(tuple[UserProfile, ...], cast(object, (object(),))),
+            reference_time=0.0,
+        )
+    with pytest.raises(ValueError, match="limit"):
+        _ = engine.recommend(user, content, reference_time=0.0, limit=cast(int, cast(object, True)))
+    with pytest.raises(ValueError, match="feedback"):
+        _ = RecommendationWeights().with_feedback(
+            cast(tuple[RecommendationFeedback, ...], cast(object, [RecommendationFeedback()]))
+        )
+    with pytest.raises(ValueError, match="feedback entries"):
+        _ = RecommendationWeights().with_feedback(
+            cast(tuple[RecommendationFeedback, ...], cast(object, (object(),)))
+        )
 
 
 def test_recommendation_rejects_bool_numeric_inputs() -> None:
