@@ -210,80 +210,86 @@ def source_bonus(candidate: Candidate, expected: CandidateSource, bonus: float) 
 
 
 def lens_reasons(candidate: Candidate, lens: BuiltInLens) -> tuple[Reason, ...]:
+    return tuple(
+        Reason(signal, contribution) for signal, contribution in _lens_reason_pairs(candidate, lens)
+    )
+
+
+def _lens_reason_pairs(candidate: Candidate, lens: BuiltInLens) -> tuple[tuple[str, float], ...]:
     s = candidate.signals
     r = s.reputation
     match lens:
         case BuiltInLens.FOLLOWING:
             return (
-                Reason("followed_author", 0.55 if s.followed_author else 0.0),
-                Reason("temporal", 0.30 * s.temporal),
-                Reason("reputation.social_constructiveness", 0.07 * r.social_constructiveness),
-                Reason("reputation.creative_contribution", 0.03 * r.creative_contribution),
-                Reason("relevance", 0.05 * s.relevance),
+                ("followed_author", 0.55 if s.followed_author else 0.0),
+                ("temporal", 0.30 * s.temporal),
+                ("reputation.social_constructiveness", 0.07 * r.social_constructiveness),
+                ("reputation.creative_contribution", 0.03 * r.creative_contribution),
+                ("relevance", 0.05 * s.relevance),
             )
         case BuiltInLens.FRIENDS:
             return (
-                Reason("social_distance", 0.40 * (1.0 - s.social_distance)),
-                Reason("followed_author", 0.22 if s.followed_author else 0.0),
-                Reason("temporal", 0.15 * s.temporal),
-                Reason("reputation.social_constructiveness", 0.13 * r.social_constructiveness),
-                Reason("relevance", 0.10 * s.relevance),
+                ("social_distance", 0.40 * (1.0 - s.social_distance)),
+                ("followed_author", 0.22 if s.followed_author else 0.0),
+                ("temporal", 0.15 * s.temporal),
+                ("reputation.social_constructiveness", 0.13 * r.social_constructiveness),
+                ("relevance", 0.10 * s.relevance),
             )
         case BuiltInLens.RESEARCH:
             return (
-                Reason("evidence_quality", 0.40 * s.evidence_quality),
-                Reason("relevance", 0.25 * s.relevance),
-                Reason("contradiction", 0.15 * s.contradiction),
-                Reason("reputation.evidence_quality", 0.06 * r.evidence_quality),
-                Reason("reputation.domain_expertise", 0.05 * r.domain_expertise),
-                Reason("reputation.epistemic_accuracy", 0.04 * r.epistemic_accuracy),
-                Reason("temporal", 0.05 * s.temporal),
+                ("evidence_quality", 0.40 * s.evidence_quality),
+                ("relevance", 0.25 * s.relevance),
+                ("contradiction", 0.15 * s.contradiction),
+                ("reputation.evidence_quality", 0.06 * r.evidence_quality),
+                ("reputation.domain_expertise", 0.05 * r.domain_expertise),
+                ("reputation.epistemic_accuracy", 0.04 * r.epistemic_accuracy),
+                ("temporal", 0.05 * s.temporal),
             )
         case BuiltInLens.INTELLECTUAL_SERENDIPITY:
             adjacent = max(0.0, min(1.0, 1.0 - abs(s.relevance - 0.62) / 0.62))
             return (
-                Reason("adjacent_relevance", 0.25 * adjacent),
-                Reason("novelty", 0.25 * s.novelty),
-                Reason("evidence_quality", 0.18 * s.evidence_quality),
-                Reason("exploration", 0.16 * s.exploration),
-                Reason("reputation.research", 0.10 * r.research_score()),
-                Reason("temporal", 0.06 * s.temporal),
+                ("adjacent_relevance", 0.25 * adjacent),
+                ("novelty", 0.25 * s.novelty),
+                ("evidence_quality", 0.18 * s.evidence_quality),
+                ("exploration", 0.16 * s.exploration),
+                ("reputation.research", 0.10 * r.research_score()),
+                ("temporal", 0.06 * s.temporal),
             )
         case BuiltInLens.CONTRADICTIONS:
             return (
-                Reason("contradiction", 0.42 * s.contradiction),
-                Reason("evidence.contradiction_score", 0.18 * s.evidence.contradiction_score()),
-                Reason("evidence_quality", 0.16 * s.evidence_quality),
-                Reason("relevance", 0.14 * s.relevance),
-                Reason("novelty", 0.06 * s.novelty),
-                Reason("source.contradiction", source_bonus(candidate, "Contradiction", 0.04)),
+                ("contradiction", 0.42 * s.contradiction),
+                ("evidence.contradiction_score", 0.18 * s.evidence.contradiction_score()),
+                ("evidence_quality", 0.16 * s.evidence_quality),
+                ("relevance", 0.14 * s.relevance),
+                ("novelty", 0.06 * s.novelty),
+                ("source.contradiction", source_bonus(candidate, "Contradiction", 0.04)),
             )
         case BuiltInLens.EMERGING:
             return (
-                Reason("temporal", 0.28 * s.temporal),
-                Reason("novelty", 0.22 * s.novelty),
-                Reason("exploration", 0.18 * s.exploration),
-                Reason("reputation.creative_contribution", 0.12 * r.creative_contribution),
-                Reason("social_distance", 0.10 * s.social_distance),
-                Reason("source.emerging", source_bonus(candidate, "Emerging", 0.10)),
+                ("temporal", 0.28 * s.temporal),
+                ("novelty", 0.22 * s.novelty),
+                ("exploration", 0.18 * s.exploration),
+                ("reputation.creative_contribution", 0.12 * r.creative_contribution),
+                ("social_distance", 0.10 * s.social_distance),
+                ("source.emerging", source_bonus(candidate, "Emerging", 0.10)),
             )
         case BuiltInLens.SLOW_INTERNET:
             return (
-                Reason("evidence_quality", 0.26 * s.evidence_quality),
-                Reason("reputation.research", 0.20 * r.research_score()),
-                Reason("relevance", 0.18 * s.relevance),
-                Reason("novelty", 0.14 * s.novelty),
-                Reason("contradiction_context", 0.12 * s.contradiction),
-                Reason("durability", 0.10 * (1.0 - s.temporal)),
+                ("evidence_quality", 0.26 * s.evidence_quality),
+                ("reputation.research", 0.20 * r.research_score()),
+                ("relevance", 0.18 * s.relevance),
+                ("novelty", 0.14 * s.novelty),
+                ("contradiction_context", 0.12 * s.contradiction),
+                ("durability", 0.10 * (1.0 - s.temporal)),
             )
         case BuiltInLens.WEIRD:
             return (
-                Reason("novelty", 0.35 * s.novelty),
-                Reason("exploration", 0.30 * s.exploration),
-                Reason("semantic_distance", 0.20 * (1.0 - s.relevance)),
-                Reason("reputation.creative_contribution", 0.05 * r.creative_contribution),
-                Reason("emerging", source_bonus(candidate, "Emerging", 0.10)),
-                Reason(
+                ("novelty", 0.35 * s.novelty),
+                ("exploration", 0.30 * s.exploration),
+                ("semantic_distance", 0.20 * (1.0 - s.relevance)),
+                ("reputation.creative_contribution", 0.05 * r.creative_contribution),
+                ("emerging", source_bonus(candidate, "Emerging", 0.10)),
+                (
                     "contradiction",
                     source_bonus(candidate, "Contradiction", 0.05) + 0.05 * s.contradiction,
                 ),
@@ -309,11 +315,11 @@ def rank(request: RankingRequest) -> RankingResult:
         lenses: list[LensContribution] = []
         score = 0.0
         for weight in weights:
-            raw = lens_reasons(candidate, weight.lens)
-            weighted_score = sequential_sum(tuple(reason.contribution for reason in raw))
+            raw = _lens_reason_pairs(candidate, weight.lens)
+            weighted_score = sequential_sum(tuple(contribution for _, contribution in raw))
             weighted_score *= weight.weight
             weighted = tuple(
-                Reason(reason.signal, reason.contribution * weight.weight) for reason in raw
+                Reason(signal, contribution * weight.weight) for signal, contribution in raw
             )
             reasons.extend(
                 Reason(f"{weight.lens.id}:{reason.signal}", reason.contribution)
