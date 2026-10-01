@@ -69,9 +69,10 @@ def _encode_value(value: object, out: bytearray) -> None:
     elif isinstance(value, Mapping):
         _encode_object(cast(Mapping[object, object], value), out)
     elif isinstance(value, Sequence) and not isinstance(value, bytes | bytearray):
+        sequence = cast(Sequence[object], value)  # pyright: ignore[reportUnnecessaryCast]
         out.extend(b"a")
-        _encode_u64(len(value), out)
-        for item in value:
+        _encode_u64(len(sequence), out)
+        for item in sequence:
             _encode_value(item, out)
     else:
         raise ValueError(f"unsupported canonical value: {type(value).__name__}")

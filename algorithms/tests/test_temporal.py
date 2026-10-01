@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 from dataclasses import asdict, replace
 from pathlib import Path
-from typing import cast, override
+from typing import Literal, cast
 
 import pytest
 
@@ -18,6 +18,8 @@ from babble_algorithms.temporal import (
 from babble_algorithms.temporal_types import (
     TEMPORAL_PROVIDER,
     TemporalItem,
+    TemporalOutput,
+    TemporalProvider,
     TemporalRequest,
     TemporalResult,
 )
@@ -67,7 +69,7 @@ def test_full_formula_without_invented_view_counts() -> None:
     result = run(envelope())
     assert result.provider == TEMPORAL_PROVIDER
     assert result.reference_time == "2026-09-30t01:00:00.000z"
-    score, = result.scores
+    (score,) = result.scores
     assert score.object_id == item()["object_id"]
     assert score.age_hours == 1.0
     assert score.recency == 1.0
@@ -88,7 +90,7 @@ def test_full_formula_without_invented_view_counts() -> None:
 @pytest.mark.parametrize("size", [0, 1, 200])
 def test_batch_preserves_input_order_and_exact_wire_fields(size: int) -> None:
     entries: list[Json] = [item(index) for index in reversed(range(size))]
-    response, = exchange(frame(envelope(entries)))
+    (response,) = exchange(frame(envelope(entries)))
     assert response["error"] is None
     body = object_value(response["result"])
     assert set(body) == {"provider", "reference_time", "scores"}
@@ -100,22 +102,43 @@ def test_batch_preserves_input_order_and_exact_wire_fields(size: int) -> None:
     ]
     for score in scores:
         assert set(object_value(score)) == {
-            "object_id", "age_hours", "recency", "decay_rate", "time_sensitivity",
-            "engagement_velocity", "survival_score",
+            "object_id",
+            "age_hours",
+            "recency",
+            "decay_rate",
+            "time_sensitivity",
+            "engagement_velocity",
+            "survival_score",
         }
 
 
-@pytest.mark.parametrize("boundary,base,next_base", [
-    (2, 1.0, 0.82), (24, 0.82, 0.62), (72, 0.62, 0.42),
-    (168, 0.42, 0.23), (720, 0.23, 0.1),
-])
-@pytest.mark.parametrize("content_class,weight,sensitivity", [
-    ("news", 1.2, 0.92), ("discussion", 1.0, 0.68), ("analysis", 0.82, 0.5),
-    ("tutorial", 0.66, 0.28), ("reference", 0.45, 0.12),
-])
+@pytest.mark.parametrize(
+    "boundary,base,next_base",
+    [
+        (2, 1.0, 0.82),
+        (24, 0.82, 0.62),
+        (72, 0.62, 0.42),
+        (168, 0.42, 0.23),
+        (720, 0.23, 0.1),
+    ],
+)
+@pytest.mark.parametrize(
+    "content_class,weight,sensitivity",
+    [
+        ("news", 1.2, 0.92),
+        ("discussion", 1.0, 0.68),
+        ("analysis", 0.82, 0.5),
+        ("tutorial", 0.66, 0.28),
+        ("reference", 0.45, 0.12),
+    ],
+)
 def test_all_class_weights_and_inclusive_age_boundaries(
-    boundary: int, base: float, next_base: float,
-    content_class: str, weight: float, sensitivity: float,
+    boundary: int,
+    base: float,
+    next_base: float,
+    content_class: str,
+    weight: float,
+    sensitivity: float,
 ) -> None:
     scorer = TemporalScorer()
     typed = ContentTimeClass(content_class)
@@ -127,12 +150,19 @@ def test_all_class_weights_and_inclusive_age_boundaries(
     assert run(envelope([entry])).scores[0].time_sensitivity == sensitivity
 
 
-@pytest.mark.parametrize("tags,expected", [
-    ((), 0.68), (("BREAKING",), 0.86), (("TIME-SENSITIVE",), 0.86),
-    (("EVERGREEN",), 0.5), (("REFERENCE",), 0.5),
-    (("breaking", "time-sensitive", "evergreen", "reference"), 0.68),
-    (("irrelevant",) * 32, 0.68), (("\U0001f600" * 16,), 0.68),
-])
+@pytest.mark.parametrize(
+    "tags,expected",
+    [
+        ((), 0.68),
+        (("BREAKING",), 0.86),
+        (("TIME-SENSITIVE",), 0.86),
+        (("EVERGREEN",), 0.5),
+        (("REFERENCE",), 0.5),
+        (("breaking", "time-sensitive", "evergreen", "reference"), 0.68),
+        (("irrelevant",) * 32, 0.68),
+        (("\U0001f600" * 16,), 0.68),
+    ],
+)
 def test_tags(tags: tuple[str, ...], expected: float) -> None:
     entry = item()
     entry["tags"] = list(tags)
@@ -147,14 +177,17 @@ def test_sensitivity_and_decay_clamps() -> None:
     assert scorer.decay_rate(quality_score=0, engagement_velocity=0, time_sensitivity=1) == 0.26
 
 
-@pytest.mark.parametrize("published,reference,age", [
-    ("9999-12-31T23:59:59.999999998Z", "9999-12-31T23:59:59.999999999Z", 1 / 3.6e12),
-    ("0000-02-29T00:00:00Z", "0000-03-01T00:00:00Z", 24),
-    ("2026-09-30T01:00:00+01:00", "2026-09-30T00:00:00Z", 0),
-    ("2026-09-30T01:00:00Z", "2026-09-30T00:00:00Z", 0),
-    ("2016-12-31T23:59:60Z", "2017-01-01T00:00:00Z", 1 / 3.6e12),
-    ("2026-09-30T00:00:00Z", "2026-09-30T02:00:00.000000001Z", 2 + 1 / 3.6e12),
-])
+@pytest.mark.parametrize(
+    "published,reference,age",
+    [
+        ("9999-12-31T23:59:59.999999998Z", "9999-12-31T23:59:59.999999999Z", 1 / 3.6e12),
+        ("0000-02-29T00:00:00Z", "0000-03-01T00:00:00Z", 24),
+        ("2026-09-30T01:00:00+01:00", "2026-09-30T00:00:00Z", 0),
+        ("2026-09-30T01:00:00Z", "2026-09-30T00:00:00Z", 0),
+        ("2016-12-31T23:59:60Z", "2017-01-01T00:00:00Z", 1 / 3.6e12),
+        ("2026-09-30T00:00:00Z", "2026-09-30T02:00:00.000000001Z", 2 + 1 / 3.6e12),
+    ],
+)
 def test_precise_age_and_future_clamp(published: str, reference: str, age: float) -> None:
     entry = item()
     entry["published_at"] = published
@@ -177,48 +210,54 @@ def test_entire_timestamp_range_is_finite() -> None:
     reference = "9999-12-31T23:59:59-23:59"
     object_value(request["request"])["reference_time"] = reference
     score = run(request).scores[0]
-    assert score.age_hours == (
-        timestamp_nanos(reference) - timestamp_nanos(str(entry["published_at"]))
-    ) / 3.6e12
+    assert (
+        score.age_hours
+        == (timestamp_nanos(reference) - timestamp_nanos(str(entry["published_at"]))) / 3.6e12
+    )
     assert score.survival_score == 0
     assert score.age_hours <= 87_658_248.0
 
 
-@pytest.mark.parametrize("scope,key,value", [
-    ("envelope", "unknown", "PRIVATE_SECRET"),
-    ("request", "unknown", "PRIVATE_SECRET"),
-    ("item", "unknown", "PRIVATE_SECRET"),
-    ("engagement", "unknown", "PRIVATE_SECRET"),
-    ("item", "object_id", "obj_" + "A" * 64),
-    ("item", "object_id", "obj_" + "0" * 63),
-    ("item", "content_class", "PRIVATE_SECRET"),
-    ("item", "content_class", True),
-    ("item", "quality_score", True),
-    ("item", "quality_score", -0.01),
-    ("item", "quality_score", 1.01),
-    ("item", "quality_score", 10**400),
-    ("item", "quality_score", float("nan")),
-    ("item", "quality_score", float("inf")),
-    ("item", "tags", ["x"] * 33),
-    ("item", "tags", ["\U0001f600" * 17]),
-    ("item", "tags", [False]),
-    ("item", "tags", "breaking"),
-    ("request", "items", {}),
-    ("item", "engagement", []),
-    ("engagement", "total_views", True),
-    ("engagement", "total_views", -1),
-    ("engagement", "total_views", 1.0),
-    ("engagement", "total_views", MAX_ID + 1),
-    ("engagement", "total_views", 10**400),
-    ("engagement", "recent_views", 1),
-    ("engagement", "recent_interactions", 11),
-])
+@pytest.mark.parametrize(
+    "scope,key,value",
+    [
+        ("envelope", "unknown", "PRIVATE_SECRET"),
+        ("request", "unknown", "PRIVATE_SECRET"),
+        ("item", "unknown", "PRIVATE_SECRET"),
+        ("engagement", "unknown", "PRIVATE_SECRET"),
+        ("item", "object_id", "obj_" + "A" * 64),
+        ("item", "object_id", "obj_" + "0" * 63),
+        ("item", "content_class", "PRIVATE_SECRET"),
+        ("item", "content_class", True),
+        ("item", "quality_score", True),
+        ("item", "quality_score", -0.01),
+        ("item", "quality_score", 1.01),
+        ("item", "quality_score", 10**400),
+        ("item", "quality_score", float("nan")),
+        ("item", "quality_score", float("inf")),
+        ("item", "tags", ["x"] * 33),
+        ("item", "tags", ["\U0001f600" * 17]),
+        ("item", "tags", [False]),
+        ("item", "tags", "breaking"),
+        ("request", "items", {}),
+        ("item", "engagement", []),
+        ("engagement", "total_views", True),
+        ("engagement", "total_views", -1),
+        ("engagement", "total_views", 1.0),
+        ("engagement", "total_views", MAX_ID + 1),
+        ("engagement", "total_views", 10**400),
+        ("engagement", "recent_views", 1),
+        ("engagement", "recent_interactions", 11),
+    ],
+)
 def test_rejects_invalid_fields_privately(scope: str, key: str, value: Json) -> None:
     entry = item()
     request = envelope([entry])
     targets = {
-        "envelope": request, "request": object_value(request["request"]),
-        "item": entry, "engagement": object_value(entry["engagement"]),
+        "envelope": request,
+        "request": object_value(request["request"]),
+        "item": entry,
+        "engagement": object_value(entry["engagement"]),
     }
     targets[scope][key] = value
     response, healthy = exchange(frame(request) + frame(health()))
@@ -227,12 +266,26 @@ def test_rejects_invalid_fields_privately(scope: str, key: str, value: Json) -> 
     assert object_value(healthy["result"])["temporal_provider"] == asdict(TEMPORAL_PROVIDER)
 
 
-@pytest.mark.parametrize("invalid", [
-    "", "PRIVATE_SECRET", "2026-02-29T00:00:00Z", "2026-09-30T24:00:00Z",
-    "2026-09-30T00:00:00", "10000-01-01T00:00:00Z", "2026-09-30T00:00:00+24:00",
-    "2026-09-30T00:00:60Z", "2026-09-30T00:00:00Zjunk", False, 0, None,
-    "2026-09-30 00:00:00Z", "2026-09-30_00:00:00Z", "2026-09-30\n00:00:00Z",
-])
+@pytest.mark.parametrize(
+    "invalid",
+    [
+        "",
+        "PRIVATE_SECRET",
+        "2026-02-29T00:00:00Z",
+        "2026-09-30T24:00:00Z",
+        "2026-09-30T00:00:00",
+        "10000-01-01T00:00:00Z",
+        "2026-09-30T00:00:00+24:00",
+        "2026-09-30T00:00:60Z",
+        "2026-09-30T00:00:00Zjunk",
+        False,
+        0,
+        None,
+        "2026-09-30 00:00:00Z",
+        "2026-09-30_00:00:00Z",
+        "2026-09-30\n00:00:00Z",
+    ],
+)
 @pytest.mark.parametrize("field", ["reference_time", "published_at"])
 def test_rejects_malformed_times(invalid: Json, field: str) -> None:
     entry = item()
@@ -261,18 +314,29 @@ def test_decoder_rejects_overflow_and_invalid_unicode(raw: bytes) -> None:
     assert response.error is not None and response.error.code == "invalid_request"
 
 
-@pytest.mark.parametrize("scope,key", [
-    ("request", "reference_time"), ("request", "items"),
-    ("item", "object_id"), ("item", "published_at"), ("item", "content_class"),
-    ("item", "quality_score"), ("item", "tags"), ("item", "engagement"),
-    ("engagement", "total_views"), ("engagement", "recent_views"),
-    ("engagement", "total_interactions"), ("engagement", "recent_interactions"),
-])
+@pytest.mark.parametrize(
+    "scope,key",
+    [
+        ("request", "reference_time"),
+        ("request", "items"),
+        ("item", "object_id"),
+        ("item", "published_at"),
+        ("item", "content_class"),
+        ("item", "quality_score"),
+        ("item", "tags"),
+        ("item", "engagement"),
+        ("engagement", "total_views"),
+        ("engagement", "recent_views"),
+        ("engagement", "total_interactions"),
+        ("engagement", "recent_interactions"),
+    ],
+)
 def test_all_contract_fields_are_required(scope: str, key: str) -> None:
     entry = item()
     request = envelope([entry])
     targets = {
-        "request": object_value(request["request"]), "item": entry,
+        "request": object_value(request["request"]),
+        "item": entry,
         "engagement": object_value(entry["engagement"]),
     }
     del targets[scope][key]
@@ -418,6 +482,53 @@ def test_temporal_request_dtos_reject_invalid_direct_values() -> None:
         _ = TemporalRequest("2026-09-30T01:00:00Z", (valid,) * 201)
 
 
+def test_temporal_result_dtos_reject_invalid_direct_values() -> None:
+    output = TemporalOutput(
+        "obj_" + "0" * 64,
+        age_hours=1.0,
+        recency=1.0,
+        decay_rate=0.1,
+        time_sensitivity=0.5,
+        engagement_velocity=0.2,
+        survival_score=0.9,
+    )
+    result = TemporalResult(TEMPORAL_PROVIDER, "2026-09-30T01:00:00Z", (output,))
+    assert result.scores == (output,)
+
+    with pytest.raises(ValueError, match="provider"):
+        _ = TemporalProvider(
+            cast(Literal["babble-python"], cast(object, "other")), "temporal-v1", "1"
+        )
+    with pytest.raises(ValueError, match="object_id"):
+        _ = replace(output, object_id="obj_short")
+    with pytest.raises(ValueError, match="finite"):
+        _ = replace(output, age_hours=math.nan)
+    with pytest.raises(ValueError, match="finite"):
+        _ = replace(output, recency=1.01)
+    with pytest.raises(ValueError, match="finite"):
+        _ = replace(output, decay_rate=0.0)
+    with pytest.raises(ValueError, match="TemporalProvider"):
+        _ = TemporalResult(cast(TemporalProvider, object()), result.reference_time, result.scores)
+    with pytest.raises(ValueError, match="RFC3339"):
+        _ = TemporalResult(TEMPORAL_PROVIDER, "2026-09-30", result.scores)
+    with pytest.raises(ValueError, match="bounded tuple"):
+        _ = TemporalResult(
+            TEMPORAL_PROVIDER,
+            result.reference_time,
+            cast(tuple[TemporalOutput, ...], cast(object, [output])),
+        )
+    with pytest.raises(ValueError, match="TemporalOutput"):
+        _ = TemporalResult(
+            TEMPORAL_PROVIDER,
+            result.reference_time,
+            (cast(TemporalOutput, object()),),
+        )
+    with pytest.raises(ValueError, match="unique"):
+        _ = TemporalResult(TEMPORAL_PROVIDER, result.reference_time, (output, output))
+    with pytest.raises(ValueError, match="bounded tuple"):
+        _ = TemporalResult(TEMPORAL_PROVIDER, result.reference_time, (output,) * 201)
+
+
 @pytest.mark.parametrize("invalid", [-0.01, 1.01])
 def test_domain_rejects_outside_unit_interval(invalid: float) -> None:
     scorer = TemporalScorer()
@@ -434,16 +545,15 @@ def test_domain_rejects_outside_unit_interval(invalid: float) -> None:
         _ = replace(score, survival_score=invalid)
 
 
-def test_mixed_worker_stream_and_failure_privacy() -> None:
+def test_mixed_worker_stream_and_failure_privacy(monkeypatch: pytest.MonkeyPatch) -> None:
     responses = exchange(frame(envelope()) + frame(health()) + frame(judge("spam")))
     assert all(response["error"] is None for response in responses)
 
-    class BrokenExecutor(AlgorithmExecutor):
-        @override
-        def temporal(self, request: TemporalRequest) -> TemporalResult:
-            raise RuntimeError("PRIVATE_SECRET")
+    def broken_temporal(_self: AlgorithmExecutor, _request: TemporalRequest) -> TemporalResult:
+        raise RuntimeError("PRIVATE_SECRET")
 
-    response = handle(frame(envelope()), BrokenExecutor())
+    monkeypatch.setattr(AlgorithmExecutor, "temporal", broken_temporal)
+    response = handle(frame(envelope()), AlgorithmExecutor())
     assert response.error is not None and response.error.code == "algorithm_failure"
     assert b"PRIVATE_SECRET" not in encode(response)
 
@@ -460,7 +570,9 @@ def test_canonical_rust_temporal_corpus() -> None:
         case = object_value(raw)
         expected = object_value(case["result"])
         expected["provider"] = {
-            "provider": "babble-python", "model": "temporal-v1", "version": "1",
+            "provider": "babble-python",
+            "model": "temporal-v1",
+            "version": "1",
         }
         request = envelope()
         request["request"] = case["request"]
