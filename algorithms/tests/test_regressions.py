@@ -50,9 +50,11 @@ from babble_algorithms.types import (
     CandidateSource,
     CandidateSourceContribution,
     EvidenceSignals,
+    LensContribution,
     ObjectId,
     ObjectSignals,
     RankedCandidate,
+    RankingTrace,
     ReputationSignals,
     clamp_score,
 )
@@ -85,13 +87,59 @@ def test_bool_scores_never_become_positive_evidence() -> None:
     assert signals.reputation.following_score() == 0.0
 
 
-def test_candidate_source_weight_rejects_bool_by_sanitizing_to_zero() -> None:
-    candidate = Candidate(
-        ObjectId("object"),
-        "Following",
-        (CandidateSourceContribution("Following", cast(float, cast(object, True))),),
-    ).normalized()
-    assert candidate.sources[0].weight == 0.0
+def test_candidate_source_weight_rejects_bool_at_the_boundary() -> None:
+    with pytest.raises(ValueError, match="source contribution weight"):
+        _ = CandidateSourceContribution("Following", cast(float, cast(object, True)))
+
+
+def test_shared_algorithm_dtos_reject_invalid_structural_values() -> None:
+    candidate = Candidate(ObjectId("object"), "Following").normalized()
+    contribution = LensContribution("following", 1.0, 0.5, "valid reason")
+    ranked = RankedCandidate(candidate, 0.5, (contribution,))
+    assert RankingTrace((ranked,)).ranked == (ranked,)
+
+    with pytest.raises(ValueError, match="candidate object_id"):
+        _ = Candidate(ObjectId("bad id"), "Following")
+    with pytest.raises(ValueError, match="unknown candidate source"):
+        _ = CandidateSourceContribution(cast(CandidateSource, cast(object, "Unknown")), 1.0)
+    with pytest.raises(ValueError, match="candidate sources must be a tuple"):
+        _ = Candidate(
+            ObjectId("object"),
+            "Following",
+            cast(
+                tuple[CandidateSourceContribution, ...],
+                cast(object, [CandidateSourceContribution("Following")]),
+            ),
+        )
+    with pytest.raises(ValueError, match="duplicate candidate source"):
+        _ = Candidate(
+            ObjectId("object"),
+            "Following",
+            (
+                CandidateSourceContribution("Following"),
+                CandidateSourceContribution("Following", 0.5),
+            ),
+        )
+    with pytest.raises(ValueError, match="include the primary source"):
+        _ = Candidate(
+            ObjectId("object"),
+            "Following",
+            (CandidateSourceContribution("Exploration"),),
+        )
+    with pytest.raises(ValueError, match="candidate signals"):
+        _ = Candidate(ObjectId("object"), "Following", signals=cast(ObjectSignals, object()))
+    with pytest.raises(ValueError, match="evidence must be EvidenceSignals"):
+        _ = ObjectSignals(evidence=cast(EvidenceSignals, object()))
+    with pytest.raises(ValueError, match="lens contribution weight"):
+        _ = LensContribution("following", math.inf, 0.5, "reason")
+    with pytest.raises(ValueError, match="lens contribution reason"):
+        _ = LensContribution("following", 1.0, 0.5, "")
+    with pytest.raises(ValueError, match="ranked score"):
+        _ = RankedCandidate(candidate, cast(float, cast(object, True)), ())
+    with pytest.raises(ValueError, match="ranked candidate contributions"):
+        _ = RankedCandidate(candidate, 0.5, cast(tuple[LensContribution, ...], cast(object, [])))
+    with pytest.raises(ValueError, match="duplicate ranking trace"):
+        _ = RankingTrace((ranked, ranked))
 
 
 def test_local_judgment_provider_rejects_invalid_domain_inputs() -> None:

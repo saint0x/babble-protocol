@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Literal, NewType
+from typing import Literal, NewType, cast
 
 ObjectId = NewType("ObjectId", str)
 IdentityId = NewType("IdentityId", str)
@@ -18,6 +18,17 @@ CandidateSource = Literal[
     "Exploration",
 ]
 
+_ALLOWED_SOURCES: tuple[CandidateSource, ...] = (
+    "Following",
+    "SocialGraph",
+    "SemanticNeighborhood",
+    "Temporal",
+    "Emerging",
+    "Evidence",
+    "Contradiction",
+    "Exploration",
+)
+
 
 def clamp_score(value: float) -> float:
     if isinstance(value, bool) or not math.isfinite(value):
@@ -29,6 +40,37 @@ def nonnegative_signal(value: float) -> float:
     if isinstance(value, bool) or not math.isfinite(value):
         return 0.0
     return max(0.0, value)
+
+
+def _source(value: object, label: str = "candidate source") -> CandidateSource:
+    if value not in _ALLOWED_SOURCES:
+        raise ValueError(f"unknown {label}: {value!r}")
+    return value
+
+
+def _object_id(value: object, label: str = "candidate object_id") -> ObjectId:
+    if not isinstance(value, str) or not value.strip() or any(ch.isspace() for ch in value):
+        raise ValueError(f"{label} must be a non-empty object id without whitespace")
+    return ObjectId(value)
+
+
+def _finite_number(value: object, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, int | float) or not math.isfinite(value):
+        raise ValueError(f"{label} must be a finite number")
+    return float(value)
+
+
+def _unit_number(value: object, label: str) -> float:
+    result = _finite_number(value, label)
+    if not 0.0 <= result <= 1.0:
+        raise ValueError(f"{label} must be between 0 and 1")
+    return result
+
+
+def _label(value: object, label: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"{label} must be a non-empty string")
+    return value
 
 
 @dataclass(frozen=True, slots=True)
@@ -111,6 +153,12 @@ class ObjectSignals:
     weirdness: float = 0.0
     recency: float = 0.5
 
+    def __post_init__(self) -> None:
+        if type(self.evidence) is not EvidenceSignals:
+            raise ValueError("evidence must be EvidenceSignals")
+        if type(self.reputation) is not ReputationSignals:
+            raise ValueError("reputation must be ReputationSignals")
+
     def normalized(self) -> ObjectSignals:
         return ObjectSignals(
             relevance=clamp_score(self.relevance),
@@ -131,6 +179,10 @@ class CandidateSourceContribution:
     source: CandidateSource
     weight: float = 1.0
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "source", _source(self.source, "candidate source"))
+        object.__setattr__(self, "weight", _unit_number(self.weight, "source contribution weight"))
+
     def normalized(self) -> CandidateSourceContribution:
         return CandidateSourceContribution(self.source, clamp_score(self.weight))
 
@@ -141,6 +193,32 @@ class Candidate:
     source: CandidateSource
     sources: tuple[CandidateSourceContribution, ...] = ()
     signals: ObjectSignals = field(default_factory=ObjectSignals)
+
+    def __post_init__(self) -> None:
+        object_id = _object_id(self.object_id)
+        source = _source(self.source, "candidate source")
+        if type(self.sources) is not tuple:
+            raise ValueError("candidate sources must be a tuple")
+        if type(self.signals) is not ObjectSignals:
+            raise ValueError("candidate signals must be ObjectSignals")
+
+        normalized_sources: list[CandidateSourceContribution] = []
+        seen: set[CandidateSource] = set()
+        for contribution in cast(tuple[object, ...], self.sources):
+            if not isinstance(contribution, CandidateSourceContribution):
+                raise ValueError(
+                    "candidate sources must contain CandidateSourceContribution values"
+                )
+            if contribution.source in seen:
+                raise ValueError(f"duplicate candidate source: {contribution.source}")
+            seen.add(contribution.source)
+            normalized_sources.append(contribution)
+        if normalized_sources and source not in seen:
+            raise ValueError("candidate sources must include the primary source")
+
+        object.__setattr__(self, "object_id", object_id)
+        object.__setattr__(self, "source", source)
+        object.__setattr__(self, "sources", tuple(normalized_sources))
 
     def normalized(self) -> Candidate:
         sources = self.sources or (CandidateSourceContribution(self.source),)
@@ -159,6 +237,12 @@ class LensContribution:
     score: float
     reason: str
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "lens", _label(self.lens, "lens"))
+        object.__setattr__(self, "weight", _unit_number(self.weight, "lens contribution weight"))
+        object.__setattr__(self, "score", _unit_number(self.score, "lens contribution score"))
+        object.__setattr__(self, "reason", _label(self.reason, "lens contribution reason"))
+
 
 @dataclass(frozen=True, slots=True)
 class RankedCandidate:
@@ -166,7 +250,31 @@ class RankedCandidate:
     score: float
     contributions: tuple[LensContribution, ...]
 
+    def __post_init__(self) -> None:
+        if not isinstance(cast(object, self.candidate), Candidate):
+            raise ValueError("ranked candidate must contain Candidate")
+        if type(self.contributions) is not tuple:
+            raise ValueError("ranked candidate contributions must be a tuple")
+        for contribution in cast(tuple[object, ...], self.contributions):
+            if not isinstance(contribution, LensContribution):
+                raise ValueError(
+                    "ranked candidate contributions must contain LensContribution values"
+                )
+        object.__setattr__(self, "score", _unit_number(self.score, "ranked score"))
+
 
 @dataclass(frozen=True, slots=True)
 class RankingTrace:
     ranked: tuple[RankedCandidate, ...]
+
+    def __post_init__(self) -> None:
+        if type(self.ranked) is not tuple:
+            raise ValueError("ranking trace ranked candidates must be a tuple")
+        seen: set[ObjectId] = set()
+        for ranked in cast(tuple[object, ...], self.ranked):
+            if not isinstance(ranked, RankedCandidate):
+                raise ValueError("ranking trace must contain RankedCandidate values")
+            object_id = ranked.candidate.object_id
+            if object_id in seen:
+                raise ValueError(f"duplicate ranking trace candidate object_id: {object_id}")
+            seen.add(object_id)
