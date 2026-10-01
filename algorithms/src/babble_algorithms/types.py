@@ -20,9 +20,15 @@ CandidateSource = Literal[
 
 
 def clamp_score(value: float) -> float:
-    if not math.isfinite(value):
+    if isinstance(value, bool) or not math.isfinite(value):
         return 0.0
     return max(0.0, min(1.0, value))
+
+
+def nonnegative_signal(value: float) -> float:
+    if isinstance(value, bool) or not math.isfinite(value):
+        return 0.0
+    return max(0.0, value)
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,20 +51,25 @@ class ReputationSignals:
         )
 
     def following_score(self) -> float:
+        normalized = self.normalized()
         return clamp_score(
-            0.7 * self.social_constructiveness + 0.3 * self.creative_contribution
+            0.7 * normalized.social_constructiveness + 0.3 * normalized.creative_contribution
         )
 
     def research_score(self) -> float:
+        normalized = self.normalized()
         return clamp_score(
-            0.35 * self.evidence_quality
-            + 0.30 * self.domain_expertise
-            + 0.25 * self.epistemic_accuracy
-            + 0.10 * self.moderation
+            0.35 * normalized.evidence_quality
+            + 0.30 * normalized.domain_expertise
+            + 0.25 * normalized.epistemic_accuracy
+            + 0.10 * normalized.moderation
         )
 
     def creative_score(self) -> float:
-        return clamp_score(0.65 * self.creative_contribution + 0.35 * self.social_constructiveness)
+        normalized = self.normalized()
+        return clamp_score(
+            0.65 * normalized.creative_contribution + 0.35 * normalized.social_constructiveness
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -70,18 +81,20 @@ class EvidenceSignals:
 
     def normalized(self) -> EvidenceSignals:
         return EvidenceSignals(
-            human_support=max(0.0, self.human_support),
-            judgment_support=max(0.0, self.judgment_support),
-            human_contradiction=max(0.0, self.human_contradiction),
-            judgment_contradiction=max(0.0, self.judgment_contradiction),
+            human_support=nonnegative_signal(self.human_support),
+            judgment_support=nonnegative_signal(self.judgment_support),
+            human_contradiction=nonnegative_signal(self.human_contradiction),
+            judgment_contradiction=nonnegative_signal(self.judgment_contradiction),
         )
 
     def support_score(self) -> float:
-        return clamp_score((self.human_support + 0.75 * self.judgment_support) / 3.0)
+        normalized = self.normalized()
+        return clamp_score((normalized.human_support + 0.75 * normalized.judgment_support) / 3.0)
 
     def contradiction_score(self) -> float:
+        normalized = self.normalized()
         return clamp_score(
-            (self.human_contradiction + 0.75 * self.judgment_contradiction) / 3.0
+            (normalized.human_contradiction + 0.75 * normalized.judgment_contradiction) / 3.0
         )
 
 

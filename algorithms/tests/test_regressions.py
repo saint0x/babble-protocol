@@ -26,9 +26,12 @@ from babble_algorithms.text import tokens
 from babble_algorithms.types import (
     Candidate,
     CandidateSource,
+    CandidateSourceContribution,
+    EvidenceSignals,
     ObjectId,
     ObjectSignals,
     RankedCandidate,
+    ReputationSignals,
     clamp_score,
 )
 
@@ -36,6 +39,36 @@ from babble_algorithms.types import (
 @pytest.mark.parametrize("value", [math.nan, math.inf, -math.inf])
 def test_nonfinite_scores_never_become_positive_evidence(value: float) -> None:
     assert clamp_score(value) == 0.0
+
+
+def test_bool_scores_never_become_positive_evidence() -> None:
+    assert clamp_score(cast(float, cast(object, True))) == 0.0
+    signals = ObjectSignals(
+        relevance=cast(float, cast(object, True)),
+        novelty=cast(float, cast(object, True)),
+        evidence=EvidenceSignals(
+            human_support=cast(float, cast(object, True)),
+            judgment_contradiction=cast(float, cast(object, True)),
+        ),
+        reputation=ReputationSignals(
+            social_constructiveness=cast(float, cast(object, True)),
+            creative_contribution=cast(float, cast(object, True)),
+        ),
+    ).normalized()
+    assert signals.relevance == 0.0
+    assert signals.novelty == 0.0
+    assert signals.evidence.support_score() == 0.0
+    assert signals.evidence.contradiction_score() == 0.0
+    assert signals.reputation.following_score() == 0.0
+
+
+def test_candidate_source_weight_rejects_bool_by_sanitizing_to_zero() -> None:
+    candidate = Candidate(
+        ObjectId("object"),
+        "Following",
+        (CandidateSourceContribution("Following", cast(float, cast(object, True))),),
+    ).normalized()
+    assert candidate.sources[0].weight == 0.0
 
 
 def test_local_judgment_provider_rejects_invalid_domain_inputs() -> None:
