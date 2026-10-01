@@ -43,6 +43,7 @@ class _ContentFeatures:
     words: tuple[str, ...]
     word_set: set[str]
     sentence_values: tuple[str, ...]
+    lowered_sentence_values: tuple[str, ...]
 
 
 class ContentAnalyzer:
@@ -77,7 +78,8 @@ class ContentAnalyzer:
     )
 
     def analyze(self, content_id: str, text: str) -> ContentAnalysis:
-        features = self._features(text)
+        content_id = _content_id(content_id)
+        features = self._features(_text(text))
         words = features.words
         sentence_values = features.sentence_values
         unique_words = len(features.word_set)
@@ -102,14 +104,23 @@ class ContentAnalyzer:
 
     def _features(self, text: str) -> _ContentFeatures:
         words = tokens(text)
-        return _ContentFeatures(text.casefold(), words, set(words), sentences(text))
+        sentence_values = sentences(text)
+        return _ContentFeatures(
+            text.casefold(),
+            words,
+            set(words),
+            sentence_values,
+            tuple(sentence.casefold() for sentence in sentence_values),
+        )
 
     def _evidence(self, features: _ContentFeatures) -> EvidenceAnalysis:
         markers = tuple(marker for marker in self.evidence_markers if marker in features.lowered)
         references = tuple(
             sentence
-            for sentence in features.sentence_values
-            if any(marker in sentence.casefold() for marker in markers)
+            for sentence, lowered in zip(
+                features.sentence_values, features.lowered_sentence_values, strict=True
+            )
+            if any(marker in lowered for marker in markers)
         )
         return EvidenceAnalysis(
             count=len(markers),
@@ -157,3 +168,15 @@ class ContentAnalyzer:
             if len(selected) >= 3:
                 break
         return ". ".join(selected) + "."
+
+
+def _content_id(value: object) -> str:
+    if not isinstance(value, str) or not value.strip() or any(ch.isspace() for ch in value):
+        raise ValueError("content_id must be a non-empty identifier without whitespace")
+    return value
+
+
+def _text(value: object) -> str:
+    if not isinstance(value, str):
+        raise ValueError("content text must be a string")
+    return value

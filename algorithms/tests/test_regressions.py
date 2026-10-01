@@ -4,6 +4,7 @@ from typing import cast
 import pytest
 
 from babble_algorithms.consensus import ConsensusAnalyzer, ConsensusSource, ConsensusState
+from babble_algorithms.content import ContentAnalyzer
 from babble_algorithms.discovery import CandidateEngine, DiscoveryRequest
 from babble_algorithms.diversity import (
     DiversityPolicy,
@@ -175,6 +176,31 @@ def test_lens_weights_reject_bool_domain_values() -> None:
         _ = LensStack((LensWeight(BuiltInLens.RESEARCH, cast(float, cast(object, True))),)).rank(
             (candidate,)
         )
+
+
+def test_content_analyzer_rejects_invalid_domain_inputs() -> None:
+    analyzer = ContentAnalyzer()
+    with pytest.raises(ValueError, match="content_id"):
+        _ = analyzer.analyze("bad id", "text")
+    with pytest.raises(ValueError, match="content text"):
+        _ = analyzer.analyze("id", cast(str, cast(object, 123)))
+
+
+def test_content_evidence_references_use_precomputed_sentence_folds() -> None:
+    analysis = ContentAnalyzer().analyze(
+        "id",
+        "Intro. According to the DATASET, replication works. Methodology confirms it.",
+    )
+    assert analysis.evidence.markers_found == (
+        "according to",
+        "dataset",
+        "methodology",
+        "replication",
+    )
+    assert analysis.evidence.references == (
+        "According to the DATASET, replication works",
+        "Methodology confirms it",
+    )
 
 
 def test_tokenizer_preserves_unicode_words() -> None:
