@@ -82,6 +82,17 @@ class ReputationSignals:
     moderation: float = 0.0
     domain_expertise: float = 0.0
 
+    def __post_init__(self) -> None:
+        for field_name, value in (
+            ("epistemic_accuracy", self.epistemic_accuracy),
+            ("evidence_quality", self.evidence_quality),
+            ("social_constructiveness", self.social_constructiveness),
+            ("creative_contribution", self.creative_contribution),
+            ("moderation", self.moderation),
+            ("domain_expertise", self.domain_expertise),
+        ):
+            object.__setattr__(self, field_name, _finite_number(value, f"reputation {field_name}"))
+
     def normalized(self) -> ReputationSignals:
         return ReputationSignals(
             epistemic_accuracy=clamp_score(self.epistemic_accuracy),
@@ -120,6 +131,15 @@ class EvidenceSignals:
     judgment_support: float = 0.0
     human_contradiction: float = 0.0
     judgment_contradiction: float = 0.0
+
+    def __post_init__(self) -> None:
+        for field_name, value in (
+            ("human_support", self.human_support),
+            ("judgment_support", self.judgment_support),
+            ("human_contradiction", self.human_contradiction),
+            ("judgment_contradiction", self.judgment_contradiction),
+        ):
+            object.__setattr__(self, field_name, _finite_number(value, f"evidence {field_name}"))
 
     def normalized(self) -> EvidenceSignals:
         return EvidenceSignals(

@@ -71,20 +71,14 @@ def test_bool_scores_never_become_positive_evidence() -> None:
     signals = ObjectSignals(
         relevance=cast(float, cast(object, True)),
         novelty=cast(float, cast(object, True)),
-        evidence=EvidenceSignals(
-            human_support=cast(float, cast(object, True)),
-            judgment_contradiction=cast(float, cast(object, True)),
-        ),
-        reputation=ReputationSignals(
-            social_constructiveness=cast(float, cast(object, True)),
-            creative_contribution=cast(float, cast(object, True)),
-        ),
     ).normalized()
     assert signals.relevance == 0.0
     assert signals.novelty == 0.0
-    assert signals.evidence.support_score() == 0.0
-    assert signals.evidence.contradiction_score() == 0.0
-    assert signals.reputation.following_score() == 0.0
+
+    with pytest.raises(ValueError, match="evidence human_support"):
+        _ = EvidenceSignals(human_support=cast(float, cast(object, True)))
+    with pytest.raises(ValueError, match="reputation social_constructiveness"):
+        _ = ReputationSignals(social_constructiveness=cast(float, cast(object, True)))
 
 
 def test_candidate_source_weight_rejects_bool_at_the_boundary() -> None:
@@ -128,8 +122,14 @@ def test_shared_algorithm_dtos_reject_invalid_structural_values() -> None:
         )
     with pytest.raises(ValueError, match="candidate signals"):
         _ = Candidate(ObjectId("object"), "Following", signals=cast(ObjectSignals, object()))
+    assert EvidenceSignals(human_support=1e308).support_score() == 1.0
+    assert ReputationSignals(creative_contribution=2.0).creative_score() == 0.65
     with pytest.raises(ValueError, match="evidence must be EvidenceSignals"):
         _ = ObjectSignals(evidence=cast(EvidenceSignals, object()))
+    with pytest.raises(ValueError, match="evidence human_support"):
+        _ = EvidenceSignals(human_support=math.inf)
+    with pytest.raises(ValueError, match="reputation evidence_quality"):
+        _ = ReputationSignals(evidence_quality=math.nan)
     with pytest.raises(ValueError, match="lens contribution weight"):
         _ = LensContribution("following", math.inf, 0.5, "reason")
     with pytest.raises(ValueError, match="lens contribution reason"):
