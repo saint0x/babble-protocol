@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "sdk-document-channel-host",
+  "steps": [
+    { "type": "trace_event", "name": "Real SDK suite: native port transfer, replacement WindowProxy isolation, authority, rate limits, readiness and cleanup; prebuilt dist, no concurrent rebuild" },
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "sdk/tests/*.test.mjs"], "expect_exit": 0 }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "name": "backend-direct-replies-pagination",
+  "steps": [
+    {"type": "trace_event", "name": "Verify native reply index, persisted pagination, and HTTP RPC contract"},
+    {
+      "type": "proc_when",
+      "cmd": "cargo",
+      "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-graph", "-p", "babel-node", "-p", "babel-api", "replies"],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "cargo",
+      "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-graph", "-p", "babel-node", "-p", "babel-api", "replies"],
+      "expect_exit": 0
+    }
+  ]
+}

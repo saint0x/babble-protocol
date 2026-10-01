@@ -1,0 +1,24 @@
+{
+  "name": "@babel-protocol/frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1",
+    "check": "npm --prefix ../sdk run build && astro check",
+    "test": "node --test tests/*.test.mjs",
+    "build": "npm --prefix ../sdk run build && astro build",
+    "preview": "astro preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "@babel-protocol/sdk": "file:../sdk",
+    "astro": "7.3.5",
+    "lucide": "^1.49.0",
+    "sharp": "0.35.4"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "@types/node": "26.6.3",
+    "typescript": "6.0.3"
+  }
+}

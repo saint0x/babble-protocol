@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "name": "authenticated-http-contract-orchestration",
+  "steps": [
+    {"type":"trace_event","name":"Deterministic process-contract model; actual account assertions execute in auth-host.fozzy.json"},
+    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--test","auth"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--test","auth"],"expect_exit":0},
+    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-node","--test","grants"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-node","--test","grants"],"expect_exit":0}
+  ]
+}

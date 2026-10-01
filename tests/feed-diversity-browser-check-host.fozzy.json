@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "name": "feed-diversity-harness-checks-no-browser-evidence",
+  "steps": [
+    {
+      "type": "trace_event",
+      "name": "Real Node observation and orchestration contracts plus SDK/client diversity and conversion bounds; no browser feature evidence",
+      "fields": {}
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "--check",
+        "tests/feed-diversity-browser.mjs"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "--check",
+        "tests/live-stack.mjs"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "tests/feed-diversity-browser.mjs",
+        "--contract-check"
+      ],
+      "expect_exit": 0,
+      "expect_stdout": "Feed diversity harness observation and negative orchestration PASS (no browser/API evidence)\n"
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "--test",
+        "frontend/tests/feed-diversity.test.mjs"
+      ],
+      "expect_exit": 0
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "name": "indexed-discovery-real-native-regressions",
+  "steps": [
+    {
+      "type": "proc_when",
+      "cmd": "bash",
+      "args": ["backend/crates/node/tests/run-indexed-discovery.sh"],
+      "exit_code": 0,
+      "stdout": "indexed discovery and affected native regressions passed\n",
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "bash",
+      "args": ["backend/crates/node/tests/run-indexed-discovery.sh"],
+      "expect_exit": 0,
+      "expect_stdout": "indexed discovery and affected native regressions passed\n"
+    }
+  ]
+}

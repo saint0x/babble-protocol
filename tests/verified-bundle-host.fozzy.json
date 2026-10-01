@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "verified-bundle-production-api-sdk-aegis",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "node", "args": ["tests/verified-bundle-browser.mjs"], "expect_exit": 0 }
+  ]
+}

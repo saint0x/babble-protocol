@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "name": "bundle-gateway",
+  "steps": [
+    {
+      "type": "proc_when",
+      "cmd": "env",
+      "args": [
+        "CARGO_INCREMENTAL=0",
+        "cargo",
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-api",
+        "--lib"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": [
+        "CARGO_INCREMENTAL=0",
+        "cargo",
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-api",
+        "--lib"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_when",
+      "cmd": "env",
+      "args": [
+        "CARGO_INCREMENTAL=0",
+        "cargo",
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-runtime",
+        "--test",
+        "bundles",
+        "-p",
+        "babel-node",
+        "--test",
+        "bundles"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": [
+        "CARGO_INCREMENTAL=0",
+        "cargo",
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-runtime",
+        "--test",
+        "bundles",
+        "-p",
+        "babel-node",
+        "--test",
+        "bundles"
+      ],
+      "expect_exit": 0
+    }
+  ]
+}

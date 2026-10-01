@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "name": "atomic-publication-store-crash-matrix",
+  "steps": [
+    {
+      "type": "proc_when",
+      "cmd": "bash",
+      "args": ["tests/run-atomic-publication.sh", "store"],
+      "exit_code": 0,
+      "stdout": "atomic publication regressions passed\n",
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "bash",
+      "args": ["tests/run-atomic-publication.sh", "store"],
+      "expect_exit": 0,
+      "expect_stdout": "atomic publication regressions passed\n"
+    }
+  ]
+}

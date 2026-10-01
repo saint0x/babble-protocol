@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "name": "sdk-protocol",
+  "steps": [
+    {
+      "type": "trace_event",
+      "name": "sdk protocol test start"
+    },
+    {
+      "type": "proc_when",
+      "cmd": "npm",
+      "args": [
+        "--prefix",
+        "sdk",
+        "test"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "npm",
+      "args": [
+        "--prefix",
+        "sdk",
+        "test"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "trace_event",
+      "name": "sdk protocol test complete"
+    }
+  ]
+}

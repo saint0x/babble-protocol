@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "name": "consensus-contract-real-host",
+  "steps": [
+    {
+      "type": "proc_when",
+      "cmd": "uv",
+      "args": [
+        "run",
+        "--frozen",
+        "python",
+        "-c",
+        "import contextlib, io, pytest, sys\noutput = io.StringIO()\nwith contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):\n    status = pytest.main(['tests/test_consensus_contract.py', '-q'])\nprint('consensus contract checks passed' if status == 0 else output.getvalue())\nsys.exit(status)\n"
+      ],
+      "exit_code": 0,
+      "stdout": "consensus contract checks passed\n",
+      "stderr": "",
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "uv",
+      "args": [
+        "run",
+        "--frozen",
+        "python",
+        "-c",
+        "import contextlib, io, pytest, sys\noutput = io.StringIO()\nwith contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):\n    status = pytest.main(['tests/test_consensus_contract.py', '-q'])\nprint('consensus contract checks passed' if status == 0 else output.getvalue())\nsys.exit(status)\n"
+      ],
+      "expect_exit": 0,
+      "expect_stdout": "consensus contract checks passed\n",
+      "expect_stderr": ""
+    }
+  ]
+}

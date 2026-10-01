@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "name": "backend-protocol-ai-judge",
+  "steps": [
+    {
+      "type": "trace_event",
+      "name": "ai judge capability test start"
+    },
+    {
+      "type": "proc_when",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-api",
+        "rpc_dispatch_handles_capability_bound_ai_judgment"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_when",
+      "cmd": "npm",
+      "args": [
+        "--prefix",
+        "sdk",
+        "test",
+        "--",
+        "--test-name-pattern",
+        "capability-bound AI Judgment helper"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-api",
+        "rpc_dispatch_handles_capability_bound_ai_judgment"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "npm",
+      "args": [
+        "--prefix",
+        "sdk",
+        "test",
+        "--",
+        "--test-name-pattern",
+        "capability-bound AI Judgment helper"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "trace_event",
+      "name": "ai judge capability test complete"
+    }
+  ]
+}

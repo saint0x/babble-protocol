@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "conversation-reading-host",
+  "steps": [
+    { "type": "trace_event", "name": "Run conversation unit tests and actual Aegis DOM checks against running Astro" },
+    { "type": "proc_spawn", "cmd": "node", "args": ["tests/reading-check.mjs"], "expect_exit": 0 }
+  ]
+}

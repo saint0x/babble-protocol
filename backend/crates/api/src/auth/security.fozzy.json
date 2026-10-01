@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "account-security-strict-orchestration",
+  "steps": [
+    {"type":"trace_event","name":"Scripted process orchestration; security-host records the actual native auth regression suite"},
+    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--lib","auth::"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--lib","auth::"],"expect_exit":0}
+  ]
+}

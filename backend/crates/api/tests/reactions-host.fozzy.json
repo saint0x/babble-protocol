@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "public-reactions-real-http-rpc-regressions",
+  "steps": [
+    {"type":"trace_event","name":"Actual Router regressions: public attributed signed records, independent axes and actors, authentication, strict inputs, CAS, retry across REST/RPC and restart, no-op receipts, host binding authority, concurrent writes"},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--test","reactions"],"expect_exit":0}
+  ]
+}

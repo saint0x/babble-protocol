@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "media-albums-live-browser",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "env", "args": ["BABEL_LIVE_FOCUS=albums", "node", "tests/live-stack.mjs"], "expect_exit": 0 }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "name": "passive-http-observer-real-host",
+  "steps": [
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "--test",
+        "tests/http-observer.test.mjs"
+      ],
+      "expect_exit": 0
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "name": "python-public-ranking-real-host",
+  "steps": [
+    {
+      "type": "trace_event",
+      "name": "Run actual public ranking parity, malformed input, and persistent worker tests"
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "uv",
+      "args": ["run", "--frozen", "python", "tests/run_ranking_checks.py"],
+      "expect_exit": 0,
+      "expect_stdout": "ranking subprocess checks passed\n",
+      "expect_stderr": ""
+    }
+  ]
+}

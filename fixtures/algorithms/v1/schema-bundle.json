@@ -1,0 +1,1713 @@
+{
+  "protocol": "babel.algorithms.v1",
+  "request": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Request",
+    "type": "object",
+    "properties": {
+      "protocol": {
+        "$ref": "#/$defs/Protocol"
+      },
+      "id": {
+        "type": "integer",
+        "format": "uint64",
+        "minimum": 1,
+        "maximum": 9007199254740991
+      }
+    },
+    "required": [
+      "protocol",
+      "id"
+    ],
+    "oneOf": [
+      {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "const": "health"
+          }
+        },
+        "required": [
+          "method"
+        ]
+      },
+      {
+        "type": "object",
+        "properties": {
+          "request": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/JudgmentRequest"
+              },
+              {
+                "oneOf": [
+                  {
+                    "properties": {
+                      "definition": {
+                        "const": "babel.judgment.spam.v1"
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "definition": {
+                        "const": "babel.judgment.relevance.v1"
+                      },
+                      "parameters": {
+                        "$ref": "#/$defs/RelevanceParameters"
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "definition": {
+                        "const": "babel.judgment.relationship.v1"
+                      },
+                      "parameters": {
+                        "$ref": "#/$defs/RelationshipParameters"
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "definition": {
+                        "const": "babel.judgment.evidence_quality.v1"
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "definition": {
+                        "const": "babel.judgment.content_analysis.v1"
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "definition": {
+                        "const": "babel.judgment.moderation.v1"
+                      },
+                      "parameters": {
+                        "$ref": "#/$defs/ModerationParameters"
+                      }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "definition": {
+                        "const": "babel.judgment.source_agreement.v1"
+                      },
+                      "parameters": {
+                        "type": "object",
+                        "additionalProperties": false
+                      },
+                      "state": {
+                        "properties": {
+                          "subject": {
+                            "maxLength": 512
+                          },
+                          "context": {
+                            "properties": {
+                              "source_agreement": {
+                                "$ref": "#/$defs/SourceAgreementInput"
+                              }
+                            },
+                            "required": [
+                              "source_agreement"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "method": {
+            "type": "string",
+            "const": "judge"
+          }
+        },
+        "required": [
+          "method",
+          "request"
+        ]
+      },
+      {
+        "type": "object",
+        "properties": {
+          "request": {
+            "$ref": "#/$defs/RankingRequest"
+          },
+          "method": {
+            "type": "string",
+            "const": "rank"
+          }
+        },
+        "required": [
+          "method",
+          "request"
+        ]
+      },
+      {
+        "type": "object",
+        "properties": {
+          "request": {
+            "$ref": "#/$defs/TemporalRequest"
+          },
+          "method": {
+            "type": "string",
+            "const": "temporal"
+          }
+        },
+        "required": [
+          "method",
+          "request"
+        ]
+      }
+    ],
+    "$defs": {
+      "Protocol": {
+        "type": "string",
+        "enum": [
+          "babel.algorithms.v1"
+        ]
+      },
+      "JudgmentRequest": {
+        "type": "object",
+        "properties": {
+          "definition": {
+            "$ref": "#/$defs/DefinitionId"
+          },
+          "state": {
+            "$ref": "#/$defs/JudgmentState"
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "definition",
+          "state",
+          "parameters"
+        ],
+        "additionalProperties": false
+      },
+      "DefinitionId": {
+        "type": "string"
+      },
+      "JudgmentState": {
+        "type": "object",
+        "properties": {
+          "subject": {
+            "type": "string"
+          },
+          "context": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "subject",
+          "context"
+        ],
+        "additionalProperties": false
+      },
+      "SourceAgreementInput": {
+        "type": "object",
+        "properties": {
+          "reference_time": {
+            "type": "number",
+            "minimum": -62167219200.0,
+            "exclusiveMaximum": 253402300800.0
+          },
+          "previous_score": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/AgreementSource"
+            },
+            "maxItems": 200
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "reference_time",
+          "previous_score",
+          "sources"
+        ]
+      },
+      "AgreementSource": {
+        "type": "object",
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "kind": {
+            "$ref": "#/$defs/AgreementSourceKind"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 65536
+          },
+          "timestamp": {
+            "type": "number",
+            "minimum": -62167219200.0,
+            "exclusiveMaximum": 253402300800.0
+          },
+          "quality_score": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "evidence_score": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "user_id": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "vote": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1
+          },
+          "is_context": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "kind",
+          "text",
+          "timestamp",
+          "quality_score",
+          "evidence_score",
+          "user_id",
+          "vote",
+          "is_context"
+        ]
+      },
+      "AgreementSourceKind": {
+        "type": "string",
+        "enum": [
+          "official_docs",
+          "research_paper",
+          "technical_blog",
+          "community_wiki",
+          "forum_post",
+          "social_media",
+          "context"
+        ]
+      },
+      "RelevanceParameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": [
+              "string"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "RelationshipParameters": {
+        "type": "object",
+        "properties": {
+          "relation": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/Relation"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "Relation": {
+        "type": "string",
+        "enum": [
+          "supports",
+          "contradicts",
+          "related"
+        ]
+      },
+      "ModerationParameters": {
+        "type": "object",
+        "properties": {
+          "context": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ModerationContext"
+              }
+            ]
+          },
+          "policy": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/ModerationPolicy"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "ModerationContext": {
+        "type": "object",
+        "properties": {
+          "repeated_messages": {
+            "type": [
+              "integer"
+            ],
+            "format": "uint64",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "account_age_days": {
+            "type": [
+              "number"
+            ],
+            "format": "double",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "reports": {
+            "type": [
+              "integer"
+            ],
+            "format": "uint64",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "similar_recent_posts": {
+            "type": [
+              "integer"
+            ],
+            "format": "uint64",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "external_links": {
+            "type": [
+              "integer"
+            ],
+            "format": "uint64",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "additionalProperties": false
+      },
+      "ModerationPolicy": {
+        "type": "object",
+        "properties": {
+          "spam_limit": {
+            "type": [
+              "number"
+            ],
+            "format": "double",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "quality_warn": {
+            "type": [
+              "number"
+            ],
+            "format": "double",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "safety_remove": {
+            "type": [
+              "number"
+            ],
+            "format": "double",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "coordination_limit": {
+            "type": [
+              "number"
+            ],
+            "format": "double",
+            "minimum": 0.0,
+            "maximum": 1.0
+          }
+        },
+        "additionalProperties": false
+      },
+      "RankingRequest": {
+        "type": "object",
+        "properties": {
+          "candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Candidate"
+            }
+          },
+          "lens": {
+            "$ref": "#/$defs/LensStack"
+          },
+          "diversity": {
+            "$ref": "#/$defs/DiversityPolicy"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "uint",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "candidates",
+          "lens",
+          "diversity",
+          "limit"
+        ]
+      },
+      "Candidate": {
+        "type": "object",
+        "properties": {
+          "object_id": {
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/$defs/CandidateSource"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/CandidateSourceContribution"
+            }
+          },
+          "created_at": {
+            "$ref": "#/$defs/Timestamp"
+          },
+          "signals": {
+            "$ref": "#/$defs/Signals"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "object_id",
+          "source",
+          "sources",
+          "created_at",
+          "signals"
+        ]
+      },
+      "CandidateSource": {
+        "type": "string",
+        "enum": [
+          "Following",
+          "SocialGraph",
+          "SemanticNeighborhood",
+          "Temporal",
+          "Emerging",
+          "Evidence",
+          "Contradiction",
+          "Exploration"
+        ]
+      },
+      "CandidateSourceContribution": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "$ref": "#/$defs/CandidateSource"
+          },
+          "weight": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "weight"
+        ]
+      },
+      "Timestamp": {
+        "type": "string"
+      },
+      "Signals": {
+        "type": "object",
+        "properties": {
+          "social_distance": {
+            "type": "number",
+            "format": "double"
+          },
+          "followed_author": {
+            "type": "boolean"
+          },
+          "relevance": {
+            "type": "number",
+            "format": "double"
+          },
+          "novelty": {
+            "type": "number",
+            "format": "double"
+          },
+          "evidence_quality": {
+            "type": "number",
+            "format": "double"
+          },
+          "contradiction": {
+            "type": "number",
+            "format": "double"
+          },
+          "evidence": {
+            "$ref": "#/$defs/EvidenceSignals"
+          },
+          "reputation": {
+            "$ref": "#/$defs/ReputationSignals"
+          },
+          "temporal": {
+            "type": "number",
+            "format": "double"
+          },
+          "exploration": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "social_distance",
+          "followed_author",
+          "relevance",
+          "novelty",
+          "evidence_quality",
+          "contradiction",
+          "evidence",
+          "reputation",
+          "temporal",
+          "exploration"
+        ]
+      },
+      "EvidenceSignals": {
+        "type": "object",
+        "properties": {
+          "human_support": {
+            "type": "number",
+            "format": "double"
+          },
+          "judgment_support": {
+            "type": "number",
+            "format": "double"
+          },
+          "human_contradiction": {
+            "type": "number",
+            "format": "double"
+          },
+          "judgment_contradiction": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "human_support",
+          "judgment_support",
+          "human_contradiction",
+          "judgment_contradiction"
+        ]
+      },
+      "ReputationSignals": {
+        "type": "object",
+        "properties": {
+          "epistemic_accuracy": {
+            "type": "number",
+            "format": "double"
+          },
+          "evidence_quality": {
+            "type": "number",
+            "format": "double"
+          },
+          "social_constructiveness": {
+            "type": "number",
+            "format": "double"
+          },
+          "creative_contribution": {
+            "type": "number",
+            "format": "double"
+          },
+          "moderation": {
+            "type": "number",
+            "format": "double"
+          },
+          "domain_expertise": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "epistemic_accuracy",
+          "evidence_quality",
+          "social_constructiveness",
+          "creative_contribution",
+          "moderation",
+          "domain_expertise"
+        ]
+      },
+      "LensStack": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "weights": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/LensWeight"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "weights"
+        ]
+      },
+      "LensWeight": {
+        "type": "object",
+        "properties": {
+          "lens": {
+            "$ref": "#/$defs/BuiltInLens"
+          },
+          "weight": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "lens",
+          "weight"
+        ]
+      },
+      "BuiltInLens": {
+        "type": "string",
+        "enum": [
+          "Following",
+          "Friends",
+          "Research",
+          "IntellectualSerendipity",
+          "Contradictions",
+          "Emerging",
+          "SlowInternet",
+          "Weird"
+        ]
+      },
+      "DiversityPolicy": {
+        "type": "object",
+        "properties": {
+          "max_source_share": {
+            "type": "number",
+            "format": "double"
+          },
+          "source_floors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/SourceFloor"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "max_source_share",
+          "source_floors"
+        ]
+      },
+      "SourceFloor": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "$ref": "#/$defs/CandidateSource"
+          },
+          "minimum": {
+            "type": "integer",
+            "format": "uint",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "minimum"
+        ]
+      },
+      "TemporalRequest": {
+        "type": "object",
+        "properties": {
+          "reference_time": {
+            "description": "RFC3339 timestamp with year 0000..9999 and whole-minute UTC offset.",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?([Zz]|[+-][0-9]{2}:[0-9]{2})$"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/TemporalItem"
+            },
+            "maxItems": 200
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "reference_time",
+          "items"
+        ]
+      },
+      "TemporalItem": {
+        "type": "object",
+        "properties": {
+          "object_id": {
+            "type": "string",
+            "pattern": "^obj_[0-9a-f]{64}$"
+          },
+          "published_at": {
+            "description": "RFC3339 timestamp with year 0000..9999 and whole-minute UTC offset.",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?([Zz]|[+-][0-9]{2}:[0-9]{2})$"
+          },
+          "content_class": {
+            "$ref": "#/$defs/TemporalClass"
+          },
+          "quality_score": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "tags": {
+            "description": "At most 32 tags, each at most 64 UTF-8 bytes (validated at runtime).",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "maxItems": 32
+          },
+          "engagement": {
+            "$ref": "#/$defs/TemporalEngagement"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "object_id",
+          "published_at",
+          "content_class",
+          "quality_score",
+          "tags",
+          "engagement"
+        ]
+      },
+      "TemporalClass": {
+        "type": "string",
+        "enum": [
+          "news",
+          "discussion",
+          "analysis",
+          "tutorial",
+          "reference"
+        ]
+      },
+      "TemporalEngagement": {
+        "type": "object",
+        "properties": {
+          "total_views": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "recent_views": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "total_interactions": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "recent_interactions": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "total_views",
+          "recent_views",
+          "total_interactions",
+          "recent_interactions"
+        ]
+      }
+    },
+    "unevaluatedProperties": false
+  },
+  "response": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Response",
+    "type": "object",
+    "properties": {
+      "protocol": {
+        "$ref": "#/$defs/Protocol"
+      },
+      "id": {
+        "anyOf": [
+          {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "result": {
+        "anyOf": [
+          {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/HealthResult"
+              },
+              {
+                "$ref": "#/$defs/JudgeResult"
+              },
+              {
+                "$ref": "#/$defs/RankingResult"
+              },
+              {
+                "$ref": "#/$defs/TemporalResult"
+              }
+            ]
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "error": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "code": {
+                "$ref": "#/$defs/ErrorCode"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "message"
+            ]
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "protocol",
+      "id",
+      "result",
+      "error"
+    ],
+    "$defs": {
+      "Protocol": {
+        "type": "string",
+        "enum": [
+          "babel.algorithms.v1"
+        ]
+      },
+      "HealthResult": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "$ref": "#/$defs/ProviderVersion"
+          },
+          "supported_definitions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/DefinitionId"
+            }
+          },
+          "ranking_provider": {
+            "$ref": "#/$defs/RankingProviderVersion"
+          },
+          "temporal_provider": {
+            "$ref": "#/$defs/TemporalProviderVersion"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "provider",
+          "supported_definitions",
+          "ranking_provider",
+          "temporal_provider"
+        ]
+      },
+      "ProviderVersion": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "const": "babel-python"
+          },
+          "model": {
+            "type": "string",
+            "const": "lexical-v1"
+          },
+          "version": {
+            "type": "string",
+            "const": "1"
+          }
+        },
+        "required": [
+          "provider",
+          "model",
+          "version"
+        ],
+        "additionalProperties": false
+      },
+      "DefinitionId": {
+        "type": "string"
+      },
+      "RankingProviderVersion": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "provider",
+          "model",
+          "version"
+        ]
+      },
+      "TemporalProviderVersion": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[!-~]+$",
+            "const": "babel-python"
+          },
+          "model": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[!-~]+$",
+            "const": "temporal-v1"
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[!-~]+$",
+            "const": "1"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "provider",
+          "model",
+          "version"
+        ]
+      },
+      "JudgeResult": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "$ref": "#/$defs/ProviderVersion"
+          },
+          "output": true,
+          "confidence": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0.0,
+            "maximum": 1.0
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "provider",
+          "output",
+          "confidence"
+        ]
+      },
+      "RankingResult": {
+        "type": "object",
+        "properties": {
+          "ranked": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/RankedCandidate"
+            }
+          },
+          "trace": {
+            "$ref": "#/$defs/RankingTrace"
+          },
+          "diversity_trace": {
+            "$ref": "#/$defs/DiversityTrace"
+          },
+          "provider": {
+            "$ref": "#/$defs/RankingProviderVersion"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "ranked",
+          "trace",
+          "diversity_trace",
+          "provider"
+        ]
+      },
+      "RankedCandidate": {
+        "type": "object",
+        "properties": {
+          "candidate": {
+            "$ref": "#/$defs/Candidate"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Reason"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "candidate",
+          "score",
+          "reasons"
+        ]
+      },
+      "Candidate": {
+        "type": "object",
+        "properties": {
+          "object_id": {
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/$defs/CandidateSource"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/CandidateSourceContribution"
+            }
+          },
+          "created_at": {
+            "$ref": "#/$defs/Timestamp"
+          },
+          "signals": {
+            "$ref": "#/$defs/Signals"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "object_id",
+          "source",
+          "sources",
+          "created_at",
+          "signals"
+        ]
+      },
+      "CandidateSource": {
+        "type": "string",
+        "enum": [
+          "Following",
+          "SocialGraph",
+          "SemanticNeighborhood",
+          "Temporal",
+          "Emerging",
+          "Evidence",
+          "Contradiction",
+          "Exploration"
+        ]
+      },
+      "CandidateSourceContribution": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "$ref": "#/$defs/CandidateSource"
+          },
+          "weight": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "weight"
+        ]
+      },
+      "Timestamp": {
+        "type": "string"
+      },
+      "Signals": {
+        "type": "object",
+        "properties": {
+          "social_distance": {
+            "type": "number",
+            "format": "double"
+          },
+          "followed_author": {
+            "type": "boolean"
+          },
+          "relevance": {
+            "type": "number",
+            "format": "double"
+          },
+          "novelty": {
+            "type": "number",
+            "format": "double"
+          },
+          "evidence_quality": {
+            "type": "number",
+            "format": "double"
+          },
+          "contradiction": {
+            "type": "number",
+            "format": "double"
+          },
+          "evidence": {
+            "$ref": "#/$defs/EvidenceSignals"
+          },
+          "reputation": {
+            "$ref": "#/$defs/ReputationSignals"
+          },
+          "temporal": {
+            "type": "number",
+            "format": "double"
+          },
+          "exploration": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "social_distance",
+          "followed_author",
+          "relevance",
+          "novelty",
+          "evidence_quality",
+          "contradiction",
+          "evidence",
+          "reputation",
+          "temporal",
+          "exploration"
+        ]
+      },
+      "EvidenceSignals": {
+        "type": "object",
+        "properties": {
+          "human_support": {
+            "type": "number",
+            "format": "double"
+          },
+          "judgment_support": {
+            "type": "number",
+            "format": "double"
+          },
+          "human_contradiction": {
+            "type": "number",
+            "format": "double"
+          },
+          "judgment_contradiction": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "human_support",
+          "judgment_support",
+          "human_contradiction",
+          "judgment_contradiction"
+        ]
+      },
+      "ReputationSignals": {
+        "type": "object",
+        "properties": {
+          "epistemic_accuracy": {
+            "type": "number",
+            "format": "double"
+          },
+          "evidence_quality": {
+            "type": "number",
+            "format": "double"
+          },
+          "social_constructiveness": {
+            "type": "number",
+            "format": "double"
+          },
+          "creative_contribution": {
+            "type": "number",
+            "format": "double"
+          },
+          "moderation": {
+            "type": "number",
+            "format": "double"
+          },
+          "domain_expertise": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "epistemic_accuracy",
+          "evidence_quality",
+          "social_constructiveness",
+          "creative_contribution",
+          "moderation",
+          "domain_expertise"
+        ]
+      },
+      "Reason": {
+        "type": "object",
+        "properties": {
+          "signal": {
+            "type": "string"
+          },
+          "contribution": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "signal",
+          "contribution"
+        ]
+      },
+      "RankingTrace": {
+        "type": "object",
+        "properties": {
+          "stack_id": {
+            "type": "string"
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/CandidateTrace"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "stack_id",
+          "candidates"
+        ]
+      },
+      "CandidateTrace": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "format": "uint",
+            "minimum": 0
+          },
+          "object_id": {
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/$defs/CandidateSource"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/CandidateSourceContribution"
+            }
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "lens_contributions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/LensContribution"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "rank",
+          "object_id",
+          "source",
+          "sources",
+          "score",
+          "lens_contributions"
+        ]
+      },
+      "LensContribution": {
+        "type": "object",
+        "properties": {
+          "lens_id": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "number",
+            "format": "double"
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Reason"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "lens_id",
+          "weight",
+          "score",
+          "reasons"
+        ]
+      },
+      "DiversityTrace": {
+        "type": "object",
+        "properties": {
+          "policy": {
+            "$ref": "#/$defs/DiversityPolicy"
+          },
+          "candidates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/DiversifiedCandidateTrace"
+            }
+          },
+          "filtered": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "policy",
+          "candidates",
+          "filtered"
+        ]
+      },
+      "DiversityPolicy": {
+        "type": "object",
+        "properties": {
+          "max_source_share": {
+            "type": "number",
+            "format": "double"
+          },
+          "source_floors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/SourceFloor"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "max_source_share",
+          "source_floors"
+        ]
+      },
+      "SourceFloor": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "$ref": "#/$defs/CandidateSource"
+          },
+          "minimum": {
+            "type": "integer",
+            "format": "uint",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "minimum"
+        ]
+      },
+      "DiversifiedCandidateTrace": {
+        "type": "object",
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "format": "uint",
+            "minimum": 0
+          },
+          "object_id": {
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/$defs/CandidateSource"
+          },
+          "lens_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "diversified_score": {
+            "type": "number",
+            "format": "double"
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/DiversityReason"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "rank",
+          "object_id",
+          "source",
+          "lens_score",
+          "diversified_score",
+          "reasons"
+        ]
+      },
+      "DiversityReason": {
+        "type": "object",
+        "properties": {
+          "signal": {
+            "type": "string"
+          },
+          "contribution": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "signal",
+          "contribution"
+        ]
+      },
+      "TemporalResult": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "$ref": "#/$defs/TemporalProviderVersion"
+          },
+          "reference_time": {
+            "description": "RFC3339 timestamp with year 0000..9999 and whole-minute UTC offset.",
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?([Zz]|[+-][0-9]{2}:[0-9]{2})$"
+          },
+          "scores": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/TemporalScore"
+            },
+            "maxItems": 200
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "provider",
+          "reference_time",
+          "scores"
+        ]
+      },
+      "TemporalScore": {
+        "type": "object",
+        "properties": {
+          "object_id": {
+            "type": "string",
+            "pattern": "^obj_[0-9a-f]{64}$"
+          },
+          "age_hours": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0.0,
+            "maximum": 87658248.0
+          },
+          "recency": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "decay_rate": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0.01,
+            "maximum": 0.5
+          },
+          "time_sensitivity": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "engagement_velocity": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "survival_score": {
+            "type": "number",
+            "format": "double",
+            "minimum": 0.0,
+            "maximum": 1.0
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "object_id",
+          "age_hours",
+          "recency",
+          "decay_rate",
+          "time_sensitivity",
+          "engagement_velocity",
+          "survival_score"
+        ]
+      },
+      "ErrorCode": {
+        "type": "string",
+        "enum": [
+          "invalid_request",
+          "unsupported_definition",
+          "algorithm_failure"
+        ]
+      }
+    },
+    "oneOf": [
+      {
+        "properties": {
+          "result": {
+            "type": "object"
+          },
+          "error": {
+            "type": "null"
+          }
+        }
+      },
+      {
+        "properties": {
+          "result": {
+            "type": "null"
+          },
+          "error": {
+            "type": "object"
+          }
+        }
+      }
+    ]
+  },
+  "limits": {
+    "line_bytes": 4194304,
+    "text_bytes": 131072,
+    "subject_bytes": 4096,
+    "map_entries": 64,
+    "json_depth": 16,
+    "max_id": 9007199254740991,
+    "array_items": 256,
+    "json_nodes": 200000,
+    "judgment_line_bytes": 1048576,
+    "judgment_json_nodes": 4096
+  },
+  "provider": {
+    "provider": "babel-python",
+    "model": "lexical-v1",
+    "version": "1"
+  },
+  "ranking_provider": {
+    "provider": "babel-python",
+    "model": "lenses-v1",
+    "version": "1"
+  },
+  "temporal_provider": {
+    "provider": "babel-python",
+    "model": "temporal-v1",
+    "version": "1"
+  },
+  "supported_definitions": [
+    "babel.judgment.spam.v1",
+    "babel.judgment.relevance.v1",
+    "babel.judgment.relationship.v1",
+    "babel.judgment.evidence_quality.v1",
+    "babel.judgment.content_analysis.v1",
+    "babel.judgment.moderation.v1",
+    "babel.judgment.source_agreement.v1"
+  ]
+}

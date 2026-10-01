@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "media-albums-browser-orchestration",
+  "steps": [
+    { "type": "proc_when", "cmd": "env", "args": ["BABEL_LIVE_FOCUS=albums", "node", "tests/live-stack.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "env", "args": ["BABEL_LIVE_FOCUS=albums", "node", "tests/live-stack.mjs"], "expect_exit": 0 }
+  ]
+}

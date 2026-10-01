@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "name": "private-safety-all-affected-backend-regressions",
+  "steps": [
+    {
+      "type": "proc_when",
+      "cmd": "/bin/sh",
+      "args": ["backend/crates/node/tests/run-safety.sh", "all", "4"],
+      "exit_code": 0,
+      "stdout": "safety native graph/store/node/API/schema tests passed\n",
+      "stderr": "",
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "/bin/sh",
+      "args": ["backend/crates/node/tests/run-safety.sh", "all", "4"],
+      "expect_exit": 0,
+      "expect_stdout": "safety native graph/store/node/API/schema tests passed\n"
+    }
+  ]
+}

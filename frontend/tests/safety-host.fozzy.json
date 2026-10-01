@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "safety-client-controller-dialog-real-host",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "frontend/tests/safety.test.mjs", "frontend/tests/safety-view.test.mjs"], "expect_exit": 0 }
+  ]
+}

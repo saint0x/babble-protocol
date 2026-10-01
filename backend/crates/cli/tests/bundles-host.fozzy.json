@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "name": "cli-bundle-capture-build-sign-publish-reopen",
+  "steps": [
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "../../Cargo.toml", "-p", "babel-cli", "--", "--test-threads=1"],
+      "expect_exit": 0
+    }
+  ]
+}

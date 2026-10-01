@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "invocation-consent-production-main-real-aegis-api-integration",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "env", "args": ["BABEL_LIVE_FOCUS=invocation-consent", "node", "tests/live-stack.mjs"], "expect_exit": 0 }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "name": "backend-runtime-wasm-policy",
+  "steps": [
+    {
+      "type": "trace_event",
+      "name": "WASM runtime policy test start"
+    },
+    {
+      "type": "proc_when",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-runtime",
+        "runtime_wasm_policy_uses_isolated_store_and_granted_capability_imports"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_when",
+      "cmd": "npm",
+      "args": [
+        "--prefix",
+        "sdk",
+        "test",
+        "--",
+        "--test-name-pattern",
+        "generated catalog exposes the Rust protocol contract"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-runtime",
+        "runtime_wasm_policy_uses_isolated_store_and_granted_capability_imports"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "npm",
+      "args": [
+        "--prefix",
+        "sdk",
+        "test",
+        "--",
+        "--test-name-pattern",
+        "generated catalog exposes the Rust protocol contract"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "trace_event",
+      "name": "WASM runtime policy test complete"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version":1,
+  "name":"browser-invocation-real-host-regressions",
+  "steps":[
+    {"type":"proc_spawn","cmd":"bash","args":["tests/run-browser-invocations.sh"],"expect_exit":0,"expect_stdout":"browser invocation and affected backend regressions passed\n"}
+  ]
+}

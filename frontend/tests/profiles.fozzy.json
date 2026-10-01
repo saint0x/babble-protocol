@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "name": "public-profiles-contract-deterministic",
+  "steps": [
+    {"type":"proc_when","cmd":"node","args":["--test","frontend/tests/profiles.test.mjs"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"node","args":["--test","frontend/tests/profiles.test.mjs"],"expect_exit":0},
+    {"type":"proc_when","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babel-node","-p","babel-api","--test","profiles"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babel-node","-p","babel-api","--test","profiles"],"expect_exit":0}
+  ]
+}

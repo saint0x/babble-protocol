@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "invocation-consent-api-orchestration",
+  "steps": [
+    {"type":"proc_when","cmd":"bash","args":["tests/run-invocation-consent.sh"],"exit_code":0,"stdout":"invocation consent API and runtime regressions passed\n","times":1},
+    {"type":"proc_spawn","cmd":"bash","args":["tests/run-invocation-consent.sh"],"expect_exit":0,"expect_stdout":"invocation consent API and runtime regressions passed\n"}
+  ]
+}

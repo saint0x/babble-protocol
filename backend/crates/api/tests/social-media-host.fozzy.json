@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "social-media-real-regressions",
+  "steps": [
+    {"type":"trace_event","name":"Real node and API tests: media replies/quotes, reference quota, invalid descriptors and blobs, authorization, atomic failures and durable retries"},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-node","-p","babel-api","social_media"],"expect_exit":0}
+  ]
+}

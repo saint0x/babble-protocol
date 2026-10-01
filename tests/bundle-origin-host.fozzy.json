@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "bundle-origin-real-aegis-random-localhost",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "node", "args": ["tests/bundle-origin-browser.mjs"], "expect_exit": 0 }
+  ]
+}

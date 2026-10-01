@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "host-action-real-tests-and-build",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "npm", "args": ["--prefix", "frontend", "test"], "expect_exit": 0 },
+    { "type": "proc_spawn", "cmd": "npm", "args": ["--prefix", "frontend", "run", "check"], "expect_exit": 0 },
+    { "type": "proc_spawn", "cmd": "npm", "args": ["--prefix", "frontend", "run", "build"], "expect_exit": 0 }
+  ]
+}

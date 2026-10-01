@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "name": "temporal-node-api-scripted-contract",
+  "steps": [
+    {
+      "type": "proc_when",
+      "cmd": "env",
+      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-node", "-p", "babel-api", "--test", "temporal"],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-node", "-p", "babel-api", "--test", "temporal"],
+      "expect_exit": 0
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "name": "reactions-deterministic-orchestration",
+  "steps": [
+    {"type":"trace_event","name":"Scripted process contract only; reactions-host.fozzy.json runs the actual Rust regressions"},
+    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-store","--test","reactions"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-store","--test","reactions"],"expect_exit":0},
+    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-store","--lib","reactions::"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-store","--lib","reactions::"],"expect_exit":0},
+    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-node","--test","reactions"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-node","--test","reactions"],"expect_exit":0},
+    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-node","--lib","reactions::"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-node","--lib","reactions::"],"expect_exit":0}
+  ]
+}

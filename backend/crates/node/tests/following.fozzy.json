@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "name": "private-following-deterministic-test-orchestration",
+  "steps": [
+    { "type": "trace_event", "name": "Deterministic process contract; native feature assertions run in the separate host scenario" },
+    {
+      "type": "proc_when",
+      "cmd": "env",
+      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-graph", "-p", "babel-store", "-p", "babel-node", "following"],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-graph", "-p", "babel-store", "-p", "babel-node", "following"],
+      "expect_exit": 0
+    }
+  ]
+}

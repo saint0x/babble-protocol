@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "name": "bundle-contract-deterministic-orchestration",
+  "steps": [
+    {
+      "type": "trace_event",
+      "name": "Process orchestration only; host scenario executes the real Rust contract tests"
+    },
+    {
+      "type": "proc_when",
+      "cmd": "env",
+      "args": [
+        "CARGO_INCREMENTAL=0",
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-object"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": [
+        "CARGO_INCREMENTAL=0",
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-object"
+      ],
+      "expect_exit": 0
+    }
+  ]
+}

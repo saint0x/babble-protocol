@@ -1,0 +1,8 @@
+{
+  "version":1,
+  "name":"browser-invocation-focused-orchestration",
+  "steps":[
+    {"type":"proc_when","cmd":"bash","args":["tests/run-browser-invocations-focused.sh"],"exit_code":0,"stdout":"browser focused consent and store regressions passed\n","times":1},
+    {"type":"proc_spawn","cmd":"bash","args":["tests/run-browser-invocations-focused.sh"],"expect_exit":0,"expect_stdout":"browser focused consent and store regressions passed\n"}
+  ]
+}

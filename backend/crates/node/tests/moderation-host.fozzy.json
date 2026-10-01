@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "moderation-private-native-regressions",
+  "steps": [
+    {"type":"proc_when","cmd":"/bin/sh","args":["backend/crates/node/tests/run-moderation.sh"],"exit_code":0,"stdout":"moderation native graph/store/node/API/schema tests passed\n","stderr":"","times":1},
+    {"type":"proc_spawn","cmd":"/bin/sh","args":["backend/crates/node/tests/run-moderation.sh"],"expect_exit":0,"expect_stdout":"moderation native graph/store/node/API/schema tests passed\n"}
+  ]
+}

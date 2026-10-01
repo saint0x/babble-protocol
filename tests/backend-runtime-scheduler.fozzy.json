@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "name": "backend-runtime-scheduler",
+  "steps": [
+    {
+      "type": "trace_event",
+      "name": "Surface scheduler test start"
+    },
+    {
+      "type": "proc_when",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-runtime",
+        "scheduler_"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_when",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-api",
+        "rpc_dispatch_schedules_host_owned_surface_sessions"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_when",
+      "cmd": "npm",
+      "args": [
+        "--prefix",
+        "sdk",
+        "test",
+        "--",
+        "--test-name-pattern",
+        "generated catalog exposes the Rust protocol contract"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-runtime",
+        "scheduler_"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-api",
+        "rpc_dispatch_schedules_host_owned_surface_sessions"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "npm",
+      "args": [
+        "--prefix",
+        "sdk",
+        "test",
+        "--",
+        "--test-name-pattern",
+        "generated catalog exposes the Rust protocol contract"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "trace_event",
+      "name": "Surface scheduler test complete"
+    }
+  ]
+}

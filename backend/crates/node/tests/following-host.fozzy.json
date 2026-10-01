@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "name": "private-following-real-native-tests-host",
+  "steps": [
+    { "type": "trace_event", "name": "Execute signed actions, SQLite receipts/CAS/tamper, node rotation/restart/private feed and resource-budget tests" },
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-graph", "-p", "babel-store", "-p", "babel-node", "following"],
+      "expect_exit": 0
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "surface-document-real-aegis-api-integration",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "env", "args": ["BABEL_LIVE_FOCUS=documents", "node", "tests/live-stack.mjs"], "expect_exit": 0 }
+  ]
+}

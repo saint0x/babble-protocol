@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "reactions-dom-deterministic-process-contract",
+  "steps": [
+    { "type": "proc_when", "cmd": "node", "args": ["frontend/tests/reactions-browser.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["frontend/tests/reactions-browser.mjs"], "expect_exit": 0 }
+  ]
+}

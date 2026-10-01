@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "browser-invocations-separate-full-regression-real-host",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "node", "args": ["tests/browser-invocation-evidence.mjs", "full"], "expect_exit": 0 }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "account-security-frontend-real-host",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "frontend/tests/security.test.mjs", "frontend/tests/accounts.test.mjs"], "expect_exit": 0 }
+  ]
+}

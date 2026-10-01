@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "name": "sdk-surface-hardening",
+  "steps": [
+    { "type": "trace_event", "name": "Surface bridge closure, duplicates, timers, document binding and lifecycle disposal" },
+    { "type": "proc_when", "cmd": "npm", "args": ["--prefix", "sdk", "run", "build"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "npm", "args": ["--prefix", "sdk", "run", "build"], "expect_exit": 0 },
+    { "type": "proc_when", "cmd": "node", "args": ["--test", "sdk/tests/bridge.test.mjs", "sdk/tests/host.test.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "sdk/tests/bridge.test.mjs", "sdk/tests/host.test.mjs"], "expect_exit": 0 }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "surface-document-client-process-contract",
+  "steps": [
+    { "type": "proc_when", "cmd": "node", "args": ["--test", "frontend/tests/surface-document.test.mjs", "frontend/tests/surfaces.test.mjs", "frontend/tests/host-actions.test.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "frontend/tests/surface-document.test.mjs", "frontend/tests/surfaces.test.mjs", "frontend/tests/host-actions.test.mjs"], "expect_exit": 0 }
+  ]
+}

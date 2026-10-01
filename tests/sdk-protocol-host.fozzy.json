@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "sdk-protocol-host",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "npm", "args": ["--prefix", "sdk", "test"], "expect_exit": 0 }
+  ]
+}

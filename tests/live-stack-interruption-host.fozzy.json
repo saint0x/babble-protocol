@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "name": "live-stack-interruption-real-host",
+  "steps": [
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "--test",
+        "tests/live-stack-interruption.test.mjs"
+      ],
+      "expect_exit": 0
+    }
+  ]
+}

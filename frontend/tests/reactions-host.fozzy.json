@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "reactions-controller-real-host-tests",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "frontend/tests/reactions.test.mjs"], "expect_exit": 0 }
+  ]
+}

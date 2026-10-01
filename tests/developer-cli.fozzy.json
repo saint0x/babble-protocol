@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "name": "developer-cli",
+  "steps": [
+    {
+      "type": "trace_event",
+      "name": "developer cli test start"
+    },
+    {
+      "type": "proc_when",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-cli"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_when",
+      "cmd": "cargo",
+      "args": [
+        "run",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-cli",
+        "--",
+        "--help"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-cli"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "cargo",
+      "args": [
+        "run",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-cli",
+        "--",
+        "--help"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "trace_event",
+      "name": "developer cli test complete"
+    }
+  ]
+}

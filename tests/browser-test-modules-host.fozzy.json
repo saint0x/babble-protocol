@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "browser-test-modules-real-import-contracts",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "tests/browser-test-modules.test.mjs"], "expect_exit": 0 }
+  ]
+}

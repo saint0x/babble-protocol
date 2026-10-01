@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "verified-bundle-portable-fixture-syntax-only",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "node", "args": ["tests/verified-bundle-browser.mjs", "--fixture-only"], "expect_exit": 0 }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "name": "backend-protocol-host-actions",
+  "steps": [
+    {
+      "type": "trace_event",
+      "name": "host action capability test start"
+    },
+    {
+      "type": "proc_when",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-api",
+        "rpc_dispatch_handles_capability_bound_host_actions"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_when",
+      "cmd": "npm",
+      "args": [
+        "--prefix",
+        "sdk",
+        "test",
+        "--",
+        "--test-name-pattern",
+        "capability-bound host action helpers"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-api",
+        "rpc_dispatch_handles_capability_bound_host_actions"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "npm",
+      "args": [
+        "--prefix",
+        "sdk",
+        "test",
+        "--",
+        "--test-name-pattern",
+        "capability-bound host action helpers"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "trace_event",
+      "name": "host action capability test complete"
+    }
+  ]
+}

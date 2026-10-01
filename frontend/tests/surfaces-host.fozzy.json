@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "surfaces-controller-real-host-tests",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "frontend/tests/surfaces.test.mjs"], "expect_exit": 0 }
+  ]
+}

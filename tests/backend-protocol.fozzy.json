@@ -1,0 +1,129 @@
+{
+  "version": 1,
+  "name": "backend-protocol-core",
+  "steps": [
+    {
+      "type": "trace_event",
+      "name": "backend protocol core test start"
+    },
+    {
+      "type": "proc_when",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--workspace",
+        "--manifest-path",
+        "backend/Cargo.toml"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_when",
+      "cmd": "uv",
+      "args": [
+        "--directory",
+        "algorithms",
+        "run",
+        "pytest"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_when",
+      "cmd": "uv",
+      "args": [
+        "--directory",
+        "algorithms",
+        "run",
+        "basedpyright"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_when",
+      "cmd": "uv",
+      "args": [
+        "--directory",
+        "algorithms",
+        "run",
+        "ruff",
+        "check"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_when",
+      "cmd": "python3",
+      "args": [
+        "tests/conformance/fixture_conformance.py",
+        "fixtures/protocol/v1/fixtures.json",
+        "fixtures/protocol/v1/schema-bundle.json"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--workspace",
+        "--manifest-path",
+        "backend/Cargo.toml"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "uv",
+      "args": [
+        "--directory",
+        "algorithms",
+        "run",
+        "pytest"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "uv",
+      "args": [
+        "--directory",
+        "algorithms",
+        "run",
+        "basedpyright"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "uv",
+      "args": [
+        "--directory",
+        "algorithms",
+        "run",
+        "ruff",
+        "check"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "python3",
+      "args": [
+        "tests/conformance/fixture_conformance.py",
+        "fixtures/protocol/v1/fixtures.json",
+        "fixtures/protocol/v1/schema-bundle.json"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "trace_event",
+      "name": "backend protocol core test complete"
+    }
+  ]
+}

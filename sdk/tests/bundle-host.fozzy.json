@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "name": "sdk-verified-bundle-admission-host",
+  "steps": [
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": ["--test", "bundle-host.test.mjs", "host.test.mjs", "channel.test.mjs"],
+      "expect_exit": 0
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "invocation-client-process-contract",
+  "steps": [
+    { "type": "proc_when", "cmd": "node", "args": ["--test", "frontend/tests/invocations.test.mjs", "frontend/tests/surface-invocations.test.mjs", "frontend/tests/invocation-prompt.test.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "frontend/tests/invocations.test.mjs", "frontend/tests/surface-invocations.test.mjs", "frontend/tests/invocation-prompt.test.mjs"], "expect_exit": 0 }
+  ]
+}

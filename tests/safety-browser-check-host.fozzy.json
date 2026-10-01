@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "name": "social-safety-harness-checks-no-browser-evidence",
+  "steps": [
+    { "type": "trace_event", "name": "Real Node syntax and negative orchestration checks only; no browser or backend acceptance", "fields": {} },
+    { "type": "proc_when", "cmd": "node", "args": ["--check", "tests/safety-browser.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["--check", "tests/safety-browser.mjs"], "expect_exit": 0 },
+    { "type": "proc_when", "cmd": "node", "args": ["tests/safety-browser.mjs", "--contract-check"], "exit_code": 0, "stdout": "Safety harness negative orchestration PASS (no browser/API evidence)\n", "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["tests/safety-browser.mjs", "--contract-check"], "expect_exit": 0, "expect_stdout": "Safety harness negative orchestration PASS (no browser/API evidence)\n" }
+  ]
+}

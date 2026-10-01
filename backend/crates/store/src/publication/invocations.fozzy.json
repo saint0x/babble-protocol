@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "name": "invocation-domain-and-journal-recovery",
+  "steps": [
+    {
+      "type": "proc_when",
+      "cmd": "bash",
+      "args": ["src/publication/run-invocations.sh"],
+      "exit_code": 0,
+      "stdout": "invocation domain and store regressions passed\n",
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "bash",
+      "args": ["src/publication/run-invocations.sh"],
+      "expect_exit": 0,
+      "expect_stdout": "invocation domain and store regressions passed\n"
+    }
+  ]
+}

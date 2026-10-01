@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "live-stack-host",
+  "steps": [
+    { "type": "trace_event", "name": "Run real API, Astro and Aegis integration assertions" },
+    { "type": "proc_spawn", "cmd": "node", "args": ["tests/live-stack.mjs"], "expect_exit": 0 },
+    { "type": "trace_event", "name": "Live stack assertions passed" }
+  ]
+}

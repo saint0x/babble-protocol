@@ -1,0 +1,49 @@
+[package]
+name = "babel-api"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+axum.workspace = true
+babel-authoring.workspace = true
+babel-capabilities.workspace = true
+babel-discovery.workspace = true
+babel-graph.workspace = true
+babel-hashgraph.workspace = true
+babel-identity.workspace = true
+babel-judgment.workspace = true
+babel-judgment-local.workspace = true
+babel-judgment-python.workspace = true
+babel-lens.workspace = true
+babel-media.workspace = true
+babel-node.workspace = true
+babel-object.workspace = true
+babel-personalization.workspace = true
+babel-realtime.workspace = true
+babel-rpc.workspace = true
+babel-runtime.workspace = true
+babel-state.workspace = true
+babel-store.workspace = true
+babel-types.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+schemars.workspace = true
+hex.workspace = true
+tokio = { workspace = true, features = ["signal", "sync", "time"] }
+tower-http.workspace = true
+thiserror.workspace = true
+argon2 = "0.5.3"
+rusqlite = { version = "0.37", features = ["bundled"] }
+blake3.workspace = true
+rand_core.workspace = true
+time.workspace = true
+zeroize.workspace = true
+url = "2.5.8"
+
+[dev-dependencies]
+babel-crypto.workspace = true
+reqwest.workspace = true
+tower.workspace = true

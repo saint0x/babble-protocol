@@ -1,0 +1,91 @@
+.invocation-prompt {
+  box-sizing: border-box;
+  width: min(480px, calc(100% - 32px));
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 28px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid #dfe5e2;
+  border-radius: 24px;
+  background: #fcfdfc;
+  color: #18241f;
+  box-shadow: 0 24px 80px #142a2033;
+  font: inherit;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+.invocation-prompt *, .invocation-prompt *::before, .invocation-prompt *::after { box-sizing: border-box; }
+.invocation-prompt::backdrop { background: #14221dcc; }
+.invocation-prompt header { padding-right: 32px; }
+.invocation-prompt h2 { margin: 8px 0 12px; font-size: 22px; line-height: 1.25; font-weight: 600; }
+.invocation-prompt h3 { margin: 0 0 8px; color: #536259; font-size: 12px; line-height: 1.5; font-weight: 600; }
+.invocation-prompt-eyebrow { margin: 0; color: #596a60; font-size: 12px; line-height: 1.5; }
+.invocation-prompt-effect { margin: 0 0 20px; color: #536259; font-size: 14px; line-height: 1.6; }
+.invocation-prompt-body > section { min-width: 0; padding: 16px 0; border-top: 1px solid #e0e8e3; }
+.invocation-prompt-label { margin: 0 0 4px; font-size: 15px; line-height: 1.5; white-space: pre-wrap; unicode-bidi: plaintext; }
+.invocation-prompt-id { display: block; color: #536259; font-size: 12px; line-height: 1.6; white-space: pre-wrap; unicode-bidi: plaintext; }
+.invocation-prompt summary { min-height: 44px; padding: 12px 4px; font-size: 13px; line-height: 1.5; cursor: pointer; overflow-wrap: anywhere; unicode-bidi: plaintext; }
+.invocation-prompt-text {
+  max-height: 220px;
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  unicode-bidi: plaintext;
+  border: 1px solid #e0e8e3;
+  border-radius: 12px;
+  background: #f0f5f2;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.invocation-prompt-media { margin: 0; padding: 0; list-style: none; }
+.invocation-prompt-media li + li { border-top: 1px solid #e0e8e3; }
+.invocation-prompt-media dl { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 8px 12px; margin: 8px 0 16px; font-size: 12px; line-height: 1.6; }
+.invocation-prompt-media dt { color: #536259; }
+.invocation-prompt-media dd { min-width: 0; margin: 0; white-space: pre-wrap; unicode-bidi: plaintext; }
+.invocation-prompt footer { padding-top: 16px; border-top: 1px solid #e0e8e3; }
+.invocation-prompt-note { margin: 8px 0 16px; color: #596a60; font-size: 12px; line-height: 1.5; }
+.invocation-prompt-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.invocation-prompt button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 12px 16px;
+  border: 1px solid #d7e2dc;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background 120ms ease-out, border-color 120ms ease-out;
+}
+.invocation-prompt button.invocation-prompt-close { position: absolute; top: 14px; right: 14px; width: 44px; height: 44px; padding: 0; border: 0; }
+.invocation-prompt-close svg { width: 18px; height: 18px; }
+.invocation-prompt button.invocation-prompt-allow { background: #cceadb; border-color: #b5d9c6; color: #163d2c; }
+.invocation-prompt :focus-visible { outline: 2px solid #267f59; outline-offset: 3px; }
+.invocation-prompt button:active { transform: scale(.98); }
+@media (hover: hover) and (pointer: fine) {
+  .invocation-prompt button:hover { background: #e9f0ec; }
+  .invocation-prompt button.invocation-prompt-allow:hover { background: #b8dfcb; }
+}
+@media (max-width: 360px) {
+  .invocation-prompt { width: calc(100% - 24px); padding: 24px 18px; }
+  .invocation-prompt-buttons { gap: 8px; }
+  .invocation-prompt button { padding-inline: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .invocation-prompt button { transition: none; }
+  .invocation-prompt button:active { transform: none; }
+}

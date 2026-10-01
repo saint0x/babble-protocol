@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "name": "reactions-real-store-node-regressions",
+  "steps": [
+    {"type":"trace_event","name":"Real Rust public reactions regressions: all axes, CAS devices, atomic rollback, tamper/deletion, exact retries, restart, key expiry and recovery guards"},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-store","--test","reactions"],"expect_exit":0},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-store","--lib","reactions::"],"expect_exit":0},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-node","--test","reactions"],"expect_exit":0},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-node","--lib","reactions::"],"expect_exit":0}
+  ]
+}

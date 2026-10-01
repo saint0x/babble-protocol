@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "name": "browser-invocations-real-syntax-and-negative-checks-no-browser-evidence",
+  "steps": [
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "--check",
+        "tests/host-actions-browser.mjs"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "--check",
+        "tests/browser-invocation-fixture.mjs"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "--check",
+        "tests/browser-invocation-protocol.mjs"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "--check",
+        "tests/live-stack.mjs"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "--check",
+        "sdk/tests/client.test.mjs"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "tests/host-actions-browser.mjs",
+        "--contract-check"
+      ],
+      "expect_exit": 0,
+      "expect_stdout": "Browser invocation harness negative checks PASS (no browser/API/native evidence)\n"
+    }
+  ]
+}

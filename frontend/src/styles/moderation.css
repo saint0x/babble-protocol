@@ -1,0 +1,51 @@
+.moderation-dialog, .moderation-dialog * { box-sizing: border-box; letter-spacing: 0; }
+.moderation-dialog { width: min(680px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 24px; border: 1px solid #d0d8d3; border-radius: 24px; background: #f7faf8; color: #303a36; overflow-y: auto; overscroll-behavior: contain; }
+.moderation-dialog::backdrop { background: rgb(25 33 29 / 36%); }
+.moderation-dialog [hidden] { display: none !important; }
+.moderation-header { display: grid; grid-template-columns: minmax(0, 1fr) 44px; align-items: center; gap: 16px; margin-bottom: 20px; }
+.moderation-dialog h2 { margin: 0; font-size: 22px; line-height: 1.25; }
+.moderation-dialog h3 { margin: 0; font-size: 16px; line-height: 1.4; }
+.moderation-dialog :is(h2, h3, p, label, li) { min-width: 0; overflow-wrap: anywhere; }
+.moderation-dialog p { margin: 0; font-size: 14px; line-height: 1.6; }
+.moderation-body, .moderation-form { display: grid; gap: 20px; min-width: 0; }
+.moderation-dialog button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; min-width: 44px; max-width: 100%; padding: 10px 16px; border: 1px solid #c9d3cd; border-radius: 12px; background: #edf3ef; color: #344c3e; font: inherit; font-size: 14px; font-weight: 600; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; cursor: pointer; }
+.moderation-dialog button svg { width: 18px; height: 18px; flex: 0 0 18px; }
+.moderation-dialog .moderation-close { width: 44px; height: 44px; padding: 0; background: transparent; }
+.moderation-dialog .moderation-primary { background: #345841; color: #fff; border-color: #345841; }
+.moderation-dialog .moderation-danger { color: #923b42; border-color: #d9b5b8; background: #faeff0; }
+.moderation-dialog :is(button, input, select, textarea, a, summary):focus-visible { outline: 2px solid #426b54; outline-offset: 3px; }
+.moderation-dialog :disabled { opacity: .6; cursor: default; }
+.moderation-dialog button:not(:disabled):active { transform: scale(.97); }
+.moderation-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.moderation-tabs { display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 16px; border-bottom: 1px solid #d6ded9; }
+.moderation-tabs button[aria-selected="true"] { background: #dfece3; border-color: #87a491; color: #294d36; }
+.moderation-list { list-style: none; padding: 0; margin: 0; min-width: 0; display: grid; gap: 12px; }
+.moderation-row { display: grid; gap: 12px; padding: 20px; border: 1px solid #d6ded9; border-radius: 16px; background: #fff; min-width: 0; }
+.moderation-meta { color: #5b6861; font-size: 13px !important; }
+.moderation-evidence { white-space: pre-wrap; }
+.moderation-section { display: grid; gap: 12px; padding-top: 20px; border-top: 1px solid #d6ded9; min-width: 0; }
+.moderation-scope summary { min-height: 44px; padding: 12px 0; cursor: pointer; font-size: 14px; color: #526259; }
+.moderation-scope[open] p { padding-top: 8px; }
+.moderation-badge { justify-self: start; border-radius: 8px; padding: 4px 8px; color: #375b43; background: #e4eee7; font-size: 12px; font-weight: 600; }
+.moderation-badge[data-outcome="restrict"] { background: #faeff0; color: #923b42; }
+.moderation-field { display: grid; gap: 8px; min-width: 0; font-size: 14px; font-weight: 600; }
+.moderation-dialog :is(input, select, textarea) { width: 100%; min-width: 0; min-height: 44px; border: 1px solid #bdcbc2; border-radius: 12px; padding: 12px; font: inherit; font-size: 14px; line-height: 1.5; color: #303a36; background: #fff; }
+.moderation-dialog textarea { resize: vertical; min-height: 132px; }
+.moderation-counter { color: #5b6861; font-size: 12px; font-weight: 400; }
+.moderation-status { min-height: 22px; margin-top: 20px !important; color: #526259; }
+.moderation-status[data-error="true"], .moderation-counter[data-error="true"] { color: #923b42; }
+@media (max-width: 420px) {
+  .moderation-dialog { padding: 20px 16px; border-radius: 20px; }
+  .moderation-header { gap: 12px; }
+  .moderation-dialog h2 { font-size: 20px; }
+  .moderation-tabs button { flex: 1 1 auto; padding: 8px 10px; }
+  .moderation-actions > button { flex: 1 1 auto; }
+  .moderation-row { padding: 16px; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .moderation-dialog button:not(:disabled):hover { border-color: #87a491; background: #e2eee6; color: #294d36; }
+  .moderation-dialog .moderation-danger:not(:disabled):hover { border-color: #b78085; background: #f4e3e5; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .moderation-dialog *, .moderation-dialog *::before, .moderation-dialog *::after { animation: none; transition: none; scroll-behavior: auto; }
+}

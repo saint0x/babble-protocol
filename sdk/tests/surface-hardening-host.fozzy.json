@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "sdk-surface-hardening-host",
+  "steps": [
+    { "type": "trace_event", "name": "Build real SDK and execute bridge/lifecycle regressions with fake DOM and controlled timers" },
+    { "type": "proc_spawn", "cmd": "npm", "args": ["--prefix", "sdk", "run", "build"], "expect_exit": 0 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "sdk/tests/bridge.test.mjs", "sdk/tests/host.test.mjs"], "expect_exit": 0 }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "publication-retry-host",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-api", "publication_retry"], "expect_exit": 0 },
+    { "type": "proc_spawn", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-store", "publication"], "expect_exit": 0 }
+  ]
+}

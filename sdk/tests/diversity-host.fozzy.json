@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "name": "sdk-private-feed-diversity-host",
+  "steps": [
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": ["--test", "sdk/tests/diversity.test.mjs", "sdk/tests/personalization.test.mjs"],
+      "expect_exit": 0
+    }
+  ]
+}

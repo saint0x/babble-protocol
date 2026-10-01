@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "following-frontend-contract-deterministic",
+  "steps": [
+    {"type":"proc_when","cmd":"node","args":["--test","frontend/tests/following.test.mjs","frontend/tests/profiles.test.mjs","frontend/tests/accounts.test.mjs"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"node","args":["--test","frontend/tests/following.test.mjs","frontend/tests/profiles.test.mjs","frontend/tests/accounts.test.mjs"],"expect_exit":0}
+  ]
+}

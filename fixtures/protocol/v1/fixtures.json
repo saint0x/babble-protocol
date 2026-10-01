@@ -1,0 +1,2037 @@
+{
+  "api_publish_media_object_request": {
+    "author_id": "id_0000000000000000000000000000000000000000000000000000000000000000",
+    "title": "Fixture media",
+    "description": "A deterministic media request fixture.",
+    "resources": [
+      {
+        "uri": "babel://blobs/6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
+        "media_type": "text/plain",
+        "integrity": "6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
+        "size_bytes": 13
+      }
+    ]
+  },
+  "bundle_manifest": {
+    "version": "babel.canonical.v1",
+    "sample": {
+      "version": 1,
+      "entry_path": "index.html",
+      "files": [
+        {
+          "path": "assets/main.js",
+          "source_uri": "babel://blobs/e0af4f632a428e100493abae8d31c42fb15d13f5ca9dd45cd750146b8f7c1414",
+          "integrity": "e0af4f632a428e100493abae8d31c42fb15d13f5ca9dd45cd750146b8f7c1414",
+          "size_bytes": 25,
+          "media_type": "text/javascript",
+          "kind": "script"
+        },
+        {
+          "path": "index.html",
+          "source_uri": "babel://blobs/258637eb9d21942c6b18fd735e1ee4e34f472b610e3a6bb1443c067e651b9c1b",
+          "integrity": "258637eb9d21942c6b18fd735e1ee4e34f472b610e3a6bb1443c067e651b9c1b",
+          "size_bytes": 63,
+          "media_type": "text/html",
+          "kind": "document"
+        }
+      ]
+    },
+    "bytes_hex": "626162656c2e63616e6f6e6963616c2e7631006f000000000000000373000000000000000a656e7472795f7061746873000000000000000a696e6465782e68746d6c73000000000000000566696c65736100000000000000026f0000000000000006730000000000000009696e74656772697479730000000000000040653061663466363332613432386531303034393361626165386433316334326662313564313366356361396464343563643735303134366238663763313431347300000000000000046b696e6473000000000000000673637269707473000000000000000a6d656469615f7479706573000000000000000f746578742f6a6176617363726970747300000000000000047061746873000000000000000e6173736574732f6d61696e2e6a7373000000000000000a73697a655f627974657369000000000000001973000000000000000a736f757263655f75726973000000000000004e626162656c3a2f2f626c6f62732f653061663466363332613432386531303034393361626165386433316334326662313564313366356361396464343563643735303134366238663763313431346f0000000000000006730000000000000009696e74656772697479730000000000000040323538363337656239643231393432633662313866643733356531656534653334663437326236313065336136626231343433633036376536353162396331627300000000000000046b696e64730000000000000008646f63756d656e7473000000000000000a6d656469615f74797065730000000000000009746578742f68746d6c7300000000000000047061746873000000000000000a696e6465782e68746d6c73000000000000000a73697a655f627974657369000000000000003f73000000000000000a736f757263655f75726973000000000000004e626162656c3a2f2f626c6f62732f3235383633376562396432313934326336623138666437333565316565346533346634373262363130653361366262313434336330363765363531623963316273000000000000000776657273696f6e690000000000000001",
+    "hash": "2d995f424af147baadfd8f21b26b6d300dd827dbecff92ee70cfef777f028827"
+  },
+  "canonical_encoding": {
+    "version": "babel.canonical.v1",
+    "sample": {
+      "zeta": [
+        1,
+        "1",
+        1.0
+      ],
+      "alpha": {
+        "nested": true,
+        "empty": null
+      }
+    },
+    "bytes_hex": "626162656c2e63616e6f6e6963616c2e7631006f0000000000000002730000000000000005616c7068616f0000000000000002730000000000000005656d7074796e7300000000000000066e6573746564747300000000000000047a65746161000000000000000369000000000000000173000000000000000131643ff0000000000000",
+    "hash": "b7cfcffa9683a0cc0dd0a85daeac5cc07bdb15158de36ed04d6079be6b16845a"
+  },
+  "capability_request": {
+    "id": "babel.realtime.join",
+    "version": 1,
+    "scope": {
+      "room": "fixture"
+    }
+  },
+  "judgment_registry": {
+    "definitions": [
+      {
+        "id": "babel.judgment.spam.v1",
+        "input_schema": "babel.judgment.input.object_text.v1",
+        "output_schema": "babel.judgment.output.probability.v1",
+        "meaning": "Estimate whether the subject text is spam or manipulation.",
+        "calibration": "score is probability-like in [0, 1]; higher means more spam"
+      },
+      {
+        "id": "babel.judgment.relevance.v1",
+        "input_schema": "babel.judgment.input.object_text.v1",
+        "output_schema": "babel.judgment.output.bounded_score.v1",
+        "meaning": "Estimate relevance between subject text and a query.",
+        "calibration": "score is bounded in [0, 1]; higher means more relevant"
+      },
+      {
+        "id": "babel.judgment.relationship.v1",
+        "input_schema": "babel.judgment.input.object_text.v1",
+        "output_schema": "babel.judgment.output.relationship.v1",
+        "meaning": "Estimate whether the subject text supports, contradicts, or relates to context.",
+        "calibration": "score is bounded in [0, 1]; relation names the evaluated edge semantics"
+      },
+      {
+        "id": "babel.judgment.evidence_quality.v1",
+        "input_schema": "babel.judgment.input.object_text.v1",
+        "output_schema": "babel.judgment.output.bounded_score.v1",
+        "meaning": "Estimate the quality of evidence signals in subject text.",
+        "calibration": "score is bounded in [0, 1]; higher means stronger evidence quality"
+      },
+      {
+        "id": "babel.judgment.content_analysis.v1",
+        "input_schema": "babel.judgment.input.object_text.v1",
+        "output_schema": "babel.judgment.output.content_analysis.v1",
+        "meaning": "Extract reusable content features for discovery, provenance, and Lens inputs.",
+        "calibration": "topics, evidence markers, key terms, sentiment, and summary are descriptive features, not truth claims"
+      },
+      {
+        "id": "babel.judgment.moderation.v1",
+        "input_schema": "babel.judgment.input.object_text.v1",
+        "output_schema": "babel.judgment.output.moderation.v1",
+        "meaning": "Evaluate network-integrity and moderation policy signals without erasing protocol history.",
+        "calibration": "scores are bounded in [0, 1]; action is advisory policy output with reason flags"
+      },
+      {
+        "id": "babel.judgment.source_agreement.v1",
+        "input_schema": "babel.judgment.input.source_agreement.v1",
+        "output_schema": "babel.judgment.output.source_agreement.v1",
+        "meaning": "Describe lexical agreement among explicitly supplied sources; not truth or network consensus.",
+        "calibration": "bounded heuristic scores; confidence is zero and explicitly uncalibrated"
+      }
+    ]
+  },
+  "media_blob": {
+    "uri": "babel://blobs/6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
+    "media_type": "text/plain",
+    "integrity": "6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
+    "size_bytes": 13
+  },
+  "media_object_draft": {
+    "kind": "babel.media",
+    "schema": "babel.schema.media.v1",
+    "payload": {
+      "title": "Fixture media",
+      "description": "A deterministic media draft fixture.",
+      "primary_resource": {
+        "uri": "babel://blobs/6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
+        "media_type": "text/plain",
+        "integrity": "6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
+        "size_bytes": 13
+      },
+      "resources": [
+        {
+          "uri": "babel://blobs/6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
+          "media_type": "text/plain",
+          "integrity": "6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
+          "size_bytes": 13
+        }
+      ]
+    },
+    "surfaces": [],
+    "resources": [
+      {
+        "uri": "babel://blobs/6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
+        "media_type": "text/plain",
+        "integrity": "6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658"
+      }
+    ],
+    "capabilities": [],
+    "state": null,
+    "provenance": {
+      "parent": null,
+      "forked_from": null,
+      "remixed_from": []
+    }
+  },
+  "moderation": {
+    "reporter": {
+      "id": "id_dbbe9e46e304c27aa4b3b45511a54eaffb16e801cb25d0365eead5e17e15d02b",
+      "kind": "Person",
+      "handle": "moderation-reporter",
+      "public_key": {
+        "algorithm": "Ed25519",
+        "bytes": "db995fe25169d141cab9bbba92baa01f9f2e1ece7df4cb2ac05190f37fcc1f9d"
+      },
+      "created_at": "2026-09-30T00:00:00Z",
+      "signature": {
+        "algorithm": "Ed25519",
+        "bytes": "2bcd2d25844b067c49517b5a03176b8346da85f888ea90973d62419c775d786cf1f6e6a8aa4b327564fa491ccdc4d59f6bf4255d4a93482395ea7b84bb00ca01"
+      }
+    },
+    "subject": {
+      "id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
+      "kind": "Person",
+      "handle": "moderation-subject",
+      "public_key": {
+        "algorithm": "Ed25519",
+        "bytes": "db995fe25169d141cab9bbba92baa01f9f2e1ece7df4cb2ac05190f37fcc1f9d"
+      },
+      "created_at": "2026-09-30T00:00:00Z",
+      "signature": {
+        "algorithm": "Ed25519",
+        "bytes": "9c709a45e6415a7c908f80d4cd3798d38dde97b30358388f2ba79a579c6184c44f0688ad5d19e5659d6ba7b7239e65b0d99a4ff8b7bdf49a755057ae0744bf02"
+      }
+    },
+    "reviewer": {
+      "id": "id_3f278d05f9dc0c53be96cc448aa07fed1fb6ebf72ae9739d47c99d5c3dd4b10d",
+      "kind": "Person",
+      "handle": "moderation-reviewer",
+      "public_key": {
+        "algorithm": "Ed25519",
+        "bytes": "db995fe25169d141cab9bbba92baa01f9f2e1ece7df4cb2ac05190f37fcc1f9d"
+      },
+      "created_at": "2026-09-30T00:00:00Z",
+      "signature": {
+        "algorithm": "Ed25519",
+        "bytes": "bfc166128c7fe8f14dde2ddfdd67a5c1f1997b7626306ac9f0ec26cedaf410892ae238d5bf141d06277f734feb32d829b9430f479089b54cab805a5474f5bd05"
+      }
+    },
+    "pending": {
+      "id": "report_ee8b26ec6682056ee9044f80d2c80fe43f555e9eb558ba2e3d9af332a176885b",
+      "sequence": 1,
+      "object_id": "obj_358b438b06848bdffb0cc053b47d5a9f25435a32e2f8f0ca7950be58e149a394",
+      "subject_author_id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
+      "reporter_id": "id_dbbe9e46e304c27aa4b3b45511a54eaffb16e801cb25d0365eead5e17e15d02b",
+      "reason": "fraud",
+      "details": "Private evidence for the canonical moderation fixture",
+      "created_at": "2026-09-30T00:00:00Z",
+      "updated_at": "2026-09-30T00:00:00Z",
+      "revision": 1,
+      "status": "pending",
+      "decisions": [],
+      "appeal": null
+    },
+    "receipt": {
+      "payload": {
+        "actor": "id_dbbe9e46e304c27aa4b3b45511a54eaffb16e801cb25d0365eead5e17e15d02b",
+        "reviewers": [
+          "id_3f278d05f9dc0c53be96cc448aa07fed1fb6ebf72ae9739d47c99d5c3dd4b10d"
+        ],
+        "intent": {
+          "kind": "report",
+          "object_id": "obj_358b438b06848bdffb0cc053b47d5a9f25435a32e2f8f0ca7950be58e149a394",
+          "reason": "fraud",
+          "details": "Private evidence for the canonical moderation fixture",
+          "idempotency_key": "moderation-fixture-report"
+        },
+        "result": {
+          "id": "report_ee8b26ec6682056ee9044f80d2c80fe43f555e9eb558ba2e3d9af332a176885b",
+          "sequence": 1,
+          "object_id": "obj_358b438b06848bdffb0cc053b47d5a9f25435a32e2f8f0ca7950be58e149a394",
+          "subject_author_id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
+          "reporter_id": "id_dbbe9e46e304c27aa4b3b45511a54eaffb16e801cb25d0365eead5e17e15d02b",
+          "reason": "fraud",
+          "details": "Private evidence for the canonical moderation fixture",
+          "created_at": "2026-09-30T00:00:00Z",
+          "updated_at": "2026-09-30T00:00:00Z",
+          "revision": 1,
+          "status": "pending",
+          "decisions": [],
+          "appeal": null
+        },
+        "sequence": 1,
+        "previous_id": null
+      },
+      "signature": {
+        "algorithm": "Ed25519",
+        "bytes": "e67d010864c96a1cfcbb5dfa64224a970e4e934c651852ccd51546b4c29c1756c956361a8092ad407ca26f170dbad8a00df81f4a26a2c1c08af7ac0cb5094107"
+      }
+    },
+    "reviewer_view": {
+      "id": "report_ee8b26ec6682056ee9044f80d2c80fe43f555e9eb558ba2e3d9af332a176885b",
+      "sequence": 1,
+      "object_id": "obj_358b438b06848bdffb0cc053b47d5a9f25435a32e2f8f0ca7950be58e149a394",
+      "subject_author_id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
+      "reporter_id": "id_dbbe9e46e304c27aa4b3b45511a54eaffb16e801cb25d0365eead5e17e15d02b",
+      "reason": "fraud",
+      "details": "Private evidence for the canonical moderation fixture",
+      "created_at": "2026-09-30T00:00:00Z",
+      "updated_at": "2026-09-30T00:00:00Z",
+      "revision": 3,
+      "status": "appealed",
+      "decisions": [
+        {
+          "reviewer_id": "id_3f278d05f9dc0c53be96cc448aa07fed1fb6ebf72ae9739d47c99d5c3dd4b10d",
+          "outcome": "restrict",
+          "reason": "fraud",
+          "explanation": "Reviewed the evidence under the integrity policy",
+          "policy_version": "babel.integrity.v1",
+          "source_signals": [],
+          "created_at": "2026-09-30T00:00:00Z"
+        }
+      ],
+      "appeal": {
+        "appellant_id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
+        "details": "Private appeal evidence for the canonical fixture",
+        "created_at": "2026-09-30T00:00:00Z"
+      }
+    },
+    "author_view": {
+      "id": "report_ee8b26ec6682056ee9044f80d2c80fe43f555e9eb558ba2e3d9af332a176885b",
+      "sequence": 1,
+      "object_id": "obj_358b438b06848bdffb0cc053b47d5a9f25435a32e2f8f0ca7950be58e149a394",
+      "subject_author_id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
+      "reporter_id": null,
+      "reason": null,
+      "details": null,
+      "created_at": "2026-09-30T00:00:00Z",
+      "updated_at": "2026-09-30T00:00:00Z",
+      "revision": 3,
+      "status": "appealed",
+      "decisions": [
+        {
+          "reviewer_id": "id_3f278d05f9dc0c53be96cc448aa07fed1fb6ebf72ae9739d47c99d5c3dd4b10d",
+          "outcome": "restrict",
+          "reason": "fraud",
+          "explanation": "Reviewed the evidence under the integrity policy",
+          "policy_version": "babel.integrity.v1",
+          "source_signals": [],
+          "created_at": "2026-09-30T00:00:00Z"
+        }
+      ],
+      "appeal": {
+        "appellant_id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
+        "details": "Private appeal evidence for the canonical fixture",
+        "created_at": "2026-09-30T00:00:00Z"
+      }
+    },
+    "reporter_view": {
+      "id": "report_ee8b26ec6682056ee9044f80d2c80fe43f555e9eb558ba2e3d9af332a176885b",
+      "sequence": 1,
+      "object_id": "obj_358b438b06848bdffb0cc053b47d5a9f25435a32e2f8f0ca7950be58e149a394",
+      "subject_author_id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
+      "reporter_id": "id_dbbe9e46e304c27aa4b3b45511a54eaffb16e801cb25d0365eead5e17e15d02b",
+      "reason": "fraud",
+      "details": "Private evidence for the canonical moderation fixture",
+      "created_at": "2026-09-30T00:00:00Z",
+      "updated_at": "2026-09-30T00:00:00Z",
+      "revision": 3,
+      "status": "appealed",
+      "decisions": [
+        {
+          "reviewer_id": "id_3f278d05f9dc0c53be96cc448aa07fed1fb6ebf72ae9739d47c99d5c3dd4b10d",
+          "outcome": "restrict",
+          "reason": "fraud",
+          "explanation": "Reviewed the evidence under the integrity policy",
+          "policy_version": "babel.integrity.v1",
+          "source_signals": [],
+          "created_at": "2026-09-30T00:00:00Z"
+        }
+      ],
+      "appeal": {
+        "appellant_id": null,
+        "details": null,
+        "created_at": "2026-09-30T00:00:00Z"
+      }
+    }
+  },
+  "realtime_schema_registry": {
+    "schemas": [
+      "babel.realtime.state.v1",
+      "babel.realtime.chat.v1"
+    ]
+  },
+  "rpc_catalog": {
+    "protocol": "babel.rpc.v1",
+    "methods": [
+      {
+        "method": "babel.observability.snapshot.v1",
+        "version": 1,
+        "input": "api.EmptyRequest",
+        "output": "api.ObservabilitySnapshotResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.identity.create.v1",
+        "version": 1,
+        "input": "api.CreateIdentityRequest",
+        "output": "api.CreateIdentityResponse",
+        "capability": null,
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.identity.current.v1",
+        "version": 1,
+        "input": "api.EmptyRequest",
+        "output": "api.IdentityCurrentResponse",
+        "capability": {
+          "capability": "babel.identity.current",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.object.publish_text.v1",
+        "version": 1,
+        "input": "api.PublishTextRequest",
+        "output": "api.PublishTextResponse",
+        "capability": null,
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.object.publish.v1",
+        "version": 1,
+        "input": "api.PublishObjectRequest",
+        "output": "api.PublishObjectResponse",
+        "capability": null,
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.object.publish_media.v1",
+        "version": 1,
+        "input": "api.PublishMediaObjectRequest",
+        "output": "api.PublishMediaObjectResponse",
+        "capability": null,
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.object.fork.v1",
+        "version": 1,
+        "input": "api.ForkObjectRequest",
+        "output": "api.ProvenancePublicationResponse",
+        "capability": null,
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.object.remix.v1",
+        "version": 1,
+        "input": "api.RemixObjectRequest",
+        "output": "api.ProvenancePublicationResponse",
+        "capability": null,
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.object.get.v1",
+        "version": 1,
+        "input": "api.ObjectIdRequest",
+        "output": "api.PublishTextResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.media.blob.put.v1",
+        "version": 1,
+        "input": "api.PutMediaBlobRequest",
+        "output": "api.MediaBlobResponse",
+        "capability": null,
+        "idempotency": "idempotent_by_input",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.media.blob.get.v1",
+        "version": 1,
+        "input": "api.GetMediaBlobRequest",
+        "output": "api.MediaBlobResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.graph.edge.publish.v1",
+        "version": 1,
+        "input": "api.PublishEdgeRequest",
+        "output": "api.PublishEdgeResponse",
+        "capability": null,
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.graph.relationship.infer.v1",
+        "version": 1,
+        "input": "api.InferRelationshipRequest",
+        "output": "api.InferRelationshipResponse",
+        "capability": null,
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.graph.evidence.v1",
+        "version": 1,
+        "input": "api.ObjectIdRequest",
+        "output": "api.ClaimEvidenceResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.graph.traverse.v1",
+        "version": 1,
+        "input": "api.GraphTraverseRpcRequest",
+        "output": "api.GraphTraversalResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.social.follow.v1",
+        "version": 1,
+        "input": "api.SocialTargetRequest",
+        "output": "api.SocialEdgeResponse",
+        "capability": {
+          "capability": "babel.social.follow",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.social.follow.v2",
+        "version": 2,
+        "input": "api.SocialTargetRequest",
+        "output": "api.InvocationSocialResult",
+        "capability": {
+          "capability": "babel.social.follow",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.social.unfollow.v2",
+        "version": 2,
+        "input": "api.SocialTargetRequest",
+        "output": "api.InvocationSocialResult",
+        "capability": {
+          "capability": "babel.social.unfollow",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.social.share.v2",
+        "version": 2,
+        "input": "api.SocialTextRequest",
+        "output": "api.InvocationSocialResult",
+        "capability": {
+          "capability": "babel.social.share",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.social.reply.v2",
+        "version": 2,
+        "input": "api.SocialTextRequest",
+        "output": "api.InvocationSocialResult",
+        "capability": {
+          "capability": "babel.social.reply",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.social.unfollow.v1",
+        "version": 1,
+        "input": "api.SocialTargetRequest",
+        "output": "api.SocialEdgeResponse",
+        "capability": {
+          "capability": "babel.social.unfollow",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.social.share.v1",
+        "version": 1,
+        "input": "api.SocialTextRequest",
+        "output": "api.SocialTextResponse",
+        "capability": {
+          "capability": "babel.social.share",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.social.reply.v1",
+        "version": 1,
+        "input": "api.SocialTextRequest",
+        "output": "api.SocialTextResponse",
+        "capability": {
+          "capability": "babel.social.reply",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.social.replies.list.v1",
+        "version": 1,
+        "input": "api.RepliesListRequest",
+        "output": "api.RepliesListResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.social.quotes.list.v1",
+        "version": 1,
+        "input": "api.QuotesListRequest",
+        "output": "api.QuotesListResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.social.reactions.summary.v1",
+        "version": 1,
+        "input": "api.ReactionObjectRequest",
+        "output": "graph.ReactionSummary",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.social.reactions.record.v1",
+        "version": 1,
+        "input": "api.ReactionRecordRequest",
+        "output": "graph.ReactionRecord",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.social.reactions.mine.v1",
+        "version": 1,
+        "input": "api.ReactionObjectRequest",
+        "output": "graph.ReactionState",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.social.reactions.set.v1",
+        "version": 1,
+        "input": "api.SetReactionRpcRequest",
+        "output": "graph.ReactionState",
+        "capability": null,
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.events.list.v1",
+        "version": 1,
+        "input": "api.EventListRequest",
+        "output": "api.EventListResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.events.bundle.v1",
+        "version": 1,
+        "input": "api.EventBundleRequest",
+        "output": "api.EventBundleResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.events.import.v1",
+        "version": 1,
+        "input": "api.EventImportRequest",
+        "output": "api.EventImportResponse",
+        "capability": null,
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.consensus.checkpoint.preview.v1",
+        "version": 1,
+        "input": "api.CheckpointPreviewRequest",
+        "output": "api.CheckpointPreviewResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.consensus.checkpoint.publish.v1",
+        "version": 1,
+        "input": "api.CheckpointRequest",
+        "output": "api.CheckpointEventResponse",
+        "capability": null,
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.judgment.object.evaluate.v1",
+        "version": 1,
+        "input": "api.JudgeObjectRpcRequest",
+        "output": "api.JudgeObjectResponse",
+        "capability": {
+          "capability": "babel.ai.judge",
+          "version": 1,
+          "required": false
+        },
+        "idempotency": "idempotent_by_input",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.ai.judge.v1",
+        "version": 1,
+        "input": "api.JudgeObjectRpcRequest",
+        "output": "api.JudgeObjectResponse",
+        "capability": {
+          "capability": "babel.ai.judge",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "idempotent_by_input",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.ai.generate.v1",
+        "version": 1,
+        "input": "api.AiGenerateRequest",
+        "output": "api.AiGenerateResponse",
+        "capability": {
+          "capability": "babel.ai.generate",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "non_idempotent",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.ai.embed.v1",
+        "version": 1,
+        "input": "api.AiEmbedRequest",
+        "output": "api.AiEmbedResponse",
+        "capability": {
+          "capability": "babel.ai.embed",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "idempotent_by_input",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.ai.transcribe.v1",
+        "version": 1,
+        "input": "api.AiTranscribeRequest",
+        "output": "api.AiTranscribeResponse",
+        "capability": {
+          "capability": "babel.ai.transcribe",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "non_idempotent",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.judgment.object.list.v1",
+        "version": 1,
+        "input": "api.ObjectIdRequest",
+        "output": "api.ObjectJudgmentsResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.judgment.definitions.list.v1",
+        "version": 1,
+        "input": "api.EmptyRequest",
+        "output": "api.JudgmentDefinitionsResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.judgment.providers.list.v1",
+        "version": 1,
+        "input": "api.EmptyRequest",
+        "output": "api.JudgmentProvidersResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.search.objects.v1",
+        "version": 1,
+        "input": "api.ObjectSearchRequest",
+        "output": "api.ObjectSearchResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.lenses.list.v1",
+        "version": 1,
+        "input": "api.EmptyRequest",
+        "output": "api.LensCatalogResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.discovery.candidates.v1",
+        "version": 1,
+        "input": "api.DiscoveryRequest",
+        "output": "api.DiscoveryResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.capabilities.list.v1",
+        "version": 1,
+        "input": "api.EmptyRequest",
+        "output": "api.CapabilityCatalogResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.capabilities.inspect.v1",
+        "version": 1,
+        "input": "api.ObjectIdRequest",
+        "output": "api.CapabilitiesResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.capabilities.grant.v1",
+        "version": 1,
+        "input": "api.GrantCapabilityRequest",
+        "output": "api.GrantCapabilityResponse",
+        "capability": null,
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.capabilities.revoke.v1",
+        "version": 1,
+        "input": "api.RevokeCapabilityRequest",
+        "output": "api.GrantCapabilityResponse",
+        "capability": null,
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.storage.object.get.v1",
+        "version": 1,
+        "input": "api.ObjectStorageGetRequest",
+        "output": "api.ObjectStorageGetResponse",
+        "capability": {
+          "capability": "babel.storage.object",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.storage.local.get.v1",
+        "version": 1,
+        "input": "api.LocalStorageGetRequest",
+        "output": "api.LocalStorageGetResponse",
+        "capability": {
+          "capability": "babel.storage.local",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.storage.local.set.v1",
+        "version": 1,
+        "input": "api.LocalStorageSetRequest",
+        "output": "api.LocalStorageSetResponse",
+        "capability": {
+          "capability": "babel.storage.local",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.storage.local.delete.v1",
+        "version": 1,
+        "input": "api.LocalStorageDeleteRequest",
+        "output": "api.LocalStorageDeleteResponse",
+        "capability": {
+          "capability": "babel.storage.local",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.storage.local.list.v1",
+        "version": 1,
+        "input": "api.LocalStorageListRequest",
+        "output": "api.LocalStorageListResponse",
+        "capability": {
+          "capability": "babel.storage.local",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.storage.object.set.v1",
+        "version": 1,
+        "input": "api.ObjectStorageSetRequest",
+        "output": "api.ObjectStorageSetResponse",
+        "capability": {
+          "capability": "babel.storage.object",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.storage.object.delete.v1",
+        "version": 1,
+        "input": "api.ObjectStorageDeleteRequest",
+        "output": "api.ObjectStorageDeleteResponse",
+        "capability": {
+          "capability": "babel.storage.object",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.storage.object.list.v1",
+        "version": 1,
+        "input": "api.ObjectStorageListRequest",
+        "output": "api.ObjectStorageListResponse",
+        "capability": {
+          "capability": "babel.storage.object",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.personalization.sync.put.v1",
+        "version": 1,
+        "input": "api.PersonalizationSyncPutRequest",
+        "output": "api.PersonalizationSyncPutResponse",
+        "capability": null,
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.personalization.sync.list.v1",
+        "version": 1,
+        "input": "api.PersonalizationSyncListRequest",
+        "output": "api.PersonalizationSyncListResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.personalization.sync.get.v1",
+        "version": 1,
+        "input": "api.PersonalizationSyncGetRequest",
+        "output": "api.PersonalizationSyncGetResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.personalization.sync.delete.v1",
+        "version": 1,
+        "input": "api.PersonalizationSyncGetRequest",
+        "output": "api.PersonalizationSyncDeleteResponse",
+        "capability": null,
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.network.fetch.v1",
+        "version": 1,
+        "input": "api.NetworkFetchRequest",
+        "output": "api.NetworkFetchResponse",
+        "capability": {
+          "capability": "babel.network.fetch",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.payments.checkout.v1",
+        "version": 1,
+        "input": "api.PaymentsCheckoutRequest",
+        "output": "api.PaymentsCheckoutResponse",
+        "capability": {
+          "capability": "babel.payments.checkout",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.notifications.request.v1",
+        "version": 1,
+        "input": "api.NotificationsRequestRequest",
+        "output": "api.NotificationsRequestResponse",
+        "capability": {
+          "capability": "babel.notifications.request",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "non_idempotent",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.media.camera.request.v1",
+        "version": 1,
+        "input": "api.CameraCaptureRequest",
+        "output": "api.CameraCaptureResponse",
+        "capability": {
+          "capability": "babel.media.camera",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "non_idempotent",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.media.microphone.request.v1",
+        "version": 1,
+        "input": "api.MicrophoneCaptureRequest",
+        "output": "api.MicrophoneCaptureResponse",
+        "capability": {
+          "capability": "babel.media.microphone",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "non_idempotent",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.clipboard.write.v1",
+        "version": 1,
+        "input": "api.ClipboardWriteRequest",
+        "output": "api.ClipboardWriteResponse",
+        "capability": {
+          "capability": "babel.clipboard.write",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.fullscreen.enter.v1",
+        "version": 1,
+        "input": "api.FullscreenEnterRequest",
+        "output": "api.FullscreenEnterResponse",
+        "capability": {
+          "capability": "babel.fullscreen.enter",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "non_idempotent",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.clipboard.write.v2",
+        "version": 2,
+        "input": "api.ClipboardWriteRequest",
+        "output": "api.BrowserInvocationResult",
+        "capability": {
+          "capability": "babel.clipboard.write",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.fullscreen.enter.v2",
+        "version": 2,
+        "input": "api.FullscreenEnterRequest",
+        "output": "api.BrowserInvocationResult",
+        "capability": {
+          "capability": "babel.fullscreen.enter",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.runtime.surface.prepare.v1",
+        "version": 1,
+        "input": "api.PrepareSurfaceRequest",
+        "output": "api.PrepareSurfaceResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.runtime.surface.session.start.v1",
+        "version": 1,
+        "input": "api.StartSurfaceSessionRequest",
+        "output": "api.SurfaceSessionResponse",
+        "capability": null,
+        "idempotency": "non_idempotent",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.runtime.surface.health.v1",
+        "version": 1,
+        "input": "api.EmptyRequest",
+        "output": "api.SurfaceRuntimeHealthResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.runtime.surface.session.get.v1",
+        "version": 1,
+        "input": "api.SurfaceSessionRequest",
+        "output": "api.SurfaceSessionResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.runtime.surface.session.transition.v1",
+        "version": 1,
+        "input": "api.TransitionSurfaceSessionRequest",
+        "output": "api.SurfaceSessionEventResponse",
+        "capability": null,
+        "idempotency": "non_idempotent",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.runtime.surface.session.heartbeat.v1",
+        "version": 1,
+        "input": "api.EmptyRequest",
+        "output": "api.SurfaceLeaseResponse",
+        "capability": null,
+        "idempotency": "non_idempotent",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.runtime.surface.session.budget.v1",
+        "version": 1,
+        "input": "api.ChangeSurfaceBudgetRequest",
+        "output": "api.SurfaceSessionEventResponse",
+        "capability": null,
+        "idempotency": "non_idempotent",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.runtime.surface.session.schedule.v1",
+        "version": 1,
+        "input": "api.ScheduleSurfaceSessionRequest",
+        "output": "api.ScheduleSurfaceSessionResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.runtime.surface.session.apply_schedule.v1",
+        "version": 1,
+        "input": "api.ScheduleSurfaceSessionRequest",
+        "output": "api.ApplySurfaceScheduleResponse",
+        "capability": null,
+        "idempotency": "non_idempotent",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.runtime.surface.session.state.checkpoint.v1",
+        "version": 1,
+        "input": "api.CheckpointSurfaceStateRequest",
+        "output": "api.SurfaceStateCheckpointResponse",
+        "capability": null,
+        "idempotency": "non_idempotent",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.runtime.surface.session.state.get.v1",
+        "version": 1,
+        "input": "api.SurfaceSessionRequest",
+        "output": "api.SurfaceStateRestoreResponse",
+        "capability": null,
+        "idempotency": "read_only",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.realtime.room.define.v1",
+        "version": 1,
+        "input": "api.DefineRealtimeRoomRequest",
+        "output": "api.DefineRealtimeRoomResponse",
+        "capability": {
+          "capability": "babel.realtime.join",
+          "version": 1,
+          "required": false
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.realtime.session.start.v1",
+        "version": 1,
+        "input": "api.StartRealtimeSessionRequest",
+        "output": "api.StartRealtimeSessionResponse",
+        "capability": {
+          "capability": "babel.realtime.join",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "non_idempotent",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.realtime.session.leave.v1",
+        "version": 1,
+        "input": "api.CloseRealtimeSessionRequest",
+        "output": "api.CloseRealtimeSessionResponse",
+        "capability": {
+          "capability": "babel.realtime.leave",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      },
+      {
+        "method": "babel.realtime.message.publish.v1",
+        "version": 1,
+        "input": "api.PublishRealtimeMessageRequest",
+        "output": "api.PublishRealtimeMessageResponse",
+        "capability": {
+          "capability": "babel.realtime.send",
+          "version": 1,
+          "required": true
+        },
+        "idempotency": "requires_idempotency_key",
+        "timeout_ms": 30000
+      }
+    ]
+  },
+  "rpc_error_response": {
+    "protocol": "babel.rpc.v1",
+    "id": "fixture-request-1",
+    "result": null,
+    "error": {
+      "code": "NOT_FOUND",
+      "message": "object not found",
+      "retryable": false,
+      "retry_after_ms": null,
+      "details": {
+        "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    "trace_id": "trace-fixture-1"
+  },
+  "rpc_request": {
+    "protocol": "babel.rpc.v1",
+    "id": "fixture-request-1",
+    "method": "babel.object.get.v1",
+    "binding": {
+      "object_id": null,
+      "surface_session_id": null,
+      "runtime_id": "fixture-runtime",
+      "origin": "babel://fixture",
+      "capability_grants": [],
+      "identity_id": null
+    },
+    "payload": {
+      "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "idempotency_key": null,
+    "deadline": {
+      "timeout_ms": 30000,
+      "client_started_at": null
+    },
+    "trace_id": "trace-fixture-1"
+  },
+  "schema_registry": {
+    "protocol": {
+      "name": "babel.v2",
+      "version": 1
+    },
+    "core_schemas": [
+      "babel.schema.text.v1",
+      "babel.schema.media.v1"
+    ],
+    "core_capabilities": [
+      "babel.identity.current",
+      "babel.social.follow",
+      "babel.social.unfollow",
+      "babel.social.share",
+      "babel.social.reply",
+      "babel.storage.local",
+      "babel.storage.object",
+      "babel.realtime.join",
+      "babel.realtime.send",
+      "babel.realtime.leave",
+      "babel.payments.checkout",
+      "babel.ai.judge",
+      "babel.ai.generate",
+      "babel.ai.embed",
+      "babel.ai.transcribe",
+      "babel.media.camera",
+      "babel.media.microphone",
+      "babel.graphics.webgpu",
+      "babel.notifications.request",
+      "babel.clipboard.write",
+      "babel.fullscreen.enter",
+      "babel.network.fetch",
+      "babel.location",
+      "babel.files"
+    ]
+  },
+  "social_safety": {
+    "author": {
+      "id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
+      "kind": "Person",
+      "handle": "safety-owner",
+      "public_key": {
+        "algorithm": "Ed25519",
+        "bytes": "48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd"
+      },
+      "created_at": "2026-09-30T00:00:00Z",
+      "signature": {
+        "algorithm": "Ed25519",
+        "bytes": "bde58bb66643ce82dec947bfc3e86c01008f90eaf1e11c7af33b25f6ff1c0cbd8862681fec230abb2d156c002521c15b5c937204a476db40fbcba9d276594f03"
+      }
+    },
+    "absent": {
+      "author_id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
+      "target_id": "id_cfbca8f7d2c2840cab441f6e77e14d13a5c210cdec8b2a666df8dfb0b5271dbc",
+      "blocked": false,
+      "muted": false,
+      "revision": 0
+    },
+    "state": {
+      "author_id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
+      "target_id": "id_cfbca8f7d2c2840cab441f6e77e14d13a5c210cdec8b2a666df8dfb0b5271dbc",
+      "blocked": true,
+      "muted": true,
+      "revision": 1
+    },
+    "snapshot": {
+      "author_id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
+      "revision": 1,
+      "entries": [
+        {
+          "identity": {
+            "id": "id_cfbca8f7d2c2840cab441f6e77e14d13a5c210cdec8b2a666df8dfb0b5271dbc",
+            "kind": "Person",
+            "handle": "safety-target",
+            "public_key": {
+              "algorithm": "Ed25519",
+              "bytes": "48075a597e721a156e2e0799de5cc0c5324dc6e7eaf1cdd46250868ec53215dd"
+            },
+            "created_at": "2026-09-30T00:00:00Z",
+            "signature": {
+              "algorithm": "Ed25519",
+              "bytes": "9b0a86dfb4c074dd0e8dc3c11b59cc3327a8b8cb439f75372d99eccae7d3f24d2f13b9e94dae472d6ea162fe0678ff58a55b6e29ff4599d3a244e264572bb401"
+            }
+          },
+          "state": {
+            "author_id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
+            "target_id": "id_cfbca8f7d2c2840cab441f6e77e14d13a5c210cdec8b2a666df8dfb0b5271dbc",
+            "blocked": true,
+            "muted": true,
+            "revision": 1
+          }
+        }
+      ]
+    },
+    "set_request": {
+      "blocked": true,
+      "muted": true,
+      "expected_revision": 0,
+      "idempotency_key": "safety-fixture-1"
+    },
+    "action": {
+      "id": "8078469c8c328574af8d14b4c627def333e67d6cd57cb9f08f07d77feef9ca58",
+      "payload": {
+        "state": {
+          "author_id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
+          "target_id": "id_cfbca8f7d2c2840cab441f6e77e14d13a5c210cdec8b2a666df8dfb0b5271dbc",
+          "blocked": true,
+          "muted": true,
+          "revision": 1
+        },
+        "previous_id": null,
+        "created_at": "2026-09-30T00:00:00Z",
+        "request_id": "ae5557544e02aa79af68a58e6a0a8fc963304788743bb70fa0b84b8b2450837e"
+      },
+      "signature": {
+        "algorithm": "Ed25519",
+        "bytes": "2a67475274997eeee93162b2f5b9ec72a3fc07afb0ed866cc452c37ce12b64a66115ff368f8405842a2a10726b1dd55975efc731e4e413d5328c91d685490004"
+      }
+    },
+    "receipt": {
+      "payload": {
+        "request": {
+          "author_id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
+          "target_id": "id_cfbca8f7d2c2840cab441f6e77e14d13a5c210cdec8b2a666df8dfb0b5271dbc",
+          "blocked": true,
+          "muted": true,
+          "expected_revision": 0,
+          "idempotency_key": "safety-fixture-1"
+        },
+        "state": {
+          "author_id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
+          "target_id": "id_cfbca8f7d2c2840cab441f6e77e14d13a5c210cdec8b2a666df8dfb0b5271dbc",
+          "blocked": true,
+          "muted": true,
+          "revision": 1
+        },
+        "created_at": "2026-09-30T00:00:00Z",
+        "sequence": 1,
+        "previous_id": null
+      },
+      "signature": {
+        "algorithm": "Ed25519",
+        "bytes": "54b621aa4dd0d7b5ee066f24a8075805f64d66cbf8cd7916188184ae506952924f1ebbc616e6d47b1622565dd160f868d1eec963e49a05663b02159b7b469e04"
+      }
+    },
+    "state_hash": "f7678066022f0d6a325fac50dd1a493f1cdf9ae26211bfca4ca0b4bc5bcc465f"
+  },
+  "temporal_scoring": {
+    "model": "temporal-v1",
+    "version": "1",
+    "cases": [
+      {
+        "name": "empty",
+        "request": {
+          "reference_time": "2026-09-30T00:00:00Z",
+          "items": []
+        },
+        "result": {
+          "provider": {
+            "provider": "babel-rust",
+            "model": "temporal-v1",
+            "version": "1"
+          },
+          "reference_time": "2026-09-30T00:00:00Z",
+          "scores": []
+        }
+      },
+      {
+        "name": "all-classes",
+        "request": {
+          "reference_time": "2026-09-30T00:00:00Z",
+          "items": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "published_at": "2026-09-29T12:00:00Z",
+              "content_class": "news",
+              "quality_score": 0.5,
+              "tags": [],
+              "engagement": {
+                "total_views": 0,
+                "recent_views": 0,
+                "total_interactions": 0,
+                "recent_interactions": 0
+              }
+            },
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000001",
+              "published_at": "2026-09-29T12:00:00Z",
+              "content_class": "discussion",
+              "quality_score": 0.5,
+              "tags": [],
+              "engagement": {
+                "total_views": 0,
+                "recent_views": 0,
+                "total_interactions": 0,
+                "recent_interactions": 0
+              }
+            },
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000002",
+              "published_at": "2026-09-29T12:00:00Z",
+              "content_class": "analysis",
+              "quality_score": 0.5,
+              "tags": [],
+              "engagement": {
+                "total_views": 0,
+                "recent_views": 0,
+                "total_interactions": 0,
+                "recent_interactions": 0
+              }
+            },
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000003",
+              "published_at": "2026-09-29T12:00:00Z",
+              "content_class": "tutorial",
+              "quality_score": 0.5,
+              "tags": [],
+              "engagement": {
+                "total_views": 0,
+                "recent_views": 0,
+                "total_interactions": 0,
+                "recent_interactions": 0
+              }
+            },
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000004",
+              "published_at": "2026-09-29T12:00:00Z",
+              "content_class": "reference",
+              "quality_score": 0.5,
+              "tags": [],
+              "engagement": {
+                "total_views": 0,
+                "recent_views": 0,
+                "total_interactions": 0,
+                "recent_interactions": 0
+              }
+            }
+          ]
+        },
+        "result": {
+          "provider": {
+            "provider": "babel-rust",
+            "model": "temporal-v1",
+            "version": "1"
+          },
+          "reference_time": "2026-09-30T00:00:00Z",
+          "scores": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "age_hours": 12.0,
+              "recency": 0.9839999999999999,
+              "decay_rate": 0.1872,
+              "time_sensitivity": 0.92,
+              "engagement_velocity": 0.0,
+              "survival_score": 0.8960765970071468
+            },
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000001",
+              "age_hours": 12.0,
+              "recency": 0.82,
+              "decay_rate": 0.14880000000000002,
+              "time_sensitivity": 0.68,
+              "engagement_velocity": 0.0,
+              "survival_score": 0.7612062455470167
+            },
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000002",
+              "age_hours": 12.0,
+              "recency": 0.6723999999999999,
+              "decay_rate": 0.12,
+              "time_sensitivity": 0.5,
+              "engagement_velocity": 0.0,
+              "survival_score": 0.6332424723820488
+            },
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000003",
+              "age_hours": 12.0,
+              "recency": 0.5412,
+              "decay_rate": 0.08480000000000001,
+              "time_sensitivity": 0.28,
+              "engagement_velocity": 0.0,
+              "survival_score": 0.5187327906254215
+            },
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000004",
+              "age_hours": 12.0,
+              "recency": 0.369,
+              "decay_rate": 0.0592,
+              "time_sensitivity": 0.12,
+              "engagement_velocity": 0.0,
+              "survival_score": 0.3582376682915235
+            }
+          ]
+        }
+      },
+      {
+        "name": "zero-age",
+        "request": {
+          "reference_time": "2026-09-30T00:00:00Z",
+          "items": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "published_at": "2026-09-30T00:00:00Z",
+              "content_class": "discussion",
+              "quality_score": 0.5,
+              "tags": [],
+              "engagement": {
+                "total_views": 0,
+                "recent_views": 0,
+                "total_interactions": 0,
+                "recent_interactions": 0
+              }
+            }
+          ]
+        },
+        "result": {
+          "provider": {
+            "provider": "babel-rust",
+            "model": "temporal-v1",
+            "version": "1"
+          },
+          "reference_time": "2026-09-30T00:00:00Z",
+          "scores": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "age_hours": 0.0,
+              "recency": 1.0,
+              "decay_rate": 0.14880000000000002,
+              "time_sensitivity": 0.68,
+              "engagement_velocity": 0.0,
+              "survival_score": 1.0
+            }
+          ]
+        }
+      },
+      {
+        "name": "two-hours",
+        "request": {
+          "reference_time": "2026-09-30T00:00:00Z",
+          "items": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "published_at": "2026-09-29T22:00:00Z",
+              "content_class": "discussion",
+              "quality_score": 0.5,
+              "tags": [],
+              "engagement": {
+                "total_views": 0,
+                "recent_views": 0,
+                "total_interactions": 0,
+                "recent_interactions": 0
+              }
+            }
+          ]
+        },
+        "result": {
+          "provider": {
+            "provider": "babel-rust",
+            "model": "temporal-v1",
+            "version": "1"
+          },
+          "reference_time": "2026-09-30T00:00:00Z",
+          "scores": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "age_hours": 2.0,
+              "recency": 1.0,
+              "decay_rate": 0.14880000000000002,
+              "time_sensitivity": 0.68,
+              "engagement_velocity": 0.0,
+              "survival_score": 0.9876765632119844
+            }
+          ]
+        }
+      },
+      {
+        "name": "two-hours-plus-nanosecond",
+        "request": {
+          "reference_time": "2026-09-30T00:00:00Z",
+          "items": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "published_at": "2026-09-29T21:59:59.999999999Z",
+              "content_class": "discussion",
+              "quality_score": 0.5,
+              "tags": [],
+              "engagement": {
+                "total_views": 0,
+                "recent_views": 0,
+                "total_interactions": 0,
+                "recent_interactions": 0
+              }
+            }
+          ]
+        },
+        "result": {
+          "provider": {
+            "provider": "babel-rust",
+            "model": "temporal-v1",
+            "version": "1"
+          },
+          "reference_time": "2026-09-30T00:00:00Z",
+          "scores": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "age_hours": 2.0000000000002776,
+              "recency": 0.82,
+              "decay_rate": 0.14880000000000002,
+              "time_sensitivity": 0.68,
+              "engagement_velocity": 0.0,
+              "survival_score": 0.8098947818338258
+            }
+          ]
+        }
+      },
+      {
+        "name": "one-day",
+        "request": {
+          "reference_time": "2026-09-30T00:00:00Z",
+          "items": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "published_at": "2026-09-29T00:00:00Z",
+              "content_class": "discussion",
+              "quality_score": 0.5,
+              "tags": [],
+              "engagement": {
+                "total_views": 0,
+                "recent_views": 0,
+                "total_interactions": 0,
+                "recent_interactions": 0
+              }
+            }
+          ]
+        },
+        "result": {
+          "provider": {
+            "provider": "babel-rust",
+            "model": "temporal-v1",
+            "version": "1"
+          },
+          "reference_time": "2026-09-30T00:00:00Z",
+          "scores": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "age_hours": 24.0,
+              "recency": 0.82,
+              "decay_rate": 0.14880000000000002,
+              "time_sensitivity": 0.68,
+              "engagement_velocity": 0.0,
+              "survival_score": 0.7066279856826647
+            }
+          ]
+        }
+      },
+      {
+        "name": "three-days",
+        "request": {
+          "reference_time": "2026-09-30T00:00:00Z",
+          "items": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "published_at": "2026-09-27T00:00:00Z",
+              "content_class": "discussion",
+              "quality_score": 0.5,
+              "tags": [],
+              "engagement": {
+                "total_views": 0,
+                "recent_views": 0,
+                "total_interactions": 0,
+                "recent_interactions": 0
+              }
+            }
+          ]
+        },
+        "result": {
+          "provider": {
+            "provider": "babel-rust",
+            "model": "temporal-v1",
+            "version": "1"
+          },
+          "reference_time": "2026-09-30T00:00:00Z",
+          "scores": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "age_hours": 72.0,
+              "recency": 0.62,
+              "decay_rate": 0.14880000000000002,
+              "time_sensitivity": 0.68,
+              "engagement_velocity": 0.0,
+              "survival_score": 0.3967552048516316
+            }
+          ]
+        }
+      },
+      {
+        "name": "seven-days",
+        "request": {
+          "reference_time": "2026-09-30T00:00:00Z",
+          "items": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "published_at": "2026-09-23T00:00:00Z",
+              "content_class": "discussion",
+              "quality_score": 0.5,
+              "tags": [],
+              "engagement": {
+                "total_views": 0,
+                "recent_views": 0,
+                "total_interactions": 0,
+                "recent_interactions": 0
+              }
+            }
+          ]
+        },
+        "result": {
+          "provider": {
+            "provider": "babel-rust",
+            "model": "temporal-v1",
+            "version": "1"
+          },
+          "reference_time": "2026-09-30T00:00:00Z",
+          "scores": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "age_hours": 168.0,
+              "recency": 0.42,
+              "decay_rate": 0.14880000000000002,
+              "time_sensitivity": 0.68,
+              "engagement_velocity": 0.0,
+              "survival_score": 0.14821363479234637
+            }
+          ]
+        }
+      },
+      {
+        "name": "thirty-days",
+        "request": {
+          "reference_time": "2026-09-30T00:00:00Z",
+          "items": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "published_at": "2026-08-31T00:00:00Z",
+              "content_class": "discussion",
+              "quality_score": 0.5,
+              "tags": [],
+              "engagement": {
+                "total_views": 0,
+                "recent_views": 0,
+                "total_interactions": 0,
+                "recent_interactions": 0
+              }
+            }
+          ]
+        },
+        "result": {
+          "provider": {
+            "provider": "babel-rust",
+            "model": "temporal-v1",
+            "version": "1"
+          },
+          "reference_time": "2026-09-30T00:00:00Z",
+          "scores": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "age_hours": 720.0,
+              "recency": 0.23,
+              "decay_rate": 0.14880000000000002,
+              "time_sensitivity": 0.68,
+              "engagement_velocity": 0.0,
+              "survival_score": 0.0026487274283037523
+            }
+          ]
+        }
+      },
+      {
+        "name": "ancient",
+        "request": {
+          "reference_time": "2026-09-30T00:00:00Z",
+          "items": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "published_at": "0000-01-01T00:00:00+23:59",
+              "content_class": "discussion",
+              "quality_score": 0.5,
+              "tags": [],
+              "engagement": {
+                "total_views": 0,
+                "recent_views": 0,
+                "total_interactions": 0,
+                "recent_interactions": 0
+              }
+            }
+          ]
+        },
+        "result": {
+          "provider": {
+            "provider": "babel-rust",
+            "model": "temporal-v1",
+            "version": "1"
+          },
+          "reference_time": "2026-09-30T00:00:00Z",
+          "scores": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "age_hours": 17766119.983333334,
+              "recency": 0.1,
+              "decay_rate": 0.14880000000000002,
+              "time_sensitivity": 0.68,
+              "engagement_velocity": 0.0,
+              "survival_score": 0.0
+            }
+          ]
+        }
+      },
+      {
+        "name": "future",
+        "request": {
+          "reference_time": "2026-09-30T00:00:00Z",
+          "items": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "published_at": "9999-12-31T23:59:59.999999999-23:59",
+              "content_class": "discussion",
+              "quality_score": 0.5,
+              "tags": [],
+              "engagement": {
+                "total_views": 0,
+                "recent_views": 0,
+                "total_interactions": 0,
+                "recent_interactions": 0
+              }
+            }
+          ]
+        },
+        "result": {
+          "provider": {
+            "provider": "babel-rust",
+            "model": "temporal-v1",
+            "version": "1"
+          },
+          "reference_time": "2026-09-30T00:00:00Z",
+          "scores": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "age_hours": 0.0,
+              "recency": 1.0,
+              "decay_rate": 0.14880000000000002,
+              "time_sensitivity": 0.68,
+              "engagement_velocity": 0.0,
+              "survival_score": 1.0
+            }
+          ]
+        }
+      },
+      {
+        "name": "tag-and-activity-components",
+        "request": {
+          "reference_time": "2026-09-30T00:00:00Z",
+          "items": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "published_at": "2026-09-29T00:00:00Z",
+              "content_class": "reference",
+              "quality_score": 1.0,
+              "tags": [
+                "BREAKING",
+                "evergreen",
+                "reference"
+              ],
+              "engagement": {
+                "total_views": 100,
+                "recent_views": 25,
+                "total_interactions": 8,
+                "recent_interactions": 2
+              }
+            }
+          ]
+        },
+        "result": {
+          "provider": {
+            "provider": "babel-rust",
+            "model": "temporal-v1",
+            "version": "1"
+          },
+          "reference_time": "2026-09-30T00:00:00Z",
+          "scores": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "age_hours": 24.0,
+              "recency": 0.369,
+              "decay_rate": 0.01,
+              "time_sensitivity": 0.12,
+              "engagement_velocity": 0.2167194749375454,
+              "survival_score": 0.413006673139703
+            }
+          ]
+        }
+      },
+      {
+        "name": "public-relationships-without-views",
+        "request": {
+          "reference_time": "2026-09-30T00:00:00Z",
+          "items": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "published_at": "2026-09-29T00:00:00Z",
+              "content_class": "analysis",
+              "quality_score": 0.5,
+              "tags": [],
+              "engagement": {
+                "total_views": 0,
+                "recent_views": 0,
+                "total_interactions": 4,
+                "recent_interactions": 3
+              }
+            }
+          ]
+        },
+        "result": {
+          "provider": {
+            "provider": "babel-rust",
+            "model": "temporal-v1",
+            "version": "1"
+          },
+          "reference_time": "2026-09-30T00:00:00Z",
+          "scores": [
+            {
+              "object_id": "obj_0000000000000000000000000000000000000000000000000000000000000000",
+              "age_hours": 24.0,
+              "recency": 0.6723999999999999,
+              "decay_rate": 0.09529397985711982,
+              "time_sensitivity": 0.5,
+              "engagement_velocity": 0.24706020142880178,
+              "survival_score": 0.6656358742531844
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

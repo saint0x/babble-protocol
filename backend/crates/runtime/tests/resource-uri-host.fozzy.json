@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "surface-resource-uri-real-rust-regressions",
+  "steps": [
+    {"type":"trace_event","name":"Actual Rust tests cover URI parsing, exact declaration matching, canonical gateway aliases, signed runtime admission and authoring boundaries"},
+    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--offline","--locked","--manifest-path","backend/Cargo.toml","-p","babel-object","-p","babel-authoring","-p","babel-runtime"],"expect_exit":0}
+  ]
+}

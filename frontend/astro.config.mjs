@@ -1,0 +1,15 @@
+import { defineConfig } from "astro/config";
+
+export default defineConfig({
+  output: "static",
+  build: {
+    assets: "assets",
+  },
+  vite: {
+    server: {
+      fs: {
+        allow: [".."],
+      },
+    },
+  },
+});

@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "quotes-process-contract",
+  "steps": [
+    {"type":"trace_event","name":"Scripted orchestration only; quotes-host runs actual authenticated-edge read and public transport regressions"},
+    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-node","-p","babel-api","-p","babel-schema","quotes"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-node","-p","babel-api","-p","babel-schema","quotes"],"expect_exit":0}
+  ]
+}

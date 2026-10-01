@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "name": "ranking-contract-native-host",
+  "steps": [
+    {"type": "trace_event", "name": "Execute actual ranking bounds, hostile-provider, golden and native regression tests"},
+    {
+      "type": "proc_spawn",
+      "cmd": "/usr/bin/env",
+      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "Cargo.toml", "--locked", "--tests", "--quiet"],
+      "expect_exit": 0
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "temporal-contract-deterministic-process-harness",
+  "steps": [
+    {"type": "trace_event", "name": "Scripted harness; temporal-host.fozzy.json executes native and real Python temporal tests"},
+    {"type": "proc_when", "cmd": "/usr/bin/env", "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/crates/judgment-python/Cargo.toml", "--test", "temporal", "--quiet"], "exit_code": 0, "times": 1},
+    {"type": "proc_spawn", "cmd": "/usr/bin/env", "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/crates/judgment-python/Cargo.toml", "--test", "temporal", "--quiet"], "expect_exit": 0}
+  ]
+}

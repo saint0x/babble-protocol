@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "rounded-card-presentation-aegis-host",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "node", "args": ["tests/reading-check.mjs"], "expect_exit": 0 }
+  ]
+}

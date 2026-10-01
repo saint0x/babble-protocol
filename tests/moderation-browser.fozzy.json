@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "name": "moderation-browser-process-contract-not-live-evidence",
+  "steps": [
+    { "type": "trace_event", "name": "Scripted orchestration only; no browser or API executes", "fields": {} },
+    { "type": "proc_when", "cmd": "node", "args": ["--check", "tests/moderation-browser.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["--check", "tests/moderation-browser.mjs"], "expect_exit": 0 },
+    { "type": "proc_when", "cmd": "node", "args": ["tests/moderation-browser.mjs", "--contract-check"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["tests/moderation-browser.mjs", "--contract-check"], "expect_exit": 0 },
+    { "type": "proc_when", "cmd": "env", "args": ["CARGO_INCREMENTAL=0", "BABEL_LIVE_FOCUS=moderation", "node", "tests/live-stack.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "env", "args": ["CARGO_INCREMENTAL=0", "BABEL_LIVE_FOCUS=moderation", "node", "tests/live-stack.mjs"], "expect_exit": 0 }
+  ]
+}

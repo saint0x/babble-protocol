@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "browser-invocations-real-client-regressions",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "node", "args": ["frontend/tests/browser-invocations-evidence.mjs"], "expect_exit": 0 }
+  ]
+}

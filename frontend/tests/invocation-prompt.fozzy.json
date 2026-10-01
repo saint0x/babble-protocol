@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "invocation-prompt-deterministic-process-contract",
+  "steps": [
+    { "type": "proc_when", "cmd": "node", "args": ["--test", "--test-reporter=dot", "frontend/tests/invocation-prompt.test.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "--test-reporter=dot", "frontend/tests/invocation-prompt.test.mjs"], "expect_exit": 0 }
+  ]
+}

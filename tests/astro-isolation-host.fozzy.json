@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "astro-server-isolation-host",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "tests/astro-isolation.test.mjs"], "expect_exit": 0 }
+  ]
+}

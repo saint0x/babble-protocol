@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "following-api-orchestration",
+  "steps": [
+    { "type": "proc_when", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-api", "--test", "following", "--test", "server"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-api", "--test", "following", "--test", "server"], "expect_exit": 0 }
+  ]
+}

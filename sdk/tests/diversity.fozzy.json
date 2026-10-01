@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "name": "sdk-private-feed-diversity",
+  "steps": [
+    { "type": "trace_event", "name": "private feed native parity and privacy start" },
+    {
+      "type": "proc_when",
+      "cmd": "node",
+      "args": ["--test", "sdk/tests/diversity.test.mjs", "sdk/tests/personalization.test.mjs"],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": ["--test", "sdk/tests/diversity.test.mjs", "sdk/tests/personalization.test.mjs"],
+      "expect_exit": 0
+    },
+    { "type": "trace_event", "name": "private feed native parity and privacy complete" }
+  ]
+}

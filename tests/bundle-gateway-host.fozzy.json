@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "name": "bundle-gateway-host",
+  "steps": [
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": [
+        "CARGO_INCREMENTAL=0",
+        "cargo",
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-api",
+        "--lib"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": [
+        "CARGO_INCREMENTAL=0",
+        "cargo",
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-runtime",
+        "--test",
+        "bundles",
+        "-p",
+        "babel-node",
+        "--test",
+        "bundles"
+      ],
+      "expect_exit": 0
+    }
+  ]
+}

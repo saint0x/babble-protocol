@@ -1,0 +1,46 @@
+.permission-dialog {
+  width: min(600px, calc(100vw - 24px));
+  max-height: calc(100dvh - 40px);
+  padding: 24px;
+  border: 1px solid #fff;
+  border-radius: 24px;
+  background: #f5f8f6;
+  color: #263b30;
+  box-shadow: 0 24px 64px #14261c30;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.permission-dialog::backdrop { background: #15201bcc; }
+.permission-dialog > header,
+.permission-dialog > footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.permission-dialog h2 { margin: 0; font-size: 21px; }
+.permission-dialog h3 { margin: 0; font-size: 16px; }
+.permission-dialog .panel-icon { width: 44px; height: 44px; }
+.permission-owner { margin: 12px 0 6px; font-size: 14px; overflow-wrap: anywhere; }
+.permission-object, .permission-id { margin: 0; color: #526158; font-size: 12px; overflow-wrap: anywhere; }
+.permission-object { padding-bottom: 20px; }
+.permission-row { border-top: 1px solid #d8e1db; padding: 20px 0; }
+.permission-row dl { display: grid; grid-template-columns: minmax(80px, 1fr) minmax(0, 2fr); gap: 8px 16px; margin: 16px 0; font-size: 14px; }
+.permission-row dt { color: #526158; }
+.permission-row dd { margin: 0; }
+.permission-row summary { min-height: 44px; padding: 12px 0; cursor: pointer; font-size: 13px; line-height: 20px; color: #435d4d; }
+.permission-row dt, .permission-row dd { overflow-wrap: anywhere; white-space: pre-wrap; }
+.permission-reason, .permission-status { font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.permission-status[data-state="error"] { color: #a12424; }
+.permission-row > button, .permission-open {
+  min-height: 44px; padding: 10px 18px; border: 1px solid #b3c7ba;
+  border-radius: 999px; color: #234531; background: #e0ece4;
+  transition: transform 150ms var(--ease-out), background-color 150ms ease;
+}
+.permission-row > button:active, .permission-open:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) {
+  .permission-row > button:hover, .permission-open:hover { background: #d5e5da; }
+}
+@media (max-width: 480px) {
+  .permission-dialog { padding: 20px; }
+  .permission-row dl { grid-template-columns: 1fr; gap: 4px; }
+  .permission-row dd { margin-bottom: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .permission-row > button, .permission-open { transition: none; }
+}

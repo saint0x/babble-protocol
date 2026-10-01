@@ -1,0 +1,7 @@
+{
+  "version":1,
+  "name":"browser-invocation-focused-real-host",
+  "steps":[
+    {"type":"proc_spawn","cmd":"bash","args":["tests/run-browser-invocations-focused.sh"],"expect_exit":0,"expect_stdout":"browser focused consent and store regressions passed\n"}
+  ]
+}

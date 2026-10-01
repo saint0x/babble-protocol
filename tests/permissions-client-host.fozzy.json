@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "permission-review-client-host",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "npm", "args": ["--prefix", "frontend", "test"], "expect_exit": 0 }
+  ]
+}

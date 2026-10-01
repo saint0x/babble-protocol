@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "name": "api-publication-recovery-required-readers",
+  "steps": [
+    {
+      "type": "proc_when",
+      "cmd": "bash",
+      "args": ["tests/run-api-publication-readiness.sh"],
+      "exit_code": 0,
+      "stdout": "API publication readiness regression passed\n",
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "bash",
+      "args": ["tests/run-api-publication-readiness.sh"],
+      "expect_exit": 0,
+      "expect_stdout": "API publication readiness regression passed\n"
+    }
+  ]
+}

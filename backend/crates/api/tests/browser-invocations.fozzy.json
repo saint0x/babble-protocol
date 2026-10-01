@@ -1,0 +1,8 @@
+{
+  "version":1,
+  "name":"browser-invocation-deterministic-orchestration",
+  "steps":[
+    {"type":"proc_when","cmd":"bash","args":["tests/run-browser-invocations.sh"],"exit_code":0,"stdout":"browser invocation and affected backend regressions passed\n","times":1},
+    {"type":"proc_spawn","cmd":"bash","args":["tests/run-browser-invocations.sh"],"expect_exit":0,"expect_stdout":"browser invocation and affected backend regressions passed\n"}
+  ]
+}

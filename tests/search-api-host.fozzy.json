@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "name": "search-api-real-python-worker",
+  "steps": [
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-api", "--test", "discovery_search"],
+      "expect_exit": 0
+    }
+  ]
+}

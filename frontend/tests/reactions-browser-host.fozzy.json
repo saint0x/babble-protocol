@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "reactions-real-aegis-dom-tests",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "node", "args": ["frontend/tests/reactions-browser.mjs"], "expect_exit": 0 }
+  ]
+}

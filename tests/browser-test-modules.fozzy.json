@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "browser-test-modules-scripted-command-contract",
+  "steps": [
+    { "type": "proc_when", "cmd": "node", "args": ["--test", "tests/browser-test-modules.test.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "tests/browser-test-modules.test.mjs"], "expect_exit": 0 }
+  ]
+}

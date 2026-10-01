@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "name": "object-judgment-persistence-crash-recovery",
+  "steps": [
+    {
+      "type": "proc_when",
+      "cmd": "bash",
+      "args": ["tests/run-object-judgments.sh"],
+      "exit_code": 0,
+      "stdout": "object judgment persistence and store regressions passed\n",
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "bash",
+      "args": ["tests/run-object-judgments.sh"],
+      "expect_exit": 0,
+      "expect_stdout": "object judgment persistence and store regressions passed\n"
+    }
+  ]
+}

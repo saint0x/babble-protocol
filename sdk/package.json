@@ -1,0 +1,17 @@
+{
+  "name": "@babel-protocol/sdk",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "generate": "node scripts/generate-protocol.mjs",
+    "generate:check": "node scripts/generate-protocol.mjs --check",
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run generate:check && npm run build && node --test tests/*.test.mjs"
+  },
+  "devDependencies": {}
+}

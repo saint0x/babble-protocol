@@ -10,3 +10,50 @@ report.md
 todo.md 
 TODO.md
 BACKEND.md
+
+# OS/editor noise
+.DS_Store
+.venv/
+algorithms/.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+algorithms/.pytest_cache/
+algorithms/.ruff_cache/
+algorithms/**/__pycache__/
+
+# Rust build output
+target/
+backend/target/
+
+# TypeScript build output
+sdk/dist/
+frontend/dist/
+frontend/.astro/
+frontend/node_modules/
+
+# Fozzy internal run database; checked-in scenarios/traces live elsewhere
+.fozzy/
+
+# Local runtime state and credentials never belong in source snapshots.
+.babel-node/
+.env
+.env.*
+!.env.example
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+
+# Execution evidence stays local; portable scenario definitions are *.fozzy.json.
+artifacts/
+*.fozzy
+*.log
+
+# Dependencies/build output, including archived prototypes.
+node_modules/
+.next/
+dist/
+
+# The archived Next.js checkout retains its own Git history locally and remotely.
+/deprecated/babel-frontend-deprec/

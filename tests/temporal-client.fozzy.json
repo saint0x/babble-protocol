@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "temporal-and-search-client-contract",
+  "steps": [
+    { "type": "proc_when", "cmd": "npm", "args": ["--prefix", "frontend", "test"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "npm", "args": ["--prefix", "frontend", "test"], "expect_exit": 0 }
+  ]
+}

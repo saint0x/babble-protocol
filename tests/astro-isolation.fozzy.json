@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "astro-server-isolation-contract",
+  "steps": [
+    { "type": "proc_when", "cmd": "node", "args": ["--test", "tests/astro-isolation.test.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "tests/astro-isolation.test.mjs"], "expect_exit": 0 }
+  ]
+}

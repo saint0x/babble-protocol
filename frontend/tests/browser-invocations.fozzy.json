@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "browser-invocations-client-process-contract",
+  "steps": [
+    { "type": "proc_when", "cmd": "node", "args": ["frontend/tests/browser-invocations-evidence.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["frontend/tests/browser-invocations-evidence.mjs"], "expect_exit": 0 }
+  ]
+}

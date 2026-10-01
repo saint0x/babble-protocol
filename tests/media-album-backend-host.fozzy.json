@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "media-album-backend-real-contract",
+  "steps": [
+    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babel-api","-p","babel-authoring","-p","babel-media","--lib","media_album"],"expect_exit":0},
+    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babel-api","--test","auth","media_album"],"expect_exit":0}
+  ]
+}

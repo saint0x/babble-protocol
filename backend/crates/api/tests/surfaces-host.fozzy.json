@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "name": "surface-auth-real-http-rpc-regressions",
+  "steps": [
+    {"type":"trace_event","name":"Actual Rust HTTP/RPC tests: terminal and suspended gates, Object authors, login ownership, revocation, idle expiry, migration and delayed post-admission writes/start"},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--test","auth"],"expect_exit":0},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--lib","auth::"],"expect_exit":0},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--lib","surface","--","--skip","auth::"],"expect_exit":0}
+  ]
+}

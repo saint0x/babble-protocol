@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "name": "generator-sdk-tests-and-frontend-typecheck-real-host",
+  "steps": [
+    {
+      "type": "proc_spawn",
+      "cmd": "npm",
+      "args": [
+        "--prefix",
+        "sdk",
+        "test"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "npm",
+      "args": [
+        "--prefix",
+        "frontend",
+        "run",
+        "check"
+      ],
+      "expect_exit": 0
+    }
+  ]
+}

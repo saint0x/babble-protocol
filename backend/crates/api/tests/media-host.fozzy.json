@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "binary-media-real-router-regressions",
+  "steps": [
+    {"type":"trace_event","name":"Real public Router checks: raw bytes, inert signed MIME, exact object binding, GET/HEAD, ranges and If-Range, integrity, missing blobs and bounded reads"},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--lib","media::tests"],"expect_exit":0}
+  ]
+}

@@ -1,0 +1,30 @@
+.account-dialog .account-security { display: grid; gap: 16px; min-width: 0; padding-top: 20px; border-top: 1px solid #d4d7d6; }
+.account-security .security-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.account-security h3 { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.4; }
+.account-security p { margin: 0; font-size: 13px; line-height: 1.5; color: #525b58; overflow-wrap: anywhere; }
+.account-security ul { list-style: none; padding: 0; margin: 0; min-width: 0; }
+.account-security li { display: flex; align-items: center; gap: 12px; padding: 16px 0; border-bottom: 1px solid #dfe2e0; }
+.account-security li:first-child { padding-top: 0; }
+.account-security .security-session-details { flex: 1; min-width: 0; }
+.account-security .security-session-title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 14px; }
+.account-security .security-current { font-size: 11px; color: #315645; background: #e1ece5; padding: 3px 7px; border-radius: 6px; }
+.account-security button { min-height: 40px; padding: 9px 12px; border: 1px solid #cdd5d0; border-radius: 8px; background: #edf1ee; color: #263e32; font: inherit; font-size: 13px; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; cursor: pointer; }
+.account-security button:disabled { cursor: default; opacity: .5; }
+.account-security button:focus-visible, .account-security input:focus-visible { outline: 2px solid #416752; outline-offset: 3px; }
+.account-security .security-refresh { display: grid; place-items: center; flex: 0 0 40px; padding: 0; width: 40px; height: 40px; }
+.account-security .security-refresh svg { width: 17px; height: 17px; }
+.account-security .security-secondary { justify-self: start; }
+.account-security .security-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.account-security .security-confirmation { border-left: 3px solid #708577; padding-left: 12px; }
+.account-dialog .account-security form { display: grid; gap: 16px; min-width: 0; padding-top: 20px; border-top: 1px solid #d4d7d6; }
+.account-security input { min-width: 0; width: 100%; box-sizing: border-box; font-size: 16px; }
+.account-security .security-primary { background: #354e40; color: #fff; border-color: #354e40; }
+.account-security [data-state="error"] { color: #9b3131; }
+.account-security [role="status"]:empty { display: none; }
+@media (max-width: 380px) {
+  .account-security li { align-items: flex-start; flex-wrap: wrap; }
+  .account-security .security-session-details { flex-basis: 100%; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .account-security button:not(:disabled):hover { filter: brightness(.96); }
+}

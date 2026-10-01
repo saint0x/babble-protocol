@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "social-media-process-contract",
+  "steps": [
+    {"type":"trace_event","name":"Scripted orchestration only; host scenario runs real social media attachment admission, atomic publication, authorization and retry tests"},
+    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-node","-p","babel-api","social_media"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-node","-p","babel-api","social_media"],"expect_exit":0}
+  ]
+}

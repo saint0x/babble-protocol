@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "name": "resource-integrity-host",
+  "steps": [
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-api", "--test", "body_limits"],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": [
+        "CARGO_INCREMENTAL=0",
+        "cargo",
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-store",
+        "--test",
+        "blobs"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": [
+        "CARGO_INCREMENTAL=0",
+        "cargo",
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-store",
+        "--lib",
+        "blobs::tests"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": [
+        "CARGO_INCREMENTAL=0",
+        "cargo",
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-api",
+        "--test",
+        "resources"
+      ],
+      "expect_exit": 0
+    }
+  ]
+}

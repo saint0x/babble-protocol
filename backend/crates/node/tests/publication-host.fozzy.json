@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "name": "node-publication-provider-failure-host",
+  "steps": [
+    {
+      "type": "proc_when",
+      "cmd": "bash",
+      "args": ["tests/run-publication.sh"],
+      "exit_code": 0,
+      "stdout": "node publication regressions passed\n",
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "bash",
+      "args": ["tests/run-publication.sh"],
+      "expect_exit": 0,
+      "expect_stdout": "node publication regressions passed\n"
+    }
+  ]
+}

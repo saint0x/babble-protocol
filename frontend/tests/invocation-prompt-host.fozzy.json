@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "invocation-prompt-real-host-dom-regressions",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "--test-reporter=dot", "frontend/tests/invocation-prompt.test.mjs"], "expect_exit": 0 }
+  ]
+}

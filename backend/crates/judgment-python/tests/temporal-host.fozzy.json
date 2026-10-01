@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "temporal-contract-native-and-real-python-host",
+  "steps": [
+    {"type": "trace_event", "name": "Native temporal mathematics, canonical bounds, real Python parity, hostile responses, deadlines and restart"},
+    {"type": "proc_spawn", "cmd": "/usr/bin/env", "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/crates/judgment-python/Cargo.toml", "--test", "temporal", "--quiet"], "expect_exit": 0}
+  ]
+}

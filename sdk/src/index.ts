@@ -1,0 +1,91 @@
+export * from "./generated/protocol.js";
+export {
+  bytesToHex,
+  canonicalFloat,
+  canonicalUnsigned,
+  canonicalValueBytes,
+  canonicalValueHex,
+  type CanonicalFloat,
+  type CanonicalPrimitive,
+  type CanonicalUnsigned,
+  type CanonicalValue,
+} from "./canonical.js";
+export {
+  BrowserBridgeHost,
+  BrowserBridgeTransport,
+  isRpcBridgeRequest,
+  isRpcBridgeCancel,
+  rpcBridgeResponse,
+  type BridgeDispatch,
+  type BridgeDispatchContext,
+  type BridgeEndpoint,
+  type BridgeMessageEvent,
+  type BridgeMessageHandler,
+  type BrowserBridgeHostOptions,
+  type BrowserBridgeTransportOptions,
+  type RpcBridgeRequest,
+  type RpcBridgeCancel,
+  type RpcBridgeResponse,
+} from "./bridge.js";
+export { BabelClient, createBabelClient, type BabelClientOptions } from "./client.js";
+export {
+  connectSurfaceBridge,
+  SURFACE_BRIDGE_VERSION,
+  surfaceBridgeControl,
+  type ConnectSurfaceBridgeOptions,
+  type SurfaceConnectorWindow,
+  type SurfaceMessagePort,
+} from "./channel.js";
+export {
+  PERSONALIZATION_SYNC_ALGORITHM,
+  PERSONALIZATION_SYNC_DATA_CLASS,
+  PERSONALIZATION_SYNC_VERSION,
+  createLocalUserModel,
+  createPersonalizationFilter,
+  createPersonalizationSyncRecipient,
+  personalizeCandidates,
+  personalizeFeed,
+  summarizeDiscoveryObject,
+  validateEncryptedLocalUserModelEnvelope,
+  type LocalUserModelInput,
+  type PersonalizationSyncRecipientInput,
+} from "./personalization.js";
+export {
+  SurfaceLifecycleController,
+  createSurfaceLifecycle,
+  type SurfaceBudgetEvent,
+  type SurfaceBudgetHandler,
+  type SurfaceLifecycleEvent,
+  type SurfaceLifecycleHandler,
+  type SurfaceLifecycleState,
+  type SurfaceResourceBudget,
+  type SurfaceRuntimeEvent,
+  type SurfaceRuntimeSession,
+} from "./lifecycle.js";
+export {
+  BrowserSurfaceHost,
+  createBrowserSurfaceHost,
+  type MountedSurface,
+  type SurfacePressureBudget,
+  type SurfacePressureLevel,
+  type SurfacePressureSignal,
+  type SurfaceContainer,
+  type SurfaceDocument,
+  type SurfaceFrame,
+  type SurfaceFrameWindow,
+  type SurfaceHostWindow,
+  type SurfaceMountOptions,
+  type SurfaceWindowMessageEvent,
+} from "./host.js";
+export { createBabelSDK, createSurfaceSDK, type BabelSDK, type BabelSDKOptions, type SurfaceSDKOptions } from "./sdk.js";
+export {
+  BabelError,
+  HttpRpcTransport,
+  hostBinding,
+  hostSurfaceBinding,
+  objectBinding,
+  requestId,
+  type BabelTransport,
+  type RpcBinding,
+  type RpcRequestOptions,
+} from "./transport.js";

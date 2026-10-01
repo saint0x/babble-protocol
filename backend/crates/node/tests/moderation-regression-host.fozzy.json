@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "moderation-adjacent-auth-runtime-social-regressions",
+  "steps": [
+    {"type":"proc_when","cmd":"/bin/sh","args":["backend/crates/node/tests/run-moderation-regression.sh"],"exit_code":0,"stdout":"moderation adjacent auth runtime social regressions passed\n","stderr":"","times":1},
+    {"type":"proc_spawn","cmd":"/bin/sh","args":["backend/crates/node/tests/run-moderation-regression.sh"],"expect_exit":0,"expect_stdout":"moderation adjacent auth runtime social regressions passed\n"}
+  ]
+}

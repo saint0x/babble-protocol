@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "name": "browser-invocations-real-signed-sdk-api-astro-aegis",
+  "steps": [
+    {
+      "type": "trace_event",
+      "name": "Parent GO required: BABEL_BROWSER_INVOCATION_SOURCE_FROZEN=1; native clipboard excluded; run separate full regression after focus",
+      "fields": {}
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": [
+        "CARGO_INCREMENTAL=0",
+        "CARGO_BUILD_JOBS=2",
+        "node",
+        "tests/browser-invocation-evidence.mjs",
+        "focus"
+      ],
+      "expect_exit": 0
+    }
+  ]
+}

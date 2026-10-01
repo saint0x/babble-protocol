@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "surface-document-real-api-regressions",
+  "steps": [
+    {"type":"trace_event","name":"Run from backend/crates/api with CARGO_INCREMENTAL=0 and host backends: complete babel-api tests including immutable document registration, malformed/duplicate/stray headers, ownership, queued credential/document checks, CORS, migration, restart, eviction and expiry."},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","../../Cargo.toml","-p","babel-api"],"expect_exit":0}
+  ]
+}

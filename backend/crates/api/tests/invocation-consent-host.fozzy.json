@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "invocation-consent-api-real-host",
+  "steps": [
+    {"type":"proc_spawn","cmd":"bash","args":["tests/run-invocation-consent.sh"],"expect_exit":0,"expect_stdout":"invocation consent API and runtime regressions passed\n"}
+  ]
+}

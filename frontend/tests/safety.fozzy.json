@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "safety-client-controller-dialog-deterministic",
+  "steps": [
+    { "type": "proc_when", "cmd": "node", "args": ["--test", "frontend/tests/safety.test.mjs", "frontend/tests/safety-view.test.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "frontend/tests/safety.test.mjs", "frontend/tests/safety-view.test.mjs"], "expect_exit": 0 }
+  ]
+}

@@ -1,0 +1,17 @@
+[package]
+name = "babel-object"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+babel-crypto.workspace = true
+babel-graph.workspace = true
+babel-identity.workspace = true
+babel-types.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+schemars.workspace = true
+url = "2.5.8"

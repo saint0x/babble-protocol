@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "name": "backend-protocol-media-capture",
+  "steps": [
+    {
+      "type": "trace_event",
+      "name": "media capture capability test start"
+    },
+    {
+      "type": "proc_when",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-api",
+        "rpc_dispatch_handles_capability_bound_media_capture"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_when",
+      "cmd": "npm",
+      "args": [
+        "--prefix",
+        "sdk",
+        "test",
+        "--",
+        "--test-name-pattern",
+        "capability-bound media capture helpers"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "cargo",
+      "args": [
+        "test",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-api",
+        "rpc_dispatch_handles_capability_bound_media_capture"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "npm",
+      "args": [
+        "--prefix",
+        "sdk",
+        "test",
+        "--",
+        "--test-name-pattern",
+        "capability-bound media capture helpers"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "trace_event",
+      "name": "media capture capability test complete"
+    }
+  ]
+}

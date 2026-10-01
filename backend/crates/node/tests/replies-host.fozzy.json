@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "name": "backend-direct-replies-pagination-host",
+  "steps": [
+    {"type": "trace_event", "name": "Run actual native reply and HTTP RPC tests on the host"},
+    {
+      "type": "proc_spawn",
+      "cmd": "cargo",
+      "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-graph", "-p", "babel-node", "-p", "babel-api", "replies"],
+      "expect_exit": 0
+    }
+  ]
+}

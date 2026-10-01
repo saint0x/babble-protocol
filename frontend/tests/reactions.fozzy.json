@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "reactions-controller-deterministic-process-contract",
+  "steps": [
+    { "type": "proc_when", "cmd": "node", "args": ["--test", "frontend/tests/reactions.test.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "frontend/tests/reactions.test.mjs"], "expect_exit": 0 }
+  ]
+}

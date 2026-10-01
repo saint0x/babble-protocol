@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "live-stack-interruption-scripted-orchestration-only",
+  "steps": [
+    { "type": "proc_when", "cmd": "node", "args": ["--test", "tests/live-stack-lifecycle.test.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "tests/live-stack-lifecycle.test.mjs"], "expect_exit": 0 }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "source-agreement-real-python-and-rust-host",
+  "steps": [
+    {"type": "trace_event", "name": "Real Python worker, full batch and UTF-8 bounds, strict contracts, hostile outputs and restart, schema and SDK freshness"},
+    {"type": "proc_spawn", "cmd": "uv", "args": ["run", "--frozen", "--directory", "algorithms", "python", "tests/run_agreement_checks.py"], "expect_exit": 0, "expect_stdout": "source agreement Python, Rust, schema, and generated SDK checks passed\n", "expect_stderr": ""}
+  ]
+}

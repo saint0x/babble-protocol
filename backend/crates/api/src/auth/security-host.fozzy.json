@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "account-security-native-host",
+  "steps": [
+    {"type":"trace_event","name":"Actual native account auth: password CAS, concurrent revocation, rollback faults, migration, expiry, session capacity, Surface execution revocation"},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--lib","auth::"],"expect_exit":0}
+  ]
+}

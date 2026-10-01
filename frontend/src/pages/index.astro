@@ -1,0 +1,414 @@
+---
+import "../styles/global.css";
+import "../styles/reactions.css";
+import "../styles/account-security.css";
+import "../styles/permissions.css";
+import "../styles/host-actions.css";
+import "../styles/invocation-prompt.css";
+import "../styles/composer.css";
+import "../styles/navigation.css";
+import "../styles/quotes.css";
+import "../styles/preferences.css";
+import "../styles/gallery.css";
+import "../styles/safety.css";
+import "../styles/moderation.css";
+
+const apiUrl = import.meta.env.PUBLIC_BABEL_API_URL ?? "http://127.0.0.1:8787";
+---
+
+<!doctype html>
+<html lang="en" data-babel-api={apiUrl}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Babel Protocol</title>
+  </head>
+  <body>
+    <main class="babel-app" data-feed-root>
+      <header class="babel-header" aria-label="Babel feed controls">
+        <div class="header-frame">
+          <div class="header-title">
+            <h1>Babel Protocol</h1>
+          </div>
+
+          <form class="header-search" data-search-form>
+            <label class="sr-only" for="feed-search">Search Objects</label>
+            <input
+              id="feed-search"
+              name="q"
+              type="search"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Search..."
+              data-search-input
+            />
+            <button type="submit" aria-label="Search Objects">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="7"></circle>
+                <path d="m20 20-3.5-3.5"></path>
+              </svg>
+            </button>
+          </form>
+
+          <nav class="lens-switcher" aria-label="Lens selector">
+            <button type="button" data-lens="balanced" aria-pressed="true">Balanced</button>
+            <button type="button" data-lens="following" aria-pressed="false">Following</button>
+            <button type="button" data-lens="research" aria-pressed="false">Research</button>
+            <button type="button" data-lens="weird" aria-pressed="false">Weird</button>
+          </nav>
+
+          <button class="header-icon" type="button" data-toggle-composer aria-label="Publish Object">
+            <span aria-hidden="true">+</span>
+          </button>
+
+          <div class="profile-menu" data-profile-menu>
+            <button class="avatar-button" type="button" data-toggle-profile aria-label="Open profile menu">
+              <span>?</span>
+            </button>
+            <div class="profile-dropdown" data-profile-dropdown hidden>
+              <button type="button" data-menu-action="profile">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <span>Sign in</span>
+              </button>
+              <button type="button" data-menu-action="account" hidden>Account settings</button>
+              <button type="button" data-menu-action="safety">Blocked and muted</button>
+              <button type="button" data-menu-action="reports">Reports and moderation</button>
+              <button type="button" data-menu-action="settings">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z"></path><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6V20a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-.5 1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1H4a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 .5-1 1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6V4a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 .5 1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.2.36.4.7.6 1h.1a2 2 0 0 1 0 4H20a1.7 1.7 0 0 0-.6 1Z"></path></svg>
+                Settings
+              </button>
+              <button type="button" data-menu-action="help">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.1 9a3 3 0 1 1 5.4 1.8c-.8.7-1.5 1.1-1.5 2.2"></path><path d="M12 17h.01"></path></svg>
+                Help & Support
+              </button>
+              <button type="button" data-menu-action="sign-out">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h4"></path><path d="m16 17 5-5-5-5"></path><path d="M21 12H9"></path></svg>
+                Sign out
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="composer-panel" id="composer" role="dialog" aria-labelledby="composer-title" data-composer-panel hidden>
+        <div class="panel-heading">
+          <h2 id="composer-title" data-compose-title>New post</h2>
+          <button class="composer-icon" type="button" data-close-composer aria-label="Close composer" title="Close composer"></button>
+        </div>
+        <form class="composer-form" data-compose-form>
+          <div class="composer-author">
+            <span class="composer-avatar" data-compose-avatar aria-hidden="true">?</span>
+            <div class="composer-author-details">
+              <input name="handle" type="text" readonly tabindex="-1" aria-label="Author" placeholder="Not signed in" data-author-handle />
+              <p data-compose-context>Public post</p>
+            </div>
+            <button type="button" class="composer-sign-in" data-compose-sign-in>Sign in</button>
+          </div>
+          <label class="compose-text">
+            <span class="sr-only">Post text</span>
+            <textarea name="text" rows="6" placeholder="What's on your mind?" aria-describedby="composer-status" data-compose-text></textarea>
+          </label>
+          <figure class="composer-media" data-compose-preview hidden>
+            <div class="composer-media-image">
+              <img data-compose-preview-image alt="Selected image" />
+              <audio data-compose-preview-audio controls preload="metadata" aria-label="Selected audio preview" aria-describedby="compose-preview-status" hidden></audio>
+              <video data-compose-preview-video controls playsinline preload="metadata" aria-label="Selected video preview" aria-describedby="compose-preview-status" hidden></video>
+            </div>
+            <p id="compose-preview-status" data-compose-preview-status role="status" aria-live="polite"></p>
+            <figcaption>
+              <div class="composer-media-details">
+                <strong data-compose-media-name></strong>
+                <span data-compose-media-size></span>
+              </div>
+              <button class="composer-icon" type="button" data-remove-compose-media aria-label="Remove all media" title="Remove all media"></button>
+            </figcaption>
+          </figure>
+          <div class="composer-attachments" data-compose-attachments>
+            <label class="composer-attachment-tool" title="Add media" data-compose-image-tool>
+              <span data-compose-image-icon aria-hidden="true"></span>
+              <input name="media" type="file" multiple accept="image/*,audio/*,video/*" aria-label="Add media" aria-describedby="composer-status" data-compose-media />
+              <span class="composer-tooltip" aria-hidden="true">Add media</span>
+            </label>
+            <section class="bundle-picker" data-bundle-picker aria-label="Web application">
+              <label class="composer-attachment-tool" title="Add built app">
+                <span data-compose-bundle-icon aria-hidden="true"></span>
+                <input type="file" multiple {...{ webkitdirectory: "" }} aria-label="Add built app" data-compose-bundle aria-describedby="bundle-status" />
+                <span class="composer-tooltip" aria-hidden="true">Add built app</span>
+              </label>
+              <div class="composer-bundle-details">
+                <label hidden>
+                  <span>Entry document</span>
+                  <select data-bundle-entry></select>
+                </label>
+                <div class="bundle-selection">
+                  <p id="bundle-status" data-bundle-status role="status" aria-live="polite"></p>
+                  <button type="button" class="composer-icon" data-clear-bundle title="Remove application" aria-label="Remove application" hidden></button>
+                </div>
+                <details class="bundle-permissions" data-bundle-permissions hidden>
+                  <summary>App permissions <span data-bundle-permission-count>0</span></summary>
+                  <div class="bundle-permission-options">
+                    <label><input type="checkbox" data-bundle-clipboard /><span>Copy to clipboard</span></label>
+                    <label><input type="checkbox" data-bundle-fullscreen /><span>Enter fullscreen</span></label>
+                  </div>
+                  <details class="bundle-permission-advanced">
+                    <summary>Advanced declarations</summary>
+                    <label for="bundle-capabilities">Capabilities (JSON)</label>
+                    <textarea id="bundle-capabilities" data-bundle-capabilities rows="6" spellcheck="false" autocomplete="off"
+                      maxlength="65536" aria-describedby="bundle-permission-status">[]</textarea>
+                  </details>
+                  <p id="bundle-permission-status" data-bundle-permission-status role="status" aria-live="polite"></p>
+                </details>
+              </div>
+            </section>
+          </div>
+          <footer class="composer-footer">
+            <p id="composer-status" class="composer-status" data-author-status role="status" aria-live="polite" aria-atomic="true">Not signed in</p>
+            <button type="submit" class="form-submit" data-compose-submit>Post</button>
+          </footer>
+        </form>
+      </section>
+
+      <nav class="return-navigation" aria-label="Return navigation">
+        <button type="button" class="object-back" data-back-object hidden>Back to shared post</button>
+        <button type="button" class="profile-back" data-back-profile hidden>Back to profile</button>
+      </nav>
+      <dialog class="public-profile-dialog" data-public-profile aria-labelledby="public-profile-title">
+        <header class="public-profile-header">
+          <h2 id="public-profile-title" data-public-profile-title>Public profile</h2>
+          <button type="button" class="panel-icon" data-author-controls aria-label="Author controls" title="Author controls" hidden></button>
+          <button type="button" class="panel-close" data-public-profile-close aria-label="Close public profile">×</button>
+        </header>
+        <p class="public-profile-identity" data-public-profile-identity></p>
+        <button type="button" class="form-submit author-follow" data-author-follow aria-describedby="author-follow-status" hidden>Follow</button>
+        <p id="author-follow-status" class="public-profile-status" data-author-follow-status role="status" aria-live="polite" hidden></p>
+        <h3>Published Objects</h3>
+        <p class="public-profile-status" data-public-profile-status role="status" aria-live="polite"></p>
+        <div class="public-profile-list" data-public-profile-list aria-busy="false"></div>
+        <button type="button" class="form-submit" data-public-profile-more hidden>Load more</button>
+      </dialog>
+
+      <dialog class="public-profile-dialog" data-following-dialog aria-labelledby="following-list-title">
+        <header class="public-profile-header">
+          <h2 id="following-list-title">People you follow</h2>
+          <button type="button" class="panel-close" data-following-list-close aria-label="Close Following">×</button>
+        </header>
+        <p class="public-profile-status" data-following-list-status role="status" aria-live="polite"></p>
+        <div class="public-profile-list" data-following-list aria-busy="false"></div>
+        <button type="button" class="form-submit" data-following-list-signin hidden>Sign in</button>
+        <button type="button" class="form-submit" data-following-list-more hidden>Load more</button>
+      </dialog>
+
+      <dialog class="account-dialog" data-account-dialog aria-labelledby="account-title">
+        <header class="panel-heading">
+          <h2 id="account-title">Account</h2>
+          <button class="panel-close" type="button" data-account-close aria-label="Close account">×</button>
+        </header>
+        <section data-account-details hidden>
+          <h3 data-account-handle></h3>
+          <label>Identity ID<input type="text" data-account-id readonly /></label>
+          <p data-account-expiry></p>
+          <button type="button" class="form-submit" data-account-logout>Sign out</button>
+          <div data-account-security></div>
+        </section>
+        <form data-account-form>
+          <div class="account-modes" role="group" aria-label="Account action">
+            <button type="button" data-account-mode="login" aria-pressed="true">Sign in</button>
+            <button type="button" data-account-mode="register" aria-pressed="false">Create account</button>
+          </div>
+          <label data-account-login-label>Identity ID
+            <input type="text" data-account-login autocomplete="username" spellcheck="false" required />
+          </label>
+          <label data-account-handle-label hidden>Handle
+            <input type="text" data-account-register autocomplete="nickname" maxlength="80" disabled />
+          </label>
+          <label>Password
+            <input type="password" data-account-password autocomplete="current-password" required maxlength="1024" />
+          </label>
+          <button type="submit" class="form-submit" data-account-submit>Sign in</button>
+        </form>
+        <p class="composer-status" data-account-status role="status" aria-live="polite"></p>
+      </dialog>
+
+      <section class="settings-panel floating-panel" id="settings" role="dialog" aria-labelledby="settings-title" data-settings-panel hidden>
+        <header>
+          <div>
+            <p class="eyebrow">Settings</p>
+            <h2 id="settings-title">Feed controls</h2>
+          </div>
+          <button class="panel-icon" type="button" data-close-settings aria-label="Close settings">×</button>
+        </header>
+        <div class="settings-grid">
+          <div>
+            <p class="eyebrow">Lens</p>
+            <div class="settings-lenses" aria-label="Lens selector">
+              <button type="button" data-lens="balanced" aria-pressed="true">Balanced</button>
+              <button type="button" data-lens="following" aria-pressed="false">Following</button>
+              <button type="button" data-lens="research" aria-pressed="false">Research</button>
+              <button type="button" data-lens="weird" aria-pressed="false">Weird</button>
+            </div>
+          </div>
+          <div data-feed-preferences></div>
+          <details class="settings-advanced">
+          <summary>Protocol details</summary>
+          <div class="settings-status">
+            <p><span>Source</span><strong data-settings-source>RPC</strong></p>
+            <p><span>Local</span><strong data-settings-local>Off</strong></p>
+            <p><span>Diversity</span><strong data-settings-diversity>Off</strong></p>
+            <p><span>Catalog</span><strong data-settings-catalog>Pending</strong></p>
+            <p><span>Loaded Objects</span><strong data-settings-count>0</strong></p>
+            <p><span>Position</span><strong data-settings-position>-</strong></p>
+          </div>
+          <section class="platform-overview" aria-label="Platform backend overview">
+            <div class="platform-heading">
+              <div>
+                <p class="eyebrow">Platform</p>
+                <h3>Protocol catalogs</h3>
+              </div>
+              <button class="mini-button" type="button" data-refresh-platform>Refresh</button>
+            </div>
+            <p class="platform-status" data-platform-status>Backend overview not loaded</p>
+            <div class="platform-stat-grid">
+              <p><span>Capabilities</span><strong data-platform-capabilities>-</strong></p>
+              <p><span>Lenses</span><strong data-platform-lenses>-</strong></p>
+              <p><span>Judges</span><strong data-platform-judges>-</strong></p>
+            </div>
+            <div class="platform-lists">
+              <div>
+                <p class="eyebrow">Capability Classes</p>
+                <div class="platform-list" data-platform-capability-list></div>
+              </div>
+            </div>
+          </section>
+          </details>
+        </div>
+      </section>
+
+      <section class="help-panel floating-panel" id="help" data-help-panel hidden>
+        <header>
+          <div>
+            <p class="eyebrow">Help & Support</p>
+            <h2>Swipe-card controls</h2>
+            <p class="surface-bridge-status">Every Object can be text, media, a Surface, or a protocol-backed portal.</p>
+          </div>
+          <button class="panel-icon" type="button" data-close-help aria-label="Close help">×</button>
+        </header>
+        <div class="help-list">
+          <p><strong>Protocol</strong><span>Open Surfaces, inspect Judgments, or copy the Object ID.</span></p>
+          <p><strong>Plus</strong><span>Publish signed text, image, audio, video, or application Objects.</span></p>
+        </div>
+      </section>
+
+      <section class="feed-stage" id="feed" aria-label="Object feed">
+        <div class="feed-summary" data-feed-summary>Loading Objects from the Babel API</div>
+        <div class="following-toolbar" data-following-toolbar hidden>
+          <button type="button" class="mini-button" data-following-people>People you follow</button>
+          <button type="button" class="mini-button" data-following-signin hidden>Sign in</button>
+          <button type="button" class="mini-button" data-following-more hidden>Load more</button>
+          <p data-following-status role="status" aria-live="polite"></p>
+        </div>
+        <div class="deck-shell">
+          <div class="deck" data-deck></div>
+          <p class="action-status" data-action-status role="status" aria-live="polite" aria-atomic="true"></p>
+          <button class="carousel-control previous" type="button" data-prev aria-label="Previous Object">
+            <span aria-hidden="true">‹</span>
+          </button>
+          <button class="carousel-control next" type="button" data-next aria-label="Next Object">
+            <span aria-hidden="true">›</span>
+          </button>
+          <button class="carousel-control refresh" type="button" data-refresh aria-label="Refresh feed">
+            <span aria-hidden="true">↻</span>
+          </button>
+        </div>
+
+        <div class="empty-state" data-empty hidden>
+          <p class="empty-title">No Objects returned</p>
+          <p class="empty-copy">The connected API returned an empty feed for this query.</p>
+          <button type="button" class="mini-button" data-open-feed-preferences hidden>Feed controls</button>
+        </div>
+        <div class="error-state" data-error hidden></div>
+      </section>
+
+      <aside class="feed-metrics sr-only" aria-label="Feed protocol status">
+        <div class="connection" data-status>
+          <span class="status-dot" aria-hidden="true"></span>
+          <span data-status-text>Connecting</span>
+        </div>
+        <p><span>Source</span><strong data-source-label>RPC</strong></p>
+        <p><span>Local</span><strong data-local-label>Off</strong></p>
+        <p><span>Diversity</span><strong data-diversity-label>Off</strong></p>
+        <p><span>Catalog</span><strong data-catalog-label>Pending</strong></p>
+        <p><span>Loaded Objects</span><strong data-count-label>0</strong></p>
+        <p><span>Position</span><strong data-position-label>-</strong></p>
+        <p><span>Lens</span><strong data-lens-label>Balanced</strong></p>
+      </aside>
+
+      <section class="judgment-panel floating-panel" id="judgments" data-judgment-panel hidden>
+        <header>
+          <div>
+            <p class="eyebrow">Judgment</p>
+            <h2 data-judgment-title>Object Judgments</h2>
+            <p class="judgment-status" data-judgment-status>Idle</p>
+          </div>
+          <div class="panel-actions">
+            <button class="panel-icon" type="button" data-reload-judgments aria-label="Reload Judgments">↻</button>
+            <button class="panel-icon" type="button" data-close-judgments aria-label="Close Judgments">×</button>
+          </div>
+        </header>
+        <form class="judgment-evaluator" data-judgment-form>
+          <label>
+            <span>Definition</span>
+            <select data-judgment-definition>
+              <option value="babel.judgment.spam.v1">spam</option>
+              <option value="babel.judgment.evidence_quality.v1">evidence quality</option>
+              <option value="babel.judgment.content_analysis.v1">content analysis</option>
+              <option value="babel.judgment.moderation.v1">moderation</option>
+              <option value="babel.judgment.relevance.v1">relevance</option>
+              <option value="babel.judgment.relationship.v1">relationship</option>
+              <option value="babel.judgment.source_agreement.v1">source agreement</option>
+            </select>
+          </label>
+          <label data-judgment-query-label hidden>
+            <span>Query</span>
+            <input type="text" data-judgment-query autocomplete="off" spellcheck="false" />
+          </label>
+          <label data-judgment-relation-label hidden>
+            <span>Relation</span>
+            <select data-judgment-relation>
+              <option value="related">related</option>
+              <option value="supports">supports</option>
+              <option value="contradicts">contradicts</option>
+            </select>
+          </label>
+          <button type="submit" class="form-submit" data-judgment-submit>Evaluate</button>
+        </form>
+        <div class="judgment-list" data-judgment-list></div>
+      </section>
+
+      <dialog class="permission-dialog" data-permission-dialog></dialog>
+      <section class="surface-panel" id="surface" data-surface-panel aria-label="Interactive Object" hidden>
+        <header class="surface-toolbar">
+          <div>
+            <p class="eyebrow">Surface</p>
+            <h2 data-surface-title>Prepared runtime</h2>
+            <p class="surface-bridge-status" data-surface-bridge-status>Bridge idle</p>
+          </div>
+          <div class="surface-tools">
+            <button class="panel-icon" type="button" data-surface-permissions aria-label="Review Object permissions" title="Review Object permissions"></button>
+            <button class="panel-icon" type="button" data-retry-surface aria-label="Retry Surface" title="Retry Surface" hidden></button>
+            <button class="panel-icon" type="button" data-expand-surface aria-label="Expand Object" title="Expand Object" aria-pressed="false"></button>
+            <button class="panel-icon" type="button" data-close-surface aria-label="Close Surface" title="Close Surface"></button>
+          </div>
+        </header>
+        <div class="surface-host" data-surface-host></div>
+        <details class="surface-details">
+          <summary>Runtime details</summary>
+          <div class="surface-meta" data-surface-meta></div>
+        </details>
+      </section>
+    </main>
+    <script>
+      import "../app/main";
+    </script>
+  </body>
+</html>

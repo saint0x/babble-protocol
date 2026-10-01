@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "name": "moderation-real-api-astro-aegis-browser",
+  "steps": [
+    {
+      "type": "trace_event",
+      "name": "Requires parent source freeze approval, inherited BABEL_MODERATION_SOURCE_FROZEN=1, disposable ports, and host process backend",
+      "fields": {}
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "tests/live-stack-evidence.mjs",
+        "moderation"
+      ],
+      "expect_exit": 0
+    }
+  ]
+}

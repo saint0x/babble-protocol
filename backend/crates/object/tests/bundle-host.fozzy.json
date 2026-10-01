@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "name": "bundle-contract-real-object-tests",
+  "steps": [
+    {
+      "type": "proc_spawn",
+      "cmd": "env",
+      "args": [
+        "CARGO_INCREMENTAL=0",
+        "cargo",
+        "test",
+        "--offline",
+        "--locked",
+        "--manifest-path",
+        "backend/Cargo.toml",
+        "-p",
+        "babel-object"
+      ],
+      "expect_exit": 0
+    }
+  ]
+}

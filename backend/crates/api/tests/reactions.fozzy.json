@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "public-reactions-process-contract",
+  "steps": [
+    {"type":"trace_event","name":"Scripted orchestration only; actual public reaction HTTP/RPC, signatures, persistence, authorization and concurrency assertions execute in reactions-host.fozzy.json"},
+    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--test","reactions"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--test","reactions"],"expect_exit":0}
+  ]
+}

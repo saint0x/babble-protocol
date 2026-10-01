@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "sdk-document-channel",
+  "steps": [
+    { "type": "trace_event", "name": "Single document port admission, readiness, native MessageChannel isolation and deterministic teardown contract" },
+    { "type": "proc_when", "cmd": "node", "args": ["--test", "sdk/tests/*.test.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "sdk/tests/*.test.mjs"], "expect_exit": 0 }
+  ]
+}

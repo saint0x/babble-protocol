@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "name": "durable-social-invocations",
+  "steps": [
+    {
+      "type": "proc_when",
+      "cmd": "bash",
+      "args": ["tests/run-social-invocations.sh"],
+      "exit_code": 0,
+      "stdout": "durable social invocation regressions passed\n",
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "bash",
+      "args": ["tests/run-social-invocations.sh"],
+      "expect_exit": 0,
+      "expect_stdout": "durable social invocation regressions passed\n"
+    }
+  ]
+}

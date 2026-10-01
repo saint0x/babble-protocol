@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "name": "live-stack-real-process-signals-descendants-and-store-cleanup",
+  "steps": [
+    { "type": "proc_spawn", "cmd": "node", "args": ["--test", "tests/live-stack-lifecycle.test.mjs"], "expect_exit": 0 }
+  ]
+}

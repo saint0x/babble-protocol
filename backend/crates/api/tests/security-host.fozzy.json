@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "account-security-real-router-regressions",
+  "steps": [
+    {"type":"trace_event","name":"Actual Router session ownership, independent public IDs, credential redaction, strict password policy, legacy migration, expiry, session cap, durable revocation and immediate Surface denial"},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--test","security"],"expect_exit":0}
+  ]
+}

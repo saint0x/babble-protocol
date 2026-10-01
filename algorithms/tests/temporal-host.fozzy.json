@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "name": "python-temporal-real-host-full-checks",
+  "steps": [
+    {
+      "type": "proc_spawn",
+      "cmd": "uv",
+      "args": ["run", "--frozen", "python", "tests/run_temporal_checks.py"],
+      "expect_exit": 0,
+      "expect_stdout": "temporal full Python pytest, basedpyright, and ruff checks passed\n",
+      "expect_stderr": ""
+    }
+  ]
+}

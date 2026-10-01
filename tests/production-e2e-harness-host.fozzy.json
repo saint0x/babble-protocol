@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "name": "production-e2e-harness-real-host",
+  "steps": [
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "--test",
+        "tests/http-observer.test.mjs",
+        "tests/live-stack-isolation.test.mjs",
+        "tests/browser-test-modules.test.mjs"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "--check",
+        "tests/live-stack-evidence.mjs"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "--check",
+        "tests/live-stack.mjs"
+      ],
+      "expect_exit": 0
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "tests/host-actions-browser.mjs",
+        "--contract-check"
+      ],
+      "expect_exit": 0
+    }
+  ]
+}

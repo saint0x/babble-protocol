@@ -1,0 +1,82 @@
+.reactions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  column-gap: 12px;
+  color: var(--gray-700, #374151);
+  font-size: 13px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  min-width: 0;
+  padding: 12px 0;
+  border-top: 1px solid rgb(55 65 81 / 12%);
+  overflow-wrap: anywhere;
+}
+.reactions [hidden] { display: none !important; }
+.reaction-bar, .reaction-commands { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.reaction-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 12px;
+  max-width: 100%;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  line-height: 1.4;
+  white-space: normal;
+  cursor: pointer;
+}
+.reaction-button svg, .reaction-disclosure svg { width: 17px; height: 17px; flex: 0 0 auto; }
+.reaction-appreciation { min-width: 56px; background: rgb(255 255 255 / 40%); }
+.reaction-count { font-variant-numeric: tabular-nums; min-width: 1ch; }
+.reaction-button[aria-pressed="true"] { background: #dbe8df; color: #254a36; border-color: #8faa98; }
+.reaction-appreciation:nth-child(2)[aria-pressed="true"] { background: #e7dfe8; color: #52334c; border-color: #b49aae; }
+.reaction-button:focus-visible, .reaction-disclosure:focus-visible,
+.reactions input:focus-visible, .reactions select:focus-visible { outline: 2px solid #46695b; outline-offset: 3px; }
+.reaction-button:disabled { cursor: not-allowed; opacity: 0.55; }
+.reaction-bar { grid-column: 1; grid-row: 1; min-width: 0; }
+.reaction-details { display: contents; }
+.reaction-details:not([open]) > :not(summary) { display: none; }
+.reaction-details > :not(summary), .reactions > :not(.reaction-bar):not(.reaction-details) { grid-column: 1 / -1; }
+.reaction-details > summary { grid-column: 2; grid-row: 1; justify-self: end; }
+.reaction-disclosure { display: flex; align-items: center; gap: 8px; width: fit-content; max-width: 100%; min-height: 44px; cursor: pointer; list-style: none; }
+.reaction-disclosure::-webkit-details-marker { display: none; }
+.reaction-details[open] .reaction-disclosure svg { transform: rotate(180deg); }
+.reaction-totals { margin: 4px 0 14px; color: var(--gray-600, #4b5563); font-variant-numeric: tabular-nums; }
+.reaction-fields { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.reaction-field { display: grid; gap: 6px; min-width: 0; }
+.reaction-field select { width: 100%; min-width: 0; min-height: 44px; padding: 8px; border: 1px solid rgb(55 65 81 / 20%); border-radius: 8px; color: inherit; background: rgb(255 255 255 / 55%); font: inherit; }
+.reaction-include-confidence { display: flex; align-items: center; gap: 10px; grid-column: 1 / -1; min-height: 44px; }
+.reaction-include-confidence input { width: 18px; height: 18px; accent-color: #46695b; }
+.reaction-field:has(input[type="range"]) { grid-column: 1 / -1; }
+.reaction-field input[type="range"] { width: 100%; min-width: 0; height: 28px; margin: 0; accent-color: #46695b; }
+.reaction-confidence-output { font-variant-numeric: tabular-nums; min-height: 20px; }
+.reaction-commands { grid-column: 1 / -1; }
+.reaction-publish { background: #dce5eb; color: #314b5d; }
+.reaction-status { margin: 8px 0 0; min-height: 1.5em; }
+.reaction-status:empty { display: none; }
+.post-context > .reactions {
+  padding: 8px 0 0;
+  border-top: 0;
+}
+.post-context .reaction-appreciation {
+  border-radius: 999px;
+  background: rgb(255 255 255 / 48%);
+}
+.post-context .reaction-disclosure {
+  color: var(--card-accent);
+  font-size: 12px;
+}
+.reaction-notice { margin-top: 12px; padding: 12px 0; border-top: 1px solid rgb(55 65 81 / 15%); }
+.reaction-notice p { margin: 0 0 8px; }
+.reaction-notice .reaction-button:first-of-type { background: #dbe8df; color: #254a36; }
+.reaction-choice { font-weight: 600; }
+.reaction-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+@media (hover: hover) and (pointer: fine) {
+  .reaction-button:not(:disabled):hover { background: rgb(255 255 255 / 70%); }
+}
+@media (max-width: 380px) { .reaction-fields { grid-template-columns: minmax(0, 1fr); } }

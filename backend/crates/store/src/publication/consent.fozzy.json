@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "name": "store-consent-publication-recovery",
+  "steps": [
+    {
+      "type": "proc_when",
+      "cmd": "bash",
+      "args": ["src/publication/run-consent.sh"],
+      "exit_code": 0,
+      "stdout": "store publication regressions passed\n",
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "bash",
+      "args": ["src/publication/run-consent.sh"],
+      "expect_exit": 0,
+      "expect_stdout": "store publication regressions passed\n"
+    }
+  ]
+}

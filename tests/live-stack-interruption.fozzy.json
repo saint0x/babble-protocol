@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "name": "live-stack-interruption-scripted-process-contract",
+  "steps": [
+    {
+      "type": "proc_when",
+      "cmd": "node",
+      "args": [
+        "--test",
+        "tests/live-stack-interruption.test.mjs"
+      ],
+      "exit_code": 0,
+      "times": 1
+    },
+    {
+      "type": "proc_spawn",
+      "cmd": "node",
+      "args": [
+        "--test",
+        "tests/live-stack-interruption.test.mjs"
+      ],
+      "expect_exit": 0
+    }
+  ]
+}
