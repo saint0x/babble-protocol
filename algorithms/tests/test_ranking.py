@@ -222,6 +222,37 @@ def test_domain_ranking_rejects_invalid_direct_signals() -> None:
             _ = rank(replace(request(1), candidates=(item,)))
 
 
+def test_domain_ranking_rejects_duplicate_direct_identity_domains() -> None:
+    duplicate = replace(candidate(1), object_id=candidate(0).object_id)
+    with pytest.raises(ValueError, match="unique IDs"):
+        _ = rank(replace(request(), candidates=(candidate(0), duplicate)))
+
+    with pytest.raises(ValueError, match="lens weights must be unique"):
+        _ = rank(
+            replace(
+                request(1),
+                lens=LensStack(
+                    "duplicate-lenses",
+                    (
+                        LensWeight(BuiltInLens.FOLLOWING, 0.5),
+                        LensWeight(BuiltInLens.FOLLOWING, 0.5),
+                    ),
+                ),
+            )
+        )
+
+    with pytest.raises(ValueError, match="source floors must be unique"):
+        _ = rank(
+            replace(
+                request(1),
+                diversity=DiversityPolicy(
+                    1.0,
+                    (SourceFloor("Evidence", 1), SourceFloor("Evidence", 2)),
+                ),
+            )
+        )
+
+
 def test_domain_ranking_rejects_invalid_direct_policy_and_sources() -> None:
     base = candidate()
     invalid = (
@@ -234,9 +265,7 @@ def test_domain_ranking_rejects_invalid_direct_policy_and_sources() -> None:
                 replace(
                     base,
                     sources=(
-                        CandidateSourceContribution(
-                            "Following", cast(float, cast(object, True))
-                        ),
+                        CandidateSourceContribution("Following", cast(float, cast(object, True))),
                     ),
                 ),
             ),

@@ -5,7 +5,7 @@
     {
       "type": "proc_when",
       "cmd": "uv",
-      "args": ["run", "--frozen", "python", "tests/run_ranking_checks.py"],
+      "args": ["run", "--frozen", "--directory", "algorithms", "python", "tests/run_ranking_checks.py"],
       "exit_code": 0,
       "stdout": "ranking subprocess checks passed\n",
       "times": 1
@@ -13,7 +13,7 @@
     {
       "type": "proc_spawn",
       "cmd": "uv",
-      "args": ["run", "--frozen", "python", "tests/run_ranking_checks.py"],
+      "args": ["run", "--frozen", "--directory", "algorithms", "python", "tests/run_ranking_checks.py"],
       "expect_exit": 0,
       "expect_stdout": "ranking subprocess checks passed\n",
       "expect_stderr": ""

@@ -152,22 +152,33 @@ def _validate_request(request: object) -> tuple[Candidate, ...]:
         raise ValueError("ranking lens stack ID must be a nonempty string")
     if type(request.lens.weights) is not tuple:
         raise ValueError("ranking lens weights must be a tuple")
+    lens_ids: set[BuiltInLens] = set()
     for weight in request.lens.weights:
         if type(weight) is not LensWeight or type(weight.lens) is not BuiltInLens:
             raise ValueError("ranking lens weights must be typed")
+        if weight.lens in lens_ids:
+            raise ValueError("ranking lens weights must be unique")
+        lens_ids.add(weight.lens)
         _ = _weight_value(weight.weight)
     if type(request.diversity) is not DiversityPolicy:
         raise ValueError("ranking diversity policy must be typed")
     _ = _unit_signal(request.diversity.max_source_share, "diversity max_source_share")
     if type(request.diversity.source_floors) is not tuple:
         raise ValueError("diversity source floors must be a tuple")
+    floor_sources: set[CandidateSource] = set()
     for floor in request.diversity.source_floors:
         if type(floor) is not SourceFloor:
             raise ValueError("diversity source floors must be typed")
-        _ = _validate_source(floor.source, "diversity source floor")
+        source = _validate_source(floor.source, "diversity source floor")
+        if source in floor_sources:
+            raise ValueError("diversity source floors must be unique")
+        floor_sources.add(source)
         _ = _exact_count(floor.minimum, "diversity source floor")
     _ = _exact_count(request.limit, "ranking limit")
-    return tuple(_validate_candidate(candidate) for candidate in request.candidates)
+    candidates = tuple(_validate_candidate(candidate) for candidate in request.candidates)
+    if len({candidate.object_id for candidate in candidates}) != len(candidates):
+        raise ValueError("ranking candidates must have unique IDs")
+    return candidates
 
 
 def normalized_weights(weights: tuple[LensWeight, ...]) -> tuple[LensWeight, ...]:
