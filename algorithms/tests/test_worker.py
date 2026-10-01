@@ -482,6 +482,48 @@ def test_moderation_email_marker_survives_punctuation() -> None:
     assert with_email.scores.spam > without_email.scores.spam
 
 
+def test_content_analysis_extracts_features_once(monkeypatch: pytest.MonkeyPatch) -> None:
+    analyzer = ContentAnalyzer()
+    calls = 0
+    original = analyzer._features  # pyright: ignore[reportPrivateUsage]
+
+    def counted(text: str) -> object:
+        nonlocal calls
+        calls += 1
+        return original(text)
+
+    monkeypatch.setattr(analyzer, "_features", counted)
+    expected = ContentAnalyzer().analyze(
+        "id", "According to the dataset, useful protocol research confirms replication."
+    )
+    actual = analyzer.analyze(
+        "id", "According to the dataset, useful protocol research confirms replication."
+    )
+    assert actual == expected
+    assert calls == 1
+
+
+def test_moderation_runs_content_analysis_once(monkeypatch: pytest.MonkeyPatch) -> None:
+    moderator = CommunityModerator()
+    calls = 0
+    original = moderator.content.analyze
+
+    def counted(content_id: str, text: str) -> object:
+        nonlocal calls
+        calls += 1
+        return original(content_id, text)
+
+    monkeypatch.setattr(moderator.content, "analyze", counted)
+    expected = CommunityModerator().analyze(
+        "id", "According to the dataset, useful protocol research confirms replication."
+    )
+    actual = moderator.analyze(
+        "id", "According to the dataset, useful protocol research confirms replication."
+    )
+    assert actual == expected
+    assert calls == 1
+
+
 @pytest.mark.parametrize("value", [-1, True, float("nan"), float("inf"), MAX_ID + 1])
 def test_domain_context_rejects_invalid_account_age(value: float) -> None:
     with pytest.raises(ValueError):

@@ -5,7 +5,7 @@ import re
 from dataclasses import dataclass
 from typing import ClassVar, Literal, cast
 
-from babble_algorithms.content import ContentAnalyzer
+from babble_algorithms.content import ContentAnalysis, ContentAnalyzer
 from babble_algorithms.text import sentences, tokens
 from babble_algorithms.types import clamp_score
 
@@ -127,9 +127,10 @@ class CommunityModerator:
         context: ModerationContext | None = None,
     ) -> ModerationResult:
         moderation_context = context or ModerationContext()
+        content_analysis = self.content.analyze(content_id, text)
         spam_score, spam_reasons = self._spam_score(text, moderation_context)
-        quality_score, quality_reasons = self._quality_score(text)
-        sentiment_score = self.content.analyze(content_id, text).sentiment_score
+        quality_score, quality_reasons = self._quality_score(text, content_analysis)
+        sentiment_score = content_analysis.sentiment_score
         safety_score, safety_reasons = self._safety_score(text)
         coordination_score, coordination_reasons = self._coordination_score(moderation_context)
 
@@ -215,10 +216,11 @@ class CommunityModerator:
 
         return clamp_score(score), tuple(reasons)
 
-    def _quality_score(self, text: str) -> tuple[float, tuple[str, ...]]:
+    def _quality_score(
+        self, text: str, analysis: ContentAnalysis
+    ) -> tuple[float, tuple[str, ...]]:
         words = tokens(text)
         sentence_values = sentences(text)
-        analysis = self.content.analyze("quality", text)
         reasons: list[str] = []
 
         length_score = min(1.0, len(words) / 80.0)

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass
 from typing import ClassVar
 
-from babble_algorithms.text import sentences, tokens, top_terms
+from babble_algorithms.text import sentences, tokens
 from babble_algorithms.types import clamp_score
 
 
@@ -34,6 +35,14 @@ class ContentAnalysis:
     sentiment_score: float
     summary: str
     key_terms: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class _ContentFeatures:
+    lowered: str
+    words: tuple[str, ...]
+    word_set: set[str]
+    sentence_values: tuple[str, ...]
 
 
 class ContentAnalyzer:
@@ -68,33 +77,38 @@ class ContentAnalyzer:
     )
 
     def analyze(self, content_id: str, text: str) -> ContentAnalysis:
-        words = tokens(text)
-        sentence_values = sentences(text)
+        features = self._features(text)
+        words = features.words
+        sentence_values = features.sentence_values
+        unique_words = len(features.word_set)
         properties = TextProperties(
             sentence_count=len(sentence_values),
             word_count=len(words),
-            unique_words=len(set(words)),
+            unique_words=unique_words,
             avg_sentence_length=len(words) / max(1, len(sentence_values)),
-            vocabulary_richness=len(set(words)) / max(1, len(words)),
+            vocabulary_richness=unique_words / max(1, len(words)),
         )
-        evidence = self._evidence(text)
+        evidence = self._evidence(features)
         return ContentAnalysis(
             content_id=content_id,
             properties=properties,
-            topics=self._topics(words),
+            topics=self._topics(features),
             evidence=evidence,
-            complexity_score=self._complexity(words, sentence_values),
-            sentiment_score=self._sentiment(words),
+            complexity_score=self._complexity(features),
+            sentiment_score=self._sentiment(features),
             summary=self._summary(sentence_values, evidence.references),
-            key_terms=top_terms(text),
+            key_terms=self._top_terms(words),
         )
 
-    def _evidence(self, text: str) -> EvidenceAnalysis:
-        lowered = text.casefold()
-        markers = tuple(marker for marker in self.evidence_markers if marker in lowered)
+    def _features(self, text: str) -> _ContentFeatures:
+        words = tokens(text)
+        return _ContentFeatures(text.casefold(), words, set(words), sentences(text))
+
+    def _evidence(self, features: _ContentFeatures) -> EvidenceAnalysis:
+        markers = tuple(marker for marker in self.evidence_markers if marker in features.lowered)
         references = tuple(
             sentence
-            for sentence in sentences(text)
+            for sentence in features.sentence_values
             if any(marker in sentence.casefold() for marker in markers)
         )
         return EvidenceAnalysis(
@@ -104,10 +118,9 @@ class ContentAnalyzer:
             references=references,
         )
 
-    def _topics(self, words: tuple[str, ...]) -> dict[str, float]:
-        word_set = set(words)
+    def _topics(self, features: _ContentFeatures) -> dict[str, float]:
         raw = {
-            topic: len(word_set & topic_words) / max(1, len(topic_words))
+            topic: len(features.word_set & topic_words) / max(1, len(topic_words))
             for topic, topic_words in self.topic_terms.items()
         }
         total = sum(raw.values())
@@ -115,20 +128,24 @@ class ContentAnalyzer:
             return {topic: 0.0 for topic in raw}
         return {topic: score / total for topic, score in raw.items()}
 
-    def _complexity(self, words: tuple[str, ...], sentence_values: tuple[str, ...]) -> float:
+    def _complexity(self, features: _ContentFeatures) -> float:
+        words = features.words
         avg_word_length = sum(len(word) for word in words) / max(1, len(words))
-        avg_sentence_length = len(words) / max(1, len(sentence_values))
-        unique_ratio = len(set(words)) / max(1, len(words))
+        avg_sentence_length = len(words) / max(1, len(features.sentence_values))
+        unique_ratio = len(features.word_set) / max(1, len(words))
         return clamp_score(
             0.12 * avg_word_length + 0.015 * avg_sentence_length + 0.45 * unique_ratio
         )
 
-    def _sentiment(self, words: tuple[str, ...]) -> float:
-        if not words:
+    def _sentiment(self, features: _ContentFeatures) -> float:
+        if not features.words:
             return 0.0
-        positives = len(set(words) & self.positive_terms)
-        negatives = len(set(words) & self.negative_terms)
+        positives = len(features.word_set & self.positive_terms)
+        negatives = len(features.word_set & self.negative_terms)
         return max(-1.0, min(1.0, (positives - negatives) / max(1, positives + negatives)))
+
+    def _top_terms(self, words: tuple[str, ...], *, limit: int = 10) -> tuple[str, ...]:
+        return tuple(term for term, _count in Counter(words).most_common(limit))
 
     def _summary(self, sentence_values: tuple[str, ...], references: tuple[str, ...]) -> str:
         if not sentence_values:
