@@ -299,6 +299,10 @@ class RankingProvider:
     model: Literal["lenses-v1"] = "lenses-v1"
     version: Literal["1"] = "1"
 
+    def __post_init__(self) -> None:
+        if self.provider != "babble-python" or self.model != "lenses-v1" or self.version != "1":
+            raise ValueError("ranking provider identity is invalid")
+
 
 RANKING_PROVIDER = RankingProvider()
 

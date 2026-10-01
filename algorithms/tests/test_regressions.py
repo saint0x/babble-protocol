@@ -995,6 +995,8 @@ def test_execution_result_wrappers_reject_invalid_direct_values() -> None:
         _ = JudgeResult(Provider(), cast(ScoreOutput, object()), 0.0)
     with pytest.raises(ValueError, match="confidence"):
         _ = JudgeResult(Provider(), score, math.nan)
+    with pytest.raises(ValueError, match="ranking provider identity"):
+        _ = RankingProvider(cast(Literal["babble-python"], cast(object, "other")), "lenses-v1", "1")
     with pytest.raises(ValueError, match="supported_definitions"):
         _ = HealthResult(
             Provider(),
