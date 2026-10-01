@@ -186,40 +186,32 @@ def test_huge_blend_normalization_and_weighted_reasons() -> None:
 
 
 def test_domain_ranking_rejects_bool_lens_weights() -> None:
-    req = replace(
-        request(1),
-        lens=LensStack(
-            "bool-weight",
-            (LensWeight(BuiltInLens.RESEARCH, cast(float, cast(object, True))),),
-        ),
-    )
     with pytest.raises(ValueError, match="lens weights"):
-        _ = rank(req)
+        _ = LensWeight(BuiltInLens.RESEARCH, cast(float, cast(object, True)))
 
 
 def test_domain_ranking_rejects_invalid_direct_signals() -> None:
     base = candidate()
     invalid = (
-        replace(base, signals=replace(base.signals, relevance=cast(float, cast(object, True)))),
-        replace(base, signals=replace(base.signals, novelty=math.nan)),
-        replace(
-            base,
-            signals=replace(
-                base.signals,
-                evidence=EvidenceSignals(math.inf, 0.0, 0.0, 0.0),
-            ),
-        ),
-        replace(
-            base,
-            signals=replace(
-                base.signals,
-                reputation=ReputationSignals(0.0, 0.0, math.nan, 0.0, 0.0, 0.0),
-            ),
+        lambda: replace(base.signals, relevance=cast(float, cast(object, True))),
+        lambda: replace(base.signals, novelty=math.nan),
+        lambda: EvidenceSignals(math.inf, 0.0, 0.0, 0.0),
+        lambda: Signals(
+            0.5,
+            True,
+            0.5,
+            0.5,
+            0.5,
+            0.5,
+            base.signals.evidence,
+            ReputationSignals(0.0, 0.0, math.nan, 0.0, 0.0, 0.0),
+            0.5,
+            0.5,
         ),
     )
-    for item in invalid:
+    for build in invalid:
         with pytest.raises(ValueError):
-            _ = rank(replace(request(1), candidates=(item,)))
+            _ = build()
 
 
 def test_domain_ranking_rejects_duplicate_direct_identity_domains() -> None:
@@ -256,24 +248,17 @@ def test_domain_ranking_rejects_duplicate_direct_identity_domains() -> None:
 def test_domain_ranking_rejects_invalid_direct_policy_and_sources() -> None:
     base = candidate()
     invalid = (
-        replace(request(1), limit=cast(int, cast(object, True))),
-        replace(request(1), diversity=DiversityPolicy(math.nan, ())),
-        replace(request(1), diversity=DiversityPolicy(1.0, (SourceFloor("Evidence", -1),))),
-        replace(
-            request(1),
-            candidates=(
-                replace(
-                    base,
-                    sources=(
-                        CandidateSourceContribution("Following", cast(float, cast(object, True))),
-                    ),
-                ),
-            ),
+        lambda: replace(request(1), limit=cast(int, cast(object, True))),
+        lambda: DiversityPolicy(math.nan, ()),
+        lambda: SourceFloor("Evidence", -1),
+        lambda: replace(
+            base,
+            sources=(CandidateSourceContribution("Following", cast(float, cast(object, True))),),
         ),
     )
-    for req in invalid:
+    for build in invalid:
         with pytest.raises(ValueError):
-            _ = rank(req)
+            _ = build()
 
 
 def test_nanosecond_and_equivalent_offset_ties_sort_ids_ascending() -> None:
@@ -510,7 +495,10 @@ def test_candidate_limits(field: str, bad: Json) -> None:
     object_value(objects[0])[field] = bad
     with pytest.raises(InvalidRequest):
         _ = parse_ranking_request(body)
-    body = payload(replace(request(), candidates=(candidate(), candidate())))
+    body = payload(request())
+    candidates = body["candidates"]
+    assert isinstance(candidates, list)
+    candidates[1] = candidates[0]
     with pytest.raises(InvalidRequest):
         _ = parse_ranking_request(body)
 
