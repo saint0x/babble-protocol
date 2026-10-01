@@ -15,7 +15,12 @@ from babble_algorithms.temporal import (
     TemporalInput,
     TemporalScorer,
 )
-from babble_algorithms.temporal_types import TEMPORAL_PROVIDER, TemporalRequest, TemporalResult
+from babble_algorithms.temporal_types import (
+    TEMPORAL_PROVIDER,
+    TemporalItem,
+    TemporalRequest,
+    TemporalResult,
+)
 from babble_algorithms.wire import MAX_ID, PROTOCOL, Json, decode, object_value
 from babble_algorithms.worker import encode, handle
 
@@ -332,6 +337,85 @@ def test_domain_rejects_negative_age_bad_tags_and_timestamp_overflow() -> None:
     with pytest.raises(ValueError):
         _ = scorer.time_sensitivity(cast(ContentTimeClass, cast(object, "unknown")), ())
     assert scorer.score(TemporalInput("future", 2), reference_time=1).age_hours == 0
+
+
+def test_temporal_request_dtos_reject_invalid_direct_values() -> None:
+    valid = TemporalItem(
+        object_id="obj_" + "0" * 64,
+        published_at="2026-09-30T00:00:00Z",
+        content_class=ContentTimeClass.DISCUSSION,
+        quality_score=0.5,
+        tags=(),
+        engagement=EngagementWindow(),
+    )
+    _ = TemporalRequest("2026-09-30T01:00:00Z", (valid,))
+
+    with pytest.raises(ValueError):
+        _ = TemporalItem(
+            "obj_short",
+            valid.published_at,
+            valid.content_class,
+            valid.quality_score,
+            valid.tags,
+            valid.engagement,
+        )
+    with pytest.raises(ValueError):
+        _ = TemporalItem(
+            valid.object_id,
+            "2026-09-30",
+            valid.content_class,
+            valid.quality_score,
+            valid.tags,
+            valid.engagement,
+        )
+    with pytest.raises(ValueError):
+        _ = TemporalItem(
+            valid.object_id,
+            valid.published_at,
+            cast(ContentTimeClass, cast(object, "discussion")),
+            valid.quality_score,
+            valid.tags,
+            valid.engagement,
+        )
+    with pytest.raises(ValueError):
+        _ = TemporalItem(
+            valid.object_id,
+            valid.published_at,
+            valid.content_class,
+            math.nan,
+            valid.tags,
+            valid.engagement,
+        )
+    with pytest.raises(ValueError):
+        _ = TemporalItem(
+            valid.object_id,
+            valid.published_at,
+            valid.content_class,
+            valid.quality_score,
+            cast(tuple[str, ...], cast(object, ["breaking"])),
+            valid.engagement,
+        )
+    with pytest.raises(ValueError):
+        _ = TemporalItem(
+            valid.object_id,
+            valid.published_at,
+            valid.content_class,
+            valid.quality_score,
+            valid.tags,
+            cast(EngagementWindow, object()),
+        )
+
+    with pytest.raises(ValueError):
+        _ = TemporalRequest("2026-09-30", ())
+    with pytest.raises(ValueError):
+        _ = TemporalRequest(
+            "2026-09-30T01:00:00Z",
+            cast(tuple[TemporalItem, ...], cast(object, [valid])),
+        )
+    with pytest.raises(ValueError):
+        _ = TemporalRequest("2026-09-30T01:00:00Z", (valid, valid))
+    with pytest.raises(ValueError):
+        _ = TemporalRequest("2026-09-30T01:00:00Z", (valid,) * 201)
 
 
 @pytest.mark.parametrize("invalid", [-0.01, 1.01])

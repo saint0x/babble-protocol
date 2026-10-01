@@ -1,9 +1,33 @@
 """Public temporal worker contracts; engagement contains supplied aggregate counts only."""
 
+import re
 from dataclasses import dataclass
 from typing import Literal
 
-from babble_algorithms.temporal import ContentTimeClass, EngagementWindow
+from babble_algorithms.ranking_time import timestamp_nanos
+from babble_algorithms.temporal import (
+    ContentTimeClass,
+    EngagementWindow,
+    finite_number,
+    validate_content_class,
+    validate_tags,
+)
+
+_MAX_TEMPORAL_ITEMS = 200
+_OBJECT_ID = re.compile(r"obj_[0-9a-f]{64}\Z")
+
+
+def _timestamp(value: object, label: str) -> str:
+    if type(value) is not str:
+        raise ValueError(f"{label} must be an RFC3339 timestamp string")
+    _ = timestamp_nanos(value)
+    return value
+
+
+def _object_id(value: object) -> str:
+    if type(value) is not str or _OBJECT_ID.fullmatch(value) is None:
+        raise ValueError("temporal object_id must be obj_ followed by 64 lowercase hex digits")
+    return value
 
 
 @dataclass(frozen=True, slots=True)
@@ -15,11 +39,32 @@ class TemporalItem:
     tags: tuple[str, ...]
     engagement: EngagementWindow
 
+    def __post_init__(self) -> None:
+        _ = _object_id(self.object_id)
+        _ = _timestamp(self.published_at, "published_at")
+        validate_content_class(self.content_class)
+        _ = finite_number(self.quality_score, minimum=0, maximum=1)
+        validate_tags(self.tags)
+        if type(self.engagement) is not EngagementWindow:
+            raise ValueError("temporal engagement must be an EngagementWindow")
+
 
 @dataclass(frozen=True, slots=True)
 class TemporalRequest:
     reference_time: str
     items: tuple[TemporalItem, ...]
+
+    def __post_init__(self) -> None:
+        _ = _timestamp(self.reference_time, "reference_time")
+        if type(self.items) is not tuple or len(self.items) > _MAX_TEMPORAL_ITEMS:
+            raise ValueError("temporal items must be a bounded tuple")
+        seen: set[str] = set()
+        for item in self.items:
+            if type(item) is not TemporalItem:
+                raise ValueError("temporal items must be TemporalItem values")
+            if item.object_id in seen:
+                raise ValueError("temporal items must have unique object IDs")
+            seen.add(item.object_id)
 
 
 @dataclass(frozen=True, slots=True)
