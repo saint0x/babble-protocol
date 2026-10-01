@@ -110,9 +110,21 @@ def error(response: dict[str, Json], code: str = "invalid_request") -> None:
 
 def test_health_and_all_definitions_are_real() -> None:
     names = [definition.split(".")[2] for definition in DEFINITIONS]
-    requests = [judge(name, context={"source_agreement": {
-        "reference_time": 0.0, "previous_score": None, "sources": [],
-    }} if name == "source_agreement" else {}) for name in names]
+    requests = [
+        judge(
+            name,
+            context={
+                "source_agreement": {
+                    "reference_time": 0.0,
+                    "previous_score": None,
+                    "sources": [],
+                }
+            }
+            if name == "source_agreement"
+            else {},
+        )
+        for name in names
+    ]
     responses = exchange(frame(health()) + b"".join(frame(request) for request in requests))
     assert result(responses[0])["supported_definitions"] == list(DEFINITIONS)
     assert result(responses[0])["temporal_provider"] == asdict(TEMPORAL_PROVIDER)
@@ -601,6 +613,38 @@ def test_judgment_response_node_budget(monkeypatch: pytest.MonkeyPatch, nodes: i
     else:
         error(actual, "algorithm_failure")
         assert actual["result"] is None
+
+
+def test_encode_falls_back_without_recursive_serialization(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    response = Response(PROTOCOL, 7, None, None)
+
+    def fail(_value: object) -> dict[str, Json]:
+        raise RuntimeError("PRIVATE_SECRET recursive serializer failure")
+
+    monkeypatch.setattr(worker_module, "asdict", fail)
+    actual = object_value(decode(encode(response)))
+    assert actual == {
+        "protocol": PROTOCOL,
+        "id": 7,
+        "result": None,
+        "error": {"code": "algorithm_failure", "message": "Algorithm execution failed."},
+    }
+
+
+def test_encode_fallback_rejects_unsafe_response_ids(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    response = Response(PROTOCOL, cast(int, cast(object, True)), None, None)
+
+    def fail(_value: object) -> dict[str, Json]:
+        raise RuntimeError("PRIVATE_SECRET recursive serializer failure")
+
+    monkeypatch.setattr(worker_module, "asdict", fail)
+    actual = object_value(decode(encode(response)))
+    assert actual["id"] is None
+    error(actual, "algorithm_failure")
 
 
 @pytest.mark.parametrize("value", [-1, True, 0.5, MAX_ID + 1])

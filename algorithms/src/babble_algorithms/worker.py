@@ -12,6 +12,7 @@ from babble_algorithms.execution import AlgorithmExecutor, HealthResult, JudgeRe
 from babble_algorithms.ranking_types import RankingResult
 from babble_algorithms.temporal_types import TemporalResult
 from babble_algorithms.wire import (
+    MAX_ID,
     MAX_JUDGMENT_LINE_BYTES,
     MAX_JUDGMENT_NODES,
     MAX_LINE_BYTES,
@@ -95,16 +96,28 @@ def encode(response: Response) -> bytes:
         # Output strings are bounded by the frame; summaries may exceed input text limits.
         validate_tree(value, MAX_JUDGMENT_NODES if judgment else MAX_NODES, max_text_bytes=limit)
         data = (
-            json.dumps(
-                value, ensure_ascii=False, allow_nan=False, separators=(",", ":")
-            ).encode("utf-8")
+            json.dumps(value, ensure_ascii=False, allow_nan=False, separators=(",", ":")).encode(
+                "utf-8"
+            )
             + b"\n"
         )
         if len(data) <= limit:
             return data
-    except (ValueError, TypeError, UnicodeError):
+    except Exception:
+        # Do not recurse through encode() here: the serializer itself may be the failing path.
         pass
-    return encode(failure(response.id, "algorithm_failure"))
+    return _fallback_failure_frame(response.id)
+
+
+def _fallback_failure_frame(identity: object) -> bytes:
+    safe_id = identity if type(identity) is int and 1 <= identity <= MAX_ID else None
+    id_json = b"null" if safe_id is None else str(safe_id).encode("ascii")
+    return (
+        b'{"protocol":"babble.algorithms.v1","id":'
+        + id_json
+        + b',"result":null,"error":{"code":"algorithm_failure",'
+        + b'"message":"Algorithm execution failed."}}\n'
+    )
 
 
 def serve(source: BinaryIO, sink: BinaryIO) -> None:
