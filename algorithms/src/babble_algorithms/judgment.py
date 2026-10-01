@@ -11,6 +11,15 @@ JudgmentDefinition = Literal[
     "babble.judgment.relationship.v1",
 ]
 
+SUPPORTED_DEFINITIONS: frozenset[JudgmentDefinition] = frozenset(
+    {
+        "babble.judgment.spam.v1",
+        "babble.judgment.evidence_quality.v1",
+        "babble.judgment.relevance.v1",
+        "babble.judgment.relationship.v1",
+    }
+)
+
 
 @dataclass(frozen=True, slots=True)
 class Judgment:
@@ -40,8 +49,9 @@ class LocalJudgmentProvider:
     provider_version: ClassVar[str] = "babble.local.rules.v1"
 
     def judge(self, definition: JudgmentDefinition, text: str, *, context: str = "") -> Judgment:
-        normalized = _normalize(text)
-        context_terms = set(_tokens(context))
+        definition = _definition(definition)
+        normalized = _normalize(_text(text, "text"))
+        context_terms = set(_tokens(_text(context, "context")))
 
         if definition == "babble.judgment.spam.v1":
             return _spam(normalized)
@@ -49,8 +59,19 @@ class LocalJudgmentProvider:
             return _evidence_quality(normalized)
         if definition == "babble.judgment.relevance.v1":
             return _relevance(normalized, context_terms)
-        if definition == "babble.judgment.relationship.v1":
-            return _relationship(normalized)
+        return _relationship(normalized)
+
+
+def _definition(value: object) -> JudgmentDefinition:
+    if not isinstance(value, str) or value not in SUPPORTED_DEFINITIONS:
+        raise ValueError("unsupported local Judgment definition")
+    return value
+
+
+def _text(value: object, label: str) -> str:
+    if not isinstance(value, str):
+        raise ValueError(f"{label} must be a string")
+    return value
 
 
 def _normalize(text: str) -> str:

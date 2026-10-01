@@ -12,6 +12,7 @@ from babble_algorithms.diversity import (
     FeedObjectContext,
     SourceFloor,
 )
+from babble_algorithms.judgment import JudgmentDefinition, LocalJudgmentProvider
 from babble_algorithms.lens import BuiltInLens, LensStack, LensWeight
 from babble_algorithms.recommendation import (
     ContentProfile,
@@ -35,6 +36,37 @@ from babble_algorithms.types import (
 @pytest.mark.parametrize("value", [math.nan, math.inf, -math.inf])
 def test_nonfinite_scores_never_become_positive_evidence(value: float) -> None:
     assert clamp_score(value) == 0.0
+
+
+def test_local_judgment_provider_rejects_invalid_domain_inputs() -> None:
+    provider = LocalJudgmentProvider()
+    with pytest.raises(ValueError, match="unsupported local Judgment definition"):
+        _ = provider.judge(
+            cast(JudgmentDefinition, cast(object, "babble.judgment.unknown.v1")), "text"
+        )
+    with pytest.raises(ValueError, match="text"):
+        _ = provider.judge("babble.judgment.spam.v1", cast(str, cast(object, 123)))
+    with pytest.raises(ValueError, match="context"):
+        _ = provider.judge(
+            "babble.judgment.relevance.v1", "text", context=cast(str, cast(object, []))
+        )
+
+
+def test_local_judgment_provider_validates_before_tokenizing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import babble_algorithms.judgment as judgment_module
+
+    def explode(_text: str) -> tuple[str, ...]:
+        raise AssertionError("tokenizer should not run for invalid context")
+
+    monkeypatch.setattr(judgment_module, "_tokens", explode)
+    with pytest.raises(ValueError, match="context"):
+        _ = LocalJudgmentProvider().judge(
+            "babble.judgment.relevance.v1",
+            "text",
+            context=cast(str, cast(object, False)),
+        )
 
 
 @pytest.mark.parametrize("value", [-1.0, math.nan, math.inf, -math.inf])
