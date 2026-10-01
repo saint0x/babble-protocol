@@ -1,14 +1,14 @@
 Babble SDK — Technical Specification
 
 Status: Draft implementation specification
-Companion specification: Babble Protocol — Technical Specification
+Companion specification: Babble protocol — Technical Specification
 Audience: Babble platform/runtime engineers and SDK engineers
 Primary public SDK: TypeScript
 Protocol/runtime implementation: Rust-first
 
 1\. Purpose and Normative Context
 
-This document specifies the developer SDK and host-facing API layer for Babble Protocol. It must be implemented in conjunction with the Babble Protocol platform specification. The platform specification is normative for Object, Graph, Judgment, Lens, Runtime, identity, consensus, security, privacy, and capability semantics. This SDK must not redefine those semantics; it exposes them safely and ergonomically.
+This document specifies the developer SDK and host-facing API layer for Babble protocol. It must be implemented in conjunction with the Babble protocol platform specification. The platform specification is normative for Object, Graph, Judgment, Lens, Runtime, identity, consensus, security, privacy, and capability semantics. This SDK must not redefine those semantics; it exposes them safely and ergonomically.
 
 The SDK exists so third-party Objects can program against essentially every Babble platform capability that the host can safely expose. If the official client can perform an operation on behalf of an Object, that operation should have a documented capability/API unless exposing it would violate a security, privacy, integrity, or platform boundary.
 

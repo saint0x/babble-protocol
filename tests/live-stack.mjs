@@ -118,7 +118,7 @@ try {
   assert.deepEqual(health.ranking_provider, { provider: "babble-python", model: "lenses-v1", version: "1" });
   assert.deepEqual(health.temporal_provider, { provider: "babble-python", model: "temporal-v1", version: "1" });
   await startAstro();
-  await waitForText(frontendUrl, "Babble Protocol");
+  await waitForText(frontendUrl, "Babble protocol");
   if (frontendMode === "production") await verifyProductionAssets();
 
   const discovery = await postJson(`${apiUrl}/discovery/candidates`, {

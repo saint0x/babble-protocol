@@ -1,7 +1,7 @@
 [project]
 name = "babble-algorithms"
 version = "0.1.0"
-description = "Typed Babble Protocol production algorithms for judgment, discovery, and lens ranking."
+description = "Typed Babble protocol production algorithms for judgment, discovery, and lens ranking."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []

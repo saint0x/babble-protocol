@@ -1,4 +1,4 @@
-"""Typed algorithm primitives for Babble Protocol."""
+"""Typed algorithm primitives for Babble protocol."""
 
 from babble_algorithms.canonical import (
     CanonicalFloat,

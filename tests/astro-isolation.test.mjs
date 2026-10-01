@@ -95,7 +95,7 @@ for (const mode of ["dev", "production"]) test(`isolated Astro ${mode} owns its 
     const page = await response.text();
     assert.equal(response.status, 200, page.slice(0, 2_000));
     assert.match(response.headers.get("content-type"), /text\/html/);
-    assert.match(page, /Babble Protocol/);
+    assert.match(page, /Babble protocol/);
     assert.match(page, /data-feed-root/);
     assert.match(page, /data-babble-api="http:\/\/127\.0\.0\.1:18787"/);
     assert.doesNotMatch(page, /FailedToLoadModuleSSR|<astro-error-overlay/);
