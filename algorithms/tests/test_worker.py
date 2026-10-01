@@ -14,7 +14,7 @@ import pytest
 from babble_algorithms import worker as worker_module
 from babble_algorithms.agreement_wire import SourceAgreementInput
 from babble_algorithms.content import ContentAnalyzer
-from babble_algorithms.execution import PROVIDER, AlgorithmExecutor
+from babble_algorithms.execution import PROVIDER, AlgorithmExecutor, HealthResult
 from babble_algorithms.judgment import Judgment, JudgmentDefinition, LocalJudgmentProvider
 from babble_algorithms.moderation import CommunityModerator, ModerationContext, ModerationPolicy
 from babble_algorithms.ranking_types import RANKING_PROVIDER, RankingRequest
@@ -27,6 +27,7 @@ from babble_algorithms.wire import (
     MAX_TEXT_BYTES,
     PROTOCOL,
     Definition,
+    ErrorCode,
     HealthRequest,
     Json,
     JudgeRequest,
@@ -40,7 +41,7 @@ from babble_algorithms.wire import (
     json_value,
     object_value,
 )
-from babble_algorithms.worker import Response, encode, handle
+from babble_algorithms.worker import Error, Response, encode, handle
 
 from .ranking_assertions import assert_json_close
 
@@ -116,6 +117,27 @@ def error(response: dict[str, Json], code: str = "invalid_request") -> None:
     assert set(value) == {"code", "message"}
     assert value["code"] == code
     assert response["result"] is None
+
+
+def test_worker_response_rejects_invalid_direct_values() -> None:
+    valid_error = Error("invalid_request", " Invalid algorithm worker request. ")
+    assert valid_error.message == "Invalid algorithm worker request."
+    assert Response(PROTOCOL, 1, None, valid_error).error == valid_error
+
+    with pytest.raises(ValueError, match="error code"):
+        _ = Error(cast(ErrorCode, cast(object, "private_failure")), "message")
+    with pytest.raises(ValueError, match="error message"):
+        _ = Error("invalid_request", " ")
+    with pytest.raises(ValueError, match="protocol"):
+        _ = Response("babble.algorithms.v2", 1, None, valid_error)
+    with pytest.raises(ValueError, match="response id"):
+        _ = Response(PROTOCOL, cast(int, cast(object, True)), None, valid_error)
+    with pytest.raises(ValueError, match="result or error"):
+        _ = Response(PROTOCOL, 1, None, None)
+    with pytest.raises(ValueError, match="both result and error"):
+        _ = Response(PROTOCOL, 1, cast(HealthResult, object()), valid_error)
+    with pytest.raises(ValueError, match="response error"):
+        _ = Response(PROTOCOL, 1, None, cast(Error, object()))
 
 
 def test_local_judgment_rejects_invalid_direct_values() -> None:
@@ -729,7 +751,7 @@ def test_judgment_response_node_budget(monkeypatch: pytest.MonkeyPatch, nodes: i
 def test_encode_falls_back_without_recursive_serialization(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    response = Response(PROTOCOL, 7, None, None)
+    response = worker_module.failure(7, "algorithm_failure")
 
     def fail(_value: object) -> dict[str, Json]:
         raise RuntimeError("PRIVATE_SECRET recursive serializer failure")
@@ -744,16 +766,8 @@ def test_encode_falls_back_without_recursive_serialization(
     }
 
 
-def test_encode_fallback_rejects_unsafe_response_ids(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    response = Response(PROTOCOL, cast(int, cast(object, True)), None, None)
-
-    def fail(_value: object) -> dict[str, Json]:
-        raise RuntimeError("PRIVATE_SECRET recursive serializer failure")
-
-    monkeypatch.setattr(worker_module, "asdict", fail)
-    actual = object_value(decode(encode(response)))
+def test_encode_fallback_rejects_unsafe_response_ids() -> None:
+    actual = object_value(decode(worker_module._fallback_failure_frame(True)))  # pyright: ignore[reportPrivateUsage]
     assert actual["id"] is None
     error(actual, "algorithm_failure")
 

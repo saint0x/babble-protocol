@@ -6,7 +6,7 @@ import json
 import sys
 from contextlib import redirect_stdout
 from dataclasses import asdict, dataclass
-from typing import BinaryIO
+from typing import BinaryIO, cast
 
 from babble_algorithms.execution import AlgorithmExecutor, HealthResult, JudgeResult
 from babble_algorithms.ranking_types import RankingResult
@@ -37,6 +37,13 @@ class Error:
     code: ErrorCode
     message: str
 
+    def __post_init__(self) -> None:
+        if self.code not in ("invalid_request", "unsupported_definition", "algorithm_failure"):
+            raise ValueError("worker error code must be supported")
+        if not isinstance(cast(object, self.message), str) or not self.message.strip():
+            raise ValueError("worker error message must be non-empty")
+        object.__setattr__(self, "message", " ".join(self.message.split()))
+
 
 @dataclass(frozen=True, slots=True)
 class Response:
@@ -44,6 +51,22 @@ class Response:
     id: int | None
     result: HealthResult | JudgeResult | RankingResult | TemporalResult | None
     error: Error | None
+
+    def __post_init__(self) -> None:
+        if self.protocol != PROTOCOL:
+            raise ValueError("worker response protocol is unsupported")
+        if self.id is not None and (type(self.id) is not int or not 1 <= self.id <= MAX_ID):
+            raise ValueError("worker response id must be a positive safe integer or None")
+        if self.result is None and self.error is None:
+            raise ValueError("worker response must contain result or error")
+        if self.result is not None and self.error is not None:
+            raise ValueError("worker response cannot contain both result and error")
+        if self.result is not None and not isinstance(
+            cast(object, self.result), HealthResult | JudgeResult | RankingResult | TemporalResult
+        ):
+            raise ValueError("worker response result has an unsupported type")
+        if self.error is not None and not isinstance(cast(object, self.error), Error):
+            raise ValueError("worker response error must be Error")
 
 
 def failure(identity: int | None, code: ErrorCode) -> Response:
