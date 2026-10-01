@@ -19,6 +19,7 @@ from babble_algorithms.diversity import (
 )
 from babble_algorithms.judgment import JudgmentDefinition, LocalJudgmentProvider
 from babble_algorithms.lens import BuiltInLens, LensStack, LensWeight
+from babble_algorithms.moderation import ModerationAction, ModerationResult, ModerationScores
 from babble_algorithms.recommendation import (
     ContentProfile,
     Interaction,
@@ -312,6 +313,52 @@ def test_content_dtos_reject_invalid_direct_values() -> None:
         )
     with pytest.raises(ValueError):
         _ = ContentAnalysis("id", properties, {}, evidence, 0.5, 0.0, "Summary.", ("",))
+
+
+def test_moderation_dtos_reject_invalid_direct_values() -> None:
+    scores = ModerationScores(0.1, 0.9, -0.2, 0.0, 0.3)
+    result = ModerationResult("id", "allow", (), scores, ("no moderation thresholds exceeded",))
+    assert result.scores == scores
+
+    with pytest.raises(ValueError):
+        _ = ModerationScores(cast(float, cast(object, True)), 0.9, 0.0, 0.0, 0.0)
+    with pytest.raises(ValueError):
+        _ = ModerationScores(0.1, math.nan, 0.0, 0.0, 0.0)
+    with pytest.raises(ValueError):
+        _ = ModerationScores(0.1, 0.9, -1.01, 0.0, 0.0)
+    with pytest.raises(ValueError):
+        _ = ModerationScores(0.1, 0.9, 0.0, 1.01, 0.0)
+    with pytest.raises(ValueError):
+        _ = ModerationScores(0.1, 0.9, 0.0, 0.0, math.inf)
+
+    with pytest.raises(ValueError):
+        _ = ModerationResult("bad id", "allow", (), scores, ("reason",))
+    with pytest.raises(ValueError):
+        _ = ModerationResult(
+            "id", cast(ModerationAction, cast(object, "unknown")), (), scores, ("reason",)
+        )
+    with pytest.raises(ValueError):
+        _ = ModerationResult(
+            "id",
+            "allow",
+            cast(tuple[str, ...], cast(object, ["spam"])),
+            scores,
+            ("reason",),
+        )
+    with pytest.raises(ValueError):
+        _ = ModerationResult("id", "allow", ("",), scores, ("reason",))
+    with pytest.raises(ValueError):
+        _ = ModerationResult("id", "allow", (), cast(ModerationScores, object()), ("reason",))
+    with pytest.raises(ValueError):
+        _ = ModerationResult(
+            "id",
+            "allow",
+            (),
+            scores,
+            cast(tuple[str, ...], cast(object, ["reason"])),
+        )
+    with pytest.raises(ValueError):
+        _ = ModerationResult("id", "allow", (), scores, ("",))
 
 
 def test_content_evidence_references_use_precomputed_sentence_folds() -> None:

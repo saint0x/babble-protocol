@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import re
 from dataclasses import dataclass
-from typing import ClassVar, Literal, cast
+from typing import ClassVar, Literal, cast, get_args
 
 from babble_algorithms.content import ContentAnalysis, ContentAnalyzer
 from babble_algorithms.text import sentences, tokens
@@ -45,6 +45,17 @@ class ModerationScores:
     safety: float
     coordination: float
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "spam", _unit_score(self.spam, "spam"))
+        object.__setattr__(self, "quality", _unit_score(self.quality, "quality"))
+        object.__setattr__(self, "sentiment", _bounded_number(
+            self.sentiment, "sentiment", minimum=-1.0, maximum=1.0
+        ))
+        object.__setattr__(self, "safety", _unit_score(self.safety, "safety"))
+        object.__setattr__(self, "coordination", _unit_score(
+            self.coordination, "coordination"
+        ))
+
 
 @dataclass(frozen=True, slots=True)
 class ModerationResult:
@@ -53,6 +64,19 @@ class ModerationResult:
     flags: tuple[str, ...]
     scores: ModerationScores
     reasons: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "content_id", _content_id(self.content_id))
+        if self.action not in get_args(ModerationAction):
+            raise ValueError("moderation action must be supported")
+        object.__setattr__(self, "flags", _string_tuple(
+            self.flags, "moderation flags", nonblank=True
+        ))
+        if type(self.scores) is not ModerationScores:
+            raise ValueError("moderation scores must be ModerationScores")
+        object.__setattr__(self, "reasons", _string_tuple(
+            self.reasons, "moderation reasons", nonblank=True
+        ))
 
 
 @dataclass(frozen=True, slots=True)
@@ -71,6 +95,39 @@ class ModerationPolicy:
         ):
             if type(value) not in (int, float) or not 0 <= value <= 1 or not math.isfinite(value):
                 raise ValueError("moderation thresholds must be finite numbers in [0, 1]")
+
+
+def _bounded_number(value: object, name: str, *, minimum: float, maximum: float) -> float:
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        raise ValueError(f"{name} must be a finite number")
+    number = float(value)
+    if not math.isfinite(number) or not minimum <= number <= maximum:
+        raise ValueError(f"{name} must be in [{minimum}, {maximum}]")
+    return number
+
+
+def _unit_score(value: object, name: str) -> float:
+    return _bounded_number(value, name, minimum=0.0, maximum=1.0)
+
+
+def _content_id(value: object) -> str:
+    if not isinstance(value, str) or not value.strip() or any(ch.isspace() for ch in value):
+        raise ValueError("content_id must be a non-empty identifier without whitespace")
+    return value
+
+
+def _string_tuple(value: object, name: str, *, nonblank: bool = False) -> tuple[str, ...]:
+    if type(value) is not tuple:
+        raise ValueError(f"{name} must be a tuple")
+    values = cast(tuple[object, ...], value)
+    strings: list[str] = []
+    for item in values:
+        if not isinstance(item, str):
+            raise ValueError(f"{name} entries must be strings")
+        if nonblank and not item.strip():
+            raise ValueError(f"{name} entries must be nonblank")
+        strings.append(item)
+    return tuple(strings)
 
 
 class CommunityModerator:
