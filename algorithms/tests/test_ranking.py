@@ -185,6 +185,18 @@ def test_huge_blend_normalization_and_weighted_reasons() -> None:
     assert all(math.isfinite(item.score) for item in result.ranked)
 
 
+def test_domain_ranking_rejects_bool_lens_weights() -> None:
+    req = replace(
+        request(1),
+        lens=LensStack(
+            "bool-weight",
+            (LensWeight(BuiltInLens.RESEARCH, cast(float, cast(object, True))),),
+        ),
+    )
+    with pytest.raises(ValueError, match="lens weights"):
+        _ = rank(req)
+
+
 def test_nanosecond_and_equivalent_offset_ties_sort_ids_ascending() -> None:
     base = candidate()
     objects = (

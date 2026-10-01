@@ -169,6 +169,14 @@ def test_lens_weight_normalization_does_not_overflow() -> None:
     assert huge.rank((candidate,)) == ordinary.rank((candidate,))
 
 
+def test_lens_weights_reject_bool_domain_values() -> None:
+    candidate = Candidate(ObjectId("object"), "Following")
+    with pytest.raises(ValueError, match="lens weights"):
+        _ = LensStack((LensWeight(BuiltInLens.RESEARCH, cast(float, cast(object, True))),)).rank(
+            (candidate,)
+        )
+
+
 def test_tokenizer_preserves_unicode_words() -> None:
     assert tokens("caf\u00e9 na\u00efve \u7814\u7a76 \u041d\u0430\u0443\u043a\u0430") == (
         "caf\u00e9",

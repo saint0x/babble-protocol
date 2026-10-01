@@ -1,5 +1,7 @@
 """Canonical public Lens scoring and traces, matching backend/crates/lens."""
 
+import math
+
 from babble_algorithms.ranking_diversity import diversify
 from babble_algorithms.ranking_time import timestamp_nanos
 from babble_algorithms.ranking_types import (
@@ -18,7 +20,8 @@ from babble_algorithms.types import CandidateSource
 
 
 def normalized_weights(weights: tuple[LensWeight, ...]) -> tuple[LensWeight, ...]:
-    positive = tuple(weight for weight in weights if weight.weight > 0.0)
+    normalized = tuple(LensWeight(weight.lens, _weight_value(weight.weight)) for weight in weights)
+    positive = tuple(weight for weight in normalized if weight.weight > 0.0)
     if not positive:
         return (LensWeight(BuiltInLens.FOLLOWING, 1.0),)
     total = sequential_sum(tuple(weight.weight for weight in positive))
@@ -27,6 +30,17 @@ def normalized_weights(weights: tuple[LensWeight, ...]) -> tuple[LensWeight, ...
     scale = max(weight.weight for weight in positive)
     total = sequential_sum(tuple(weight.weight / scale for weight in positive))
     return tuple(LensWeight(weight.lens, (weight.weight / scale) / total) for weight in positive)
+
+
+def _weight_value(value: object) -> float:
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, int | float)
+        or not math.isfinite(value)
+        or value < 0.0
+    ):
+        raise ValueError("lens weights must be finite and non-negative")
+    return float(value)
 
 
 def source_bonus(candidate: Candidate, expected: CandidateSource, bonus: float) -> float:

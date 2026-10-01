@@ -67,14 +67,24 @@ class LensStack:
 
 
 def _normalize_weights(weights: tuple[LensWeight, ...]) -> tuple[LensWeight, ...]:
-    if any(not math.isfinite(weight.weight) or weight.weight < 0.0 for weight in weights):
-        raise ValueError("lens weights must be finite and non-negative")
-    valid = tuple(weight for weight in weights if weight.weight > 0.0)
+    normalized = tuple(LensWeight(weight.lens, _weight_value(weight.weight)) for weight in weights)
+    valid = tuple(weight for weight in normalized if weight.weight > 0.0)
     if not valid:
         return LensStack.following().weights
     scale = max(weight.weight for weight in valid)
     total = math.fsum(weight.weight / scale for weight in valid)
     return tuple(LensWeight(weight.lens, (weight.weight / scale) / total) for weight in valid)
+
+
+def _weight_value(value: object) -> float:
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, int | float)
+        or not math.isfinite(value)
+        or value < 0.0
+    ):
+        raise ValueError("lens weights must be finite and non-negative")
+    return float(value)
 
 
 def _contribution(candidate: Candidate, lens_weight: LensWeight) -> LensContribution:
