@@ -81,7 +81,7 @@ Evidence shorthand refers to files under `algorithms/`:
 
 ## Content Analysis: 10 Functions
 
-Legacy `deprecated/algorithms-deprec/content_analysis.py` maps to
+The legacy content-analysis prototype maps to
 `algorithms/src/babble_algorithms/content.py` and `text.py`.
 
 | Legacy functions/models | Actual Python behavior and evidence | Status / remaining work |

@@ -69,7 +69,7 @@ class DiversityTrace:
 
 class FeedDiversifier:
     def __init__(self, policy: DiversityPolicy | None = None) -> None:
-        self.policy = (policy or DiversityPolicy()).normalized()
+        self.policy: DiversityPolicy = (policy or DiversityPolicy()).normalized()
 
     def diversify(
         self,

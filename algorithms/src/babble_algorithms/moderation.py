@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import re
 from dataclasses import dataclass
-from typing import Literal
+from typing import ClassVar, Literal, cast
 
 from babble_algorithms.content import ContentAnalyzer
 from babble_algorithms.text import sentences, tokens
@@ -74,7 +74,7 @@ class ModerationPolicy:
 
 
 class CommunityModerator:
-    promotional_terms = (
+    promotional_terms: ClassVar[tuple[str, ...]] = (
         "buy now",
         "click here",
         "free money",
@@ -85,7 +85,7 @@ class CommunityModerator:
         "money back",
         "best price",
     )
-    urgency_terms = (
+    urgency_terms: ClassVar[tuple[str, ...]] = (
         "urgent",
         "hurry",
         "last chance",
@@ -94,7 +94,7 @@ class CommunityModerator:
         "act now",
         "don't wait",
     )
-    harassment_terms = frozenset(
+    harassment_terms: ClassVar[frozenset[str]] = frozenset(
         {
             "idiot",
             "stupid",
@@ -106,7 +106,7 @@ class CommunityModerator:
             "harass",
         }
     )
-    misinformation_markers = (
+    misinformation_markers: ClassVar[tuple[str, ...]] = (
         "they do not want you to know",
         "secret cure",
         "proven hoax",
@@ -116,8 +116,8 @@ class CommunityModerator:
     )
 
     def __init__(self, policy: ModerationPolicy | None = None) -> None:
-        self.policy = policy or ModerationPolicy()
-        self.content = ContentAnalyzer()
+        self.policy: ModerationPolicy = policy or ModerationPolicy()
+        self.content: ContentAnalyzer = ContentAnalyzer()
 
     def analyze(
         self,
@@ -178,9 +178,10 @@ class CommunityModerator:
         link_hits = len(re.findall(r"https?://|www\.", normalized)) + context.external_links
         # Tokenize candidates once: restarting an email regex at every word boundary
         # is quadratic for long dotted text without an @ sign.
+        email_candidates = cast(tuple[str, ...], tuple(re.findall(r"[\w.%+@-]+", normalized)))
         email_hits = sum(
             re.fullmatch(r"[\w.%+-]+@[\w.-]+\.[a-z]{2,}", candidate.strip(".")) is not None
-            for candidate in re.findall(r"[\w.%+@-]+", normalized)
+            for candidate in email_candidates
         )
 
         if promotional_hits:

@@ -4,6 +4,7 @@ import math
 import re
 import unicodedata
 from collections import Counter
+from typing import cast
 
 STOP_WORDS = frozenset(
     {
@@ -42,7 +43,9 @@ def sentences(text: str) -> tuple[str, ...]:
 
 
 def tokens(text: str, *, remove_stop_words: bool = True) -> tuple[str, ...]:
-    words = tuple(re.findall(r"\w+", unicodedata.normalize("NFC", text.casefold())))
+    words = cast(
+        tuple[str, ...], tuple(re.findall(r"\w+", unicodedata.normalize("NFC", text.casefold())))
+    )
     if remove_stop_words:
         return tuple(word for word in words if word not in STOP_WORDS)
     return words

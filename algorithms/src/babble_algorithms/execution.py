@@ -122,9 +122,9 @@ class HealthResult:
 
 class AlgorithmExecutor:
     def __init__(self) -> None:
-        self.local = LocalJudgmentProvider()
-        self.content = ContentAnalyzer()
-        self.temporal_scorer = TemporalScorer()
+        self.local: LocalJudgmentProvider = LocalJudgmentProvider()
+        self.content: ContentAnalyzer = ContentAnalyzer()
+        self.temporal_scorer: TemporalScorer = TemporalScorer()
 
     def health(self) -> HealthResult:
         return HealthResult(PROVIDER, DEFINITIONS, RANKING_PROVIDER, TEMPORAL_PROVIDER)
@@ -185,7 +185,7 @@ class AlgorithmExecutor:
                 user_contributions=result.user_contributions,
                 limitations=(LEXICAL_LIMITATION,
                     "Agreement describes supplied sources, not truth, source independence, "
-                    "fact verification, or network consensus. No confidence estimate exists."),
+                    + "fact verification, or network consensus. No confidence estimate exists."),
             )
         elif definition == "babble.judgment.content_analysis.v1":
             analysis = self.content.analyze(state.subject, state.text)
@@ -205,7 +205,7 @@ class AlgorithmExecutor:
                 limitations=(
                     LEXICAL_LIMITATION,
                     "English topic and sentiment dictionaries; extractive summary; "
-                    "evidence markers do not verify sources. No confidence estimate exists.",
+                    + "evidence markers do not verify sources. No confidence estimate exists.",
                 ),
             )
         elif definition == "babble.judgment.moderation.v1":
@@ -229,7 +229,7 @@ class AlgorithmExecutor:
                 limitations=(
                     LEXICAL_LIMITATION,
                     "English marker and supplied-count rules; misinformation is a binary "
-                    "framing-marker signal, not fact checking. No confidence estimate exists.",
+                    + "framing-marker signal, not fact checking. No confidence estimate exists.",
                 ),
             )
         else:
@@ -253,10 +253,10 @@ class AlgorithmExecutor:
                     limitations=(
                         LEXICAL_LIMITATION,
                         "English markers in the reported marker_scope; text may combine "
-                        "source and target. No target comparison, negation, "
-                        "or entailment analysis. Contradiction markers take precedence. "
-                        "Related means a support or contradiction marker was observed; "
-                        "a mismatched or unknown finding scores zero for the requested relation.",
+                        + "source and target. No target comparison, negation, "
+                        + "or entailment analysis. Contradiction markers take precedence. "
+                        + "Related means a support or contradiction marker was observed; "
+                        + "a mismatched or unknown finding scores zero for the requested relation.",
                     ),
                 )
             else:
@@ -272,7 +272,7 @@ class AlgorithmExecutor:
                     limitations=(
                         LEXICAL_LIMITATION,
                         "English lexical markers; relevance uses ASCII token overlap with "
-                        "parameters.query only; evidence markers do not verify sources.",
+                        + "parameters.query only; evidence markers do not verify sources.",
                     ),
                 )
         return JudgeResult(PROVIDER, output, output.confidence)

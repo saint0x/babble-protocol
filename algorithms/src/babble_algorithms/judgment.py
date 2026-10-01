@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import ClassVar, Literal, Protocol
 
 JudgmentDefinition = Literal[
     "babble.judgment.spam.v1",
@@ -37,7 +37,7 @@ class JudgmentProvider(Protocol):
 class LocalJudgmentProvider:
     """Deterministic local rules for development, tests, and provider fallback."""
 
-    provider_version = "babble.local.rules.v1"
+    provider_version: ClassVar[str] = "babble.local.rules.v1"
 
     def judge(self, definition: JudgmentDefinition, text: str, *, context: str = "") -> Judgment:
         normalized = _normalize(text)

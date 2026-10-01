@@ -115,10 +115,10 @@ def serve(source: BinaryIO, sink: BinaryIO) -> None:
             return
         if len(line) > MAX_LINE_BYTES or not line.endswith(b"\n"):
             # Stop rather than drain an attacker-controlled unbounded stream.
-            sink.write(encode(failure(None, "invalid_request")))
+            _ = sink.write(encode(failure(None, "invalid_request")))
             sink.flush()
             return
-        sink.write(encode(handle(line, executor)))
+        _ = sink.write(encode(handle(line, executor)))
         sink.flush()
 
 

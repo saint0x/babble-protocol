@@ -11,9 +11,7 @@ rounded-card Astro experience, with baseline security and reliability. Advanced
 deployment hardening is tracked separately so it does not displace unfinished
 user workflows. See [current priorities](docs/production-readiness.md#current-priorities).
 
-The old Go/Python/Java prototype is preserved under `deprecated/`. The original
-Next.js client remains in the history of [babble-frontend](https://github.com/saint0x/babel-frontend).
-The active implementation starts from the  spec in [spec.md](spec.md).
+The active implementation starts from the specification in [spec.md](spec.md). The original Next.js client remains in the history of [Babble frontend](https://github.com/saint0x/babble-frontend).
 
 ## Layout
 
@@ -25,7 +23,6 @@ frontend/    Astro social client for the card-swipe feed, publishing, and browse
 tests/       Fozzy deterministic scenarios and live-stack checks
 artifacts/   Local recorded Fozzy evidence (excluded from Git)
 fixtures/    Protocol schema bundle and golden conformance values
-deprecated/  Historical POC reference only
 ```
 
 Runtime stores, signing keys, environment files, logs and recorded execution

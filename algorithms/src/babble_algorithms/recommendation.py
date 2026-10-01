@@ -120,8 +120,8 @@ class RecommendationScore:
 
 class RecommendationEngine:
     def __init__(self, weights: RecommendationWeights | None = None) -> None:
-        self.weights = (weights or RecommendationWeights()).normalized()
-        self.temporal = TemporalScorer()
+        self.weights: RecommendationWeights = (weights or RecommendationWeights()).normalized()
+        self.temporal: TemporalScorer = TemporalScorer()
 
     def recommend(
         self,

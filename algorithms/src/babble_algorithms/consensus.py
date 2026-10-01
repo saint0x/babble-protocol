@@ -93,12 +93,12 @@ class ConsensusSource:
     is_context: bool = False
 
     def __post_init__(self) -> None:
-        _text_size(self.source_id, "source_id", MAX_ID_BYTES, nonblank=True)
+        _ = _text_size(self.source_id, "source_id", MAX_ID_BYTES, nonblank=True)
         if self.user_id is not None:
-            _text_size(self.user_id, "user_id", MAX_ID_BYTES, nonblank=True)
+            _ = _text_size(self.user_id, "user_id", MAX_ID_BYTES, nonblank=True)
         if self.kind not in get_args(SourceKind):
             raise ValueError("kind must be a SourceKind literal")
-        _text_size(self.text, "text", MAX_SOURCE_TEXT_BYTES)
+        _ = _text_size(self.text, "text", MAX_SOURCE_TEXT_BYTES)
         object.__setattr__(self, "timestamp", _timestamp(self.timestamp, "timestamp"))
         object.__setattr__(
             self, "quality_score", _number(self.quality_score, "quality_score", unit=True)
@@ -147,9 +147,9 @@ class ConsensusAnalyzer:
         "social_media": 0.38,
         "context": 0.62,
     }
-    high = 0.8
-    medium = 0.6
-    low = 0.4
+    high: ClassVar[float] = 0.8
+    medium: ClassVar[float] = 0.6
+    low: ClassVar[float] = 0.4
 
     def evaluate(
         self,
@@ -165,7 +165,7 @@ class ConsensusAnalyzer:
         dated after reference_time are rejected, including when other sources
         are old. The oldest source determines the overall seven-day decay.
         """
-        _text_size(content_id, "content_id", MAX_ID_BYTES, nonblank=True)
+        _ = _text_size(content_id, "content_id", MAX_ID_BYTES, nonblank=True)
         reference_time = _timestamp(reference_time, "reference_time")
         if previous_score is not None:
             previous_score = _number(previous_score, "previous_score", unit=True)

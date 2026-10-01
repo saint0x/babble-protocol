@@ -6,7 +6,7 @@ from datetime import date, timedelta
 _TIMESTAMP = re.compile(
     # Rust time accepts any single-byte date/time separator and emits canonical T.
     r"([0-9]{4})-([0-9]{2})-([0-9]{2})[\x00-\x7f]([0-9]{2}):([0-9]{2}):([0-9]{2})"
-    r"(?:\.([0-9]+))?([Zz]|[+-][0-9]{2}:[0-9]{2})\Z"
+    + r"(?:\.([0-9]+))?([Zz]|[+-][0-9]{2}:[0-9]{2})\Z"
 )
 
 
