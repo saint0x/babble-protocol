@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 
 from babble_algorithms.types import (
@@ -25,6 +26,7 @@ class DiscoveryRequest:
 
 class CandidateEngine:
     def candidates(self, request: DiscoveryRequest) -> tuple[Candidate, ...]:
+        request = _validate_request(request)
         candidates: dict[ObjectId, Candidate] = {}
         order: list[ObjectId] = []
 
@@ -88,9 +90,44 @@ class CandidateEngine:
         return tuple(candidates[object_id] for object_id in order)
 
 
+def _validate_request(request: DiscoveryRequest) -> DiscoveryRequest:
+    exploration_slots = _nonnegative_int(request.exploration_slots, "exploration_slots")
+    object_signals: dict[ObjectId, ObjectSignals] = {}
+    for object_id, signals in request.object_signals.items():
+        object_signals[_object_id(object_id)] = signals.normalized()
+    return DiscoveryRequest(
+        followed=_object_ids(request.followed, "followed"),
+        anchors=_object_ids(request.anchors, "anchors"),
+        supporting_evidence=_object_ids(request.supporting_evidence, "supporting_evidence"),
+        contradicting_evidence=_object_ids(
+            request.contradicting_evidence, "contradicting_evidence"
+        ),
+        semantic_neighbors=_object_ids(request.semantic_neighbors, "semantic_neighbors"),
+        emerging=_object_ids(request.emerging, "emerging"),
+        object_signals=object_signals,
+        exploration_slots=exploration_slots,
+    )
+
+
+def _object_ids(values: Iterable[ObjectId], label: str) -> tuple[ObjectId, ...]:
+    return tuple(_object_id(value, label) for value in values)
+
+
+def _object_id(value: object, label: str = "object_id") -> ObjectId:
+    if not isinstance(value, str) or not value.strip() or any(ch.isspace() for ch in value):
+        raise ValueError(f"{label} must be a non-empty object id without whitespace")
+    return ObjectId(value)
+
+
+def _nonnegative_int(value: object, label: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ValueError(f"{label} must be a non-negative integer")
+    return value
+
+
 def _merge(request: DiscoveryRequest, object_id: ObjectId, **overrides: float) -> ObjectSignals:
     if object_id in request.object_signals:
-        return request.object_signals[object_id].normalized()
+        return request.object_signals[object_id]
     return _merge_signals(ObjectSignals(), **overrides)
 
 
@@ -145,9 +182,7 @@ def _merge_sources(
 ) -> tuple[CandidateSourceContribution, ...]:
     merged: dict[CandidateSource, float] = {}
     for contribution in left + right:
-        merged[contribution.source] = max(
-            merged.get(contribution.source, 0.0), contribution.weight
-        )
+        merged[contribution.source] = max(merged.get(contribution.source, 0.0), contribution.weight)
     return tuple(
         CandidateSourceContribution(source, weight).normalized()
         for source, weight in sorted(

@@ -1,9 +1,16 @@
 import math
+from typing import cast
 
 import pytest
 
 from babble_algorithms.consensus import ConsensusAnalyzer, ConsensusSource, ConsensusState
 from babble_algorithms.discovery import CandidateEngine, DiscoveryRequest
+from babble_algorithms.diversity import (
+    DiversityPolicy,
+    FeedDiversifier,
+    FeedObjectContext,
+    SourceFloor,
+)
 from babble_algorithms.lens import BuiltInLens, LensStack, LensWeight
 from babble_algorithms.recommendation import (
     ContentProfile,
@@ -14,7 +21,14 @@ from babble_algorithms.recommendation import (
     UserProfile,
 )
 from babble_algorithms.text import tokens
-from babble_algorithms.types import Candidate, ObjectId, ObjectSignals, clamp_score
+from babble_algorithms.types import (
+    Candidate,
+    CandidateSource,
+    ObjectId,
+    ObjectSignals,
+    RankedCandidate,
+    clamp_score,
+)
 
 
 @pytest.mark.parametrize("value", [math.nan, math.inf, -math.inf])
@@ -85,8 +99,7 @@ def test_recommendation_peer_features_are_built_once_per_peer(
         for index in range(4)
     )
     content = tuple(
-        ContentProfile(f"item-{index}", "protocol", topics=("protocol",))
-        for index in range(12)
+        ContentProfile(f"item-{index}", "protocol", topics=("protocol",)) for index in range(12)
     )
     first = engine.recommend(user, content, peers=peers, reference_time=1.0)
     second = RecommendationEngine().recommend(user, content, peers=peers, reference_time=1.0)
@@ -118,8 +131,13 @@ def test_exploration_does_not_invent_novelty_or_weirdness() -> None:
 
 def test_single_source_cannot_establish_agreement_with_itself() -> None:
     source = ConsensusSource(
-        "only", "official_docs", "The system has evidence.", 100.0,
-        quality_score=1.0, evidence_score=1.0, vote=1.0,
+        "only",
+        "official_docs",
+        "The system has evidence.",
+        100.0,
+        quality_score=1.0,
+        evidence_score=1.0,
+        vote=1.0,
     )
     result = ConsensusAnalyzer().evaluate("claim", (source,), reference_time=100.0)
     assert result.term_agreement == result.fact_agreement == 0.0
@@ -127,9 +145,7 @@ def test_single_source_cannot_establish_agreement_with_itself() -> None:
 
 
 def test_empty_sources_revoke_previously_established_consensus() -> None:
-    result = ConsensusAnalyzer().evaluate(
-        "claim", (), reference_time=100.0, previous_score=0.9
-    )
+    result = ConsensusAnalyzer().evaluate("claim", (), reference_time=100.0, previous_score=0.9)
     assert result.state == ConsensusState.REVOKED
 
 
@@ -155,5 +171,49 @@ def test_lens_weight_normalization_does_not_overflow() -> None:
 
 def test_tokenizer_preserves_unicode_words() -> None:
     assert tokens("caf\u00e9 na\u00efve \u7814\u7a76 \u041d\u0430\u0443\u043a\u0430") == (
-        "caf\u00e9", "na\u00efve", "\u7814\u7a76", "\u043d\u0430\u0443\u043a\u0430"
+        "caf\u00e9",
+        "na\u00efve",
+        "\u7814\u7a76",
+        "\u043d\u0430\u0443\u043a\u0430",
+    )
+
+
+def test_candidate_engine_rejects_invalid_supplied_ids_and_slots() -> None:
+    with pytest.raises(ValueError, match="followed"):
+        _ = CandidateEngine().candidates(DiscoveryRequest(followed=(ObjectId("bad id"),)))
+    with pytest.raises(ValueError, match="exploration_slots"):
+        _ = CandidateEngine().candidates(DiscoveryRequest(exploration_slots=-1))
+    with pytest.raises(ValueError, match="exploration_slots"):
+        _ = CandidateEngine().candidates(
+            DiscoveryRequest(exploration_slots=cast(int, cast(object, True)))
+        )
+
+
+def test_feed_diversifier_rejects_ambiguous_domains() -> None:
+    ranked = ranked_candidate("obj:one", 0.9, "Following")
+    with pytest.raises(ValueError, match="ranked score"):
+        _ = FeedDiversifier().diversify(
+            (RankedCandidate(ranked.candidate, cast(float, cast(object, True)), ()),), ()
+        )
+    with pytest.raises(ValueError, match="limit"):
+        _ = FeedDiversifier().diversify((ranked,), (), limit=cast(int, cast(object, True)))
+    with pytest.raises(ValueError, match="creator_id"):
+        _ = FeedDiversifier().diversify((ranked,), (FeedObjectContext(ObjectId("obj:one"), "  "),))
+    with pytest.raises(ValueError, match="unknown candidate source"):
+        _ = FeedDiversifier(
+            DiversityPolicy(
+                source_floors=(SourceFloor(cast(CandidateSource, cast(object, "Unknown")), 1),)
+            )
+        )
+
+
+def ranked_candidate(
+    object_id: str,
+    score: float,
+    source: CandidateSource,
+) -> RankedCandidate:
+    return RankedCandidate(
+        Candidate(ObjectId(object_id), source, signals=ObjectSignals()).normalized(),
+        score,
+        (),
     )
