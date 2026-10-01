@@ -9,6 +9,7 @@ from babble_algorithms.recommendation import (
     ContentProfile,
     Interaction,
     RecommendationEngine,
+    RecommendationFeedback,
     RecommendationWeights,
     UserProfile,
 )
@@ -46,6 +47,51 @@ def test_future_interactions_do_not_change_historical_recommendations() -> None:
         reference_time=100.0,
     )
     assert result == baseline
+
+
+def test_recommendation_rejects_bool_numeric_inputs() -> None:
+    with pytest.raises(ValueError, match="finite and non-negative"):
+        _ = RecommendationEngine(RecommendationWeights(relevance=True))
+    with pytest.raises(ValueError, match="feedback ratings"):
+        _ = RecommendationFeedback(relevance=True)
+    with pytest.raises(ValueError, match="learning_rate"):
+        _ = RecommendationWeights().with_feedback((), learning_rate=True)
+    with pytest.raises(ValueError, match="reference_time"):
+        _ = RecommendationEngine().recommend(
+            UserProfile("user"), (ContentProfile("item", "text"),), reference_time=True
+        )
+
+
+def test_recommendation_peer_features_are_built_once_per_peer(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    engine = RecommendationEngine()
+    calls = 0
+    original = engine._peer_features  # pyright: ignore[reportPrivateUsage]
+
+    def counted(peer: UserProfile) -> object:
+        nonlocal calls
+        calls += 1
+        return original(peer)
+
+    monkeypatch.setattr(engine, "_peer_features", counted)
+    user = UserProfile("user", interests=("protocol",))
+    peers = tuple(
+        UserProfile(
+            f"peer-{index}",
+            interests=("protocol",),
+            history=(Interaction("item-0", 1.0, 0.0),),
+        )
+        for index in range(4)
+    )
+    content = tuple(
+        ContentProfile(f"item-{index}", "protocol", topics=("protocol",))
+        for index in range(12)
+    )
+    first = engine.recommend(user, content, peers=peers, reference_time=1.0)
+    second = RecommendationEngine().recommend(user, content, peers=peers, reference_time=1.0)
+    assert first == second
+    assert calls == len(peers)
 
 
 def test_candidate_sources_do_not_replace_observed_signals_with_priors() -> None:

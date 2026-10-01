@@ -8,6 +8,31 @@ from babble_algorithms.text import cosine, hashed_vector, tokens
 from babble_algorithms.types import Candidate, ObjectId, ObjectSignals, clamp_score
 
 
+def _number(value: object, name: str, *, unit: bool = False, nonnegative: bool = False) -> float:
+    def invalid() -> ValueError:
+        if nonnegative:
+            return ValueError(f"{name} must be finite and non-negative")
+        return ValueError(f"{name} must be a finite real number")
+
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise invalid()
+    try:
+        number = float(value)
+    except OverflowError as error:
+        raise invalid() from error
+    if not math.isfinite(number):
+        raise invalid()
+    if unit and not 0.0 <= number <= 1.0:
+        raise ValueError(f"{name} must be between zero and one")
+    if nonnegative and number < 0.0:
+        raise invalid()
+    return number
+
+
+def _vector(values: tuple[str, ...]) -> tuple[float, ...]:
+    return hashed_vector(tokens(" ".join(values), remove_stop_words=True))
+
+
 @dataclass(frozen=True, slots=True)
 class UserProfile:
     user_id: str
@@ -43,9 +68,13 @@ class RecommendationFeedback:
     authenticity: float | None = None
 
     def __post_init__(self) -> None:
-        for value in (self.relevance, self.engagement, self.authenticity):
-            if value is not None and (not math.isfinite(value) or not 0.0 <= value <= 1.0):
-                raise ValueError("feedback ratings must be finite and between zero and one")
+        for field_name, value in (
+            ("relevance", self.relevance),
+            ("engagement", self.engagement),
+            ("authenticity", self.authenticity),
+        ):
+            if value is not None:
+                object.__setattr__(self, field_name, _number(value, "feedback ratings", unit=True))
 
 
 @dataclass(frozen=True, slots=True)
@@ -58,20 +87,22 @@ class RecommendationWeights:
 
     def normalized(self) -> RecommendationWeights:
         values = (
-            self.relevance, self.engagement, self.authenticity, self.temporal, self.collaborative
+            _number(self.relevance, "recommendation weights", nonnegative=True),
+            _number(self.engagement, "recommendation weights", nonnegative=True),
+            _number(self.authenticity, "recommendation weights", nonnegative=True),
+            _number(self.temporal, "recommendation weights", nonnegative=True),
+            _number(self.collaborative, "recommendation weights", nonnegative=True),
         )
-        if any(not math.isfinite(value) or value < 0.0 for value in values):
-            raise ValueError("recommendation weights must be finite and non-negative")
         scale = max(values)
         if scale == 0.0:
             return RecommendationWeights()
         total = math.fsum(value / scale for value in values)
         return RecommendationWeights(
-            relevance=(self.relevance / scale) / total,
-            engagement=(self.engagement / scale) / total,
-            authenticity=(self.authenticity / scale) / total,
-            temporal=(self.temporal / scale) / total,
-            collaborative=(self.collaborative / scale) / total,
+            relevance=(values[0] / scale) / total,
+            engagement=(values[1] / scale) / total,
+            authenticity=(values[2] / scale) / total,
+            temporal=(values[3] / scale) / total,
+            collaborative=(values[4] / scale) / total,
         )
 
     def with_feedback(
@@ -85,15 +116,14 @@ class RecommendationWeights:
         This is bounded explicit-feedback adaptation, not a learned relevance model.
         Callers own per-user persistence and must avoid replaying an already applied batch.
         """
-        if not math.isfinite(learning_rate) or not 0.0 <= learning_rate <= 1.0:
-            raise ValueError("learning_rate must be finite and between zero and one")
+        rate = _number(learning_rate, "learning_rate", unit=True)
         base = self.normalized()
 
         def adjusted(weight: float, ratings: tuple[float | None, ...]) -> float:
             present = tuple(rating for rating in ratings if rating is not None)
             if not present:
                 return weight
-            delta = learning_rate * math.fsum(rating - 0.5 for rating in present) / len(present)
+            delta = rate * math.fsum(rating - 0.5 for rating in present) / len(present)
             return clamp_score(weight + delta)
 
         return RecommendationWeights(
@@ -118,6 +148,23 @@ class RecommendationScore:
     candidate: Candidate
 
 
+@dataclass(frozen=True, slots=True)
+class _PeerFeatures:
+    user_id: str
+    vector: tuple[float, ...]
+    history_by_content: dict[str, tuple[float, ...]]
+
+
+@dataclass(frozen=True, slots=True)
+class _RecommendationContext:
+    user: UserProfile
+    peers: tuple[UserProfile, ...]
+    user_terms: tuple[str, ...]
+    user_interest_terms: set[str]
+    user_vector: tuple[float, ...]
+    peer_features: tuple[_PeerFeatures, ...]
+
+
 class RecommendationEngine:
     def __init__(self, weights: RecommendationWeights | None = None) -> None:
         self.weights: RecommendationWeights = (weights or RecommendationWeights()).normalized()
@@ -132,14 +179,12 @@ class RecommendationEngine:
         reference_time: float,
         limit: int | None = None,
     ) -> tuple[RecommendationScore, ...]:
-        if not math.isfinite(reference_time):
-            raise ValueError("reference_time must be finite")
-        user = _profile_at(user, reference_time)
-        peers = tuple(_profile_at(peer, reference_time) for peer in peers)
+        reference_time = _number(reference_time, "reference_time")
+        context = self._context(user, peers, reference_time)
         ranked = tuple(
             sorted(
                 (
-                    self._score(user, item, peers=peers, reference_time=reference_time)
+                    self._score(item, context=context, reference_time=reference_time)
                     for item in content
                 ),
                 key=lambda score: score.final_score,
@@ -150,19 +195,49 @@ class RecommendationEngine:
             return ranked
         return ranked[: max(0, limit)]
 
+    def _context(
+        self, user: UserProfile, peers: tuple[UserProfile, ...], reference_time: float
+    ) -> _RecommendationContext:
+        scoped_user = _profile_at(user, reference_time)
+        scoped_peers = tuple(_profile_at(peer, reference_time) for peer in peers)
+        user_terms = tokens(
+            " ".join(scoped_user.interests + scoped_user.expertise), remove_stop_words=True
+        )
+        user_interest_terms = set(tokens(" ".join(scoped_user.interests), remove_stop_words=True))
+        user_vector = hashed_vector(user_terms)
+        peer_features = tuple(
+            self._peer_features(peer)
+            for peer in scoped_peers
+            if peer.user_id != scoped_user.user_id
+        )
+        return _RecommendationContext(
+            scoped_user, scoped_peers, user_terms, user_interest_terms, user_vector, peer_features
+        )
+
+    def _peer_features(self, peer: UserProfile) -> _PeerFeatures:
+        history: dict[str, list[float]] = {}
+        for interaction in peer.history:
+            history.setdefault(interaction.content_id, []).append(
+                clamp_score(interaction.engagement_score)
+            )
+        return _PeerFeatures(
+            peer.user_id,
+            _vector(peer.interests + peer.expertise),
+            {content_id: tuple(scores) for content_id, scores in history.items()},
+        )
+
     def _score(
         self,
-        user: UserProfile,
         content: ContentProfile,
         *,
-        peers: tuple[UserProfile, ...],
+        context: _RecommendationContext,
         reference_time: float,
     ) -> RecommendationScore:
-        relevance = self._relevance(user, content)
-        engagement = self._engagement_prediction(user, content)
+        relevance = self._relevance(context, content)
+        engagement = self._engagement_prediction(context, content)
         authenticity = clamp_score(content.authenticity_score)
         temporal = self._temporal_score(content, reference_time)
-        collaborative = self._collaborative(user, content.content_id, peers)
+        collaborative = self._collaborative(content.content_id, context)
         final = clamp_score(
             self.weights.relevance * relevance
             + self.weights.engagement * engagement
@@ -170,7 +245,7 @@ class RecommendationEngine:
             + self.weights.temporal * temporal
             + self.weights.collaborative * collaborative
         )
-        confidence = self._confidence(user, content, peers)
+        confidence = self._confidence(context.user, content, context.peers)
         signals = ObjectSignals(
             relevance=relevance,
             novelty=max(0.0, 1.0 - engagement),
@@ -197,28 +272,28 @@ class RecommendationEngine:
             ).normalized(),
         )
 
-    def _relevance(self, user: UserProfile, content: ContentProfile) -> float:
-        user_terms = tokens(" ".join(user.interests + user.expertise), remove_stop_words=True)
+    def _relevance(self, context: _RecommendationContext, content: ContentProfile) -> float:
         content_terms = tokens(
             content.text + " " + " ".join(content.topics), remove_stop_words=True
         )
-        if not user_terms or not content_terms:
+        if not context.user_terms or not content_terms:
             return 0.0
-        return clamp_score(cosine(hashed_vector(user_terms), hashed_vector(content_terms)))
+        return clamp_score(cosine(hashed_vector(context.user_terms), hashed_vector(content_terms)))
 
-    def _engagement_prediction(self, user: UserProfile, content: ContentProfile) -> float:
+    def _engagement_prediction(
+        self, context: _RecommendationContext, content: ContentProfile
+    ) -> float:
         topic_terms = set(tokens(" ".join(content.topics), remove_stop_words=True))
         history_scores = [
             clamp_score(interaction.engagement_score)
-            for interaction in user.history
+            for interaction in context.user.history
             if interaction.content_id == content.content_id
         ]
         history_signal = sum(history_scores) / len(history_scores) if history_scores else 0.5
         complexity_fit = 1.0 - abs(clamp_score(content.complexity_level) - 0.62)
         topic_fit = 0.0
         if topic_terms:
-            interest_terms = set(tokens(" ".join(user.interests), remove_stop_words=True))
-            topic_fit = len(topic_terms & interest_terms) / len(topic_terms)
+            topic_fit = len(topic_terms & context.user_interest_terms) / len(topic_terms)
         return clamp_score(0.45 * history_signal + 0.35 * complexity_fit + 0.2 * topic_fit)
 
     def _temporal_score(self, content: ContentProfile, reference_time: float) -> float:
@@ -226,25 +301,12 @@ class RecommendationEngine:
             return clamp_score(content.signals.recency)
         return self.temporal.score(content.temporal, reference_time=reference_time).survival_score
 
-    def _collaborative(
-        self,
-        user: UserProfile,
-        content_id: str,
-        peers: tuple[UserProfile, ...],
-    ) -> float:
+    def _collaborative(self, content_id: str, context: _RecommendationContext) -> float:
         weighted_total = 0.0
         similarity_total = 0.0
-        user_vector = hashed_vector(tokens(" ".join(user.interests + user.expertise)))
-        for peer in peers:
-            if peer.user_id == user.user_id:
-                continue
-            peer_vector = hashed_vector(tokens(" ".join(peer.interests + peer.expertise)))
-            similarity = max(0.0, cosine(user_vector, peer_vector))
-            peer_scores = [
-                clamp_score(interaction.engagement_score)
-                for interaction in peer.history
-                if interaction.content_id == content_id
-            ]
+        for peer in context.peer_features:
+            similarity = max(0.0, cosine(context.user_vector, peer.vector))
+            peer_scores = peer.history_by_content.get(content_id, ())
             if not peer_scores or similarity <= 0.0:
                 continue
             weighted_total += similarity * (sum(peer_scores) / len(peer_scores))
@@ -278,6 +340,15 @@ def _profile_at(user: UserProfile, reference_time: float) -> UserProfile:
         user,
         history=tuple(
             interaction for interaction in user.history
-            if math.isfinite(interaction.timestamp) and interaction.timestamp <= reference_time
+            if _valid_historical_timestamp(interaction.timestamp, reference_time)
         ),
+    )
+
+
+def _valid_historical_timestamp(value: object, reference_time: float) -> bool:
+    return (
+        not isinstance(value, bool)
+        and isinstance(value, (int, float))
+        and math.isfinite(value)
+        and float(value) <= reference_time
     )
