@@ -12,17 +12,19 @@ from babble_algorithms import (
     canonical_value_bytes,
     canonical_value_hex,
 )
-from babble_algorithms.canonical import CanonicalValue
+from babble_algorithms.canonical import CanonicalFloat, CanonicalUnsigned, CanonicalValue
 from babble_algorithms.wire import Json, object_value
 
 
 def fixtures() -> dict[str, Json]:
-    return object_value(cast(
-        Json,
-        json.loads(
-            (Path(__file__).parents[2] / "fixtures/protocol/v1/fixtures.json").read_text()
-        ),
-    ))
+    return object_value(
+        cast(
+            Json,
+            json.loads(
+                (Path(__file__).parents[2] / "fixtures/protocol/v1/fixtures.json").read_text()
+            ),
+        )
+    )
 
 
 def test_canonical_encoder_matches_rust_fixture_bytes() -> None:
@@ -64,10 +66,14 @@ def test_canonical_wrappers_reject_ambiguous_runtime_values() -> None:
         _ = canonical_float(cast(object, "1.0"))
     with pytest.raises(ValueError, match="canonical float must be numeric"):
         _ = canonical_float(True)
+    with pytest.raises(ValueError, match="canonical float must be numeric"):
+        _ = CanonicalFloat(cast(float, cast(object, True)))
     with pytest.raises(ValueError, match="canonical unsigned integer must be an integer"):
         _ = canonical_unsigned(True)
     with pytest.raises(ValueError, match="canonical unsigned integer must be an integer"):
         _ = canonical_unsigned(cast(object, 1.5))
+    with pytest.raises(ValueError, match="canonical unsigned integer must be an integer"):
+        _ = CanonicalUnsigned(cast(int, cast(object, True)))
 
 
 def test_canonical_encoder_rejects_unsupported_runtime_values() -> None:
@@ -87,3 +93,5 @@ def test_canonical_unsigned_encodes_u64_boundary() -> None:
     )
     with pytest.raises(ValueError, match="canonical unsigned integer must fit in u64"):
         _ = canonical_unsigned(18_446_744_073_709_551_616)
+    with pytest.raises(ValueError, match="canonical unsigned integer must fit in u64"):
+        _ = CanonicalUnsigned(18_446_744_073_709_551_616)

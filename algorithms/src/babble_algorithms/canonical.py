@@ -16,10 +16,19 @@ MAX_U64 = 18_446_744_073_709_551_615
 class CanonicalFloat:
     value: float
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "value", _finite_number(self.value, "canonical float"))
+
 
 @dataclass(frozen=True, slots=True)
 class CanonicalUnsigned:
     value: int
+
+    def __post_init__(self) -> None:
+        unsigned = _unsigned_int(self.value, "canonical unsigned integer")
+        if unsigned > MAX_U64:
+            raise ValueError(f"canonical unsigned integer must fit in u64: {self.value}")
+        object.__setattr__(self, "value", unsigned)
 
 
 CanonicalScalar: TypeAlias = bool | int | float | str | CanonicalFloat | CanonicalUnsigned | None
