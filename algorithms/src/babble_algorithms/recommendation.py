@@ -151,14 +151,18 @@ class RecommendationWeights:
     temporal: float = 0.15
     collaborative: float = 0.15
 
+    def __post_init__(self) -> None:
+        for field_name, value in zip(
+            ("relevance", "engagement", "authenticity", "temporal", "collaborative"),
+            self._values(),
+            strict=True,
+        ):
+            object.__setattr__(
+                self, field_name, _number(value, "recommendation weights", nonnegative=True)
+            )
+
     def normalized(self) -> RecommendationWeights:
-        values = (
-            _number(self.relevance, "recommendation weights", nonnegative=True),
-            _number(self.engagement, "recommendation weights", nonnegative=True),
-            _number(self.authenticity, "recommendation weights", nonnegative=True),
-            _number(self.temporal, "recommendation weights", nonnegative=True),
-            _number(self.collaborative, "recommendation weights", nonnegative=True),
-        )
+        values = self._values()
         scale = max(values)
         if scale == 0.0:
             return RecommendationWeights()
@@ -169,6 +173,15 @@ class RecommendationWeights:
             authenticity=(values[2] / scale) / total,
             temporal=(values[3] / scale) / total,
             collaborative=(values[4] / scale) / total,
+        )
+
+    def _values(self) -> tuple[float, float, float, float, float]:
+        return (
+            self.relevance,
+            self.engagement,
+            self.authenticity,
+            self.temporal,
+            self.collaborative,
         )
 
     def with_feedback(

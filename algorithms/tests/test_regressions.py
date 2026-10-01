@@ -223,6 +223,10 @@ def test_recommendation_dtos_reject_invalid_direct_values() -> None:
         _ = ContentProfile("item", "text", complexity_level=cast(float, cast(object, True)))
     with pytest.raises(ValueError, match="signals"):
         _ = ContentProfile("item", "text", signals=cast(ObjectSignals, object()))
+    with pytest.raises(ValueError, match="finite and non-negative"):
+        _ = RecommendationWeights(relevance=-0.1)
+    with pytest.raises(ValueError, match="finite and non-negative"):
+        _ = RecommendationWeights(collaborative=cast(float, cast(object, True)))
     with pytest.raises(ValueError, match="candidate object_id"):
         _ = RecommendationScore("other", 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, candidate)
     with pytest.raises(ValueError, match="candidate"):
