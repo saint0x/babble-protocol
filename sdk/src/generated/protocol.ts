@@ -7998,7 +7998,7 @@ export const rpcCatalog = {
   "methods": [
     {
       "method": "babble.observability.snapshot.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.EmptyRequest",
       "output": "api.ObservabilitySnapshotResponse",
       "capability": null,
@@ -8007,7 +8007,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.identity.create.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.CreateIdentityRequest",
       "output": "api.CreateIdentityResponse",
       "capability": null,
@@ -8016,7 +8016,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.identity.current.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.EmptyRequest",
       "output": "api.IdentityCurrentResponse",
       "capability": {
@@ -8029,7 +8029,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.object.publish_text.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.PublishTextRequest",
       "output": "api.PublishTextResponse",
       "capability": null,
@@ -8038,7 +8038,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.object.publish.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.PublishObjectRequest",
       "output": "api.PublishObjectResponse",
       "capability": null,
@@ -8047,7 +8047,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.object.publish_media.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.PublishMediaObjectRequest",
       "output": "api.PublishMediaObjectResponse",
       "capability": null,
@@ -8056,7 +8056,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.object.fork.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ForkObjectRequest",
       "output": "api.ProvenancePublicationResponse",
       "capability": null,
@@ -8065,7 +8065,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.object.remix.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.RemixObjectRequest",
       "output": "api.ProvenancePublicationResponse",
       "capability": null,
@@ -8074,7 +8074,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.object.get.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ObjectIdRequest",
       "output": "api.PublishTextResponse",
       "capability": null,
@@ -8083,7 +8083,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.media.blob.put.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.PutMediaBlobRequest",
       "output": "api.MediaBlobResponse",
       "capability": null,
@@ -8092,7 +8092,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.media.blob.get.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.GetMediaBlobRequest",
       "output": "api.MediaBlobResponse",
       "capability": null,
@@ -8101,7 +8101,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.graph.edge.publish.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.PublishEdgeRequest",
       "output": "api.PublishEdgeResponse",
       "capability": null,
@@ -8110,7 +8110,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.graph.relationship.infer.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.InferRelationshipRequest",
       "output": "api.InferRelationshipResponse",
       "capability": null,
@@ -8119,7 +8119,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.graph.evidence.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ObjectIdRequest",
       "output": "api.ClaimEvidenceResponse",
       "capability": null,
@@ -8128,7 +8128,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.graph.traverse.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.GraphTraverseRpcRequest",
       "output": "api.GraphTraversalResponse",
       "capability": null,
@@ -8137,7 +8137,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.social.follow.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.SocialTargetRequest",
       "output": "api.SocialEdgeResponse",
       "capability": {
@@ -8202,7 +8202,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.social.unfollow.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.SocialTargetRequest",
       "output": "api.SocialEdgeResponse",
       "capability": {
@@ -8215,7 +8215,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.social.share.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.SocialTextRequest",
       "output": "api.SocialTextResponse",
       "capability": {
@@ -8228,7 +8228,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.social.reply.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.SocialTextRequest",
       "output": "api.SocialTextResponse",
       "capability": {
@@ -8241,7 +8241,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.social.replies.list.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.RepliesListRequest",
       "output": "api.RepliesListResponse",
       "capability": null,
@@ -8250,7 +8250,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.social.quotes.list.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.QuotesListRequest",
       "output": "api.QuotesListResponse",
       "capability": null,
@@ -8259,7 +8259,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.social.reactions.summary.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ReactionObjectRequest",
       "output": "graph.ReactionSummary",
       "capability": null,
@@ -8268,7 +8268,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.social.reactions.record.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ReactionRecordRequest",
       "output": "graph.ReactionRecord",
       "capability": null,
@@ -8277,7 +8277,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.social.reactions.mine.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ReactionObjectRequest",
       "output": "graph.ReactionState",
       "capability": null,
@@ -8286,7 +8286,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.social.reactions.set.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.SetReactionRpcRequest",
       "output": "graph.ReactionState",
       "capability": null,
@@ -8295,7 +8295,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.events.list.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.EventListRequest",
       "output": "api.EventListResponse",
       "capability": null,
@@ -8304,7 +8304,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.events.bundle.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.EventBundleRequest",
       "output": "api.EventBundleResponse",
       "capability": null,
@@ -8313,7 +8313,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.events.import.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.EventImportRequest",
       "output": "api.EventImportResponse",
       "capability": null,
@@ -8322,7 +8322,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.consensus.checkpoint.preview.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.CheckpointPreviewRequest",
       "output": "api.CheckpointPreviewResponse",
       "capability": null,
@@ -8331,7 +8331,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.consensus.checkpoint.publish.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.CheckpointRequest",
       "output": "api.CheckpointEventResponse",
       "capability": null,
@@ -8340,7 +8340,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.judgment.object.evaluate.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.JudgeObjectRpcRequest",
       "output": "api.JudgeObjectResponse",
       "capability": {
@@ -8353,7 +8353,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.ai.judge.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.JudgeObjectRpcRequest",
       "output": "api.JudgeObjectResponse",
       "capability": {
@@ -8366,7 +8366,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.ai.generate.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.AiGenerateRequest",
       "output": "api.AiGenerateResponse",
       "capability": {
@@ -8379,7 +8379,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.ai.embed.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.AiEmbedRequest",
       "output": "api.AiEmbedResponse",
       "capability": {
@@ -8392,7 +8392,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.ai.transcribe.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.AiTranscribeRequest",
       "output": "api.AiTranscribeResponse",
       "capability": {
@@ -8405,7 +8405,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.judgment.object.list.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ObjectIdRequest",
       "output": "api.ObjectJudgmentsResponse",
       "capability": null,
@@ -8414,7 +8414,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.judgment.definitions.list.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.EmptyRequest",
       "output": "api.JudgmentDefinitionsResponse",
       "capability": null,
@@ -8423,7 +8423,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.judgment.providers.list.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.EmptyRequest",
       "output": "api.JudgmentProvidersResponse",
       "capability": null,
@@ -8432,7 +8432,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.search.objects.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ObjectSearchRequest",
       "output": "api.ObjectSearchResponse",
       "capability": null,
@@ -8441,7 +8441,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.lenses.list.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.EmptyRequest",
       "output": "api.LensCatalogResponse",
       "capability": null,
@@ -8450,7 +8450,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.discovery.candidates.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.DiscoveryRequest",
       "output": "api.DiscoveryResponse",
       "capability": null,
@@ -8459,7 +8459,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.capabilities.list.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.EmptyRequest",
       "output": "api.CapabilityCatalogResponse",
       "capability": null,
@@ -8468,7 +8468,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.capabilities.inspect.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ObjectIdRequest",
       "output": "api.CapabilitiesResponse",
       "capability": null,
@@ -8477,7 +8477,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.capabilities.grant.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.GrantCapabilityRequest",
       "output": "api.GrantCapabilityResponse",
       "capability": null,
@@ -8486,7 +8486,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.capabilities.revoke.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.RevokeCapabilityRequest",
       "output": "api.GrantCapabilityResponse",
       "capability": null,
@@ -8495,7 +8495,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.storage.object.get.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ObjectStorageGetRequest",
       "output": "api.ObjectStorageGetResponse",
       "capability": {
@@ -8508,7 +8508,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.storage.local.get.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.LocalStorageGetRequest",
       "output": "api.LocalStorageGetResponse",
       "capability": {
@@ -8521,7 +8521,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.storage.local.set.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.LocalStorageSetRequest",
       "output": "api.LocalStorageSetResponse",
       "capability": {
@@ -8534,7 +8534,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.storage.local.delete.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.LocalStorageDeleteRequest",
       "output": "api.LocalStorageDeleteResponse",
       "capability": {
@@ -8547,7 +8547,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.storage.local.list.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.LocalStorageListRequest",
       "output": "api.LocalStorageListResponse",
       "capability": {
@@ -8560,7 +8560,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.storage.object.set.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ObjectStorageSetRequest",
       "output": "api.ObjectStorageSetResponse",
       "capability": {
@@ -8573,7 +8573,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.storage.object.delete.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ObjectStorageDeleteRequest",
       "output": "api.ObjectStorageDeleteResponse",
       "capability": {
@@ -8586,7 +8586,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.storage.object.list.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ObjectStorageListRequest",
       "output": "api.ObjectStorageListResponse",
       "capability": {
@@ -8599,7 +8599,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.personalization.sync.put.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.PersonalizationSyncPutRequest",
       "output": "api.PersonalizationSyncPutResponse",
       "capability": null,
@@ -8608,7 +8608,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.personalization.sync.list.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.PersonalizationSyncListRequest",
       "output": "api.PersonalizationSyncListResponse",
       "capability": null,
@@ -8617,7 +8617,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.personalization.sync.get.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.PersonalizationSyncGetRequest",
       "output": "api.PersonalizationSyncGetResponse",
       "capability": null,
@@ -8626,7 +8626,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.personalization.sync.delete.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.PersonalizationSyncGetRequest",
       "output": "api.PersonalizationSyncDeleteResponse",
       "capability": null,
@@ -8635,7 +8635,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.network.fetch.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.NetworkFetchRequest",
       "output": "api.NetworkFetchResponse",
       "capability": {
@@ -8648,7 +8648,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.payments.checkout.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.PaymentsCheckoutRequest",
       "output": "api.PaymentsCheckoutResponse",
       "capability": {
@@ -8661,7 +8661,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.notifications.request.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.NotificationsRequestRequest",
       "output": "api.NotificationsRequestResponse",
       "capability": {
@@ -8674,7 +8674,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.media.camera.request.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.CameraCaptureRequest",
       "output": "api.CameraCaptureResponse",
       "capability": {
@@ -8687,7 +8687,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.media.microphone.request.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.MicrophoneCaptureRequest",
       "output": "api.MicrophoneCaptureResponse",
       "capability": {
@@ -8700,7 +8700,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.clipboard.write.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ClipboardWriteRequest",
       "output": "api.ClipboardWriteResponse",
       "capability": {
@@ -8713,7 +8713,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.fullscreen.enter.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.FullscreenEnterRequest",
       "output": "api.FullscreenEnterResponse",
       "capability": {
@@ -8752,7 +8752,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.runtime.surface.prepare.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.PrepareSurfaceRequest",
       "output": "api.PrepareSurfaceResponse",
       "capability": null,
@@ -8761,7 +8761,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.runtime.surface.session.start.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.StartSurfaceSessionRequest",
       "output": "api.SurfaceSessionResponse",
       "capability": null,
@@ -8770,7 +8770,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.runtime.surface.health.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.EmptyRequest",
       "output": "api.SurfaceRuntimeHealthResponse",
       "capability": null,
@@ -8779,7 +8779,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.runtime.surface.session.get.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.SurfaceSessionRequest",
       "output": "api.SurfaceSessionResponse",
       "capability": null,
@@ -8788,7 +8788,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.runtime.surface.session.transition.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.TransitionSurfaceSessionRequest",
       "output": "api.SurfaceSessionEventResponse",
       "capability": null,
@@ -8797,7 +8797,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.runtime.surface.session.heartbeat.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.EmptyRequest",
       "output": "api.SurfaceLeaseResponse",
       "capability": null,
@@ -8806,7 +8806,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.runtime.surface.session.budget.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ChangeSurfaceBudgetRequest",
       "output": "api.SurfaceSessionEventResponse",
       "capability": null,
@@ -8815,7 +8815,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.runtime.surface.session.schedule.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ScheduleSurfaceSessionRequest",
       "output": "api.ScheduleSurfaceSessionResponse",
       "capability": null,
@@ -8824,7 +8824,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.runtime.surface.session.apply_schedule.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.ScheduleSurfaceSessionRequest",
       "output": "api.ApplySurfaceScheduleResponse",
       "capability": null,
@@ -8833,7 +8833,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.runtime.surface.session.state.checkpoint.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.CheckpointSurfaceStateRequest",
       "output": "api.SurfaceStateCheckpointResponse",
       "capability": null,
@@ -8842,7 +8842,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.runtime.surface.session.state.get.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.SurfaceSessionRequest",
       "output": "api.SurfaceStateRestoreResponse",
       "capability": null,
@@ -8851,7 +8851,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.realtime.room.define.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.DefineRealtimeRoomRequest",
       "output": "api.DefineRealtimeRoomResponse",
       "capability": {
@@ -8864,7 +8864,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.realtime.session.start.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.StartRealtimeSessionRequest",
       "output": "api.StartRealtimeSessionResponse",
       "capability": {
@@ -8877,7 +8877,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.realtime.session.leave.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.CloseRealtimeSessionRequest",
       "output": "api.CloseRealtimeSessionResponse",
       "capability": {
@@ -8890,7 +8890,7 @@ export const rpcCatalog = {
     },
     {
       "method": "babble.realtime.message.publish.v1",
-      "version": 2,
+      "version": 1,
       "input": "api.PublishRealtimeMessageRequest",
       "output": "api.PublishRealtimeMessageResponse",
       "capability": {

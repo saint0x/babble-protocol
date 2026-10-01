@@ -1,6 +1,6 @@
-# Babble protocol
+# Babble Protocol
 
-Babble protocol is a programmable social information protocol: signed Objects, typed graph relationships, replaceable Judgment providers, user-controlled Lenses, executable Surfaces, algorithmic discovery, and selective decentralized ordering.
+Babble Protocol is a programmable social information protocol: signed Objects, typed graph relationships, replaceable Judgment providers, user-controlled Lenses, executable Surfaces, algorithmic discovery, and selective decentralized ordering.
 
 Implementation is ongoing. Working local flows are not proof of complete production
 readiness; the [readiness ledger](docs/production-readiness.md) tracks verified

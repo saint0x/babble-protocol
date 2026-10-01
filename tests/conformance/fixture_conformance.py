@@ -16,7 +16,7 @@ MAX_U64 = 18_446_744_073_709_551_615
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Independent stdlib conformance checks for Babble protocol fixtures."
+        description="Independent stdlib conformance checks for Babble Protocol fixtures."
     )
     parser.add_argument("fixtures", type=Path)
     parser.add_argument("schema_bundle", type=Path)
@@ -46,7 +46,7 @@ def main() -> None:
         json.dumps(
             {
                 "ok": True,
-                "checked": "babble protocol fixture conformance",
+                "checked": "Babble Protocol fixture conformance",
                 "implementation": "stdlib-python-independent",
             },
             separators=(",", ":"),
@@ -134,7 +134,12 @@ def verify_rpc(catalog: Mapping[str, Any], request: Mapping[str, Any], response:
         name = expect_string(method["method"], "rpc method")
         version = method["version"]
         require(type(version) is int and version >= 1, "RPC method version must be a positive integer")
-        require(name.startswith("babble.") and name.endswith(f".v{version}"), f"invalid RPC method namespace/version {name}")
+        require(name.startswith("babble."), f"invalid RPC method namespace {name}")
+        suffix = name.rsplit(".", 1)[-1]
+        if suffix.startswith("v") and suffix[1:].isdigit():
+            require(name.endswith(f".v{version}"), f"invalid RPC method namespace/version {name}")
+        else:
+            require(version == 2, f"unversioned RPC method must be version 2: {name}")
         require(expect_string(method["input"], "rpc input"), "RPC input must be present")
         require(expect_string(method["output"], "rpc output"), "RPC output must be present")
         require(int(method["timeout_ms"]) > 0, "RPC timeout must be positive")
@@ -215,7 +220,7 @@ def verify_media(blob: Mapping[str, Any], request: Mapping[str, Any]) -> None:
     require(valid_hex_string(integrity, 64), "media integrity must be 32-byte hex")
     require(blob["uri"] == f"babble://blobs/{integrity}", "media blob URI must contain integrity hash")
     require(blob["media_type"] == "text/plain", "media type mismatch")
-    require(int(blob["size_bytes"]) == 13, "media size mismatch")
+    require(int(blob["size_bytes"]) == 14, "media size mismatch")
     require(valid_prefixed_id(request["author_id"], "id_"), "publish media author id malformed")
     resources = expect_array(request["resources"], "publish media resources")
     require(len(resources) == 1, "publish media fixture must contain one resource")

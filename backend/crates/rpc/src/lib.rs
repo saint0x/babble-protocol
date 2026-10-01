@@ -233,11 +233,7 @@ impl RpcMethodDefinition {
         idempotency: RpcIdempotency,
     ) -> Result<Self, RpcCatalogError> {
         let method = RpcMethodName::new(method)?;
-        let version = if method.as_str().ends_with("") {
-            2
-        } else {
-            1
-        };
+        let version = infer_method_version(method.as_str())?;
         Ok(Self {
             method,
             version,
@@ -273,7 +269,8 @@ impl RpcMethodDefinition {
 
     pub fn validate(&self) -> Result<(), RpcCatalogError> {
         validate_method_name(self.method.as_str())?;
-        if self.version == 0 {
+        let inferred_version = infer_method_version(self.method.as_str())?;
+        if self.version == 0 || self.version != inferred_version {
             return Err(RpcCatalogError::InvalidVersion(
                 self.method.as_str().to_string(),
             ));
@@ -1016,18 +1013,37 @@ fn method(
     RpcMethodDefinition::new(name, input, output, idempotency)
 }
 
-fn validate_method_name(value: &str) -> Result<(), RpcCatalogError> {
-    let valid = !value.is_empty()
-        && value.starts_with("babble.")
-        && (value.ends_with(".v1") || value.ends_with(""))
-        && value.bytes().all(|byte| {
+fn infer_method_version(value: &str) -> Result<u32, RpcCatalogError> {
+    if value.is_empty()
+        || !value.starts_with("babble.")
+        || value.ends_with('.')
+        || value.contains("..")
+        || !value.bytes().all(|byte| {
             byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'.' || byte == b'_'
-        });
-    if valid {
-        Ok(())
-    } else {
-        Err(RpcCatalogError::InvalidMethodName(value.to_string()))
+        })
+    {
+        return Err(RpcCatalogError::InvalidMethodName(value.to_string()));
     }
+
+    let Some(last_segment) = value.rsplit('.').next() else {
+        return Err(RpcCatalogError::InvalidMethodName(value.to_string()));
+    };
+    if let Some(version) = last_segment.strip_prefix('v') {
+        if version.is_empty() || !version.bytes().all(|byte| byte.is_ascii_digit()) {
+            return Err(RpcCatalogError::InvalidMethodName(value.to_string()));
+        }
+        return version
+            .parse::<u32>()
+            .ok()
+            .filter(|version| *version > 0)
+            .ok_or_else(|| RpcCatalogError::InvalidVersion(value.to_string()));
+    }
+
+    Ok(2)
+}
+
+fn validate_method_name(value: &str) -> Result<(), RpcCatalogError> {
+    infer_method_version(value).map(|_| ())
 }
 
 #[cfg(test)]
@@ -1041,6 +1057,10 @@ mod tests {
             let name = RpcMethodName::new(format!("babble.social.{action}")).unwrap();
             let definition = catalog.get(&name).unwrap();
             assert_eq!(definition.version, 2);
+            assert_eq!(
+                definition.method.as_str(),
+                format!("babble.social.{action}")
+            );
             assert_eq!(definition.output, "api.InvocationSocialResult");
             assert_eq!(definition.capability.as_ref().unwrap().version, 1);
             assert_eq!(definition.timeout_ms, 30_000);
@@ -1073,7 +1093,52 @@ mod tests {
         assert!(names.contains("babble.object.remix.v1"));
         assert!(names.contains("babble.judgment.object.list.v1"));
         assert!(names.contains("babble.realtime.message.publish.v1"));
-        assert!(catalog.methods.iter().all(|method| method.method.as_str().ends_with(&format!(".v{}", method.version))));
+        assert!(catalog.methods.iter().all(|method| {
+            let name = method.method.as_str();
+            name.ends_with(&format!(".v{}", method.version))
+                || (!name.rsplit('.').next().unwrap().starts_with('v') && method.version == 2)
+        }));
+    }
+
+    #[test]
+    fn method_definition_version_matches_method_suffix() {
+        assert_eq!(
+            method(
+                "babble.object.get.v1",
+                "Input",
+                "Output",
+                RpcIdempotency::ReadOnly
+            )
+            .unwrap()
+            .version,
+            1
+        );
+        assert_eq!(
+            method(
+                "babble.social.follow",
+                "Input",
+                "Output",
+                RpcIdempotency::RequiresIdempotencyKey
+            )
+            .unwrap()
+            .version,
+            2
+        );
+
+        let mut definition = method(
+            "babble.object.get.v1",
+            "Input",
+            "Output",
+            RpcIdempotency::ReadOnly,
+        )
+        .unwrap();
+        definition.version = 2;
+        assert!(matches!(
+            definition.validate(),
+            Err(RpcCatalogError::InvalidVersion(_))
+        ));
+        assert!(RpcMethodName::new("babble.object.get.vx").is_err());
+        assert!(RpcMethodName::new("babble.object.get.v0").is_err());
     }
 
     #[test]
