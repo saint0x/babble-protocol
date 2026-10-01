@@ -3,6 +3,7 @@
 import math
 import re
 
+from babble_algorithms.boundary import InvalidRequest, Json, object_value, string
 from babble_algorithms.ranking_time import parse_timestamp
 from babble_algorithms.ranking_types import (
     BuiltInLens,
@@ -16,7 +17,6 @@ from babble_algorithms.ranking_types import (
     SourceFloor,
 )
 from babble_algorithms.types import CandidateSource, CandidateSourceContribution, ReputationSignals
-from babble_algorithms.wire import InvalidRequest, Json, object_value, string
 
 
 def record(value: Json, fields: str) -> dict[str, Json]:
@@ -86,7 +86,7 @@ def parse_candidate(value: Json) -> Candidate:
     sig = record(
         obj["signals"],
         "social_distance followed_author relevance novelty "
-        "evidence_quality contradiction evidence reputation temporal exploration",
+        + "evidence_quality contradiction evidence reputation temporal exploration",
     )
     followed = sig["followed_author"]
     if not isinstance(followed, bool):
@@ -97,7 +97,7 @@ def parse_candidate(value: Json) -> Candidate:
     reputation = record(
         sig["reputation"],
         "epistemic_accuracy evidence_quality "
-        "social_constructiveness creative_contribution moderation domain_expertise",
+        + "social_constructiveness creative_contribution moderation domain_expertise",
     )
     return Candidate(
         identity,

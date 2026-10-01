@@ -10,7 +10,6 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from ranking_assertions import assert_json_close
 
 from babble_algorithms import worker as worker_module
 from babble_algorithms.content import ContentAnalyzer
@@ -32,6 +31,8 @@ from babble_algorithms.wire import (
     object_value,
 )
 from babble_algorithms.worker import Response, encode, handle
+
+from .ranking_assertions import assert_json_close
 
 
 def frame(value: Json) -> bytes:

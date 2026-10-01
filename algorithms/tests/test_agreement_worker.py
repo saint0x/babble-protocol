@@ -4,13 +4,14 @@ import copy
 from dataclasses import asdict
 
 import pytest
-from test_worker import error, exchange, frame, health, judge, output, result
 
 from babble_algorithms.agreement_wire import parse_source_agreement
 from babble_algorithms.consensus import ConsensusAnalyzer
 from babble_algorithms.execution import AlgorithmExecutor
 from babble_algorithms.wire import DEFINITIONS, Json, object_value
 from babble_algorithms.worker import encode, handle
+
+from .test_worker import error, exchange, frame, health, judge, output, result
 
 
 def source(index: int = 0) -> dict[str, Json]:

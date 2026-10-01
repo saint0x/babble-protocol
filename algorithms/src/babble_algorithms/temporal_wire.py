@@ -2,10 +2,10 @@
 
 import re
 
+from babble_algorithms.boundary import MAX_ID, InvalidRequest, Json, object_value, string
 from babble_algorithms.ranking_time import timestamp_nanos
 from babble_algorithms.temporal import ContentTimeClass, EngagementWindow, finite_number
 from babble_algorithms.temporal_types import TemporalItem, TemporalRequest
-from babble_algorithms.wire import MAX_ID, InvalidRequest, Json, object_value, string
 
 
 def _record(value: Json, fields: str) -> dict[str, Json]:

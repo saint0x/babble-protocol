@@ -10,7 +10,6 @@ from dataclasses import asdict, replace
 from pathlib import Path
 
 import pytest
-from ranking_assertions import assert_json_close
 
 from babble_algorithms.execution import AlgorithmExecutor
 from babble_algorithms.ranking import lens_reasons, rank
@@ -43,6 +42,8 @@ from babble_algorithms.wire import (
     object_value,
 )
 from babble_algorithms.worker import encode, handle
+
+from .ranking_assertions import assert_json_close
 
 
 def candidate(index: int = 0, source: CandidateSource = "Following") -> Candidate:
@@ -447,7 +448,9 @@ def test_judgment_frame_limit_retained_after_ranking_expansion() -> None:
     responses = exchange(exact + exact[:-1] + b" \n")
     assert responses[0]["error"] is None
     assert responses[1]["error"] is not None
-    oversized_unknown = exact[:-1].replace(b"babble.judgment.spam.v1", b"babble.judgment.unknown.v1")
+    oversized_unknown = exact[:-1].replace(
+        b"babble.judgment.spam.v1", b"babble.judgment.unknown.v1"
+    )
     rejected = handle(oversized_unknown + b"\n", AlgorithmExecutor())
     assert rejected.error is not None and rejected.error.code == "invalid_request"
 

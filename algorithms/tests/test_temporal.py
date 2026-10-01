@@ -6,8 +6,6 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from ranking_assertions import assert_json_close
-from test_worker import error, exchange, frame, health, judge
 
 from babble_algorithms.execution import AlgorithmExecutor
 from babble_algorithms.ranking_time import timestamp_nanos
@@ -20,6 +18,9 @@ from babble_algorithms.temporal import (
 from babble_algorithms.temporal_types import TEMPORAL_PROVIDER, TemporalRequest, TemporalResult
 from babble_algorithms.wire import MAX_ID, PROTOCOL, Json, decode, object_value
 from babble_algorithms.worker import encode, handle
+
+from .ranking_assertions import assert_json_close
+from .test_worker import error, exchange, frame, health, judge
 
 
 def item(index: int = 0) -> dict[str, Json]:
@@ -329,7 +330,7 @@ def test_domain_rejects_negative_age_bad_tags_and_timestamp_overflow() -> None:
     with pytest.raises(ValueError):
         scorer.time_sensitivity(ContentTimeClass.NEWS, ("\ud800",))
     with pytest.raises(ValueError):
-        scorer.time_sensitivity(cast(ContentTimeClass, "unknown"), ())
+        scorer.time_sensitivity(cast(ContentTimeClass, cast(object, "unknown")), ())
     assert scorer.score(TemporalInput("future", 2), reference_time=1).age_hours == 0
 
 

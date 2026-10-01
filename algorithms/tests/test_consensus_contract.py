@@ -66,7 +66,7 @@ def test_id_limit_counts_utf8_bytes(field: str) -> None:
 def test_required_ids_reject_null(field: str) -> None:
     with pytest.raises(ValueError, match=field):
         if field == "content_id":
-            ConsensusAnalyzer().evaluate(cast(str, None), (), reference_time=100.0)
+            ConsensusAnalyzer().evaluate(cast(str, cast(object, None)), (), reference_time=100.0)
         else:
             source(**{field: None})
 

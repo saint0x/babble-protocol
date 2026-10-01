@@ -2,11 +2,26 @@
 
 from __future__ import annotations
 
-import json
 import math
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Literal, TypeAlias, TypeGuard
+from typing import TYPE_CHECKING, Literal, TypeAlias
 
+from babble_algorithms.boundary import (
+    MAX_ARRAY_ITEMS,
+    MAX_DEPTH,
+    MAX_ENTRIES,
+    MAX_ID,
+    MAX_NODES,
+    MAX_SUBJECT_BYTES,
+    MAX_TEXT_BYTES,
+    InvalidRequest,
+    Json,
+    decode_json_frame,
+    json_value,
+    object_value,
+    string,
+    validate_tree,
+)
 from babble_algorithms.judgment import JudgmentDefinition
 from babble_algorithms.moderation import ModerationContext, ModerationPolicy
 
@@ -19,15 +34,42 @@ PROTOCOL = "babble.algorithms.v1"
 MAX_LINE_BYTES = 4 * 1024 * 1024
 MAX_JUDGMENT_LINE_BYTES = 1024 * 1024
 MAX_JUDGMENT_NODES = 4096
-MAX_TEXT_BYTES = 128 * 1024
-MAX_SUBJECT_BYTES = 4096
-MAX_DEPTH = 16
-MAX_ENTRIES = 64
-MAX_ARRAY_ITEMS = 256
-MAX_NODES = 200000
-MAX_ID = 9007199254740991
 
-Json: TypeAlias = bool | int | float | str | list["Json"] | dict[str, "Json"] | None
+__all__ = (
+    "DEFINITIONS",
+    "MAX_ARRAY_ITEMS",
+    "MAX_DEPTH",
+    "MAX_ENTRIES",
+    "MAX_ID",
+    "MAX_JUDGMENT_LINE_BYTES",
+    "MAX_JUDGMENT_NODES",
+    "MAX_LINE_BYTES",
+    "MAX_NODES",
+    "MAX_SUBJECT_BYTES",
+    "MAX_TEXT_BYTES",
+    "PROTOCOL",
+    "Definition",
+    "ErrorCode",
+    "HealthRequest",
+    "InvalidRequest",
+    "Json",
+    "JudgeRequest",
+    "JudgmentRequest",
+    "JudgmentState",
+    "Parameters",
+    "RankRequest",
+    "Relation",
+    "TemporalWorkerRequest",
+    "UnsupportedDefinition",
+    "decode",
+    "json_value",
+    "object_value",
+    "parse_request",
+    "request_id",
+    "string",
+    "validate_tree",
+)
+
 Definition: TypeAlias = (
     JudgmentDefinition
     | Literal["babble.judgment.content_analysis.v1", "babble.judgment.moderation.v1",
@@ -44,10 +86,6 @@ DEFINITIONS: tuple[Definition, ...] = (
     "babble.judgment.moderation.v1",
     "babble.judgment.source_agreement.v1",
 )
-
-
-class InvalidRequest(ValueError):
-    """Messages are fixed strings suitable for the public error envelope."""
 
 
 class UnsupportedDefinition(ValueError):
@@ -102,125 +140,8 @@ class TemporalWorkerRequest:
     request: TemporalRequest
 
 
-def _pairs(pairs: list[tuple[str, Json]]) -> dict[str, Json]:
-    result: dict[str, Json] = {}
-    for key, value in pairs:
-        if key in result:
-            raise InvalidRequest("duplicate JSON keys are not allowed")
-        result[key] = value
-    return result
-
-
-def _constant(_value: str) -> Json:
-    raise InvalidRequest("JSON numbers must be finite")
-
-
-def _json_sequence(value: object) -> TypeGuard[list[object] | tuple[object, ...]]:
-    return isinstance(value, (list, tuple))
-
-
-def _json_object(value: object) -> TypeGuard[dict[object, object]]:
-    return isinstance(value, dict)
-
-
-def json_value(value: object) -> Json:
-    """Validate untyped boundary values, including tuples produced by dataclasses.asdict."""
-    if value is None or isinstance(value, (bool, int, float, str)):
-        return value
-    if _json_sequence(value):
-        return [json_value(item) for item in value]
-    if _json_object(value):
-        result: dict[str, Json] = {}
-        for key, item in value.items():
-            if not isinstance(key, str):
-                raise InvalidRequest("JSON object keys must be strings")
-            result[key] = json_value(item)
-        return result
-    raise InvalidRequest("unsupported JSON value")
-
-
-def _check_depth(text: str) -> None:
-    # Bound decoder recursion before constructing a JSON tree; braces in strings do not count.
-    depth = 0
-    in_string = False
-    escaped = False
-    for char in text:
-        if in_string:
-            if escaped:
-                escaped = False
-            elif char == "\\":
-                escaped = True
-            elif char == '"':
-                in_string = False
-        elif char == '"':
-            in_string = True
-        elif char in "[{":
-            depth += 1
-            if depth > MAX_DEPTH:
-                raise InvalidRequest("JSON nesting exceeds the limit")
-        elif char in "]}":
-            depth -= 1
-
-
 def decode(line: bytes) -> Json:
-    if not line.endswith(b"\n") or len(line) > MAX_LINE_BYTES:
-        raise InvalidRequest("request must be a bounded newline-terminated frame")
-    try:
-        text = line.decode("utf-8", errors="strict")
-        _check_depth(text)
-        raw: object = json.loads(text, object_pairs_hook=_pairs, parse_constant=_constant)
-        value = json_value(raw)
-        validate_tree(value)
-        return value
-    except (UnicodeError, json.JSONDecodeError, RecursionError, ValueError) as error:
-        if isinstance(error, InvalidRequest):
-            raise
-        raise InvalidRequest("request must contain valid UTF-8 JSON") from None
-
-
-def validate_tree(
-    value: Json, max_nodes: int = MAX_NODES, *, max_text_bytes: int = MAX_TEXT_BYTES
-) -> None:
-    pending: list[tuple[Json, tuple[str, ...]]] = [(value, ())]
-    nodes = 0
-    while pending:
-        item, path = pending.pop()
-        nodes += 1
-        if nodes > max_nodes:
-            raise InvalidRequest("JSON value count exceeds the limit")
-        if isinstance(item, dict):
-            map_limit = 200 if path == ("result", "output", "user_contributions") else MAX_ENTRIES
-            if len(item) > map_limit:
-                raise InvalidRequest("JSON map entry count exceeds the limit")
-            for key in item:
-                string(key, MAX_SUBJECT_BYTES)
-            pending.extend((child, (*path, key)) for key, child in item.items())
-        elif isinstance(item, list):
-            if len(item) > MAX_ARRAY_ITEMS:
-                raise InvalidRequest("JSON array entry count exceeds the limit")
-            pending.extend((child, (*path, "[]")) for child in item)
-        elif isinstance(item, str):
-            string(item, max_text_bytes)
-        elif isinstance(item, float) and not math.isfinite(item):
-            raise InvalidRequest("JSON numbers must be finite")
-
-
-def string(value: Json, limit: int = MAX_TEXT_BYTES, *, nonblank: bool = False) -> str:
-    if not isinstance(value, str):
-        raise InvalidRequest("expected a string")
-    try:
-        size = len(value.encode("utf-8", errors="strict"))
-    except UnicodeError:
-        raise InvalidRequest("strings must contain Unicode scalar values") from None
-    if size > limit or (nonblank and not value.strip()):
-        raise InvalidRequest("string is blank or exceeds its byte limit")
-    return value
-
-
-def object_value(value: Json) -> dict[str, Json]:
-    if not isinstance(value, dict):
-        raise InvalidRequest("expected a JSON object")
-    return value
+    return decode_json_frame(line, max_line_bytes=MAX_LINE_BYTES)
 
 
 def _fields(value: dict[str, Json], required: set[str], optional: set[str] | None = None) -> None:
@@ -278,7 +199,7 @@ def parse_request(
     if supported == "babble.judgment.source_agreement.v1":
         from babble_algorithms.agreement_wire import MAX_ID_BYTES, parse_source_agreement
 
-        string(subject, MAX_ID_BYTES, nonblank=True)
+        _ = string(subject, MAX_ID_BYTES, nonblank=True)
         agreement = parse_source_agreement(context.get("source_agreement"))
     if supported == "babble.judgment.relationship.v1" and (
         "source_text" in context or "target_text" in context

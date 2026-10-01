@@ -6,8 +6,8 @@ import math
 from dataclasses import dataclass
 from typing import Literal
 
+from babble_algorithms.boundary import InvalidRequest, Json, object_value, string
 from babble_algorithms.consensus import ConsensusSource, ConsensusState
-from babble_algorithms.wire import InvalidRequest, Json, object_value, string
 
 MAX_SOURCES = 200
 MAX_SOURCE_TEXT_BYTES = 64 * 1024
