@@ -4,7 +4,12 @@ from typing import cast
 import pytest
 
 from babble_algorithms.consensus import ConsensusAnalyzer, ConsensusSource, ConsensusState
-from babble_algorithms.content import ContentAnalyzer
+from babble_algorithms.content import (
+    ContentAnalysis,
+    ContentAnalyzer,
+    EvidenceAnalysis,
+    TextProperties,
+)
 from babble_algorithms.discovery import CandidateEngine, DiscoveryRequest
 from babble_algorithms.diversity import (
     DiversityPolicy,
@@ -249,6 +254,64 @@ def test_content_analyzer_rejects_invalid_domain_inputs() -> None:
         _ = analyzer.analyze("bad id", "text")
     with pytest.raises(ValueError, match="content text"):
         _ = analyzer.analyze("id", cast(str, cast(object, 123)))
+
+
+def test_content_dtos_reject_invalid_direct_values() -> None:
+    properties = TextProperties(1, 2, 2, 2.0, 1.0)
+    evidence = EvidenceAnalysis(1, 0.2, ("dataset",), ("Dataset confirms it",))
+    valid = ContentAnalysis(
+        "id", properties, {"science": 1.0}, evidence, 0.5, 0.0, "Summary.", ("dataset",)
+    )
+    assert valid.topics == {"science": 1.0}
+
+    with pytest.raises(ValueError):
+        _ = TextProperties(cast(int, cast(object, True)), 0, 0, 0.0, 0.0)
+    with pytest.raises(ValueError):
+        _ = TextProperties(0, 1, 1, 0.0, 1.0)
+    with pytest.raises(ValueError):
+        _ = TextProperties(1, 1, 2, 1.0, 1.0)
+    with pytest.raises(ValueError):
+        _ = TextProperties(1, 1, 1, math.nan, 1.0)
+    with pytest.raises(ValueError):
+        _ = TextProperties(1, 1, 1, 1.0, 1.01)
+
+    with pytest.raises(ValueError):
+        _ = EvidenceAnalysis(2, 0.2, ("dataset",), ())
+    with pytest.raises(ValueError):
+        _ = EvidenceAnalysis(1, math.nan, ("dataset",), ())
+    with pytest.raises(ValueError):
+        _ = EvidenceAnalysis(1, 0.2, cast(tuple[str, ...], cast(object, ["dataset"])), ())
+    with pytest.raises(ValueError):
+        _ = EvidenceAnalysis(1, 0.2, ("",), ())
+    with pytest.raises(ValueError):
+        _ = EvidenceAnalysis(0, 0.0, (), (cast(str, cast(object, 1)),))
+
+    with pytest.raises(ValueError):
+        _ = ContentAnalysis("bad id", properties, {}, evidence, 0.5, 0.0, "Summary.", ())
+    with pytest.raises(ValueError):
+        _ = ContentAnalysis(
+            "id", cast(TextProperties, object()), {}, evidence, 0.5, 0.0, "Summary.", ()
+        )
+    with pytest.raises(ValueError):
+        _ = ContentAnalysis(
+            "id", properties, {"science": math.inf}, evidence, 0.5, 0.0, "Summary.", ()
+        )
+    with pytest.raises(ValueError):
+        _ = ContentAnalysis("id", properties, {"": 0.0}, evidence, 0.5, 0.0, "Summary.", ())
+    with pytest.raises(ValueError):
+        _ = ContentAnalysis(
+            "id", properties, {}, cast(EvidenceAnalysis, object()), 0.5, 0.0, "Summary.", ()
+        )
+    with pytest.raises(ValueError):
+        _ = ContentAnalysis("id", properties, {}, evidence, -0.01, 0.0, "Summary.", ())
+    with pytest.raises(ValueError):
+        _ = ContentAnalysis("id", properties, {}, evidence, 0.5, -1.01, "Summary.", ())
+    with pytest.raises(ValueError):
+        _ = ContentAnalysis(
+            "id", properties, {}, evidence, 0.5, 0.0, cast(str, cast(object, 1)), ()
+        )
+    with pytest.raises(ValueError):
+        _ = ContentAnalysis("id", properties, {}, evidence, 0.5, 0.0, "Summary.", ("",))
 
 
 def test_content_evidence_references_use_precomputed_sentence_folds() -> None:

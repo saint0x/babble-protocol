@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import math
 from collections import Counter
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import ClassVar, cast
 
 from babble_algorithms.text import sentences, tokens
 from babble_algorithms.types import clamp_score
@@ -16,6 +17,21 @@ class TextProperties:
     avg_sentence_length: float
     vocabulary_richness: float
 
+    def __post_init__(self) -> None:
+        sentence_count = _count(self.sentence_count, "sentence_count")
+        word_count = _count(self.word_count, "word_count")
+        unique_words = _count(self.unique_words, "unique_words")
+        if unique_words > word_count:
+            raise ValueError("unique_words cannot exceed word_count")
+        if sentence_count == 0 and word_count != 0:
+            raise ValueError("word_count requires at least one sentence")
+        object.__setattr__(self, "avg_sentence_length", _nonnegative_number(
+            self.avg_sentence_length, "avg_sentence_length"
+        ))
+        object.__setattr__(self, "vocabulary_richness", _unit_score(
+            self.vocabulary_richness, "vocabulary_richness"
+        ))
+
 
 @dataclass(frozen=True, slots=True)
 class EvidenceAnalysis:
@@ -23,6 +39,16 @@ class EvidenceAnalysis:
     strength_score: float
     markers_found: tuple[str, ...]
     references: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        count = _count(self.count, "evidence count")
+        object.__setattr__(self, "strength_score", _unit_score(
+            self.strength_score, "evidence strength_score"
+        ))
+        _ = _string_tuple(self.markers_found, "evidence markers_found", nonblank=True)
+        _ = _string_tuple(self.references, "evidence references")
+        if count != len(self.markers_found):
+            raise ValueError("evidence count must match markers_found")
 
 
 @dataclass(frozen=True, slots=True)
@@ -35,6 +61,22 @@ class ContentAnalysis:
     sentiment_score: float
     summary: str
     key_terms: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "content_id", _content_id(self.content_id))
+        if type(self.properties) is not TextProperties:
+            raise ValueError("content properties must be TextProperties")
+        if type(self.evidence) is not EvidenceAnalysis:
+            raise ValueError("content evidence must be EvidenceAnalysis")
+        object.__setattr__(self, "topics", _topics(self.topics))
+        object.__setattr__(self, "complexity_score", _unit_score(
+            self.complexity_score, "complexity_score"
+        ))
+        object.__setattr__(self, "sentiment_score", _bounded_number(
+            self.sentiment_score, "sentiment_score", minimum=-1.0, maximum=1.0
+        ))
+        object.__setattr__(self, "summary", _text(self.summary))
+        _ = _string_tuple(self.key_terms, "key_terms", nonblank=True)
 
 
 @dataclass(frozen=True, slots=True)
@@ -168,6 +210,56 @@ class ContentAnalyzer:
             if len(selected) >= 3:
                 break
         return ". ".join(selected) + "."
+
+
+def _count(value: object, name: str) -> int:
+    if type(value) is not int or value < 0:
+        raise ValueError(f"{name} must be a nonnegative integer")
+    return value
+
+
+def _bounded_number(value: object, name: str, *, minimum: float, maximum: float) -> float:
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        raise ValueError(f"{name} must be a finite number")
+    number = float(value)
+    if not math.isfinite(number) or not minimum <= number <= maximum:
+        raise ValueError(f"{name} must be in [{minimum}, {maximum}]")
+    return number
+
+
+def _nonnegative_number(value: object, name: str) -> float:
+    return _bounded_number(value, name, minimum=0.0, maximum=math.inf)
+
+
+def _unit_score(value: object, name: str) -> float:
+    return _bounded_number(value, name, minimum=0.0, maximum=1.0)
+
+
+def _string_tuple(value: object, name: str, *, nonblank: bool = False) -> tuple[str, ...]:
+    if type(value) is not tuple:
+        raise ValueError(f"{name} must be a tuple")
+    items = cast(tuple[object, ...], value)
+    strings: list[str] = []
+    for item in items:
+        if not isinstance(item, str):
+            raise ValueError(f"{name} entries must be strings")
+        text = _text(item)
+        if nonblank and not text.strip():
+            raise ValueError(f"{name} entries must be nonblank")
+        strings.append(text)
+    return tuple(strings)
+
+
+def _topics(value: object) -> dict[str, float]:
+    if type(value) is not dict:
+        raise ValueError("topics must be a dict")
+    values = cast(dict[object, object], value)
+    topics: dict[str, float] = {}
+    for topic, score in values.items():
+        if not isinstance(topic, str) or not topic.strip():
+            raise ValueError("topic names must be nonblank strings")
+        topics[topic] = _unit_score(score, "topic score")
+    return topics
 
 
 def _content_id(value: object) -> str:
