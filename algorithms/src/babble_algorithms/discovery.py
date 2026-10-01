@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from collections.abc import Iterable
 from dataclasses import dataclass, field
+from typing import cast
 
 from babble_algorithms.types import (
     Candidate,
@@ -91,9 +91,15 @@ class CandidateEngine:
 
 
 def _validate_request(request: DiscoveryRequest) -> DiscoveryRequest:
+    if type(request) is not DiscoveryRequest:
+        raise ValueError("discovery request must be DiscoveryRequest")
     exploration_slots = _nonnegative_int(request.exploration_slots, "exploration_slots")
+    if type(request.object_signals) is not dict:
+        raise ValueError("object_signals must be a dict")
     object_signals: dict[ObjectId, ObjectSignals] = {}
-    for object_id, signals in request.object_signals.items():
+    for object_id, signals in cast(dict[object, object], request.object_signals).items():
+        if type(signals) is not ObjectSignals:
+            raise ValueError("object_signals values must be ObjectSignals")
         object_signals[_object_id(object_id)] = signals.normalized()
     return DiscoveryRequest(
         followed=_object_ids(request.followed, "followed"),
@@ -109,8 +115,10 @@ def _validate_request(request: DiscoveryRequest) -> DiscoveryRequest:
     )
 
 
-def _object_ids(values: Iterable[ObjectId], label: str) -> tuple[ObjectId, ...]:
-    return tuple(_object_id(value, label) for value in values)
+def _object_ids(values: object, label: str) -> tuple[ObjectId, ...]:
+    if type(values) is not tuple:
+        raise ValueError(f"{label} must be a tuple")
+    return tuple(_object_id(value, label) for value in cast(tuple[object, ...], values))
 
 
 def _object_id(value: object, label: str = "object_id") -> ObjectId:

@@ -501,8 +501,26 @@ def test_tokenizer_preserves_unicode_words() -> None:
 
 
 def test_candidate_engine_rejects_invalid_supplied_ids_and_slots() -> None:
+    with pytest.raises(ValueError, match="DiscoveryRequest"):
+        _ = CandidateEngine().candidates(cast(DiscoveryRequest, object()))
     with pytest.raises(ValueError, match="followed"):
         _ = CandidateEngine().candidates(DiscoveryRequest(followed=(ObjectId("bad id"),)))
+    with pytest.raises(ValueError, match="followed"):
+        _ = CandidateEngine().candidates(
+            DiscoveryRequest(followed=cast(tuple[ObjectId, ...], cast(object, [ObjectId("id")]))),
+        )
+    with pytest.raises(ValueError, match="object_signals"):
+        _ = CandidateEngine().candidates(
+            DiscoveryRequest(object_signals=cast(dict[ObjectId, ObjectSignals], cast(object, ())))
+        )
+    with pytest.raises(ValueError, match="object_signals values"):
+        _ = CandidateEngine().candidates(
+            DiscoveryRequest(object_signals={ObjectId("id"): cast(ObjectSignals, object())})
+        )
+    with pytest.raises(ValueError, match="object_id"):
+        _ = CandidateEngine().candidates(
+            DiscoveryRequest(object_signals={ObjectId("bad id"): ObjectSignals()})
+        )
     with pytest.raises(ValueError, match="exploration_slots"):
         _ = CandidateEngine().candidates(DiscoveryRequest(exploration_slots=-1))
     with pytest.raises(ValueError, match="exploration_slots"):
