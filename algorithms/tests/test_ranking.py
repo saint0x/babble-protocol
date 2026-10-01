@@ -239,6 +239,39 @@ def test_soft_floors_share_and_filtered_order() -> None:
     assert low.object_id in result.diversity_trace.filtered
 
 
+def test_diversity_floors_are_prepared_once_without_changing_selection(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from babble_algorithms import ranking_diversity
+
+    calls = 0
+    original = ranking_diversity._prepare_policy  # pyright: ignore[reportPrivateUsage]
+
+    def counted(policy: DiversityPolicy) -> object:
+        nonlocal calls
+        calls += 1
+        return original(policy)
+
+    req = replace(
+        request(4),
+        candidates=(
+            candidate(0),
+            candidate(1),
+            candidate(2, "Exploration"),
+            candidate(3, "Evidence"),
+        ),
+        limit=2,
+        diversity=DiversityPolicy(
+            0.55, (SourceFloor("Exploration", 1), SourceFloor("Evidence", 0))
+        ),
+    )
+    expected = rank(req)
+    monkeypatch.setattr(ranking_diversity, "_prepare_policy", counted)
+    actual = rank(req)
+    assert actual == expected
+    assert calls == 1
+
+
 def test_deterministic_permutation_property() -> None:
     rng = random.Random(291)
     sources: tuple[CandidateSource, ...] = ("Following", "Evidence", "Exploration", "Contradiction")
