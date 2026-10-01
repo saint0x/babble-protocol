@@ -1,5 +1,5 @@
 import math
-from typing import cast
+from typing import Literal, cast
 
 import pytest
 
@@ -17,9 +17,20 @@ from babble_algorithms.diversity import (
     FeedObjectContext,
     SourceFloor,
 )
+from babble_algorithms.execution import (
+    LEXICAL_LIMITATION,
+    ContentOutput,
+    HealthResult,
+    JudgeResult,
+    ModerationOutput,
+    Provider,
+    RelationshipOutput,
+    ScoreOutput,
+)
 from babble_algorithms.judgment import JudgmentDefinition, LocalJudgmentProvider
 from babble_algorithms.lens import BuiltInLens, LensStack, LensWeight
 from babble_algorithms.moderation import ModerationAction, ModerationResult, ModerationScores
+from babble_algorithms.ranking_types import RankingProvider
 from babble_algorithms.recommendation import (
     ContentProfile,
     Interaction,
@@ -28,6 +39,7 @@ from babble_algorithms.recommendation import (
     RecommendationWeights,
     UserProfile,
 )
+from babble_algorithms.temporal_types import TemporalProvider
 from babble_algorithms.text import cosine, hashed_vector, sentences, tokens, top_terms
 from babble_algorithms.types import (
     Candidate,
@@ -40,6 +52,7 @@ from babble_algorithms.types import (
     ReputationSignals,
     clamp_score,
 )
+from babble_algorithms.wire import Definition
 
 
 @pytest.mark.parametrize("value", [math.nan, math.inf, -math.inf])
@@ -335,7 +348,11 @@ def test_moderation_dtos_reject_invalid_direct_values() -> None:
         _ = ModerationResult("bad id", "allow", (), scores, ("reason",))
     with pytest.raises(ValueError):
         _ = ModerationResult(
-            "id", cast(ModerationAction, cast(object, "unknown")), (), scores, ("reason",)
+            "id",
+            cast(ModerationAction, cast(object, "unknown")),
+            (),
+            scores,
+            ("reason",),
         )
     with pytest.raises(ValueError):
         _ = ModerationResult(
@@ -446,3 +463,320 @@ def ranked_candidate(
         score,
         (),
     )
+
+
+def test_execution_score_outputs_reject_invalid_direct_values() -> None:
+    valid = ScoreOutput(
+        "probability",
+        0.5,
+        0.0,
+        "legacy_heuristic",
+        "not_spam",
+        ("no spam markers",),
+        (LEXICAL_LIMITATION,),
+    )
+    assert valid.score == 0.5
+
+    with pytest.raises(ValueError, match="score kind"):
+        _ = ScoreOutput(
+            cast(Literal["probability", "bounded_score"], cast(object, "unknown")),
+            0.5,
+            0.0,
+            "legacy_heuristic",
+            "label",
+            ("reason",),
+            (LEXICAL_LIMITATION,),
+        )
+    with pytest.raises(ValueError, match="score"):
+        _ = ScoreOutput(
+            "probability",
+            math.nan,
+            0.0,
+            "legacy_heuristic",
+            "label",
+            ("reason",),
+            (LEXICAL_LIMITATION,),
+        )
+    with pytest.raises(ValueError, match="confidence_status"):
+        _ = ScoreOutput(
+            "probability",
+            0.5,
+            0.0,
+            cast(Literal["legacy_heuristic"], cast(object, "calibrated")),
+            "label",
+            ("reason",),
+            (LEXICAL_LIMITATION,),
+        )
+    with pytest.raises(ValueError, match="label"):
+        _ = ScoreOutput(
+            "probability", 0.5, 0.0, "legacy_heuristic", " ", ("reason",), (LEXICAL_LIMITATION,)
+        )
+    with pytest.raises(ValueError, match="reasons"):
+        _ = ScoreOutput(
+            "probability",
+            0.5,
+            0.0,
+            "legacy_heuristic",
+            "label",
+            cast(tuple[str, ...], cast(object, ["reason"])),
+            (LEXICAL_LIMITATION,),
+        )
+
+
+def test_execution_relationship_outputs_reject_invalid_direct_values() -> None:
+    valid = RelationshipOutput(
+        "relationship",
+        "supports",
+        0.8,
+        0.2,
+        "legacy_heuristic",
+        "supports",
+        ("support marker found",),
+        False,
+        "text",
+        (LEXICAL_LIMITATION,),
+    )
+    assert valid.relation == "supports"
+
+    with pytest.raises(ValueError, match="relationship relation"):
+        _ = RelationshipOutput(
+            "relationship",
+            cast(Literal["supports", "contradicts", "related"], cast(object, "opposes")),
+            0.8,
+            0.2,
+            "legacy_heuristic",
+            "supports",
+            ("reason",),
+            False,
+            "text",
+            (LEXICAL_LIMITATION,),
+        )
+    with pytest.raises(ValueError, match="target_context_evaluated"):
+        _ = RelationshipOutput(
+            "relationship",
+            "supports",
+            0.8,
+            0.2,
+            "legacy_heuristic",
+            "supports",
+            ("reason",),
+            cast(bool, cast(object, 1)),
+            "text",
+            (LEXICAL_LIMITATION,),
+        )
+    with pytest.raises(ValueError, match="marker_scope"):
+        _ = RelationshipOutput(
+            "relationship",
+            "supports",
+            0.8,
+            0.2,
+            "legacy_heuristic",
+            "supports",
+            ("reason",),
+            False,
+            cast(Literal["source_text", "text"], cast(object, "document")),
+            (LEXICAL_LIMITATION,),
+        )
+
+
+def test_execution_content_outputs_reject_invalid_direct_values() -> None:
+    properties = TextProperties(1, 2, 2, 2.0, 1.0)
+    valid = ContentOutput(
+        "content_analysis",
+        ("science",),
+        ("dataset",),
+        ("dataset",),
+        "Summary.",
+        0.5,
+        0.0,
+        "uncalibrated",
+        properties,
+        {"science": 1.0},
+        0.4,
+        0.2,
+        (LEXICAL_LIMITATION,),
+    )
+    assert valid.topic_scores == {"science": 1.0}
+
+    with pytest.raises(ValueError, match="content output kind"):
+        _ = ContentOutput(
+            cast(Literal["content_analysis"], cast(object, "content")),
+            (),
+            (),
+            (),
+            "Summary.",
+            0.5,
+            0.0,
+            "uncalibrated",
+            properties,
+            {},
+            0.4,
+            0.2,
+            (LEXICAL_LIMITATION,),
+        )
+    with pytest.raises(ValueError, match="properties"):
+        _ = ContentOutput(
+            "content_analysis",
+            (),
+            (),
+            (),
+            "Summary.",
+            0.5,
+            0.0,
+            "uncalibrated",
+            cast(TextProperties, object()),
+            {},
+            0.4,
+            0.2,
+            (LEXICAL_LIMITATION,),
+        )
+    with pytest.raises(ValueError, match="topic_scores"):
+        _ = ContentOutput(
+            "content_analysis",
+            (),
+            (),
+            (),
+            "Summary.",
+            0.5,
+            0.0,
+            "uncalibrated",
+            properties,
+            cast(dict[str, float], cast(object, (("science", 1.0),))),
+            0.4,
+            0.2,
+            (LEXICAL_LIMITATION,),
+        )
+    with pytest.raises(ValueError, match="topic"):
+        _ = ContentOutput(
+            "content_analysis",
+            (),
+            (),
+            (),
+            "Summary.",
+            0.5,
+            0.0,
+            "uncalibrated",
+            properties,
+            {"": 1.0},
+            0.4,
+            0.2,
+            (LEXICAL_LIMITATION,),
+        )
+
+
+def test_execution_moderation_outputs_reject_invalid_direct_values() -> None:
+    valid = ModerationOutput(
+        "moderation",
+        "allow",
+        "allow",
+        (),
+        0.1,
+        0.9,
+        1.0,
+        0.0,
+        0.0,
+        0.5,
+        0.0,
+        "uncalibrated",
+        ("no moderation thresholds exceeded",),
+        (LEXICAL_LIMITATION,),
+    )
+    assert valid.action == "allow"
+
+    with pytest.raises(ValueError, match="moderation action"):
+        _ = ModerationOutput(
+            "moderation",
+            cast(Literal["allow", "limit", "flag", "remove"], cast(object, "warn")),
+            "allow",
+            (),
+            0.1,
+            0.9,
+            1.0,
+            0.0,
+            0.0,
+            0.5,
+            0.0,
+            "uncalibrated",
+            ("reason",),
+            (LEXICAL_LIMITATION,),
+        )
+    with pytest.raises(ValueError, match="advisory action"):
+        _ = ModerationOutput(
+            "moderation",
+            "allow",
+            cast(ModerationAction, cast(object, "escalate")),
+            (),
+            0.1,
+            0.9,
+            1.0,
+            0.0,
+            0.0,
+            0.5,
+            0.0,
+            "uncalibrated",
+            ("reason",),
+            (LEXICAL_LIMITATION,),
+        )
+    with pytest.raises(ValueError, match="misinformation"):
+        _ = ModerationOutput(
+            "moderation",
+            "allow",
+            "allow",
+            (),
+            0.1,
+            0.9,
+            1.0,
+            0.0,
+            math.inf,
+            0.5,
+            0.0,
+            "uncalibrated",
+            ("reason",),
+            (LEXICAL_LIMITATION,),
+        )
+    with pytest.raises(ValueError, match="reasons"):
+        _ = ModerationOutput(
+            "moderation",
+            "allow",
+            "allow",
+            (),
+            0.1,
+            0.9,
+            1.0,
+            0.0,
+            0.0,
+            0.5,
+            0.0,
+            "uncalibrated",
+            ("",),
+            (LEXICAL_LIMITATION,),
+        )
+
+
+def test_execution_result_wrappers_reject_invalid_direct_values() -> None:
+    score = ScoreOutput(
+        "bounded_score",
+        0.7,
+        0.0,
+        "legacy_heuristic",
+        "relevant",
+        ("query tokens overlap",),
+        (LEXICAL_LIMITATION,),
+    )
+    assert JudgeResult(Provider(), score, 0.0).output == score
+
+    with pytest.raises(ValueError, match="provider"):
+        _ = Provider(cast(Literal["babble-python"], cast(object, "other")), "lexical-v1", "1")
+    with pytest.raises(ValueError, match="provider"):
+        _ = JudgeResult(cast(Provider, object()), score, 0.0)
+    with pytest.raises(ValueError, match="output"):
+        _ = JudgeResult(Provider(), cast(ScoreOutput, object()), 0.0)
+    with pytest.raises(ValueError, match="confidence"):
+        _ = JudgeResult(Provider(), score, math.nan)
+    with pytest.raises(ValueError, match="supported_definitions"):
+        _ = HealthResult(
+            Provider(),
+            cast(tuple[Definition, ...], ("unknown",)),
+            cast(RankingProvider, object()),
+            cast(TemporalProvider, object()),
+        )
