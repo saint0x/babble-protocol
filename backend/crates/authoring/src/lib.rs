@@ -360,7 +360,7 @@ mod tests {
     fn text_draft_builds_unsigned_canonical_object_without_signing() {
         let keypair = Keypair::generate();
         let author = Identity::create(IdentityKind::Person, "alice", &keypair).unwrap();
-        let draft = ObjectDraft::text("  hello Babble  ")
+        let draft = ObjectDraft::text("  hello social object  ")
             .unwrap()
             .with_capability(CapabilityRequest {
                 id: "babble.realtime.join".to_string(),
@@ -372,7 +372,7 @@ mod tests {
         let object = draft.build_unsigned(&author).unwrap();
 
         assert_eq!(object.kind.as_str(), "babble.text");
-        assert_eq!(object.payload["text"], "hello Babble");
+        assert_eq!(object.payload["text"], "hello social object");
         assert_eq!(object.capabilities.len(), 1);
         assert!(object.signature.is_none());
     }
