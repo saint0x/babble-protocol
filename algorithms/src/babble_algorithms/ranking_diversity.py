@@ -61,6 +61,33 @@ def diversity_reasons(
     return tuple(reasons)
 
 
+def _neutral_diversity(
+    ranked: tuple[RankedCandidate, ...],
+    policy: DiversityPolicy,
+    limit: int,
+) -> tuple[tuple[RankedCandidate, ...], DiversityTrace]:
+    selected: list[RankedCandidate] = []
+    traces: list[DiversifiedCandidateTrace] = []
+    for index, candidate in enumerate(ranked[:limit], 1):
+        score = min(1.0, candidate.score)
+        selected.append(RankedCandidate(candidate.candidate, score, candidate.reasons))
+        traces.append(
+            DiversifiedCandidateTrace(
+                index,
+                candidate.candidate.object_id,
+                candidate.candidate.source,
+                candidate.score,
+                score,
+                (),
+            )
+        )
+    return tuple(selected), DiversityTrace(
+        policy,
+        tuple(traces),
+        tuple(candidate.candidate.object_id for candidate in ranked[limit:]),
+    )
+
+
 def diversify(
     ranked: tuple[RankedCandidate, ...],
     policy: DiversityPolicy,
@@ -68,6 +95,8 @@ def diversify(
     times: dict[str, int],
 ) -> tuple[tuple[RankedCandidate, ...], DiversityTrace]:
     prepared = _prepare_policy(policy)
+    if not prepared.source_floors and prepared.policy.max_source_share >= 1.0:
+        return _neutral_diversity(ranked, prepared.policy, limit)
     remaining = list(ranked)
     selected: list[RankedCandidate] = []
     traces: list[DiversifiedCandidateTrace] = []

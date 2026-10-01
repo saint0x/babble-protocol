@@ -315,6 +315,23 @@ def test_soft_floors_share_and_filtered_order() -> None:
     assert low.object_id in result.diversity_trace.filtered
 
 
+def test_neutral_diversity_bypasses_adjustment_scan(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from babble_algorithms import ranking_diversity
+
+    expected = rank(replace(request(8), limit=3, diversity=DiversityPolicy(1.0, ())))
+
+    def explode(*_args: object, **_kwargs: object) -> tuple[object, ...]:
+        raise AssertionError("neutral diversity should not scan per-candidate reasons")
+
+    monkeypatch.setattr(ranking_diversity, "diversity_reasons", explode)
+    actual = rank(replace(request(8), limit=3, diversity=DiversityPolicy(1.0, ())))
+    assert actual == expected
+    assert actual.diversity_trace.filtered == tuple(candidate(i).object_id for i in range(3, 8))
+    assert all(trace.reasons == () for trace in actual.diversity_trace.candidates)
+
+
 def test_diversity_floors_are_prepared_once_without_changing_selection(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
