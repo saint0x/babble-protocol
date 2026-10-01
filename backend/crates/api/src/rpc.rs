@@ -50,19 +50,19 @@ use crate::{
         TransitionSurfaceSessionRequest,
     },
 };
-use babel_graph::GraphTraversalSpec;
-use babel_hashgraph::FinalityCheckpoint;
-use babel_judgment::{JudgmentProvider, JudgmentRegistry};
-use babel_lens::BuiltInLens;
-use babel_node::{DiscoveryQuery, EventListQuery, ObjectSearchQuery};
-use babel_realtime::RoomSpec;
-use babel_rpc::{
+use babble_graph::GraphTraversalSpec;
+use babble_hashgraph::FinalityCheckpoint;
+use babble_judgment::{JudgmentProvider, JudgmentRegistry};
+use babble_lens::BuiltInLens;
+use babble_node::{DiscoveryQuery, EventListQuery, ObjectSearchQuery};
+use babble_realtime::RoomSpec;
+use babble_rpc::{
     RpcCatalog, RpcCatalogError, RpcError, RpcErrorCode, RpcMethodDefinition, RpcRequestEnvelope,
-    RpcResponseEnvelope, babel_rpc_catalog,
+    RpcResponseEnvelope, babble_rpc_catalog,
 };
-use babel_state::{Event, EventKind};
-use babel_store::{LocalStorageRecord, ObjectStorageRecord, PersonalizationSyncRecord};
-use babel_types::Canonical;
+use babble_state::{Event, EventKind};
+use babble_store::{LocalStorageRecord, ObjectStorageRecord, PersonalizationSyncRecord};
+use babble_types::Canonical;
 use serde::{Serialize, de::DeserializeOwned};
 use serde_json::Value;
 use std::collections::BTreeSet;
@@ -99,7 +99,7 @@ fn dispatch_request<P: JudgmentProvider>(
     principal: Option<&crate::auth::Principal>,
     http: bool,
 ) -> RpcResponseEnvelope {
-    let catalog = match babel_rpc_catalog() {
+    let catalog = match babble_rpc_catalog() {
         Ok(catalog) => catalog,
         Err(error) => {
             return RpcResponseEnvelope::err(
@@ -142,7 +142,7 @@ where
     })?;
     if let Some(object) = &request.binding.object_id {
         lock_node(state).map_err(api_error)?.require_moderation_execution(
-            &babel_types::ObjectId::new_unchecked(object.clone()),
+            &babble_types::ObjectId::new_unchecked(object.clone()),
         ).map_err(|error| api_error(error.into()))?;
     }
     if crate::invocations::social_method(request.method.as_str()) {
@@ -153,49 +153,49 @@ where
     }
     if matches!(
         request.method.as_str(),
-        "babel.social.follow.v1"
-            | "babel.social.unfollow.v1"
-            | "babel.social.share.v1"
-            | "babel.social.reply.v1"
-            | "babel.clipboard.write.v1"
-            | "babel.fullscreen.enter.v1"
+        "babble.social.follow.v1"
+            | "babble.social.unfollow.v1"
+            | "babble.social.share.v1"
+            | "babble.social.reply.v1"
+            | "babble.clipboard.write.v1"
+            | "babble.fullscreen.enter.v1"
     ) {
         let replacement = format!("{}2", request.method.as_str().trim_end_matches('1'));
         return Err(RpcError::new(
             RpcErrorCode::UnsupportedVersion,
-            "one-use consent requires the v2 invocation contract",
+            "one-use consent requires the  invocation contract",
         )
         .with_details(serde_json::json!({"supported_method": replacement})));
     }
     authorize_method(state, method, request)?;
 
     match request.method.as_str() {
-        "babel.identity.create.v1" => create_identity(state, request),
-        "babel.observability.snapshot.v1" => observability_snapshot(state, request),
-        "babel.identity.current.v1" => current_identity(state, request),
-        "babel.object.publish_text.v1" => publish_text(state, request),
-        "babel.object.publish.v1" => publish_object(state, request),
-        "babel.object.publish_media.v1" => publish_media_object(state, request),
-        "babel.object.fork.v1" => fork_object(state, request),
-        "babel.object.remix.v1" => remix_object(state, request),
-        "babel.object.get.v1" => get_object(state, request),
-        "babel.media.blob.put.v1" => put_media_blob(state, request),
-        "babel.media.blob.get.v1" => get_media_blob(state, request),
-        "babel.graph.edge.publish.v1" => publish_edge(state, request),
-        "babel.graph.relationship.infer.v1" => infer_relationship(state, request),
-        "babel.graph.evidence.v1" => get_evidence(state, request),
-        "babel.graph.traverse.v1" => traverse_graph(state, request),
-        "babel.social.replies.list.v1" => list_replies(state, request),
-        "babel.social.quotes.list.v1" => list_quotes(state, request),
-        "babel.social.reactions.summary.v1" => {
+        "babble.identity.create.v1" => create_identity(state, request),
+        "babble.observability.snapshot.v1" => observability_snapshot(state, request),
+        "babble.identity.current.v1" => current_identity(state, request),
+        "babble.object.publish_text.v1" => publish_text(state, request),
+        "babble.object.publish.v1" => publish_object(state, request),
+        "babble.object.publish_media.v1" => publish_media_object(state, request),
+        "babble.object.fork.v1" => fork_object(state, request),
+        "babble.object.remix.v1" => remix_object(state, request),
+        "babble.object.get.v1" => get_object(state, request),
+        "babble.media.blob.put.v1" => put_media_blob(state, request),
+        "babble.media.blob.get.v1" => get_media_blob(state, request),
+        "babble.graph.edge.publish.v1" => publish_edge(state, request),
+        "babble.graph.relationship.infer.v1" => infer_relationship(state, request),
+        "babble.graph.evidence.v1" => get_evidence(state, request),
+        "babble.graph.traverse.v1" => traverse_graph(state, request),
+        "babble.social.replies.list.v1" => list_replies(state, request),
+        "babble.social.quotes.list.v1" => list_quotes(state, request),
+        "babble.social.reactions.summary.v1" => {
             let input: crate::ReactionObjectRequest = payload(request)?;
             let node = lock_node(state).map_err(api_error)?;
             encode(
                 node.reaction_summary(&object_id(input.object_id).map_err(api_error)?)
-                    .map_err(babel_error)?,
+                    .map_err(babble_error)?,
             )
         }
-        "babel.social.reactions.record.v1" => {
+        "babble.social.reactions.record.v1" => {
             let input: crate::ReactionRecordRequest = payload(request)?;
             let node = lock_node(state).map_err(api_error)?;
             encode(
@@ -203,19 +203,19 @@ where
                     &identity_id(input.actor_id).map_err(api_error)?,
                     &object_id(input.object_id).map_err(api_error)?,
                 )
-                .map_err(babel_error)?,
+                .map_err(babble_error)?,
             )
         }
-        "babel.social.reactions.mine.v1" => {
+        "babble.social.reactions.mine.v1" => {
             let actor = reaction_actor(request, principal, http)?;
             let input: crate::ReactionObjectRequest = payload(request)?;
             let node = lock_node(state).map_err(api_error)?;
             encode(
                 node.reaction_state(&actor, &object_id(input.object_id).map_err(api_error)?)
-                    .map_err(babel_error)?,
+                    .map_err(babble_error)?,
             )
         }
-        "babel.social.reactions.set.v1" => {
+        "babble.social.reactions.set.v1" => {
             let actor = reaction_actor(request, principal, http)?;
             let input: crate::SetReactionRpcRequest = payload(request)?;
             let key = request
@@ -231,51 +231,51 @@ where
                     input.expected_revision,
                     key,
                 )
-                .map_err(babel_error)?,
+                .map_err(babble_error)?,
             )
         }
-        "babel.events.list.v1" => list_events(state, request),
-        "babel.events.bundle.v1" => get_event_bundle(state, request),
-        "babel.events.import.v1" => import_events(state, request),
-        "babel.consensus.checkpoint.preview.v1" => preview_checkpoint(state, request),
-        "babel.consensus.checkpoint.publish.v1" => publish_checkpoint(state, request),
-        "babel.judgment.definitions.list.v1" => list_judgment_definitions(request),
-        "babel.judgment.providers.list.v1" => list_judgment_providers(state, request),
-        "babel.judgment.object.evaluate.v1" => judge_object(state, request),
-        "babel.ai.judge.v1" => ai_judge(state, request),
-        "babel.ai.generate.v1" => ai_generate(state, request),
-        "babel.ai.embed.v1" => ai_embed(state, request),
-        "babel.ai.transcribe.v1" => ai_transcribe(state, request),
-        "babel.judgment.object.list.v1" => list_object_judgments(state, request),
-        "babel.search.objects.v1" => search_objects(state, request),
-        "babel.lenses.list.v1" => list_lenses(request),
-        "babel.discovery.candidates.v1" => discover_candidates(state, request),
-        "babel.capabilities.list.v1" => list_capabilities(state, request),
-        "babel.capabilities.inspect.v1" => inspect_capabilities(state, request, principal, http),
-        "babel.capabilities.grant.v1" => grant_capability(state, request),
-        "babel.capabilities.revoke.v1" => revoke_capability(state, request),
-        "babel.storage.local.get.v1" => local_storage_get(state, request),
-        "babel.storage.local.set.v1" => local_storage_set(state, request),
-        "babel.storage.local.delete.v1" => local_storage_delete(state, request),
-        "babel.storage.local.list.v1" => local_storage_list(state, request),
-        "babel.storage.object.get.v1" => object_storage_get(state, request),
-        "babel.storage.object.set.v1" => object_storage_set(state, request),
-        "babel.storage.object.delete.v1" => object_storage_delete(state, request),
-        "babel.storage.object.list.v1" => object_storage_list(state, request),
-        "babel.personalization.sync.put.v1" => personalization_sync_put(state, request),
-        "babel.personalization.sync.list.v1" => personalization_sync_list(state, request),
-        "babel.personalization.sync.get.v1" => personalization_sync_get(state, request),
-        "babel.personalization.sync.delete.v1" => personalization_sync_delete(state, request),
-        "babel.network.fetch.v1" => network_fetch(state, request),
-        "babel.payments.checkout.v1" => payments_checkout(state, request),
-        "babel.notifications.request.v1" => notifications_request(state, request),
-        "babel.media.camera.request.v1" => media_camera_request(state, request),
-        "babel.media.microphone.request.v1" => media_microphone_request(state, request),
-        "babel.runtime.surface.prepare.v1" => {
+        "babble.events.list.v1" => list_events(state, request),
+        "babble.events.bundle.v1" => get_event_bundle(state, request),
+        "babble.events.import.v1" => import_events(state, request),
+        "babble.consensus.checkpoint.preview.v1" => preview_checkpoint(state, request),
+        "babble.consensus.checkpoint.publish.v1" => publish_checkpoint(state, request),
+        "babble.judgment.definitions.list.v1" => list_judgment_definitions(request),
+        "babble.judgment.providers.list.v1" => list_judgment_providers(state, request),
+        "babble.judgment.object.evaluate.v1" => judge_object(state, request),
+        "babble.ai.judge.v1" => ai_judge(state, request),
+        "babble.ai.generate.v1" => ai_generate(state, request),
+        "babble.ai.embed.v1" => ai_embed(state, request),
+        "babble.ai.transcribe.v1" => ai_transcribe(state, request),
+        "babble.judgment.object.list.v1" => list_object_judgments(state, request),
+        "babble.search.objects.v1" => search_objects(state, request),
+        "babble.lenses.list.v1" => list_lenses(request),
+        "babble.discovery.candidates.v1" => discover_candidates(state, request),
+        "babble.capabilities.list.v1" => list_capabilities(state, request),
+        "babble.capabilities.inspect.v1" => inspect_capabilities(state, request, principal, http),
+        "babble.capabilities.grant.v1" => grant_capability(state, request),
+        "babble.capabilities.revoke.v1" => revoke_capability(state, request),
+        "babble.storage.local.get.v1" => local_storage_get(state, request),
+        "babble.storage.local.set.v1" => local_storage_set(state, request),
+        "babble.storage.local.delete.v1" => local_storage_delete(state, request),
+        "babble.storage.local.list.v1" => local_storage_list(state, request),
+        "babble.storage.object.get.v1" => object_storage_get(state, request),
+        "babble.storage.object.set.v1" => object_storage_set(state, request),
+        "babble.storage.object.delete.v1" => object_storage_delete(state, request),
+        "babble.storage.object.list.v1" => object_storage_list(state, request),
+        "babble.personalization.sync.put.v1" => personalization_sync_put(state, request),
+        "babble.personalization.sync.list.v1" => personalization_sync_list(state, request),
+        "babble.personalization.sync.get.v1" => personalization_sync_get(state, request),
+        "babble.personalization.sync.delete.v1" => personalization_sync_delete(state, request),
+        "babble.network.fetch.v1" => network_fetch(state, request),
+        "babble.payments.checkout.v1" => payments_checkout(state, request),
+        "babble.notifications.request.v1" => notifications_request(state, request),
+        "babble.media.camera.request.v1" => media_camera_request(state, request),
+        "babble.media.microphone.request.v1" => media_microphone_request(state, request),
+        "babble.runtime.surface.prepare.v1" => {
             if http {
                 let input: PrepareSurfaceRequest = payload(request)?;
                 let identity = principal
-                    .map(|p| babel_types::IdentityId::new_unchecked(p.identity_id.clone()));
+                    .map(|p| babble_types::IdentityId::new_unchecked(p.identity_id.clone()));
                 let node = lock_node(state).map_err(api_error)?;
                 encode(PrepareSurfaceResponse {
                     plan: crate::gateway::prepare(
@@ -291,7 +291,7 @@ where
                 prepare_surface(state, request)
             }
         }
-        "babel.runtime.surface.session.start.v1" => {
+        "babble.runtime.surface.session.start.v1" => {
             if let Some(principal) = principal {
                 let input = payload(request)?;
                 encode(SurfaceSessionResponse {
@@ -304,8 +304,8 @@ where
                 start_surface_session(state, request)
             }
         }
-        "babel.runtime.surface.health.v1" => surface_runtime_health(state, request),
-        "babel.runtime.surface.session.heartbeat.v1" => {
+        "babble.runtime.surface.health.v1" => surface_runtime_health(state, request),
+        "babble.runtime.surface.session.heartbeat.v1" => {
             require_host_runtime_binding(request)?;
             let _: crate::schema::EmptyRequest = payload(request)?;
             let principal = principal.ok_or_else(|| api_error(ApiError::unauthorized()))?;
@@ -321,21 +321,21 @@ where
                 .map_err(api_error)?,
             )
         }
-        "babel.runtime.surface.session.get.v1" => get_surface_session(state, request),
-        "babel.runtime.surface.session.transition.v1" => transition_surface_session(state, request),
-        "babel.runtime.surface.session.budget.v1" => change_surface_session_budget(state, request),
-        "babel.runtime.surface.session.schedule.v1" => schedule_surface_session(state, request),
-        "babel.runtime.surface.session.apply_schedule.v1" => apply_surface_schedule(state, request),
-        "babel.runtime.surface.session.state.checkpoint.v1" => {
+        "babble.runtime.surface.session.get.v1" => get_surface_session(state, request),
+        "babble.runtime.surface.session.transition.v1" => transition_surface_session(state, request),
+        "babble.runtime.surface.session.budget.v1" => change_surface_session_budget(state, request),
+        "babble.runtime.surface.session.schedule.v1" => schedule_surface_session(state, request),
+        "babble.runtime.surface.session.apply_schedule.v1" => apply_surface_schedule(state, request),
+        "babble.runtime.surface.session.state.checkpoint.v1" => {
             checkpoint_surface_state(state, request)
         }
-        "babel.runtime.surface.session.state.get.v1" => {
+        "babble.runtime.surface.session.state.get.v1" => {
             get_surface_state_checkpoint(state, request)
         }
-        "babel.realtime.room.define.v1" => define_realtime_room(state, request),
-        "babel.realtime.session.start.v1" => start_realtime_session(state, request),
-        "babel.realtime.session.leave.v1" => close_realtime_session(state, request),
-        "babel.realtime.message.publish.v1" => publish_realtime_message(state, request),
+        "babble.realtime.room.define.v1" => define_realtime_room(state, request),
+        "babble.realtime.session.start.v1" => start_realtime_session(state, request),
+        "babble.realtime.session.leave.v1" => close_realtime_session(state, request),
+        "babble.realtime.message.publish.v1" => publish_realtime_message(state, request),
         _ => Err(RpcError::new(
             RpcErrorCode::UnsupportedVersion,
             format!(
@@ -391,7 +391,7 @@ where
 {
     let node = lock_node(state).map_err(api_error)?;
     encode(ObservabilitySnapshotResponse {
-        snapshot: node.observability_snapshot().map_err(babel_error)?,
+        snapshot: node.observability_snapshot().map_err(babble_error)?,
     })
 }
 
@@ -409,7 +409,7 @@ fn reaction_actor(
     request: &RpcRequestEnvelope,
     principal: Option<&crate::auth::Principal>,
     http: bool,
-) -> Result<babel_types::IdentityId, RpcError> {
+) -> Result<babble_types::IdentityId, RpcError> {
     if request.binding.object_id.is_some() || request.binding.surface_session_id.is_some() {
         return Err(api_error(ApiError::forbidden()));
     }
@@ -441,7 +441,7 @@ where
     encode(CreateIdentityResponse {
         identity: node
             .create_identity(input.kind, input.handle.trim())
-            .map_err(babel_error)?,
+            .map_err(babble_error)?,
     })
 }
 
@@ -464,7 +464,7 @@ where
     let node = lock_node(state).map_err(api_error)?;
     let (identity, receipt) = node
         .identity_current(&object_id, &identity_id, &request.binding.capability_grants)
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(IdentityCurrentResponse { identity, receipt })
 }
 
@@ -582,7 +582,7 @@ where
     encode(MediaBlobResponse {
         blob: node
             .put_media_blob(&input.media_type, &bytes)
-            .map_err(babel_error)?,
+            .map_err(babble_error)?,
         bytes_hex: None,
     })
 }
@@ -648,7 +648,7 @@ where
             input.relation.as_parameter(),
             input.min_score.unwrap_or(0.5),
         )
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(InferRelationshipResponse { edge, judgment })
 }
 
@@ -660,7 +660,7 @@ where
     let id = object_id(input.object_id).map_err(api_error)?;
     let node = lock_node(state).map_err(api_error)?;
     encode(ClaimEvidenceResponse {
-        projection: node.evidence_projection(&id).map_err(babel_error)?,
+        projection: node.evidence_projection(&id).map_err(babble_error)?,
     })
 }
 
@@ -680,7 +680,7 @@ where
                 max_depth: input.max_depth.clamp(1, 8),
                 limit: input.limit.clamp(1, 512),
             })
-            .map_err(babel_error)?,
+            .map_err(babble_error)?,
     })
 }
 
@@ -690,7 +690,7 @@ fn list_quotes<P: JudgmentProvider>(
 ) -> Result<Value, RpcError> {
     let input: crate::schema::QuotesListRequest = payload(request)?;
     let node = lock_node(state).map_err(api_error)?;
-    encode(node.list_quotes(&input).map_err(babel_error)?)
+    encode(node.list_quotes(&input).map_err(babble_error)?)
 }
 
 fn list_replies<P>(state: &ApiState<P>, request: &RpcRequestEnvelope) -> Result<Value, RpcError>
@@ -699,14 +699,14 @@ where
 {
     let input: crate::schema::RepliesListRequest = payload(request)?;
     let node = lock_node(state).map_err(api_error)?;
-    encode(node.list_replies(&input).map_err(babel_error)?)
+    encode(node.list_replies(&input).map_err(babble_error)?)
 }
 
 fn publication<P: JudgmentProvider, T: Serialize>(
     state: &ApiState<P>,
     request: &RpcRequestEnvelope,
-    author: &babel_types::IdentityId,
-    operation: impl FnOnce(&mut babel_node::LocalNode<P>) -> babel_types::Result<T>,
+    author: &babble_types::IdentityId,
+    operation: impl FnOnce(&mut babble_node::LocalNode<P>) -> babble_types::Result<T>,
 ) -> Result<Value, RpcError> {
     let key = request
         .idempotency_key
@@ -723,7 +723,7 @@ fn publication<P: JudgmentProvider, T: Serialize>(
         "object": request.binding.object_id, "key": key,
     })
     .canonical_hash()
-    .map_err(babel_error)?;
+    .map_err(babble_error)?;
     let mut grants = request.binding.capability_grants.clone();
     grants.sort();
     grants.dedup();
@@ -732,18 +732,18 @@ fn publication<P: JudgmentProvider, T: Serialize>(
         "grants": grants,
     })
     .canonical_hash()
-    .map_err(babel_error)?;
+    .map_err(babble_error)?;
     let mut node = lock_node(state).map_err(api_error)?;
     let result = node
         .with_publication_request(
-            babel_store::PublicationRequest {
+            babble_store::PublicationRequest {
                 id,
                 fingerprint,
                 author: author.clone(),
             },
             operation,
         )
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(result)
 }
 
@@ -763,7 +763,7 @@ where
     let node = lock_node(state).map_err(api_error)?;
     let listed = node
         .list_events(EventListQuery { after, limit })
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(EventListResponse {
         next_after: listed.next_after.map(|id| id.to_string()),
         events: listed.events,
@@ -789,7 +789,7 @@ where
         .map_err(api_error)?;
     let node = lock_node(state).map_err(api_error)?;
     encode(EventBundleResponse {
-        bundle: node.event_bundle(&event_ids).map_err(babel_error)?,
+        bundle: node.event_bundle(&event_ids).map_err(babble_error)?,
     })
 }
 
@@ -810,7 +810,7 @@ where
     }
     let mut node = lock_node(state).map_err(api_error)?;
     encode(EventImportResponse {
-        report: node.import_bundle(input.bundle).map_err(babel_error)?,
+        report: node.import_bundle(input.bundle).map_err(babble_error)?,
     })
 }
 
@@ -825,7 +825,7 @@ where
     let validators = validator_set(input.validators).map_err(api_error)?;
     let node = lock_node(state).map_err(api_error)?;
     encode(CheckpointPreviewResponse {
-        checkpoint: node.finality_checkpoint(&validators).map_err(babel_error)?,
+        checkpoint: node.finality_checkpoint(&validators).map_err(babble_error)?,
     })
 }
 
@@ -842,14 +842,14 @@ where
     let mut node = lock_node(state).map_err(api_error)?;
     let event = node
         .publish_checkpoint(&author_id, validators)
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(checkpoint_response(event)?)
 }
 
 fn list_judgment_definitions(request: &RpcRequestEnvelope) -> Result<Value, RpcError> {
     let _: crate::EmptyRequest = payload(request)?;
     encode(JudgmentDefinitionsResponse {
-        definitions: JudgmentRegistry::babel_core().definitions,
+        definitions: JudgmentRegistry::babble_core().definitions,
     })
 }
 
@@ -876,11 +876,11 @@ where
     let mut node = lock_node(state).map_err(api_error)?;
     let orchestration = node
         .judge_object_orchestrated(&object_id, input.definition, input.parameters)
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(JudgeObjectResponse {
         input: node
             .object_judgment_input(&orchestration.judgment.id)
-            .map_err(babel_error)?,
+            .map_err(babble_error)?,
         judgment: orchestration.judgment.clone(),
         orchestration: Some(orchestration),
         receipt: None,
@@ -907,7 +907,7 @@ where
     encode(JudgeObjectResponse {
         input: node
             .object_judgment_input(&orchestration.judgment.id)
-            .map_err(babel_error)?,
+            .map_err(babble_error)?,
         judgment: orchestration.judgment.clone(),
         orchestration: Some(orchestration),
         receipt: Some(receipt),
@@ -1036,7 +1036,7 @@ where
     let node = lock_node(state).map_err(api_error)?;
     encode(ObjectJudgmentsResponse {
         object_id: object_id.to_string(),
-        judgments: node.object_judgments(&object_id).map_err(babel_error)?,
+        judgments: node.object_judgments(&object_id).map_err(babble_error)?,
     })
 }
 
@@ -1066,7 +1066,7 @@ where
                 kind: input.kind,
                 limit,
             })
-            .map_err(babel_error)?,
+            .map_err(babble_error)?,
     })
 }
 
@@ -1120,7 +1120,7 @@ where
     }
     let mut node = lock_node(state).map_err(api_error)?;
     encode(DiscoveryResponse {
-        discovery: node.discover_objects(query).map_err(babel_error)?,
+        discovery: node.discover_objects(query).map_err(babble_error)?,
     })
 }
 
@@ -1152,17 +1152,17 @@ where
     let node = lock_node(state).map_err(api_error)?;
     let (decisions, grants) = if http {
         let identity =
-            principal.map(|p| babel_types::IdentityId::new_unchecked(p.identity_id.clone()));
+            principal.map(|p| babble_types::IdentityId::new_unchecked(p.identity_id.clone()));
         node.capability_review_for_identity(&id, identity.as_ref())
-            .map_err(babel_error)?
+            .map_err(babble_error)?
     } else {
         (
-            node.capability_decisions(&id).map_err(babel_error)?,
-            node.capability_grants(&id).map_err(babel_error)?,
+            node.capability_decisions(&id).map_err(babble_error)?,
+            node.capability_grants(&id).map_err(babble_error)?,
         )
     };
     encode(CapabilitiesResponse {
-        manifest: node.capability_manifest(&id).map_err(babel_error)?,
+        manifest: node.capability_manifest(&id).map_err(babble_error)?,
         decisions,
         grants,
     })
@@ -1219,7 +1219,7 @@ where
             &input.key,
             &request.binding.capability_grants,
         )
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(LocalStorageGetResponse {
         entry: entry.map(local_storage_entry),
         receipt,
@@ -1245,7 +1245,7 @@ where
             input.value,
             &request.binding.capability_grants,
         )
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(LocalStorageSetResponse {
         entry: local_storage_entry(entry),
         receipt,
@@ -1270,7 +1270,7 @@ where
             &input.key,
             &request.binding.capability_grants,
         )
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(LocalStorageDeleteResponse {
         deleted: deleted.map(local_storage_entry),
         receipt,
@@ -1296,7 +1296,7 @@ where
             input.limit.unwrap_or(64),
             &request.binding.capability_grants,
         )
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(LocalStorageListResponse {
         entries: entries.into_iter().map(local_storage_entry).collect(),
         receipt,
@@ -1315,7 +1315,7 @@ where
     let node = lock_node(state).map_err(api_error)?;
     let (entry, receipt) = node
         .object_storage_get(&object_id, &input.key, &request.binding.capability_grants)
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(ObjectStorageGetResponse {
         entry: entry.map(object_storage_entry),
         receipt,
@@ -1339,7 +1339,7 @@ where
             input.value,
             &request.binding.capability_grants,
         )
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(ObjectStorageSetResponse {
         entry: object_storage_entry(entry),
         receipt,
@@ -1358,7 +1358,7 @@ where
     let node = lock_node(state).map_err(api_error)?;
     let (deleted, receipt) = node
         .object_storage_delete(&object_id, &input.key, &request.binding.capability_grants)
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(ObjectStorageDeleteResponse {
         deleted: deleted.map(object_storage_entry),
         receipt,
@@ -1382,7 +1382,7 @@ where
             input.limit.unwrap_or(64),
             &request.binding.capability_grants,
         )
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(ObjectStorageListResponse {
         entries: entries.into_iter().map(object_storage_entry).collect(),
         receipt,
@@ -1400,7 +1400,7 @@ where
     let node = lock_node(state).map_err(api_error)?;
     let record = node
         .put_personalization_sync_envelope(input.envelope)
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(PersonalizationSyncPutResponse {
         envelope: personalization_sync_summary(record),
     })
@@ -1422,7 +1422,7 @@ where
             input.device_id.as_deref(),
             input.limit.unwrap_or(64),
         )
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(PersonalizationSyncListResponse {
         envelopes: records
             .into_iter()
@@ -1444,7 +1444,7 @@ where
     let node = lock_node(state).map_err(api_error)?;
     let record = node
         .personalization_sync_envelope(&identity_id, &input.device_id, &envelope_hash)
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(PersonalizationSyncGetResponse {
         envelope: record.envelope.clone(),
         summary: personalization_sync_summary(record),
@@ -1464,7 +1464,7 @@ where
     let node = lock_node(state).map_err(api_error)?;
     let deleted = node
         .delete_personalization_sync_envelope(&identity_id, &input.device_id, &envelope_hash)
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(PersonalizationSyncDeleteResponse {
         deleted: deleted.map(personalization_sync_summary),
     })
@@ -1491,7 +1491,7 @@ where
             body,
             &request.binding.capability_grants,
         )
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(NetworkFetchResponse {
         status: fetched.status,
         headers: fetched.headers,
@@ -1662,7 +1662,7 @@ where
     let id = object_id(input.object_id).map_err(api_error)?;
     let node = lock_node(state).map_err(api_error)?;
     encode(PrepareSurfaceResponse {
-        plan: node.prepare_surface(&id, input.role).map_err(babel_error)?,
+        plan: node.prepare_surface(&id, input.role).map_err(babble_error)?,
     })
 }
 
@@ -1680,7 +1680,7 @@ where
     encode(SurfaceSessionResponse {
         session: node
             .start_surface_session(&object_id, input.role, input.session_id)
-            .map_err(babel_error)?,
+            .map_err(babble_error)?,
     })
 }
 
@@ -1717,7 +1717,7 @@ where
     encode(SurfaceSessionResponse {
         session: node
             .surface_session(&input.session_id)
-            .map_err(babel_error)?,
+            .map_err(babble_error)?,
     })
 }
 
@@ -1744,7 +1744,7 @@ where
     let mut node = lock_node(state).map_err(api_error)?;
     let (session, event) = node
         .transition_surface_session(&session_id, input.lifecycle, &input.reason)
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     state
         .auth
         .retire_evicted_surface(&session)
@@ -1775,7 +1775,7 @@ where
     let mut node = lock_node(state).map_err(api_error)?;
     let (session, event) = node
         .reduce_surface_session_budget(&session_id, input.budget, &input.reason)
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(SurfaceSessionEventResponse { session, event })
 }
 
@@ -1803,7 +1803,7 @@ where
     encode(ScheduleSurfaceSessionResponse {
         decision: node
             .schedule_surface_session(&session_id, &input.input)
-            .map_err(babel_error)?,
+            .map_err(babble_error)?,
     })
 }
 
@@ -1830,7 +1830,7 @@ where
     let mut node = lock_node(state).map_err(api_error)?;
     let (session, decision, events) = node
         .apply_surface_schedule(&session_id, &input.input)
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(ApplySurfaceScheduleResponse {
         session,
         decision,
@@ -1861,7 +1861,7 @@ where
     let mut node = lock_node(state).map_err(api_error)?;
     let (session, checkpoint, event) = node
         .checkpoint_surface_state(&session_id, input.state, &input.reason)
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(SurfaceStateCheckpointResponse {
         session,
         checkpoint,
@@ -1889,7 +1889,7 @@ where
     encode(SurfaceStateRestoreResponse {
         checkpoint: node
             .surface_state_checkpoint(&input.session_id)
-            .map_err(babel_error)?,
+            .map_err(babble_error)?,
     })
 }
 
@@ -1911,13 +1911,13 @@ where
         input.persistence,
         input.limits.unwrap_or_default(),
     )
-    .map_err(babel_error)?;
+    .map_err(babble_error)?;
     let room = spec.clone();
     let mut node = lock_node(state).map_err(api_error)?;
     encode(DefineRealtimeRoomResponse {
         event: node
             .define_realtime_room(&author_id, spec)
-            .map_err(babel_error)?,
+            .map_err(babble_error)?,
         room,
     })
 }
@@ -1949,7 +1949,7 @@ where
             &room_id,
             &request.binding.capability_grants,
         )
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(StartRealtimeSessionResponse {
         session,
         receipt: Some(receipt),
@@ -1982,7 +1982,7 @@ where
             &object_id,
             &request.binding.capability_grants,
         )
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(CloseRealtimeSessionResponse {
         session,
         event,
@@ -2018,7 +2018,7 @@ where
             input.durable,
             &request.binding.capability_grants,
         )
-        .map_err(babel_error)?;
+        .map_err(babble_error)?;
     encode(PublishRealtimeMessageResponse {
         message,
         snapshot,
@@ -2035,7 +2035,7 @@ fn object_id_request(request: &RpcRequestEnvelope) -> Result<ObjectIdRequest, Rp
     payload(request)
 }
 
-fn bound_object_id(request: &RpcRequestEnvelope) -> Result<babel_types::ObjectId, RpcError> {
+fn bound_object_id(request: &RpcRequestEnvelope) -> Result<babble_types::ObjectId, RpcError> {
     let value = request.binding.object_id.clone().ok_or_else(|| {
         RpcError::new(
             RpcErrorCode::CapabilityDenied,
@@ -2045,7 +2045,7 @@ fn bound_object_id(request: &RpcRequestEnvelope) -> Result<babel_types::ObjectId
     object_id(value).map_err(api_error)
 }
 
-fn bound_identity_id(request: &RpcRequestEnvelope) -> Result<babel_types::IdentityId, RpcError> {
+fn bound_identity_id(request: &RpcRequestEnvelope) -> Result<babble_types::IdentityId, RpcError> {
     let value = request.binding.identity_id.clone().ok_or_else(|| {
         RpcError::new(
             RpcErrorCode::CapabilityDenied,
@@ -2199,26 +2199,26 @@ fn api_error(error: ApiError) -> RpcError {
     RpcError::new(code, error.message().to_string())
 }
 
-fn babel_error(error: babel_types::Error) -> RpcError {
+fn babble_error(error: babble_types::Error) -> RpcError {
     let code = match error {
-        babel_types::Error::InvalidPrefix { .. }
-        | babel_types::Error::InvalidHashLength { .. }
-        | babel_types::Error::Canonical(_)
-        | babel_types::Error::Signature
-        | babel_types::Error::UnsignedObject
-        | babel_types::Error::UnsignedEdge
-        | babel_types::Error::UnsignedEvent => RpcErrorCode::InvalidInput,
-        babel_types::Error::NotFound(_) => RpcErrorCode::NotFound,
-        babel_types::Error::Conflict(_) => RpcErrorCode::Conflict,
-        babel_types::Error::ProviderUnavailable(_) => RpcErrorCode::ProviderUnavailable,
-        babel_types::Error::StorageUnavailable(_) => RpcErrorCode::StorageUnavailable,
+        babble_types::Error::InvalidPrefix { .. }
+        | babble_types::Error::InvalidHashLength { .. }
+        | babble_types::Error::Canonical(_)
+        | babble_types::Error::Signature
+        | babble_types::Error::UnsignedObject
+        | babble_types::Error::UnsignedEdge
+        | babble_types::Error::UnsignedEvent => RpcErrorCode::InvalidInput,
+        babble_types::Error::NotFound(_) => RpcErrorCode::NotFound,
+        babble_types::Error::Conflict(_) => RpcErrorCode::Conflict,
+        babble_types::Error::ProviderUnavailable(_) => RpcErrorCode::ProviderUnavailable,
+        babble_types::Error::StorageUnavailable(_) => RpcErrorCode::StorageUnavailable,
     };
     RpcError::new(code, error.to_string())
 }
 
-fn capability_error(error: babel_types::Error) -> RpcError {
+fn capability_error(error: babble_types::Error) -> RpcError {
     match error {
-        babel_types::Error::NotFound(_) => babel_error(error),
+        babble_types::Error::NotFound(_) => babble_error(error),
         _ => RpcError::new(RpcErrorCode::CapabilityDenied, error.to_string()),
     }
 }

@@ -3,6 +3,6 @@
   "name": "social-safety-authenticated-aegis-live-browser",
   "steps": [
     { "type": "trace_event", "name": "Requires parent source freeze, safety focus integration, and real host process backend", "fields": {} },
-    { "type": "proc_spawn", "cmd": "env", "args": ["BABEL_LIVE_FOCUS=safety", "node", "tests/live-stack.mjs"], "expect_exit": 0 }
+    { "type": "proc_spawn", "cmd": "env", "args": ["BABBLE_LIVE_FOCUS=safety", "node", "tests/live-stack.mjs"], "expect_exit": 0 }
   ]
 }

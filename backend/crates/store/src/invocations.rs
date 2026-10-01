@@ -2,7 +2,7 @@
 //! There is no separate database commit or mutable current-state projection.
 use super::publication::{Record, read_value, validate_records, validate_value};
 use super::*;
-use babel_capabilities::invocation::{
+use babble_capabilities::invocation::{
     InvocationAction, InvocationContext, InvocationIntent, InvocationOutcome, InvocationRecord,
     InvocationState, MAX_INVOCATION_REVISION,
 };
@@ -57,13 +57,13 @@ impl FileStore {
             }
             return Ok(existing);
         }
-        if babel_capabilities::invocation::is_one_use_invocation(intent.capability.as_str()) {
+        if babble_capabilities::invocation::is_one_use_invocation(intent.capability.as_str()) {
             let pending = self
                 .list_invocations_unlocked()?
                 .into_iter()
                 .filter(|record| {
                     record.intent().context.actor == intent.context.actor
-                        && babel_capabilities::invocation::is_one_use_invocation(
+                        && babble_capabilities::invocation::is_one_use_invocation(
                             record.intent().capability.as_str(),
                         )
                         && matches!(
@@ -221,10 +221,10 @@ impl FileStore {
         intent: &InvocationIntent,
         now: Timestamp,
     ) -> Result<()> {
-        if !babel_capabilities::invocation::is_one_use_invocation(intent.capability.as_str()) {
+        if !babble_capabilities::invocation::is_one_use_invocation(intent.capability.as_str()) {
             return Ok(());
         }
-        let definition = babel_capabilities::CapabilityBroker::babel_default()
+        let definition = babble_capabilities::CapabilityBroker::babble_default()
             .definitions()
             .into_iter()
             .find(|d| d.id == intent.capability && d.version == intent.capability_version)
@@ -367,8 +367,8 @@ pub(super) fn validate_invocation_batch(records: &[Record]) -> Result<()> {
         let event: Event = serde_json::from_value(record.value.clone()).map_err(encoding)?;
         let promised = event.id == receipt.outcome.event
             || matches!(
-                &event.target, babel_state::EventTarget::Edge(id) if receipt.outcome.edges.contains(id)
-                    && event.kind == babel_state::EventKind::EdgePublished
+                &event.target, babble_state::EventTarget::Edge(id) if receipt.outcome.edges.contains(id)
+                    && event.kind == babble_state::EventKind::EdgePublished
             );
         if !promised || event.actor != phase.intent().context.actor {
             return Err(conflict(

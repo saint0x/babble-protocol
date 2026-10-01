@@ -1,9 +1,9 @@
-use babel_judgment::{
+use babble_judgment::{
     DefinitionId, Judgment, JudgmentCache, JudgmentOrchestrator, JudgmentProvider, JudgmentRequest,
     JudgmentState, cache_key,
 };
-use babel_judgment_python::{PythonProvider, WorkerConfig};
-use babel_types::{Error, Result};
+use babble_judgment_python::{PythonProvider, WorkerConfig};
+use babble_types::{Error, Result};
 use serde_json::json;
 use std::{
     collections::BTreeMap,
@@ -17,7 +17,7 @@ use std::{
 fn config(timeout: Duration, signal: Option<&Signal>, mode: &str) -> WorkerConfig {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..");
     WorkerConfig {
-        executable: std::env::var_os("BABEL_TEST_PYTHON")
+        executable: std::env::var_os("BABBLE_TEST_PYTHON")
             .map(PathBuf::from)
             .unwrap_or_else(|| root.join("algorithms/.venv/bin/python")),
         args: vec![
@@ -68,7 +68,7 @@ impl Signal {
     fn new() -> Self {
         static NEXT: AtomicUsize = AtomicUsize::new(0);
         let path = PathBuf::from(format!(
-            "/tmp/babel-budget-{}-{}.sock",
+            "/tmp/babble-budget-{}-{}.sock",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
@@ -253,8 +253,8 @@ fn blocked_writes_use_the_external_deadline() {
 const WORKER: &str = r#"
 import json, os, socket, sys, time
 from dataclasses import asdict
-from babel_algorithms.execution import AlgorithmExecutor
-from babel_algorithms.worker import handle
+from babble_algorithms.execution import AlgorithmExecutor
+from babble_algorithms.worker import handle
 executor = AlgorithmExecutor()
 signal, mode = sys.argv[1:]
 calls = 0
@@ -272,7 +272,7 @@ for line in sys.stdin.buffer:
                 sock.sendto(str(request['id']).encode(), signal)
         time.sleep(float(request['request']['state']['subject'].split(':')[1]))
     response = asdict(handle(line, executor))
-    if request['method'] == 'judge' and request['request']['definition'] != 'babel.judgment.source_agreement.v1':
+    if request['method'] == 'judge' and request['request']['definition'] != 'babble.judgment.source_agreement.v1':
         response['result']['output'].update(pid=os.getpid(), calls=calls, health_id=health_id, request_id=request['id'])
     print(json.dumps(response), flush=True)
     if request['method'] == 'health' and mode == 'blocked-write':

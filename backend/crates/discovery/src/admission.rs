@@ -1,6 +1,6 @@
 use crate::ObjectSignals;
-use babel_lens::{Candidate, CandidateSource, CandidateSourceContribution};
-use babel_types::ObjectId;
+use babble_lens::{Candidate, CandidateSource, CandidateSourceContribution};
+use babble_types::ObjectId;
 use std::collections::{BTreeMap, BTreeSet};
 
 pub(crate) struct SourceQueues<'a> {
@@ -125,8 +125,8 @@ pub(crate) fn request_seed(anchors: &BTreeSet<&ObjectId>, followed: &BTreeSet<&O
 #[cfg(test)]
 mod tests {
     use super::*;
-    use babel_lens::{EvidenceSignals, ReputationSignals};
-    use babel_types::Timestamp;
+    use babble_lens::{EvidenceSignals, ReputationSignals};
+    use babble_types::Timestamp;
     use time::OffsetDateTime;
 
     #[test]

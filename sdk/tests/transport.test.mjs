@@ -22,7 +22,7 @@ test("HTTP document binding uses a single header and forwards the dispatch abort
   assert.equal(h.calls.length, 1);
   const { init } = h.calls[0];
   assert.deepEqual([...new Headers(init.headers)], [
-    ["content-type", "application/json"], ["x-babel-surface-document", documentId],
+    ["content-type", "application/json"], ["x-babble-surface-document", documentId],
   ]);
   assert.equal(init.signal, controller.signal);
   assert.deepEqual(JSON.parse(init.body), envelope);
@@ -55,7 +55,7 @@ test("HTTP host management needs no document and rejects stray document authorit
   ]) {
     const envelope = { ...request(), binding };
     await h.transport.request(envelope);
-    assert.equal(new Headers(h.calls.at(-1).init.headers).has("x-babel-surface-document"), false);
+    assert.equal(new Headers(h.calls.at(-1).init.headers).has("x-babble-surface-document"), false);
     for (const surfaceDocumentId of [documentId, "", null]) {
       await assert.rejects(h.transport.request(envelope, { surfaceDocumentId }), /requires both Object and Surface/);
     }

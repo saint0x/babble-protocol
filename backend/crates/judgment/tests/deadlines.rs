@@ -1,9 +1,9 @@
-use babel_judgment::{
+use babble_judgment::{
     ConstantProvider, DefinitionId, Judgment, JudgmentCache, JudgmentOrchestrator,
     JudgmentPrivacyPolicy, JudgmentProvider, JudgmentRequest, JudgmentState, ProviderRole,
     ProviderVersion, cache_key,
 };
-use babel_types::{Error, Result};
+use babble_types::{Error, Result};
 use serde_json::json;
 use std::{
     cell::{Cell, RefCell},

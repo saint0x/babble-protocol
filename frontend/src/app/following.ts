@@ -1,4 +1,4 @@
-import type { ProtocolTypes } from "@babel-protocol/sdk";
+import type { ProtocolTypes } from "@babble-protocol/sdk";
 import { identity, object, profileJson } from "./profile-response";
 
 export type FollowState = ProtocolTypes["node.FollowState"];

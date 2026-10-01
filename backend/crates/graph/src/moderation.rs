@@ -1,10 +1,10 @@
 //! Private node moderation contracts and deterministic case transitions.
-use babel_types::{Canonical, Error, Hash, IdentityId, JudgmentId, ObjectId, Result, Timestamp};
+use babble_types::{Canonical, Error, Hash, IdentityId, JudgmentId, ObjectId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
-pub const POLICY: &str = "babel.integrity.v1";
+pub const POLICY: &str = "babble.integrity.v1";
 pub const MAX_SEQUENCE: u64 = 9_007_199_254_740_991;
 pub const REPORT_INTAKE_LIMIT: &str =
     "maximum 1000 reports per account reached; existing cases can still be reviewed or appealed";
@@ -208,7 +208,7 @@ impl ModerationIntent {
         Ok(match self {
             Self::Report(_) => format!(
                 "report_{}",
-                ("babel.private.moderation.case.v1", actor, self.key()).canonical_hash()?
+                ("babble.private.moderation.case.v1", actor, self.key()).canonical_hash()?
             ),
             Self::Decision { case_id, .. } | Self::Appeal { case_id, .. } => {
                 canonical_id(case_id, "report_")?;
@@ -413,23 +413,23 @@ pub struct ModerationReceiptPayload {
 #[serde(deny_unknown_fields)]
 pub struct ModerationReceipt {
     pub payload: ModerationReceiptPayload,
-    pub signature: babel_crypto::Signature,
+    pub signature: babble_crypto::Signature,
 }
 impl ModerationReceipt {
     pub fn id(&self) -> Result<Hash> {
-        ("babel.private.moderation.receipt.v1", &self.payload).canonical_hash()
+        ("babble.private.moderation.receipt.v1", &self.payload).canonical_hash()
     }
-    pub fn sign(payload: ModerationReceiptPayload, key: &babel_crypto::Keypair) -> Result<Self> {
+    pub fn sign(payload: ModerationReceiptPayload, key: &babble_crypto::Keypair) -> Result<Self> {
         let signature =
-            key.sign(&("babel.private.moderation.receipt.v1", &payload).canonical_bytes()?);
+            key.sign(&("babble.private.moderation.receipt.v1", &payload).canonical_bytes()?);
         Ok(Self { payload, signature })
     }
-    pub fn verify(&self, identity: &babel_identity::Identity) -> Result<()> {
+    pub fn verify(&self, identity: &babble_identity::Identity) -> Result<()> {
         if identity.id != self.payload.actor {
             return Err(Error::Signature);
         }
         identity.public_key.verify(
-            &("babel.private.moderation.receipt.v1", &self.payload).canonical_bytes()?,
+            &("babble.private.moderation.receipt.v1", &self.payload).canonical_bytes()?,
             &self.signature,
         )
     }

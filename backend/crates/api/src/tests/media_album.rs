@@ -3,15 +3,15 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode},
 };
-use babel_media::MediaBlob;
-use babel_object::Object;
+use babble_media::MediaBlob;
+use babble_object::Object;
 use tower::ServiceExt;
 
 fn upload(state: &ApiState<LocalProvider>, index: usize) -> (MediaBlob, Vec<u8>) {
     let bytes = format!("album-resource-{index}\0\r\n").into_bytes();
     let mime = ["image/png", "audio/wav", "video/webm"][index % 3];
     let req = request(
-        "babel.media.blob.put.v1",
+        "babble.media.blob.put.v1",
         json!({"media_type":mime,"bytes_hex":hex::encode(&bytes)}),
         &format!("upload-{index}"),
     );
@@ -26,18 +26,18 @@ fn upload(state: &ApiState<LocalProvider>, index: usize) -> (MediaBlob, Vec<u8>)
 fn album_request(
     node: &mut LocalNode<LocalProvider>,
     author: &IdentityId,
-    target: &babel_types::ObjectId,
+    target: &babble_types::ObjectId,
     action: &str,
     blobs: &[MediaBlob],
 ) -> RpcRequestEnvelope {
     match action {
         "publish" => request(
-            "babel.object.publish_media.v1",
+            "babble.object.publish_media.v1",
             json!({"author_id":author,"title":"Album","description":"caption","resources":blobs}),
             action,
         ),
         "draft" => request(
-            "babel.object.publish.v1",
+            "babble.object.publish.v1",
             json!({"author_id":author,"draft":ObjectDraft::media("Album",Some("caption".into()),blobs.to_vec()).unwrap()}),
             action,
         ),
@@ -52,8 +52,8 @@ fn album_request(
 
 fn resources_mut(req: &mut RpcRequestEnvelope) -> &mut Value {
     match req.method.as_str() {
-        "babel.object.publish_media.v1" => &mut req.payload["resources"],
-        "babel.object.publish.v1" => &mut req.payload["draft"]["payload"]["resources"],
+        "babble.object.publish_media.v1" => &mut req.payload["resources"],
+        "babble.object.publish.v1" => &mut req.payload["draft"]["payload"]["resources"],
         _ => &mut req.payload["media"]["resources"],
     }
 }
@@ -168,7 +168,7 @@ async fn media_album_upload_publish_reply_share_order_reads_restart_and_idempote
     }
     let node = state.node.lock().unwrap();
     let replies = node
-        .list_replies(&babel_node::RepliesListQuery {
+        .list_replies(&babble_node::RepliesListQuery {
             object_id: target.id.clone(),
             cursor: None,
             limit: 50,
@@ -177,7 +177,7 @@ async fn media_album_upload_publish_reply_share_order_reads_restart_and_idempote
     assert_eq!(replies.replies.len(), 1);
     assert_eq!(json!(replies.replies[0].object), results[2]["object"]);
     let quotes = node
-        .list_quotes(&babel_node::QuotesListQuery {
+        .list_quotes(&babble_node::QuotesListQuery {
             object_id: serde_json::from_value(results[3]["object"]["id"].clone()).unwrap(),
             cursor: None,
             limit: 20,
@@ -228,7 +228,7 @@ fn media_album_rejects_inconsistent_metadata_without_publication_or_consuming_re
                 "size-small" => resources[2]["size_bytes"] = json!(blobs[2].size_bytes - 1),
                 "size-large" => resources[2]["size_bytes"] = json!(blobs[2].size_bytes + 1),
                 "uri" => {
-                    resources[2]["uri"] = json!(format!("babel://blobs/{}", blobs[1].integrity))
+                    resources[2]["uri"] = json!(format!("babble://blobs/{}", blobs[1].integrity))
                 }
                 "mime" => resources[2]["media_type"] = json!("Image/PNG"),
                 "missing" => {
@@ -407,9 +407,9 @@ fn media_album_commit_recovery_installs_complete_album_edge_and_receipt_once() {
 fn media_album_signed_record_cannot_bypass_metadata_or_blob_validation() {
     let root = Root::new();
     let mut node = root.node();
-    let keypair = babel_crypto::Keypair::generate();
+    let keypair = babble_crypto::Keypair::generate();
     let author =
-        babel_identity::Identity::create(IdentityKind::Person, "author", &keypair).unwrap();
+        babble_identity::Identity::create(IdentityKind::Person, "author", &keypair).unwrap();
     node.import_signing_identity(author.clone(), keypair.clone())
         .unwrap();
     let blobs: Vec<_> = (0..3)
@@ -418,7 +418,7 @@ fn media_album_signed_record_cannot_bypass_metadata_or_blob_validation() {
                 .unwrap()
         })
         .collect();
-    let payload = babel_media::MediaObjectPayload::new("Album", None, blobs.clone()).unwrap();
+    let payload = babble_media::MediaObjectPayload::new("Album", None, blobs.clone()).unwrap();
     for case in ["primary", "resources", "corrupt"] {
         let mut value = json!(payload);
         let mut resources = payload.object_resources();
@@ -436,8 +436,8 @@ fn media_album_signed_record_cannot_bypass_metadata_or_blob_validation() {
         }
         let object = Object::create(
             &author,
-            babel_object::ObjectKind::new("babel.media"),
-            "babel.schema.media.v1",
+            babble_object::ObjectKind::new("babble.media"),
+            "babble.schema.media.v1",
             value,
         )
         .unwrap()

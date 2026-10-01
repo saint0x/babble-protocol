@@ -1,9 +1,9 @@
-use babel_crypto::Keypair;
-use babel_identity::{Identity, IdentityKeyScope, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_node::{AuthorObjectsQuery, FollowingQuery, ImportBundle, LocalNode};
-use babel_object::Object;
-use babel_types::{Error, IdentityId, Timestamp};
+use babble_crypto::Keypair;
+use babble_identity::{Identity, IdentityKeyScope, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_node::{AuthorObjectsQuery, FollowingQuery, ImportBundle, LocalNode};
+use babble_object::Object;
+use babble_types::{Error, IdentityId, Timestamp};
 use std::{
     path::PathBuf,
     sync::atomic::{AtomicU64, Ordering},
@@ -21,7 +21,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-follow-node-{}-{}-{}",
+            "babble-follow-node-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed)
@@ -184,7 +184,7 @@ fn following_retry_rotation_restart_and_public_event_privacy() {
     let mut f = Fixture::new();
     let before = f
         .node
-        .list_events(babel_node::EventListQuery {
+        .list_events(babble_node::EventListQuery {
             after: None,
             limit: 100,
         })
@@ -196,7 +196,7 @@ fn following_retry_rotation_restart_and_public_event_privacy() {
         .unwrap();
     assert_eq!(
         f.node
-            .list_events(babel_node::EventListQuery {
+            .list_events(babble_node::EventListQuery {
                 after: None,
                 limit: 100
             })
@@ -231,7 +231,7 @@ fn following_retry_rotation_restart_and_public_event_privacy() {
     ));
     let events = serde_json::to_string(
         &f.node
-            .list_events(babel_node::EventListQuery {
+            .list_events(babble_node::EventListQuery {
                 after: None,
                 limit: 100,
             })

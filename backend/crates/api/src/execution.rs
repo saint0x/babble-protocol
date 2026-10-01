@@ -17,7 +17,7 @@ pub(crate) const MAX_BUFFERED_BLOB_BYTES: usize = 8 * 1024 * 1024;
 const BODY_TIMEOUT: Duration = Duration::from_secs(10);
 
 tokio::task_local! {
-    pub(crate) static INGRESS: babel_types::Timestamp;
+    pub(crate) static INGRESS: babble_types::Timestamp;
 }
 
 // The node and its file store are synchronous. Bound admitted work, read request
@@ -43,7 +43,7 @@ async fn execute(State(capacity): State<Arc<Semaphore>>, request: Request, next:
 }
 
 async fn execute_inner(capacity: Arc<Semaphore>, request: Request, next: Next, private: bool) -> Response {
-    let ingress = babel_types::Timestamp::now();
+    let ingress = babble_types::Timestamp::now();
     let Ok(permit) = capacity.try_acquire_owned() else {
         let mut response =
             ApiError::unavailable("node request capacity exceeded; retry later").into_response();
@@ -165,7 +165,7 @@ mod tests {
             1,
         );
         let body = format!(
-            r#"{{"protocol":"babel.rpc.v1","payload":{{"bytes_hex":"{}","media_type":"text/javascript"}}}}"#,
+            r#"{{"protocol":"babble.rpc.v1","payload":{{"bytes_hex":"{}","media_type":"text/javascript"}}}}"#,
             "00".repeat(MAX_BUFFERED_BLOB_BYTES)
         );
         let expected = body.len().to_string();

@@ -1,9 +1,9 @@
 //! SQLite owns the private action log, materialized pairs, and durable request receipts.
 //! No connection/cache fields: each operation holds the existing root publication guard.
 use crate::FileStore;
-use babel_graph::{FollowAction, FollowReceipt, FollowRequest, FollowState};
-use babel_identity::Identity;
-use babel_types::{Canonical, Error, Hash, IdentityId, Result, Timestamp};
+use babble_graph::{FollowAction, FollowReceipt, FollowRequest, FollowState};
+use babble_identity::Identity;
+use babble_types::{Canonical, Error, Hash, IdentityId, Result, Timestamp};
 use rusqlite::{Connection, OptionalExtension, TransactionBehavior, params};
 
 fn db_error(_: rusqlite::Error) -> Error {

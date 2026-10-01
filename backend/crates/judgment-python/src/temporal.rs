@@ -1,6 +1,6 @@
 use crate::{PythonProvider, contract, transport, unavailable};
-use babel_discovery::{TemporalProvider, TemporalProviderVersion, TemporalRequest, TemporalResult};
-use babel_types::Result;
+use babble_discovery::{TemporalProvider, TemporalProviderVersion, TemporalRequest, TemporalResult};
+use babble_types::Result;
 use std::time::Instant;
 
 impl TemporalProvider for PythonProvider {

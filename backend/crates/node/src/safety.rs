@@ -1,14 +1,14 @@
 //! Private account safety. Enforcement belongs to local writes, never public imports or reads.
 use crate::LocalNode;
-use babel_graph::{
+use babble_graph::{
     Edge, EdgeOrigin, Relation, SafetyAction, SafetyActionPayload, SafetyReceipt,
     SafetyReceiptPayload, SafetyRequest,
 };
-pub use babel_graph::{SafetyEntry, SafetySnapshot, SafetyState};
-use babel_identity::Identity;
-use babel_judgment::JudgmentProvider;
-use babel_object::Object;
-use babel_types::{Canonical, Error, IdentityId, ObjectId, Result, Timestamp};
+pub use babble_graph::{SafetyEntry, SafetySnapshot, SafetyState};
+use babble_identity::Identity;
+use babble_judgment::JudgmentProvider;
+use babble_object::Object;
+use babble_types::{Canonical, Error, IdentityId, ObjectId, Result, Timestamp};
 
 impl<P: JudgmentProvider> LocalNode<P> {
     pub(crate) fn verify_safety(&self) -> Result<()> {
@@ -165,7 +165,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
             .is_some_and(|source| &source.author == actor)
             || self.executing_invocation.as_ref().is_some_and(|record| {
                 let intent = record.intent();
-                intent.capability.as_str() == "babel.social.unfollow"
+                intent.capability.as_str() == "babble.social.unfollow"
                     && &intent.context.actor == actor
                     && intent.context.object_id == edge.source
                     && intent

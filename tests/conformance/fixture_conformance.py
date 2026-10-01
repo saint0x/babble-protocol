@@ -8,7 +8,7 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-PREAMBLE = b"babel.canonical.v1\0"
+PREAMBLE = b"babble.canonical.v1\0"
 MAX_I64 = 9_223_372_036_854_775_807
 MIN_I64 = -9_223_372_036_854_775_808
 MAX_U64 = 18_446_744_073_709_551_615
@@ -16,7 +16,7 @@ MAX_U64 = 18_446_744_073_709_551_615
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Independent stdlib conformance checks for Babel protocol fixtures."
+        description="Independent stdlib conformance checks for Babble protocol fixtures."
     )
     parser.add_argument("fixtures", type=Path)
     parser.add_argument("schema_bundle", type=Path)
@@ -25,13 +25,13 @@ def main() -> None:
     fixtures = json.loads(args.fixtures.read_text())
     bundle = json.loads(args.schema_bundle.read_text())
 
-    require(bundle["protocol"] == "babel.v2", "schema bundle protocol must be babel.v2")
-    require(bundle["generated_by"] == "babel-schema", "schema bundle generator must be babel-schema")
+    require(bundle["protocol"] == "babble", "schema bundle protocol must be babble")
+    require(bundle["generated_by"] == "babble-schema", "schema bundle generator must be babble-schema")
     require(bundle["fixtures"] == fixtures, "schema bundle embedded fixtures must match fixtures.json")
 
     verify_canonical(fixtures["canonical_encoding"])
     inventory = fixtures["bundle_manifest"]
-    require(inventory["version"] == "babel.canonical.v1", "bundle canonical version mismatch")
+    require(inventory["version"] == "babble.canonical.v1", "bundle canonical version mismatch")
     require(
         canonical_value_bytes(inventory["sample"]).hex() == inventory["bytes_hex"],
         "independent bundle canonical bytes mismatch",
@@ -46,7 +46,7 @@ def main() -> None:
         json.dumps(
             {
                 "ok": True,
-                "checked": "babel protocol fixture conformance",
+                "checked": "babble protocol fixture conformance",
                 "implementation": "stdlib-python-independent",
             },
             separators=(",", ":"),
@@ -55,7 +55,7 @@ def main() -> None:
 
 
 def verify_canonical(fixture: Mapping[str, Any]) -> None:
-    require(fixture["version"] == "babel.canonical.v1", "canonical fixture version mismatch")
+    require(fixture["version"] == "babble.canonical.v1", "canonical fixture version mismatch")
     sample = {
         "zeta": [1, "1", 1.0],
         "alpha": {"nested": True, "empty": None},
@@ -93,13 +93,13 @@ def verify_schemas(schemas: Mapping[str, Any]) -> None:
 def verify_registries(fixtures: Mapping[str, Any]) -> None:
     schema_registry = expect_object(fixtures["schema_registry"], "schema_registry")
     protocol = expect_object(schema_registry["protocol"], "schema_registry.protocol")
-    require(protocol["name"] == "babel.v2", "schema registry protocol mismatch")
+    require(protocol["name"] == "babble", "schema registry protocol mismatch")
     capabilities = set(expect_array(schema_registry["core_capabilities"], "core_capabilities"))
     for capability in [
-        "babel.realtime.join",
-        "babel.realtime.send",
-        "babel.graphics.webgpu",
-        "babel.network.fetch",
+        "babble.realtime.join",
+        "babble.realtime.send",
+        "babble.graphics.webgpu",
+        "babble.network.fetch",
     ]:
         require(capability in capabilities, f"missing core capability {capability}")
 
@@ -109,10 +109,10 @@ def verify_registries(fixtures: Mapping[str, Any]) -> None:
     )
     outputs = {definition["id"]: definition["output_schema"] for definition in definitions}
     for judgment_id, schema in {
-        "babel.judgment.spam.v1": "babel.judgment.output.probability.v1",
-        "babel.judgment.evidence_quality.v1": "babel.judgment.output.bounded_score.v1",
-        "babel.judgment.content_analysis.v1": "babel.judgment.output.content_analysis.v1",
-        "babel.judgment.moderation.v1": "babel.judgment.output.moderation.v1",
+        "babble.judgment.spam.v1": "babble.judgment.output.probability.v1",
+        "babble.judgment.evidence_quality.v1": "babble.judgment.output.bounded_score.v1",
+        "babble.judgment.content_analysis.v1": "babble.judgment.output.content_analysis.v1",
+        "babble.judgment.moderation.v1": "babble.judgment.output.moderation.v1",
     }.items():
         require(outputs.get(judgment_id) == schema, f"judgment definition/output mismatch for {judgment_id}")
 
@@ -122,19 +122,19 @@ def verify_registries(fixtures: Mapping[str, Any]) -> None:
             "realtime schemas",
         )
     )
-    require("babel.realtime.state.v1" in realtime_schemas, "missing realtime state schema")
-    require("babel.realtime.chat.v1" in realtime_schemas, "missing realtime chat schema")
+    require("babble.realtime.state.v1" in realtime_schemas, "missing realtime state schema")
+    require("babble.realtime.chat.v1" in realtime_schemas, "missing realtime chat schema")
 
 
 def verify_rpc(catalog: Mapping[str, Any], request: Mapping[str, Any], response: Mapping[str, Any]) -> None:
-    require(catalog["protocol"] == "babel.rpc.v1", "RPC catalog protocol mismatch")
+    require(catalog["protocol"] == "babble.rpc.v1", "RPC catalog protocol mismatch")
     methods: dict[str, Mapping[str, Any]] = {}
     for method in expect_array(catalog["methods"], "rpc methods"):
         method = expect_object(method, "rpc method")
         name = expect_string(method["method"], "rpc method")
         version = method["version"]
         require(type(version) is int and version >= 1, "RPC method version must be a positive integer")
-        require(name.startswith("babel.") and name.endswith(f".v{version}"), f"invalid RPC method namespace/version {name}")
+        require(name.startswith("babble.") and name.endswith(f".v{version}"), f"invalid RPC method namespace/version {name}")
         require(expect_string(method["input"], "rpc input"), "RPC input must be present")
         require(expect_string(method["output"], "rpc output"), "RPC output must be present")
         require(int(method["timeout_ms"]) > 0, "RPC timeout must be positive")
@@ -147,48 +147,48 @@ def verify_rpc(catalog: Mapping[str, Any], request: Mapping[str, Any], response:
         methods[name] = method
 
     for required in [
-        "babel.object.publish_text.v1",
-        "babel.object.fork.v1",
-        "babel.object.remix.v1",
-        "babel.graph.relationship.infer.v1",
-        "babel.graph.evidence.v1",
-        "babel.graph.traverse.v1",
-        "babel.runtime.surface.prepare.v1",
-        "babel.runtime.surface.health.v1",
-        "babel.runtime.surface.session.schedule.v1",
-        "babel.runtime.surface.session.apply_schedule.v1",
-        "babel.runtime.surface.session.state.checkpoint.v1",
-        "babel.runtime.surface.session.state.get.v1",
-        "babel.observability.snapshot.v1",
-        "babel.realtime.room.define.v1",
-        "babel.realtime.message.publish.v1",
-        "babel.judgment.definitions.list.v1",
-        "babel.judgment.providers.list.v1",
-        "babel.lenses.list.v1",
-        "babel.capabilities.list.v1",
+        "babble.object.publish_text.v1",
+        "babble.object.fork.v1",
+        "babble.object.remix.v1",
+        "babble.graph.relationship.infer.v1",
+        "babble.graph.evidence.v1",
+        "babble.graph.traverse.v1",
+        "babble.runtime.surface.prepare.v1",
+        "babble.runtime.surface.health.v1",
+        "babble.runtime.surface.session.schedule.v1",
+        "babble.runtime.surface.session.apply_schedule.v1",
+        "babble.runtime.surface.session.state.checkpoint.v1",
+        "babble.runtime.surface.session.state.get.v1",
+        "babble.observability.snapshot.v1",
+        "babble.realtime.room.define.v1",
+        "babble.realtime.message.publish.v1",
+        "babble.judgment.definitions.list.v1",
+        "babble.judgment.providers.list.v1",
+        "babble.lenses.list.v1",
+        "babble.capabilities.list.v1",
     ]:
         require(required in methods, f"missing RPC method {required}")
 
     for action in ("follow", "unfollow", "share", "reply"):
-        name = f"babel.social.{action}.v2"
+        name = f"babble.social.{action}"
         require(name in methods, f"missing one-use social method {name}")
         method = methods[name]
         require(method["output"] == "api.InvocationSocialResult", f"invalid invocation output for {name}")
         require(method["idempotency"] == "requires_idempotency_key", f"missing stable invocation key for {name}")
-        require(method["capability"] == {"capability": f"babel.social.{action}", "version": 1, "required": True},
+        require(method["capability"] == {"capability": f"babble.social.{action}", "version": 1, "required": True},
                 f"invalid social capability declaration for {name}")
 
     for action in ("clipboard.write", "fullscreen.enter"):
-        name = f"babel.{action}.v2"
-        require(f"babel.{action}.v1" in methods, f"missing retained v1 registry entry for {action}")
+        name = f"babble.{action}"
+        require(f"babble.{action}.v1" in methods, f"missing retained v1 registry entry for {action}")
         require(name in methods, f"missing durable browser method {name}")
         method = methods[name]
         require(method["output"] == "api.BrowserInvocationResult", f"invalid browser result for {name}")
         require(method["idempotency"] == "requires_idempotency_key", f"missing stable browser invocation key for {name}")
-        require(method["capability"] == {"capability": f"babel.{action}", "version": 1, "required": True},
+        require(method["capability"] == {"capability": f"babble.{action}", "version": 1, "required": True},
                 f"invalid browser capability declaration for {name}")
 
-    require(request["protocol"] == "babel.rpc.v1", "RPC request protocol mismatch")
+    require(request["protocol"] == "babble.rpc.v1", "RPC request protocol mismatch")
     require(request["method"] in methods, "RPC request method missing from catalog")
     require(request["id"], "RPC request id must be non-empty")
     require(
@@ -198,7 +198,7 @@ def verify_rpc(catalog: Mapping[str, Any], request: Mapping[str, Any], response:
     )
     binding = expect_object(request["binding"], "rpc binding")
     require(binding["runtime_id"] == "fixture-runtime", "RPC binding runtime mismatch")
-    require(binding["origin"] == "babel://fixture", "RPC binding origin mismatch")
+    require(binding["origin"] == "babble://fixture", "RPC binding origin mismatch")
     require(int(request["deadline"]["timeout_ms"]) == 30000, "RPC request deadline mismatch")
 
     require(response["protocol"] == request["protocol"], "RPC response protocol mismatch")
@@ -213,7 +213,7 @@ def verify_rpc(catalog: Mapping[str, Any], request: Mapping[str, Any], response:
 def verify_media(blob: Mapping[str, Any], request: Mapping[str, Any]) -> None:
     integrity = expect_string(blob["integrity"], "media integrity")
     require(valid_hex_string(integrity, 64), "media integrity must be 32-byte hex")
-    require(blob["uri"] == f"babel://blobs/{integrity}", "media blob URI must contain integrity hash")
+    require(blob["uri"] == f"babble://blobs/{integrity}", "media blob URI must contain integrity hash")
     require(blob["media_type"] == "text/plain", "media type mismatch")
     require(int(blob["size_bytes"]) == 13, "media size mismatch")
     require(valid_prefixed_id(request["author_id"], "id_"), "publish media author id malformed")

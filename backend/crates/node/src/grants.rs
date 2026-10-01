@@ -5,11 +5,11 @@ impl<P: JudgmentProvider> LocalNode<P> {
         let signer = self
             .state
             .signing_identity_at(&event.actor, event.created_at)?;
-        let mut batch = babel_store::PublicationBatch::new();
+        let mut batch = babble_store::PublicationBatch::new();
         batch.event(&event, &signer)?;
         self.attach_publication_receipt(
             &mut batch,
-            babel_store::PublicationOutcome {
+            babble_store::PublicationOutcome {
                 object: None,
                 edges: Vec::new(),
                 event: event.id.clone(),
@@ -19,7 +19,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
             .commit_publication(batch)
             .map_err(crate::publication::publication_error)?;
         self.state.apply_event(event.clone()).map_err(|error| {
-            babel_types::Error::Conflict(format!(
+            babble_types::Error::Conflict(format!(
                 "consent committed; in-memory apply failed, reopen node: {error}"
             ))
         })?;
@@ -36,7 +36,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
     fn reconcile_surface_permissions_at(&mut self, now: Timestamp) -> Result<()> {
         self.check_ready()?;
         self.reconcile_moderation_sessions().map_err(|_| {
-            babel_types::Error::StorageUnavailable(
+            babble_types::Error::StorageUnavailable(
                 "moderation runtime retirement unavailable; retry the same request key".into(),
             )
         })?;
@@ -77,7 +77,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
             }
         }
         for id in invalidated {
-            self.invalidate_social_session(id.as_str(), babel_capabilities::invocation::InvocationInvalidation::PolicyChanged)?;
+            self.invalidate_social_session(id.as_str(), babble_capabilities::invocation::InvocationInvalidation::PolicyChanged)?;
         }
         Ok(())
     }
@@ -130,7 +130,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
         let plan = self.prepare_surface_for_identity(object, role, Some(identity))?;
         let session = runtime.start_session(plan, Some(id))?;
         if self.surface_sessions.contains_key(&session.id) {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "Surface session already exists".into(),
             ));
         }
@@ -227,13 +227,13 @@ pub(super) fn project_grants(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use babel_judgment_local::LocalProvider;
-    use babel_object::{Surface, SurfaceTarget};
+    use babble_judgment_local::LocalProvider;
+    use babble_object::{Surface, SurfaceTarget};
 
     #[test]
     fn expiry_retires_admitted_sessions_at_the_exact_boundary() {
         let root = std::env::temp_dir().join(format!(
-            "babel-session-expiry-{}-{}",
+            "babble-session-expiry-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos()
         ));
@@ -245,7 +245,7 @@ mod tests {
             .put_media_blob("text/html", b"<!doctype html><p>Expiry</p>")
             .unwrap();
         let request = CapabilityRequest {
-            id: "babel.storage.local".into(),
+            id: "babble.storage.local".into(),
             version: 1,
             scope: serde_json::json!({"namespace":"self"}),
         };

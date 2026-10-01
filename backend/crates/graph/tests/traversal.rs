@@ -1,7 +1,7 @@
-use babel_crypto::Keypair;
-use babel_graph::{Edge, EdgeOrigin, GraphIndex, GraphTraversalSpec, Relation, TraversalDirection};
-use babel_identity::{Identity, IdentityKind};
-use babel_object::Object;
+use babble_crypto::Keypair;
+use babble_graph::{Edge, EdgeOrigin, GraphIndex, GraphTraversalSpec, Relation, TraversalDirection};
+use babble_identity::{Identity, IdentityKind};
+use babble_object::Object;
 
 #[test]
 fn claim_evidence_traversal_separates_support_and_contradiction() {

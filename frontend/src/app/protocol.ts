@@ -16,7 +16,7 @@ import {
   type RpcInput,
   type RpcOutput,
   type RpcRequestEnvelope,
-} from "@babel-protocol/sdk";
+} from "@babble-protocol/sdk";
 import { parseProfileIdentity, parseProfilePage, profileJson } from "./profile-response";
 import { resolveCardMedia, type MediaCollection } from "./media-resource";
 import type { QuotePage } from "./quotes";
@@ -55,7 +55,7 @@ export interface FeedCard extends MediaCollection {
   readonly capabilities: readonly CapabilitySummary[];
   readonly resourceCount: number;
   readonly reasons: readonly string[];
-  readonly object: RpcOutput<"babel.object.get.v1">["object"];
+  readonly object: RpcOutput<"babble.object.get.v1">["object"];
 }
 
 export type PublicIdentity = ProtocolTypes["api.CreateIdentityResponse"]["identity"];
@@ -102,12 +102,12 @@ export interface FeedDiversity {
 }
 
 export type LensMode = "balanced" | "following" | "research" | "weird";
-type DiscoveryLensStack = NonNullable<RpcInput<"babel.discovery.candidates.v1">["lens"]>;
+type DiscoveryLensStack = NonNullable<RpcInput<"babble.discovery.candidates.v1">["lens"]>;
 
 export interface PlatformOverview {
-  readonly capabilities: RpcOutput<"babel.capabilities.list.v1">["capabilities"];
-  readonly lenses: RpcOutput<"babel.lenses.list.v1">["lenses"];
-  readonly providers: RpcOutput<"babel.judgment.providers.list.v1">["providers"];
+  readonly capabilities: RpcOutput<"babble.capabilities.list.v1">["capabilities"];
+  readonly lenses: RpcOutput<"babble.lenses.list.v1">["lenses"];
+  readonly providers: RpcOutput<"babble.judgment.providers.list.v1">["providers"];
 }
 
 export type SocialTextKind = "reply" | "share";
@@ -133,11 +133,11 @@ export interface CapabilitySummary {
   readonly version: number;
 }
 
-export class BabelFrontendClient {
+export class BabbleFrontendClient {
   private static readonly actionDocuments = new Map<string, { documentId: string; createdAt: number }>();
   readonly apiUrl: URL;
   readonly transport: HttpRpcTransport;
-  readonly binding = hostBinding("babel-web-runtime", globalThis.location?.origin ?? "browser://babel");
+  readonly binding = hostBinding("babble-web-runtime", globalThis.location?.origin ?? "browser://babble");
   private readonly socialControllers = new Map<string, SocialController>();
   private readonly fetchImpl: typeof fetch;
 
@@ -181,7 +181,7 @@ export class BabelFrontendClient {
   ): Promise<FeedResult> {
     if (lensMode === "following") throw new Error("Following requires the authenticated chronological feed.");
     const catalog = await this.catalog();
-    const discovery = await this.rpc("babel.discovery.candidates.v1", {
+    const discovery = await this.rpc("babble.discovery.candidates.v1", {
       search: query.trim() || null,
       anchors: [],
       followed_objects: [],
@@ -271,8 +271,8 @@ export class BabelFrontendClient {
   async putMediaBlob(
     mediaType: string,
     bytes: Uint8Array,
-  ): Promise<RpcOutput<"babel.media.blob.put.v1">["blob"]> {
-    const response = await this.rpc("babel.media.blob.put.v1", {
+  ): Promise<RpcOutput<"babble.media.blob.put.v1">["blob"]> {
+    const response = await this.rpc("babble.media.blob.put.v1", {
       media_type: mediaType,
       bytes_hex: bytesToHex(bytes),
     });
@@ -283,10 +283,10 @@ export class BabelFrontendClient {
     authorId: string,
     title: string,
     description: string | null,
-    resources: RpcInput<"babel.object.publish_media.v1">["resources"],
-  ): Promise<RpcOutput<"babel.object.publish_media.v1">["object"]> {
+    resources: RpcInput<"babble.object.publish_media.v1">["resources"],
+  ): Promise<RpcOutput<"babble.object.publish_media.v1">["object"]> {
     const response = await this.rpc(
-      "babel.object.publish_media.v1",
+      "babble.object.publish_media.v1",
       {
         author_id: authorId,
         title,
@@ -299,24 +299,24 @@ export class BabelFrontendClient {
     return response.object;
   }
 
-  async prepareSurface(objectId: string): Promise<RpcOutput<"babel.runtime.surface.prepare.v1">["plan"]> {
-    const response = await this.rpc("babel.runtime.surface.prepare.v1", {
+  async prepareSurface(objectId: string): Promise<RpcOutput<"babble.runtime.surface.prepare.v1">["plan"]> {
+    const response = await this.rpc("babble.runtime.surface.prepare.v1", {
       object_id: objectId,
       role: "Feed",
     });
     return response.plan;
   }
 
-  async surfaceRuntimeHealth(): Promise<RpcOutput<"babel.runtime.surface.health.v1">["health"]> {
-    const response = await this.rpc("babel.runtime.surface.health.v1", {});
+  async surfaceRuntimeHealth(): Promise<RpcOutput<"babble.runtime.surface.health.v1">["health"]> {
+    const response = await this.rpc("babble.runtime.surface.health.v1", {});
     return response.health;
   }
 
   async platformOverview(): Promise<PlatformOverview> {
     const [capabilities, lenses, providers] = await Promise.all([
-      this.rpc("babel.capabilities.list.v1", {}),
-      this.rpc("babel.lenses.list.v1", {}),
-      this.rpc("babel.judgment.providers.list.v1", {}),
+      this.rpc("babble.capabilities.list.v1", {}),
+      this.rpc("babble.lenses.list.v1", {}),
+      this.rpc("babble.judgment.providers.list.v1", {}),
     ]);
     return {
       capabilities: capabilities.capabilities,
@@ -327,10 +327,10 @@ export class BabelFrontendClient {
 
   async publishDraft(
     authorId: string,
-    draft: RpcInput<"babel.object.publish.v1">["draft"],
-  ): Promise<RpcOutput<"babel.object.publish.v1">["object"]> {
+    draft: RpcInput<"babble.object.publish.v1">["draft"],
+  ): Promise<RpcOutput<"babble.object.publish.v1">["object"]> {
     const response = await this.rpc(
-      "babel.object.publish.v1",
+      "babble.object.publish.v1",
       { author_id: authorId, draft },
       this.binding,
       mutationKey("draft", JSON.stringify([authorId, draft])),
@@ -341,9 +341,9 @@ export class BabelFrontendClient {
   async publishText(
     authorId: string,
     text: string,
-  ): Promise<RpcOutput<"babel.object.publish_text.v1">["object"]> {
+  ): Promise<RpcOutput<"babble.object.publish_text.v1">["object"]> {
     const response = await this.rpc(
-      "babel.object.publish_text.v1",
+      "babble.object.publish_text.v1",
       {
         author_id: authorId,
         text,
@@ -357,8 +357,8 @@ export class BabelFrontendClient {
   async socialFollow(
     authorId: string,
     targetObjectId: string,
-  ): Promise<RpcOutput<"babel.social.follow.v2">["edge"]> {
-    const response = await this.socialAction("babel.social.follow.v2", authorId, targetObjectId,
+  ): Promise<RpcOutput<"babble.social.follow">["edge"]> {
+    const response = await this.socialAction("babble.social.follow", authorId, targetObjectId,
       { author_id: authorId, target_object_id: targetObjectId });
     return response.edge;
   }
@@ -367,7 +367,7 @@ export class BabelFrontendClient {
     readonly replies: readonly FeedCard[];
     readonly nextCursor: string | null;
   }> {
-    const page = await this.rpc("babel.social.replies.list.v1", {
+    const page = await this.rpc("babble.social.replies.list.v1", {
       object_id: objectId,
       cursor,
       limit: 20,
@@ -385,7 +385,7 @@ export class BabelFrontendClient {
   }
 
   async quotes(objectId: string, cursor: string | null, signal: AbortSignal): Promise<QuotePage> {
-    const page = await this.rpc("babel.social.quotes.list.v1", {
+    const page = await this.rpc("babble.social.quotes.list.v1", {
       object_id: objectId, cursor, limit: 10,
     }, this.binding, null, signal);
     if (page.object_id !== objectId || page.quotes.length > 10 || page.quotes.some(({ edge, object }) =>
@@ -404,7 +404,7 @@ export class BabelFrontendClient {
   }
 
   async publicObject(objectId: string): Promise<FeedCard> {
-    const { object } = await this.rpc("babel.object.get.v1", { object_id: objectId });
+    const { object } = await this.rpc("babble.object.get.v1", { object_id: objectId });
     if (object.id !== objectId) throw new Error("The server returned a different Object.");
     return this.objectToCard({ object, score: null, source: "object", signals: null, reasons: [] });
   }
@@ -414,7 +414,7 @@ export class BabelFrontendClient {
     authorId: string,
     targetObjectId: string,
     text: string,
-  ): Promise<NonNullable<RpcOutput<"babel.social.reply.v2">["object"]>> {
+  ): Promise<NonNullable<RpcOutput<"babble.social.reply">["object"]>> {
     return this.socialPublication(kind, authorId, targetObjectId, text);
   }
 
@@ -423,8 +423,8 @@ export class BabelFrontendClient {
     authorId: string,
     targetObjectId: string,
     text: string,
-    media: NonNullable<RpcInput<"babel.social.reply.v2">["media"]>,
-  ): Promise<NonNullable<RpcOutput<"babel.social.reply.v2">["object"]>> {
+    media: NonNullable<RpcInput<"babble.social.reply">["media"]>,
+  ): Promise<NonNullable<RpcOutput<"babble.social.reply">["object"]>> {
     return this.socialPublication(kind, authorId, targetObjectId, text, media);
   }
 
@@ -433,9 +433,9 @@ export class BabelFrontendClient {
     authorId: string,
     targetObjectId: string,
     text: string,
-    media?: NonNullable<RpcInput<"babel.social.reply.v2">["media"]>,
-  ): Promise<NonNullable<RpcOutput<"babel.social.reply.v2">["object"]>> {
-    const method = kind === "reply" ? "babel.social.reply.v2" : "babel.social.share.v2";
+    media?: NonNullable<RpcInput<"babble.social.reply">["media"]>,
+  ): Promise<NonNullable<RpcOutput<"babble.social.reply">["object"]>> {
+    const method = kind === "reply" ? "babble.social.reply" : "babble.social.share";
     const response = await this.socialAction(method, authorId, targetObjectId, {
         author_id: authorId,
         target_object_id: targetObjectId,
@@ -453,20 +453,20 @@ export class BabelFrontendClient {
     const requestKey = `web-social-${Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("")}`;
     const key = `${this.apiUrl.origin}:${authorId}:${requestKey}`;
     const now = Date.now();
-    for (const [id, value] of BabelFrontendClient.actionDocuments) {
-      if (now - value.createdAt > 300_000) BabelFrontendClient.actionDocuments.delete(id);
+    for (const [id, value] of BabbleFrontendClient.actionDocuments) {
+      if (now - value.createdAt > 300_000) BabbleFrontendClient.actionDocuments.delete(id);
     }
-    let document = BabelFrontendClient.actionDocuments.get(key);
+    let document = BabbleFrontendClient.actionDocuments.get(key);
     if (!document) {
-      if (BabelFrontendClient.actionDocuments.size >= 256) throw new Error("Too many actions are awaiting confirmation. Please wait.");
+      if (BabbleFrontendClient.actionDocuments.size >= 256) throw new Error("Too many actions are awaiting confirmation. Please wait.");
       document = { documentId: crypto.randomUUID(), createdAt: now };
-      BabelFrontendClient.actionDocuments.set(key, document);
+      BabbleFrontendClient.actionDocuments.set(key, document);
     }
     const result = await this.invocationApi().performHost({
       actorId: authorId, objectId: controller.objectId, method, payload,
       origin: { kind: "host_action", document_id: document.documentId }, requestKey,
     }, AbortSignal.timeout(30_000));
-    BabelFrontendClient.actionDocuments.delete(key);
+    BabbleFrontendClient.actionDocuments.delete(key);
     return result;
   }
 
@@ -475,7 +475,7 @@ export class BabelFrontendClient {
       headers: { accept: "application/json" },
     });
     if (!response.ok) {
-      throw new Error(`Babel Object Judgment request failed with status ${response.status}`);
+      throw new Error(`Babble Object Judgment request failed with status ${response.status}`);
     }
     const body = (await response.json()) as ProtocolTypes["api.ObjectJudgmentsResponse"];
     return {
@@ -488,8 +488,8 @@ export class BabelFrontendClient {
     objectId: string,
     definition: JudgmentDefinition,
     parameters: Record<string, JsonValue> = {},
-  ): Promise<RpcOutput<"babel.judgment.object.evaluate.v1">["judgment"]> {
-    const response = await this.rpc("babel.judgment.object.evaluate.v1", {
+  ): Promise<RpcOutput<"babble.judgment.object.evaluate.v1">["judgment"]> {
+    const response = await this.rpc("babble.judgment.object.evaluate.v1", {
       object_id: objectId,
       definition,
       parameters,
@@ -509,8 +509,8 @@ export class BabelFrontendClient {
     return body.input ?? null;
   }
 
-  async startSurfaceSession(objectId: string): Promise<RpcOutput<"babel.runtime.surface.session.start.v1">["session"]> {
-    const response = await this.rpc("babel.runtime.surface.session.start.v1", {
+  async startSurfaceSession(objectId: string): Promise<RpcOutput<"babble.runtime.surface.session.start.v1">["session"]> {
+    const response = await this.rpc("babble.runtime.surface.session.start.v1", {
       object_id: objectId,
       role: "Feed",
       session_id: null,
@@ -518,29 +518,29 @@ export class BabelFrontendClient {
     return response.session;
   }
 
-  async inspectPermissions(objectId: string): Promise<RpcOutput<"babel.capabilities.inspect.v1">> {
-    return this.rpc("babel.capabilities.inspect.v1", { object_id: objectId });
+  async inspectPermissions(objectId: string): Promise<RpcOutput<"babble.capabilities.inspect.v1">> {
+    return this.rpc("babble.capabilities.inspect.v1", { object_id: objectId });
   }
 
-  async approvePermission(authorId: string, objectId: string, capability: RpcInput<"babel.capabilities.grant.v1">["capability"]): Promise<void> {
-    await this.rpc("babel.capabilities.grant.v1", {
+  async approvePermission(authorId: string, objectId: string, capability: RpcInput<"babble.capabilities.grant.v1">["capability"]): Promise<void> {
+    await this.rpc("babble.capabilities.grant.v1", {
       author_id: authorId, object_id: objectId, capability, decision: "approved",
     }, this.binding, `web-permission-${randomSuffix()}`);
   }
 
   async revokePermission(authorId: string, objectId: string, grantId: string): Promise<void> {
-    await this.rpc("babel.capabilities.revoke.v1", {
+    await this.rpc("babble.capabilities.revoke.v1", {
       author_id: authorId, object_id: objectId, grant_id: grantId,
     }, this.binding, `web-permission-${randomSuffix()}`);
   }
 
   async transitionSurfaceSession(
     sessionId: string,
-    lifecycle: RpcInput<"babel.runtime.surface.session.transition.v1">["lifecycle"],
+    lifecycle: RpcInput<"babble.runtime.surface.session.transition.v1">["lifecycle"],
     reason: string,
-  ): Promise<RpcOutput<"babel.runtime.surface.session.transition.v1">> {
+  ): Promise<RpcOutput<"babble.runtime.surface.session.transition.v1">> {
     return this.rpc(
-      "babel.runtime.surface.session.transition.v1",
+      "babble.runtime.surface.session.transition.v1",
       {
         lifecycle,
         reason,
@@ -556,9 +556,9 @@ export class BabelFrontendClient {
   async heartbeatSurfaceSession(
     sessionId: string,
     signal?: AbortSignal,
-  ): Promise<RpcOutput<"babel.runtime.surface.session.heartbeat.v1">["lease"]> {
+  ): Promise<RpcOutput<"babble.runtime.surface.session.heartbeat.v1">["lease"]> {
     const response = await this.rpc(
-      "babel.runtime.surface.session.heartbeat.v1", {},
+      "babble.runtime.surface.session.heartbeat.v1", {},
       hostSurfaceBinding({
         runtimeId: this.binding.runtime_id,
         origin: this.binding.origin,
@@ -571,10 +571,10 @@ export class BabelFrontendClient {
 
   async scheduleSurfaceSession(
     sessionId: string,
-    input: RpcInput<"babel.runtime.surface.session.schedule.v1">["input"],
-  ): Promise<RpcOutput<"babel.runtime.surface.session.schedule.v1">["decision"]> {
+    input: RpcInput<"babble.runtime.surface.session.schedule.v1">["input"],
+  ): Promise<RpcOutput<"babble.runtime.surface.session.schedule.v1">["decision"]> {
     const response = await this.rpc(
-      "babel.runtime.surface.session.schedule.v1",
+      "babble.runtime.surface.session.schedule.v1",
       { input },
       hostSurfaceBinding({
         runtimeId: this.binding.runtime_id,
@@ -587,10 +587,10 @@ export class BabelFrontendClient {
 
   async applySurfaceSchedule(
     sessionId: string,
-    input: RpcInput<"babel.runtime.surface.session.apply_schedule.v1">["input"],
-  ): Promise<RpcOutput<"babel.runtime.surface.session.apply_schedule.v1">> {
+    input: RpcInput<"babble.runtime.surface.session.apply_schedule.v1">["input"],
+  ): Promise<RpcOutput<"babble.runtime.surface.session.apply_schedule.v1">> {
     return this.rpc(
-      "babel.runtime.surface.session.apply_schedule.v1",
+      "babble.runtime.surface.session.apply_schedule.v1",
       { input },
       hostSurfaceBinding({
         runtimeId: this.binding.runtime_id,
@@ -602,11 +602,11 @@ export class BabelFrontendClient {
 
   async checkpointSurfaceState(
     sessionId: string,
-    state: RpcInput<"babel.runtime.surface.session.state.checkpoint.v1">["state"],
+    state: RpcInput<"babble.runtime.surface.session.state.checkpoint.v1">["state"],
     reason: string,
-  ): Promise<RpcOutput<"babel.runtime.surface.session.state.checkpoint.v1">> {
+  ): Promise<RpcOutput<"babble.runtime.surface.session.state.checkpoint.v1">> {
     return this.rpc(
-      "babel.runtime.surface.session.state.checkpoint.v1",
+      "babble.runtime.surface.session.state.checkpoint.v1",
       { state, reason },
       hostSurfaceBinding({
         runtimeId: this.binding.runtime_id,
@@ -618,8 +618,8 @@ export class BabelFrontendClient {
 
   async getSurfaceState(
     sessionId: string,
-  ): Promise<RpcOutput<"babel.runtime.surface.session.state.get.v1">["checkpoint"]> {
-    const response = await this.rpc("babel.runtime.surface.session.state.get.v1", {
+  ): Promise<RpcOutput<"babble.runtime.surface.session.state.get.v1">["checkpoint"]> {
+    const response = await this.rpc("babble.runtime.surface.session.state.get.v1", {
       session_id: sessionId,
     });
     return response.checkpoint;
@@ -652,7 +652,7 @@ export class BabelFrontendClient {
   }
 
   async objectToCard(input: {
-    readonly object: RpcOutput<"babel.object.get.v1">["object"];
+    readonly object: RpcOutput<"babble.object.get.v1">["object"];
     readonly score: number | null;
     readonly rankingProvider?: ProtocolTypes["lens.RankingProviderVersion"];
     readonly temporal?: FeedTemporalEvaluation | undefined;
@@ -674,12 +674,12 @@ export class BabelFrontendClient {
     let controller = this.socialControllers.get(key);
     if (!controller) {
       const published = await this.rpc(
-        "babel.object.publish.v1",
+        "babble.object.publish.v1",
         {
           author_id: authorId,
           draft: {
-            kind: "babel.text",
-            schema: "babel.schema.text.v1",
+            kind: "babble.text",
+            schema: "babble.schema.text.v1",
             payload: {
               text: `Social action controller for ${targetObjectId}`,
               metadata: {
@@ -714,7 +714,7 @@ export class BabelFrontendClient {
       headers: { accept: "application/json" },
     });
     if (!response.ok) {
-      throw new Error(`Babel RPC catalog request failed with status ${response.status}`);
+      throw new Error(`Babble RPC catalog request failed with status ${response.status}`);
     }
     return (await response.json()) as ProtocolTypes["rpc.RpcCatalog"];
   }
@@ -728,7 +728,7 @@ export class BabelFrontendClient {
   ): Promise<FrontendRpc[M]["output"]> {
     return this.transport.request(
       {
-        protocol: "babel.rpc.v1",
+        protocol: "babble.rpc.v1",
         id: requestId(method),
         method,
         binding,
@@ -746,7 +746,7 @@ export class BabelFrontendClient {
         throw new Error(response.error.message);
       }
       if (response.result === null || response.result === undefined) {
-        throw new Error(`Babel RPC response did not include a result for ${method}`);
+        throw new Error(`Babble RPC response did not include a result for ${method}`);
       }
       return response.result as unknown as FrontendRpc[M]["output"];
     });
@@ -755,7 +755,7 @@ export class BabelFrontendClient {
 
 export function mountSurface(input: {
   readonly container: HTMLElement;
-  readonly plan: RpcOutput<"babel.runtime.surface.prepare.v1">["plan"];
+  readonly plan: RpcOutput<"babble.runtime.surface.prepare.v1">["plan"];
   readonly dispatch: BridgeDispatch;
   readonly surfaceSessionId: string;
   readonly currentIdentityId?: string | null;
@@ -772,122 +772,122 @@ export function mountSurface(input: {
 }
 
 interface FrontendRpc {
-  readonly "babel.social.quotes.list.v1": {
-    readonly input: RpcInput<"babel.social.quotes.list.v1">;
-    readonly output: RpcOutput<"babel.social.quotes.list.v1">;
+  readonly "babble.social.quotes.list.v1": {
+    readonly input: RpcInput<"babble.social.quotes.list.v1">;
+    readonly output: RpcOutput<"babble.social.quotes.list.v1">;
   };
-  readonly "babel.object.get.v1": {
-    readonly input: RpcInput<"babel.object.get.v1">;
-    readonly output: RpcOutput<"babel.object.get.v1">;
+  readonly "babble.object.get.v1": {
+    readonly input: RpcInput<"babble.object.get.v1">;
+    readonly output: RpcOutput<"babble.object.get.v1">;
   };
-  readonly "babel.object.publish_text.v1": {
-    readonly input: RpcInput<"babel.object.publish_text.v1">;
-    readonly output: RpcOutput<"babel.object.publish_text.v1">;
+  readonly "babble.object.publish_text.v1": {
+    readonly input: RpcInput<"babble.object.publish_text.v1">;
+    readonly output: RpcOutput<"babble.object.publish_text.v1">;
   };
-  readonly "babel.object.publish.v1": {
-    readonly input: RpcInput<"babel.object.publish.v1">;
-    readonly output: RpcOutput<"babel.object.publish.v1">;
+  readonly "babble.object.publish.v1": {
+    readonly input: RpcInput<"babble.object.publish.v1">;
+    readonly output: RpcOutput<"babble.object.publish.v1">;
   };
-  readonly "babel.object.publish_media.v1": {
-    readonly input: RpcInput<"babel.object.publish_media.v1">;
-    readonly output: RpcOutput<"babel.object.publish_media.v1">;
+  readonly "babble.object.publish_media.v1": {
+    readonly input: RpcInput<"babble.object.publish_media.v1">;
+    readonly output: RpcOutput<"babble.object.publish_media.v1">;
   };
-  readonly "babel.media.blob.put.v1": {
-    readonly input: RpcInput<"babel.media.blob.put.v1">;
-    readonly output: RpcOutput<"babel.media.blob.put.v1">;
+  readonly "babble.media.blob.put.v1": {
+    readonly input: RpcInput<"babble.media.blob.put.v1">;
+    readonly output: RpcOutput<"babble.media.blob.put.v1">;
   };
-  readonly "babel.media.blob.get.v1": {
-    readonly input: RpcInput<"babel.media.blob.get.v1">;
-    readonly output: RpcOutput<"babel.media.blob.get.v1">;
+  readonly "babble.media.blob.get.v1": {
+    readonly input: RpcInput<"babble.media.blob.get.v1">;
+    readonly output: RpcOutput<"babble.media.blob.get.v1">;
   };
-  readonly "babel.judgment.object.evaluate.v1": {
-    readonly input: RpcInput<"babel.judgment.object.evaluate.v1">;
-    readonly output: RpcOutput<"babel.judgment.object.evaluate.v1">;
+  readonly "babble.judgment.object.evaluate.v1": {
+    readonly input: RpcInput<"babble.judgment.object.evaluate.v1">;
+    readonly output: RpcOutput<"babble.judgment.object.evaluate.v1">;
   };
-  readonly "babel.discovery.candidates.v1": {
-    readonly input: RpcInput<"babel.discovery.candidates.v1">;
-    readonly output: RpcOutput<"babel.discovery.candidates.v1">;
+  readonly "babble.discovery.candidates.v1": {
+    readonly input: RpcInput<"babble.discovery.candidates.v1">;
+    readonly output: RpcOutput<"babble.discovery.candidates.v1">;
   };
-  readonly "babel.search.objects.v1": {
-    readonly input: RpcInput<"babel.search.objects.v1">;
-    readonly output: RpcOutput<"babel.search.objects.v1">;
+  readonly "babble.search.objects.v1": {
+    readonly input: RpcInput<"babble.search.objects.v1">;
+    readonly output: RpcOutput<"babble.search.objects.v1">;
   };
-  readonly "babel.lenses.list.v1": {
-    readonly input: RpcInput<"babel.lenses.list.v1">;
-    readonly output: RpcOutput<"babel.lenses.list.v1">;
+  readonly "babble.lenses.list.v1": {
+    readonly input: RpcInput<"babble.lenses.list.v1">;
+    readonly output: RpcOutput<"babble.lenses.list.v1">;
   };
-  readonly "babel.judgment.providers.list.v1": {
-    readonly input: RpcInput<"babel.judgment.providers.list.v1">;
-    readonly output: RpcOutput<"babel.judgment.providers.list.v1">;
+  readonly "babble.judgment.providers.list.v1": {
+    readonly input: RpcInput<"babble.judgment.providers.list.v1">;
+    readonly output: RpcOutput<"babble.judgment.providers.list.v1">;
   };
-  readonly "babel.capabilities.list.v1": {
-    readonly input: RpcInput<"babel.capabilities.list.v1">;
-    readonly output: RpcOutput<"babel.capabilities.list.v1">;
+  readonly "babble.capabilities.list.v1": {
+    readonly input: RpcInput<"babble.capabilities.list.v1">;
+    readonly output: RpcOutput<"babble.capabilities.list.v1">;
   };
-  readonly "babel.capabilities.grant.v1": {
-    readonly input: RpcInput<"babel.capabilities.grant.v1">;
-    readonly output: RpcOutput<"babel.capabilities.grant.v1">;
+  readonly "babble.capabilities.grant.v1": {
+    readonly input: RpcInput<"babble.capabilities.grant.v1">;
+    readonly output: RpcOutput<"babble.capabilities.grant.v1">;
   };
-  readonly "babel.capabilities.inspect.v1": {
-    readonly input: RpcInput<"babel.capabilities.inspect.v1">;
-    readonly output: RpcOutput<"babel.capabilities.inspect.v1">;
+  readonly "babble.capabilities.inspect.v1": {
+    readonly input: RpcInput<"babble.capabilities.inspect.v1">;
+    readonly output: RpcOutput<"babble.capabilities.inspect.v1">;
   };
-  readonly "babel.capabilities.revoke.v1": {
-    readonly input: RpcInput<"babel.capabilities.revoke.v1">;
-    readonly output: RpcOutput<"babel.capabilities.revoke.v1">;
+  readonly "babble.capabilities.revoke.v1": {
+    readonly input: RpcInput<"babble.capabilities.revoke.v1">;
+    readonly output: RpcOutput<"babble.capabilities.revoke.v1">;
   };
-  readonly "babel.social.replies.list.v1": {
-    readonly input: RpcInput<"babel.social.replies.list.v1">;
-    readonly output: RpcOutput<"babel.social.replies.list.v1">;
+  readonly "babble.social.replies.list.v1": {
+    readonly input: RpcInput<"babble.social.replies.list.v1">;
+    readonly output: RpcOutput<"babble.social.replies.list.v1">;
   };
-  readonly "babel.runtime.surface.prepare.v1": {
-    readonly input: RpcInput<"babel.runtime.surface.prepare.v1">;
-    readonly output: RpcOutput<"babel.runtime.surface.prepare.v1">;
+  readonly "babble.runtime.surface.prepare.v1": {
+    readonly input: RpcInput<"babble.runtime.surface.prepare.v1">;
+    readonly output: RpcOutput<"babble.runtime.surface.prepare.v1">;
   };
-  readonly "babel.runtime.surface.health.v1": {
-    readonly input: RpcInput<"babel.runtime.surface.health.v1">;
-    readonly output: RpcOutput<"babel.runtime.surface.health.v1">;
+  readonly "babble.runtime.surface.health.v1": {
+    readonly input: RpcInput<"babble.runtime.surface.health.v1">;
+    readonly output: RpcOutput<"babble.runtime.surface.health.v1">;
   };
-  readonly "babel.runtime.surface.session.start.v1": {
-    readonly input: RpcInput<"babel.runtime.surface.session.start.v1">;
-    readonly output: RpcOutput<"babel.runtime.surface.session.start.v1">;
+  readonly "babble.runtime.surface.session.start.v1": {
+    readonly input: RpcInput<"babble.runtime.surface.session.start.v1">;
+    readonly output: RpcOutput<"babble.runtime.surface.session.start.v1">;
   };
-  readonly "babel.runtime.surface.session.heartbeat.v1": {
-    readonly input: RpcInput<"babel.runtime.surface.session.heartbeat.v1">;
-    readonly output: RpcOutput<"babel.runtime.surface.session.heartbeat.v1">;
+  readonly "babble.runtime.surface.session.heartbeat.v1": {
+    readonly input: RpcInput<"babble.runtime.surface.session.heartbeat.v1">;
+    readonly output: RpcOutput<"babble.runtime.surface.session.heartbeat.v1">;
   };
-  readonly "babel.runtime.surface.session.transition.v1": {
-    readonly input: RpcInput<"babel.runtime.surface.session.transition.v1">;
-    readonly output: RpcOutput<"babel.runtime.surface.session.transition.v1">;
+  readonly "babble.runtime.surface.session.transition.v1": {
+    readonly input: RpcInput<"babble.runtime.surface.session.transition.v1">;
+    readonly output: RpcOutput<"babble.runtime.surface.session.transition.v1">;
   };
-  readonly "babel.runtime.surface.session.schedule.v1": {
-    readonly input: RpcInput<"babel.runtime.surface.session.schedule.v1">;
-    readonly output: RpcOutput<"babel.runtime.surface.session.schedule.v1">;
+  readonly "babble.runtime.surface.session.schedule.v1": {
+    readonly input: RpcInput<"babble.runtime.surface.session.schedule.v1">;
+    readonly output: RpcOutput<"babble.runtime.surface.session.schedule.v1">;
   };
-  readonly "babel.runtime.surface.session.apply_schedule.v1": {
-    readonly input: RpcInput<"babel.runtime.surface.session.apply_schedule.v1">;
-    readonly output: RpcOutput<"babel.runtime.surface.session.apply_schedule.v1">;
+  readonly "babble.runtime.surface.session.apply_schedule.v1": {
+    readonly input: RpcInput<"babble.runtime.surface.session.apply_schedule.v1">;
+    readonly output: RpcOutput<"babble.runtime.surface.session.apply_schedule.v1">;
   };
-  readonly "babel.runtime.surface.session.state.checkpoint.v1": {
-    readonly input: RpcInput<"babel.runtime.surface.session.state.checkpoint.v1">;
-    readonly output: RpcOutput<"babel.runtime.surface.session.state.checkpoint.v1">;
+  readonly "babble.runtime.surface.session.state.checkpoint.v1": {
+    readonly input: RpcInput<"babble.runtime.surface.session.state.checkpoint.v1">;
+    readonly output: RpcOutput<"babble.runtime.surface.session.state.checkpoint.v1">;
   };
-  readonly "babel.runtime.surface.session.state.get.v1": {
-    readonly input: RpcInput<"babel.runtime.surface.session.state.get.v1">;
-    readonly output: RpcOutput<"babel.runtime.surface.session.state.get.v1">;
+  readonly "babble.runtime.surface.session.state.get.v1": {
+    readonly input: RpcInput<"babble.runtime.surface.session.state.get.v1">;
+    readonly output: RpcOutput<"babble.runtime.surface.session.state.get.v1">;
   };
 }
 
-export type JudgmentDefinition = RpcInput<"babel.judgment.object.evaluate.v1">["definition"];
+export type JudgmentDefinition = RpcInput<"babble.judgment.object.evaluate.v1">["definition"];
 
 export const judgmentDefinitions = [
-  "babel.judgment.spam.v1",
-  "babel.judgment.evidence_quality.v1",
-  "babel.judgment.content_analysis.v1",
-  "babel.judgment.moderation.v1",
-  "babel.judgment.relevance.v1",
-  "babel.judgment.relationship.v1",
-  "babel.judgment.source_agreement.v1",
+  "babble.judgment.spam.v1",
+  "babble.judgment.evidence_quality.v1",
+  "babble.judgment.content_analysis.v1",
+  "babble.judgment.moderation.v1",
+  "babble.judgment.relevance.v1",
+  "babble.judgment.relationship.v1",
+  "babble.judgment.source_agreement.v1",
 ] as const satisfies readonly JudgmentDefinition[];
 
 interface SocialController {
@@ -895,8 +895,8 @@ interface SocialController {
   readonly targetObjectId: string;
 }
 
-function socialCapabilities(targetObjectId: string): RpcInput<"babel.object.publish.v1">["draft"]["capabilities"] {
-  return (["babel.social.follow", "babel.social.reply", "babel.social.share"] as const).map((id) => ({
+function socialCapabilities(targetObjectId: string): RpcInput<"babble.object.publish.v1">["draft"]["capabilities"] {
+  return (["babble.social.follow", "babble.social.reply", "babble.social.share"] as const).map((id) => ({
     id,
     version: 1,
     scope: { object_id: targetObjectId },
@@ -925,24 +925,24 @@ function randomSuffix(): string {
 function lensStack(mode: LensMode): DiscoveryLensStack {
   if (mode === "following") {
     return {
-      id: "babel.lens.stack.following.v1",
+      id: "babble.lens.stack.following.v1",
       weights: [{ lens: "Following", weight: 1 }],
     };
   }
   if (mode === "research") {
     return {
-      id: "babel.lens.stack.research.v1",
+      id: "babble.lens.stack.research.v1",
       weights: [{ lens: "Research", weight: 1 }],
     };
   }
   if (mode === "weird") {
     return {
-      id: "babel.lens.stack.weird.v1",
+      id: "babble.lens.stack.weird.v1",
       weights: [{ lens: "Weird", weight: 1 }],
     };
   }
   return {
-    id: "babel.lens.stack.balanced.v1",
+    id: "babble.lens.stack.balanced.v1",
     weights: [
       { lens: "Research", weight: 0.55 },
       { lens: "Weird", weight: 0.3 },
@@ -952,7 +952,7 @@ function lensStack(mode: LensMode): DiscoveryLensStack {
 }
 
 function objectToCard(input: {
-  readonly object: RpcOutput<"babel.object.get.v1">["object"];
+  readonly object: RpcOutput<"babble.object.get.v1">["object"];
   readonly score: number | null;
   readonly rankingProvider?: ProtocolTypes["lens.RankingProviderVersion"];
   readonly temporal?: FeedTemporalEvaluation | undefined;
@@ -1007,11 +1007,11 @@ function objectToCard(input: {
   };
 }
 
-type DiscoverySignals = RpcOutput<"babel.discovery.candidates.v1">["discovery"]["ranked"][number]["candidate"]["signals"];
-type DiscoveryDiversityTrace = RpcOutput<"babel.discovery.candidates.v1">["discovery"]["diversity_trace"];
+type DiscoverySignals = RpcOutput<"babble.discovery.candidates.v1">["discovery"]["ranked"][number]["candidate"]["signals"];
+type DiscoveryDiversityTrace = RpcOutput<"babble.discovery.candidates.v1">["discovery"]["diversity_trace"];
 type DiscoveryDiversityCandidate = DiscoveryDiversityTrace["candidates"][number];
 
-function lineage(provenance: RpcOutput<"babel.object.get.v1">["object"]["provenance"]): readonly LineageItem[] {
+function lineage(provenance: RpcOutput<"babble.object.get.v1">["object"]["provenance"]): readonly LineageItem[] {
   const items: LineageItem[] = [];
   if (provenance.parent) {
     items.push({ label: "Parent", objectId: provenance.parent });
@@ -1026,7 +1026,7 @@ function lineage(provenance: RpcOutput<"babel.object.get.v1">["object"]["provena
 }
 
 function relationSummary(
-  relations: RpcOutput<"babel.object.get.v1">["object"]["relations"],
+  relations: RpcOutput<"babble.object.get.v1">["object"]["relations"],
 ): readonly RelationSummary[] {
   const counts = new Map<string, number>();
   for (const relation of relations) {
@@ -1038,7 +1038,7 @@ function relationSummary(
     .map(([relation, count]) => ({ relation, count }));
 }
 
-function relationLabel(relation: RpcOutput<"babel.object.get.v1">["object"]["relations"][number]["relation"]): string {
+function relationLabel(relation: RpcOutput<"babble.object.get.v1">["object"]["relations"][number]["relation"]): string {
   return typeof relation === "string" ? relation : relation.custom;
 }
 

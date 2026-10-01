@@ -1,13 +1,13 @@
-use babel_authoring::ObjectDraft;
-use babel_capabilities::{CapabilityGrant, GrantDecision};
-use babel_crypto::Keypair;
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_node::{ImportBundle, LocalNode};
-use babel_object::{CapabilityRequest, Surface, SurfaceRole, SurfaceTarget};
-use babel_runtime::{SurfaceLifecycle, SurfaceSessionId};
-use babel_state::{Event, EventKind, EventTarget};
-use babel_types::{IdentityId, ObjectId};
+use babble_authoring::ObjectDraft;
+use babble_capabilities::{CapabilityGrant, GrantDecision};
+use babble_crypto::Keypair;
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_node::{ImportBundle, LocalNode};
+use babble_object::{CapabilityRequest, Surface, SurfaceRole, SurfaceTarget};
+use babble_runtime::{SurfaceLifecycle, SurfaceSessionId};
+use babble_state::{Event, EventKind, EventTarget};
+use babble_types::{IdentityId, ObjectId};
 use serde_json::json;
 use std::{fs, path::PathBuf};
 
@@ -15,7 +15,7 @@ struct Root(PathBuf);
 impl Root {
     fn new() -> Self {
         Self(std::env::temp_dir().join(format!(
-            "babel-session-permissions-{}-{}",
+            "babble-session-permissions-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos()
         )))
@@ -29,7 +29,7 @@ impl Drop for Root {
 
 fn capability() -> CapabilityRequest {
     CapabilityRequest {
-        id: "babel.storage.local".into(),
+        id: "babble.storage.local".into(),
         version: 1,
         scope: json!({"namespace":"self"}),
     }

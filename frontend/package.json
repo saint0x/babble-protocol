@@ -1,5 +1,5 @@
 {
-  "name": "@babel-protocol/frontend",
+  "name": "@babble-protocol/frontend",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,7 +11,7 @@
     "preview": "astro preview --host 127.0.0.1"
   },
   "dependencies": {
-    "@babel-protocol/sdk": "file:../sdk",
+    "@babble-protocol/sdk": "file:../sdk",
     "astro": "7.3.5",
     "lucide": "^1.49.0",
     "sharp": "0.35.4"

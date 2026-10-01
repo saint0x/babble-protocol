@@ -1,9 +1,9 @@
 //! Bounded results reported by the authenticated browser host.
-use babel_types::{Error, Hash, Result};
+use babble_types::{Error, Hash, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-pub const BROWSER_EXECUTOR: &str = "babel.browser.v1";
+pub const BROWSER_EXECUTOR: &str = "babble.browser.v1";
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "kind", rename_all = "snake_case", deny_unknown_fields)]
@@ -38,13 +38,13 @@ impl BrowserInvocationResult {
         if matches!(
             (method, self),
             (
-                "babel.clipboard.write.v2",
+                "babble.clipboard.write",
                 Self::ClipboardWrite { written: true }
             ) | (
-                "babel.fullscreen.enter.v2",
+                "babble.fullscreen.enter",
                 Self::FullscreenEnter { entered: true }
             ) | (
-                "babel.clipboard.write.v2" | "babel.fullscreen.enter.v2",
+                "babble.clipboard.write" | "babble.fullscreen.enter",
                 Self::Failed { .. }
             )
         ) {

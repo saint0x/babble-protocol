@@ -30,13 +30,13 @@ export async function publishPermissionApp({ evaluate, waitFor, rpc, marker, fil
     open: !document.querySelector('[data-composer-panel]').hidden
   })`);
   assert.deepEqual(invalid, { raw: "[invalid", invalid: "true", state: "error", open: true });
-  const before = await rpc("babel.search.objects.v1", { q: marker, author: null, kind: null, limit: 20 });
+  const before = await rpc("babble.search.objects.v1", { q: marker, author: null, kind: null, limit: 20 });
   assert.equal(before.results.filter(item => item.object.payload.text === marker).length, 0,
     "invalid declarations must not publish an app with silently removed permissions");
   const declarations = [
-    { id: "babel.storage.local", version: 1, scope: { namespace: "host-actions" } },
-    { id: "babel.clipboard.write", version: 1, scope: {} },
-    { id: "babel.fullscreen.enter", version: 1, scope: {} },
+    { id: "babble.storage.local", version: 1, scope: { namespace: "host-actions" } },
+    { id: "babble.clipboard.write", version: 1, scope: {} },
+    { id: "babble.fullscreen.enter", version: 1, scope: {} },
   ];
   await evaluate(`(() => {
     const editor = document.querySelector('[data-bundle-capabilities]');
@@ -64,7 +64,7 @@ export async function publishPermissionApp({ evaluate, waitFor, rpc, marker, fil
   })`, value => value.hidden || value.state === "error");
   assert.equal(completed.state, "ready", completed.text);
   assert.match(completed.text, /^Published /);
-  const published = await rpc("babel.search.objects.v1", { q: marker, author: null, kind: null, limit: 20 });
+  const published = await rpc("babble.search.objects.v1", { q: marker, author: null, kind: null, limit: 20 });
   const matches = published.results.filter(item => item.object.payload.text === marker);
   assert.equal(matches.length, 1);
   const object = matches[0].object;

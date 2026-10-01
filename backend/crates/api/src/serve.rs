@@ -3,7 +3,7 @@ use axum::{
     Router,
     http::{Method, header},
 };
-use babel_node::LocalNode;
+use babble_node::LocalNode;
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
 use tower_http::cors::{AllowOrigin, CorsLayer};
@@ -22,7 +22,7 @@ pub async fn serve(config: ServerConfig) -> Result<(), ServeError> {
         if let Some(profile) = startup.seed_profile {
             let report = apply_seed_profile(&mut node, profile, &startup.public_origin)?;
             eprintln!(
-                "Babel API seed profile {:?}: {} Objects inserted",
+                "Babble API seed profile {:?}: {} Objects inserted",
                 report.profile, report.inserted_objects
             );
         }
@@ -48,10 +48,10 @@ pub async fn serve(config: ServerConfig) -> Result<(), ServeError> {
     };
     let app = configured_router(config, state);
     let listener = TcpListener::bind(bind_addr).await?;
-    eprintln!("Babel API listening on http://{}", listener.local_addr()?);
+    eprintln!("Babble API listening on http://{}", listener.local_addr()?);
     if let Some((gateway_listener, gateway_app)) = gateway {
         eprintln!(
-            "Babel bundle gateway listening on http://{} (isolated *.localhost mounts)",
+            "Babble bundle gateway listening on http://{} (isolated *.localhost mounts)",
             gateway_listener.local_addr()?
         );
         tokio::try_join!(
@@ -76,7 +76,7 @@ pub async fn serve(config: ServerConfig) -> Result<(), ServeError> {
 
 pub fn configured_router<P>(config: ServerConfig, state: ApiState<P>) -> Router
 where
-    P: babel_judgment::JudgmentProvider + Send + Sync + 'static,
+    P: babble_judgment::JudgmentProvider + Send + Sync + 'static,
 {
     router(state).layer(cors(config.cors_origins))
 }
@@ -90,7 +90,7 @@ pub enum ServeError {
     #[error(transparent)]
     Config(#[from] crate::config::ConfigError),
     #[error(transparent)]
-    Protocol(#[from] babel_types::Error),
+    Protocol(#[from] babble_types::Error),
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
 }
@@ -126,7 +126,7 @@ fn cors(origins: Vec<axum::http::HeaderValue>) -> CorsLayer {
             header::AUTHORIZATION,
             axum::http::HeaderName::from_static("idempotency-key"),
             axum::http::HeaderName::from_static(crate::auth::DOCUMENT_HEADER),
-            axum::http::HeaderName::from_static("x-babel-host-document"),
+            axum::http::HeaderName::from_static("x-babble-host-document"),
         ])
 }
 
@@ -141,7 +141,7 @@ mod tests {
 
     #[tokio::test]
     async fn invocation_host_document_preflight_allows_only_configured_parent_origin() {
-        let origin = "https://babel.test";
+        let origin = "https://babble.test";
         let app = Router::new()
             .route("/invocations/v1/prepare", post(|| async {}))
             .layer(cors(vec![origin.parse().unwrap()]));
@@ -156,7 +156,7 @@ mod tests {
                         .header(header::ACCESS_CONTROL_REQUEST_METHOD, "POST")
                         .header(
                             header::ACCESS_CONTROL_REQUEST_HEADERS,
-                            "authorization,content-type,x-babel-host-document",
+                            "authorization,content-type,x-babble-host-document",
                         )
                         .body(Body::empty())
                         .unwrap(),
@@ -172,7 +172,7 @@ mod tests {
                     response.headers()[header::ACCESS_CONTROL_ALLOW_HEADERS]
                         .to_str()
                         .unwrap()
-                        .contains("x-babel-host-document")
+                        .contains("x-babble-host-document")
                 );
             } else {
                 assert!(
@@ -186,7 +186,7 @@ mod tests {
 
     #[tokio::test]
     async fn consent_preflight_allows_idempotency_header_for_configured_origin() {
-        let origin = "https://babel.test";
+        let origin = "https://babble.test";
         let app = Router::new()
             .route("/capabilities/grants", post(|| async {}))
             .layer(cors(vec![origin.parse().unwrap()]));
@@ -199,7 +199,7 @@ mod tests {
                     .header(header::ACCESS_CONTROL_REQUEST_METHOD, "POST")
                     .header(
                         header::ACCESS_CONTROL_REQUEST_HEADERS,
-                        "authorization,content-type,idempotency-key,x-babel-surface-document",
+                        "authorization,content-type,idempotency-key,x-babble-surface-document",
                     )
                     .body(Body::empty())
                     .unwrap(),
@@ -218,7 +218,7 @@ mod tests {
             "authorization",
             "content-type",
             "idempotency-key",
-            "x-babel-surface-document",
+            "x-babble-surface-document",
         ] {
             assert!(
                 allowed.split(',').any(|item| item.trim() == name),
@@ -236,8 +236,8 @@ mod tests {
                 "/runtime/surfaces/sessions/{id}/document",
                 axum::routing::put(|| async {}),
             )
-            .layer(cors(vec!["https://babel.test".parse().unwrap()]));
-        for origin in ["https://babel.test", "https://untrusted.test"] {
+            .layer(cors(vec!["https://babble.test".parse().unwrap()]));
+        for origin in ["https://babble.test", "https://untrusted.test"] {
             for (path, method) in [
                 ("/rpc", "POST"),
                 ("/runtime/surfaces/sessions/test/document", "PUT"),
@@ -252,14 +252,14 @@ mod tests {
                             .header(header::ACCESS_CONTROL_REQUEST_METHOD, method)
                             .header(
                                 header::ACCESS_CONTROL_REQUEST_HEADERS,
-                                "authorization,content-type,x-babel-surface-document",
+                                "authorization,content-type,x-babble-surface-document",
                             )
                             .body(Body::empty())
                             .unwrap(),
                     )
                     .await
                     .unwrap();
-                if origin == "https://babel.test" {
+                if origin == "https://babble.test" {
                     assert_eq!(
                         response.headers()[header::ACCESS_CONTROL_ALLOW_ORIGIN],
                         origin

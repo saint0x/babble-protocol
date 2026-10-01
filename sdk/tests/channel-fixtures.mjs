@@ -1,13 +1,13 @@
 import { BrowserSurfaceHost, objectBinding, surfaceBridgeControl } from "../dist/index.js";
 
 export const control = surfaceBridgeControl;
-export const response = (request) => ({ protocol: "babel.rpc.v1", id: request.id, result: { ok: true }, error: null, trace_id: null });
+export const response = (request) => ({ protocol: "babble.rpc.v1", id: request.id, result: { ok: true }, error: null, trace_id: null });
 export const request = (id = "request") => ({
-  protocol: "babel.rpc.v1", id, method: "babel.search.objects.v1",
+  protocol: "babble.rpc.v1", id, method: "babble.search.objects.v1",
   binding: objectBinding({ objectId: "spoofed", surfaceSessionId: "spoofed", runtimeId: "test", origin: "https://evil.test", capabilityGrants: ["spoofed"] }),
   deadline: { timeout_ms: 30000, client_started_at: null }, payload: { q: "test" }, idempotency_key: null, trace_id: null,
 });
-export const rpc = (envelope) => ({ type: "babel.rpc.request", protocol: "babel.rpc.v1", envelope });
+export const rpc = (envelope) => ({ type: "babble.rpc.request", protocol: "babble.rpc.v1", envelope });
 export const plan = () => ({
   object_id: "object", surface: { role: "Feed", target: "Web", entry: "https://object.test/main.html", integrity: "hash" },
   lifecycle: "cold", admission: "ready", budget: { memory_bytes: 10000, cpu_ms_per_minute: 100, network_bytes_per_minute: 1000, persistent_storage_bytes: 0, realtime_connections: 0, gpu_expected: false, background_eligible: false },

@@ -4,7 +4,7 @@
 //! enforce method budgets/quotas, and invalidate old epochs on restart. These
 //! types confer no authority from client-supplied identifiers alone.
 use crate::CapabilityId;
-use babel_types::{Canonical, Error, Hash, IdentityId, ObjectId, Result, Timestamp};
+use babble_types::{Canonical, Error, Hash, IdentityId, ObjectId, Result, Timestamp};
 use rand_core::{OsRng, RngCore};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -19,15 +19,15 @@ pub const MAX_INVOCATION_REVISION: u32 = 4;
 pub fn is_social_invocation(capability: &str) -> bool {
     matches!(
         capability,
-        "babel.social.follow"
-            | "babel.social.unfollow"
-            | "babel.social.share"
-            | "babel.social.reply"
+        "babble.social.follow"
+            | "babble.social.unfollow"
+            | "babble.social.share"
+            | "babble.social.reply"
     )
 }
 
 pub fn is_browser_invocation(capability: &str) -> bool {
-    matches!(capability, "babel.clipboard.write" | "babel.fullscreen.enter")
+    matches!(capability, "babble.clipboard.write" | "babble.fullscreen.enter")
 }
 
 pub fn is_one_use_invocation(capability: &str) -> bool {
@@ -55,7 +55,7 @@ pub fn invocation_key_for_login(
     hex_id(actor.as_str(), IdentityId::PREFIX)?;
     token(login_id)?;
     token(request_key)?;
-    ("babel.invocation.key.v1", actor, login_id, request_key).canonical_hash()
+    ("babble.invocation.key.v1", actor, login_id, request_key).canonical_hash()
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -246,7 +246,7 @@ impl InvocationIntent {
             token(version)?;
         }
         if is_browser_invocation(self.capability.as_str())
-            && (self.method != format!("{}.v2", self.capability.as_str())
+            && (self.method != format!("{}", self.capability.as_str())
                 || self.method_version != 2 || self.capability_version != 1
                 || self.executor != (InvocationExecutor::External {
                     provider: browser::BROWSER_EXECUTOR.into(), version: "1".into(),
@@ -266,7 +266,7 @@ impl InvocationIntent {
 
     pub fn fingerprint(&self) -> Result<Hash> {
         self.validate()?;
-        ("babel.invocation.intent.v1", self).canonical_hash()
+        ("babble.invocation.intent.v1", self).canonical_hash()
     }
 
     pub fn payload_hash(&self) -> Result<Hash> {

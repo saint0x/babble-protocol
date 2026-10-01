@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
-import { canonicalValueBytes } from "@babel-protocol/sdk";
+import { canonicalValueBytes } from "@babble-protocol/sdk";
 
 const code = name => ts.transpileModule(readFileSync(new URL(`../src/app/${name}.ts`, import.meta.url), "utf8"), {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS },
@@ -16,7 +16,7 @@ const actor = `id_${"a".repeat(64)}`, object = `obj_${"b".repeat(64)}`, target =
 const docId = "da9bab5c-3a90-4dc2-a9c9-ade1e1f8588c";
 
 function request(patch = {}) {
-  return { protocol: "babel.rpc.v1", id: "bridge-request", method: "babel.social.reply.v2", trace_id: "trace", idempotency_key: "stable-intent",
+  return { protocol: "babble.rpc.v1", id: "bridge-request", method: "babble.social.reply", trace_id: "trace", idempotency_key: "stable-intent",
     deadline: { timeout_ms: 30_000 }, payload: { author_id: actor, target_object_id: target, text: "Literal <script>text</script>" },
     binding: { identity_id: actor, object_id: object, surface_session_id: "surface-one", capability_grants: [] }, ...patch };
 }
@@ -70,7 +70,7 @@ function harness(acquireConsent) {
 }
 
 test("unrelated reads preserve envelope and context", async () => {
-  const h = harness(), req = request({ method: "babel.object.get.v1" });
+  const h = harness(), req = request({ method: "babble.object.get.v1" });
   const expected = h.response = { id: req.id, result: {} };
   assert.equal(await h.dispatch(req, h.context), expected);
   assert.equal(h.dispatches[0].ctx, h.context);
@@ -106,7 +106,7 @@ for (const decision of ["deny", "cancel"]) {
 
 test("busy social prompt rejects social flooding before dispatch", async () => {
   const h = harness(), work = h.dispatch(request(), h.context); await tick();
-  for (const method of ["babel.social.reply.v2", "babel.social.follow.v2", "babel.social.share.v2"]) {
+  for (const method of ["babble.social.reply", "babble.social.follow", "babble.social.share"]) {
     assert.equal((await h.dispatch(request({ id: "other", method }), h.context)).error.code, "RATE_LIMITED");
   }
   assert.equal(h.dispatches.length, 1); assert.equal(h.prompts.length, 1);

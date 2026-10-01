@@ -3,16 +3,16 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode},
 };
-use babel_api::{
+use babble_api::{
     ApiState,
     provider::{JudgmentConfig, ServerProvider},
     router,
 };
-use babel_discovery::{NativeTemporalScorer, TemporalProvider, TemporalRequest};
-use babel_identity::IdentityKind;
-use babel_judgment_python::{PythonProvider, WorkerConfig};
-use babel_node::LocalNode;
-use babel_types::Timestamp;
+use babble_discovery::{NativeTemporalScorer, TemporalProvider, TemporalRequest};
+use babble_identity::IdentityKind;
+use babble_judgment_python::{PythonProvider, WorkerConfig};
+use babble_node::LocalNode;
+use babble_types::Timestamp;
 use serde_json::{Value, json};
 use std::{
     collections::BTreeSet,
@@ -33,8 +33,8 @@ use tower::ServiceExt;
 const OBSERVED_WORKER: &str = r#"
 import json, os, socket, sys
 from dataclasses import asdict
-from babel_algorithms.execution import AlgorithmExecutor
-from babel_algorithms.worker import handle
+from babble_algorithms.execution import AlgorithmExecutor
+from babble_algorithms.worker import handle
 executor = AlgorithmExecutor()
 mode, port = sys.argv[1:]
 observer = socket.create_connection(('127.0.0.1', int(port)), timeout=3)
@@ -81,7 +81,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-temporal-api-{}-{}-{}",
+            "babble-temporal-api-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed)
@@ -234,8 +234,8 @@ fn assert_mapping(body: &Value, health: &Value) {
 #[tokio::test]
 async fn default_real_python_and_explicit_rust_local_report_temporal_provenance_through_http() {
     for (config, expected) in [
-        (JudgmentConfig::default(), "babel-python"),
-        (JudgmentConfig::RustLocal, "babel-rust"),
+        (JudgmentConfig::default(), "babble-python"),
+        (JudgmentConfig::RustLocal, "babble-rust"),
     ] {
         let f = Fixture::new();
         let mut node = f.node(config.start().unwrap());

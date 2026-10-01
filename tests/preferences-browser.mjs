@@ -64,8 +64,8 @@ async function exercisePreferences({ identityId, targetIdentityId, password, sea
   const field = name => required(`[data-preference-field="${name}"]`);
   const tab = name => click(`[data-preference-tab="${name}"]`);
   const panel = required('[data-settings-panel]');
-  const origin = new URL(document.documentElement.dataset.babelApi).origin;
-  const key = kind => 'babel.local.v2:' + JSON.stringify([origin, identityId, kind]);
+  const origin = new URL(document.documentElement.dataset.babbleApi).origin;
+  const key = kind => 'babble.local:' + JSON.stringify([origin, identityId, kind]);
   const saved = () => JSON.parse(localStorage.getItem(key('preferences')) ?? 'null');
   const ready = () => until('feed ready', () => required('[data-status]').dataset.state === 'online');
   const open = async () => {
@@ -151,13 +151,13 @@ async function exercisePreferences({ identityId, targetIdentityId, password, sea
     tab('filters'); field('hiddenTerms').value = ''; await apply();
     check(!!active(), 'Clearing word filter did not restore posts');
     const before = JSON.stringify(saved());
-    const sessionBefore = sessionStorage.getItem('babel.session.v1:' + origin);
+    const sessionBefore = sessionStorage.getItem('babble.session.v1:' + origin);
     tab('local-data'); click('[data-preferences-clear-history]'); click('[data-preferences-cancel]');
     check(localStorage.getItem(key('seen')) !== null, 'Cancel cleared history');
     click('[data-preferences-clear-history]'); click('[data-preferences-confirm="clear-history"]');
     await ready();
     check(localStorage.getItem(key('seen')) === null, 'History returned without a new card visit');
-    check(JSON.stringify(saved()) === before && sessionStorage.getItem('babel.session.v1:' + origin) === sessionBefore,
+    check(JSON.stringify(saved()) === before && sessionStorage.getItem('babble.session.v1:' + origin) === sessionBefore,
       'Clearing history changed preferences or account');
     await close();
     return {immediateHide, undo:true, filteredLenses, historyCleared:true};
@@ -173,7 +173,7 @@ async function exercisePreferences({ identityId, targetIdentityId, password, sea
     await until('sign-out confirmation', () => required('[data-account-dialog]').open
       && !required('[data-security-confirm]').disabled && required('[data-security-confirm]').getClientRects().length > 0);
     click('[data-security-confirm]');
-    await until('signed out', () => sessionStorage.getItem('babel.session.v1:' + origin) === null);
+    await until('signed out', () => sessionStorage.getItem('babble.session.v1:' + origin) === null);
     click('[data-account-close]');
     await ready(); await open();
     check(field('interests').value === '' && required('[data-preferences-scope]').textContent.endsWith('Guest'), 'Account preferences leaked to guest');

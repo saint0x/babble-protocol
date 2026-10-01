@@ -1,10 +1,10 @@
 use crate::{LocalNode, ingestion_definitions, object_judgment_state};
-use babel_judgment::{
+use babble_judgment::{
     CacheKey, DefinitionId, Judgment, JudgmentCache, JudgmentOrchestrator, JudgmentProvider,
     JudgmentRequest, OrchestratedJudgment, cache_key,
 };
-use babel_object::Object;
-use babel_types::{Error, Result};
+use babble_object::Object;
+use babble_types::{Error, Result};
 use serde_json::Value;
 use std::collections::BTreeMap;
 use std::time::Instant;
@@ -15,7 +15,7 @@ mod tests;
 pub(crate) struct PreparedJudgment {
     key: CacheKey,
     deadline: Option<Instant>,
-    pub(crate) input: Option<babel_store::ObjectJudgmentInput>,
+    pub(crate) input: Option<babble_store::ObjectJudgmentInput>,
     pub(crate) orchestration: OrchestratedJudgment,
 }
 
@@ -55,7 +55,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
             }
             self.source_agreement_state_before(
                 object,
-                babel_types::Timestamp::now(),
+                babble_types::Timestamp::now(),
                 deadline.unwrap(),
             )?
         } else {
@@ -91,7 +91,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
                 &object.id,
                 &request.definition,
                 &provider,
-                babel_types::Timestamp::now(),
+                babble_types::Timestamp::now(),
             )? && input.request == scoped
             {
                 staged_cache.insert(key.clone(), judgment);
@@ -107,7 +107,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
         };
         let judgment = &orchestration.judgment;
         if request.definition == DefinitionId::source_agreement_v1() {
-            babel_judgment::validate_source_agreement_result(&scoped, &judgment.output)?;
+            babble_judgment::validate_source_agreement_result(&scoped, &judgment.output)?;
         }
         judgment.id.validate()?;
         if judgment.definition != request.definition
@@ -122,7 +122,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
             )));
         }
         let input = (scoped.state.subject == object.id.as_str()).then(|| {
-            babel_store::ObjectJudgmentInput {
+            babble_store::ObjectJudgmentInput {
                 object_id: object.id.clone(),
                 judgment_id: judgment.id.clone(),
                 request: scoped,
@@ -141,7 +141,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
         &mut self,
         prepared: Vec<PreparedJudgment>,
     ) -> Result<Vec<Judgment>> {
-        let mut batch = babel_store::PublicationBatch::new();
+        let mut batch = babble_store::PublicationBatch::new();
         for entry in &prepared {
             check_deadline(entry.deadline)?;
             if let Some(input) = &entry.input {

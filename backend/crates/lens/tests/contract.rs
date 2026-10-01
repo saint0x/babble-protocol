@@ -1,7 +1,7 @@
 mod support;
 
-use babel_lens::*;
-use babel_types::ObjectId;
+use babble_lens::*;
+use babble_types::ObjectId;
 use support::{candidate, fixtures, request};
 
 type Mutation<T> = Box<dyn Fn(&mut T)>;
@@ -214,7 +214,7 @@ fn validation_does_not_recompute_native_scores() {
     r.candidates.truncate(1);
     let mut result = NativeRanker.rank(&r).unwrap();
     let python = RankingProviderVersion {
-        provider: "babel-python".into(),
+        provider: "babble-python".into(),
         model: "lenses-v1".into(),
         version: "1".into(),
     };

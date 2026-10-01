@@ -1,21 +1,21 @@
 import { createElement, RotateCw, X } from "lucide";
 import type { Accounts } from "./accounts";
-import { BabelFrontendClient } from "./protocol";
+import { BabbleFrontendClient } from "./protocol";
 import { Permissions, matchingGrants, mayApprove, permitsSurfaceStart, usesInvocationConsent, type PermissionState } from "./permissions";
 
 const labels: Readonly<Record<string, string>> = {
-  "babel.identity.current": "Current identity", "babel.storage.local": "Private local storage",
-  "babel.storage.object": "Object storage", "babel.network.fetch": "Network requests",
-  "babel.social.follow": "Follow Objects", "babel.social.unfollow": "Unfollow Objects",
-  "babel.social.share": "Share Objects", "babel.social.reply": "Reply to Objects",
-  "babel.realtime.join": "Join realtime rooms", "babel.realtime.send": "Send realtime messages",
-  "babel.realtime.leave": "Leave realtime rooms", "babel.payments.checkout": "Payments",
-  "babel.ai.judge": "Evaluate Judgments", "babel.ai.generate": "Generate with AI",
-  "babel.ai.embed": "Create embeddings", "babel.ai.transcribe": "Transcribe media",
-  "babel.media.camera": "Camera", "babel.media.microphone": "Microphone",
-  "babel.graphics.webgpu": "GPU rendering", "babel.notifications.request": "Notifications",
-  "babel.clipboard.write": "Write to clipboard", "babel.fullscreen.enter": "Enter fullscreen",
-  "babel.location": "Location", "babel.files": "Files",
+  "babble.identity.current": "Current identity", "babble.storage.local": "Private local storage",
+  "babble.storage.object": "Object storage", "babble.network.fetch": "Network requests",
+  "babble.social.follow": "Follow Objects", "babble.social.unfollow": "Unfollow Objects",
+  "babble.social.share": "Share Objects", "babble.social.reply": "Reply to Objects",
+  "babble.realtime.join": "Join realtime rooms", "babble.realtime.send": "Send realtime messages",
+  "babble.realtime.leave": "Leave realtime rooms", "babble.payments.checkout": "Payments",
+  "babble.ai.judge": "Evaluate Judgments", "babble.ai.generate": "Generate with AI",
+  "babble.ai.embed": "Create embeddings", "babble.ai.transcribe": "Transcribe media",
+  "babble.media.camera": "Camera", "babble.media.microphone": "Microphone",
+  "babble.graphics.webgpu": "GPU rendering", "babble.notifications.request": "Notifications",
+  "babble.clipboard.write": "Write to clipboard", "babble.fullscreen.enter": "Enter fullscreen",
+  "babble.location": "Location", "babble.files": "Files",
 };
 
 export class PermissionPanel {
@@ -85,7 +85,7 @@ export class PermissionPanel {
     this.launch.hidden = !canLaunch;
     if (!this.dialog.open) this.dialog.showModal();
     const authorized = () => this.accounts.current?.token === session.token;
-    const source = new BabelFrontendClient(this.accounts.origin.href, (input, init) => {
+    const source = new BabbleFrontendClient(this.accounts.origin.href, (input, init) => {
       if (!authorized()) throw new Error("The signed-in account changed. Review permissions again.");
       return this.accounts.authenticatedFetch(input, init);
     });

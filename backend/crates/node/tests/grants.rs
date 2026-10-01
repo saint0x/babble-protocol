@@ -1,17 +1,17 @@
-use babel_authoring::ObjectDraft;
-use babel_capabilities::{CapabilityGrant, GrantDecision};
-use babel_crypto::Keypair;
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_node::{ImportBundle, LocalNode};
-use babel_object::CapabilityRequest;
-use babel_state::{Event, EventKind, EventTarget};
+use babble_authoring::ObjectDraft;
+use babble_capabilities::{CapabilityGrant, GrantDecision};
+use babble_crypto::Keypair;
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_node::{ImportBundle, LocalNode};
+use babble_object::CapabilityRequest;
+use babble_state::{Event, EventKind, EventTarget};
 use serde_json::json;
 
 #[test]
 fn imported_revocation_cannot_revoke_another_actors_grant() {
     let root = std::env::temp_dir().join(format!(
-        "babel-grant-auth-{}-{}",
+        "babble-grant-auth-{}-{}",
         std::process::id(),
         std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -25,7 +25,7 @@ fn imported_revocation_cannot_revoke_another_actors_grant() {
     node.import_signing_identity(bob.clone(), key.clone())
         .unwrap();
     let capability: CapabilityRequest = serde_json::from_value(
-        json!({"id":"babel.storage.object","version":1,"scope":{"namespace":"self"}}),
+        json!({"id":"babble.storage.object","version":1,"scope":{"namespace":"self"}}),
     )
     .unwrap();
     let object = node

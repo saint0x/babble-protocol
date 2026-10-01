@@ -1,5 +1,5 @@
 [package]
-name = "babel-cli"
+name = "babble-cli"
 version = "0.1.0"
 edition.workspace = true
 license.workspace = true
@@ -7,21 +7,21 @@ repository.workspace = true
 rust-version.workspace = true
 
 [[bin]]
-name = "babel"
+name = "babble"
 path = "src/main.rs"
 
 [dependencies]
-babel-authoring.workspace = true
-babel-capabilities.workspace = true
-babel-crypto.workspace = true
-babel-graph.workspace = true
-babel-identity.workspace = true
-babel-judgment-local.workspace = true
-babel-node.workspace = true
-babel-object.workspace = true
-babel-runtime.workspace = true
-babel-store.workspace = true
-babel-types.workspace = true
+babble-authoring.workspace = true
+babble-capabilities.workspace = true
+babble-crypto.workspace = true
+babble-graph.workspace = true
+babble-identity.workspace = true
+babble-judgment-local.workspace = true
+babble-node.workspace = true
+babble-object.workspace = true
+babble-runtime.workspace = true
+babble-store.workspace = true
+babble-types.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true

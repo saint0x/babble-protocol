@@ -25,8 +25,8 @@ The deterministic fixture key is `social_safety`.
 Both exports are current. Regenerate from the repository root:
 
 ```sh
-CARGO_INCREMENTAL=0 cargo run --manifest-path backend/Cargo.toml -p babel-schema --bin export -- bundle fixtures/protocol/v1/schema-bundle.json
-CARGO_INCREMENTAL=0 cargo run --manifest-path backend/Cargo.toml -p babel-schema --bin export -- fixtures fixtures/protocol/v1/fixtures.json
+CARGO_INCREMENTAL=0 cargo run --manifest-path backend/Cargo.toml -p babble-schema --bin export -- bundle fixtures/protocol/v1/schema-bundle.json
+CARGO_INCREMENTAL=0 cargo run --manifest-path backend/Cargo.toml -p babble-schema --bin export -- fixtures fixtures/protocol/v1/fixtures.json
 ```
 
 ## Implementation
@@ -36,7 +36,7 @@ CARGO_INCREMENTAL=0 cargo run --manifest-path backend/Cargo.toml -p babel-schema
 - `backend/crates/node/src/safety.rs`: account reads/writes and shared interaction checks.
 - `backend/crates/node/src/publication.rs`: guards generic Objects, embedded edges, provenance, related publications, and direct edge publication, after exact publication-receipt replay.
 - `backend/crates/node/src/lib.rs`: startup verification and separate inferred-edge guard.
-- `backend/crates/node/src/invocations.rs`: live bidirectional enforcement for v2 follow/reply/share execution.
+- `backend/crates/node/src/invocations.rs`: live bidirectional enforcement for  follow/reply/share execution.
 - `backend/crates/node/src/following.rs`: follow enforcement, owner-specific feed filtering, and safety snapshot cursor invalidation.
 - `backend/crates/node/src/reactions.rs`: prohibits new reaction intent under blocks while allowing complete or partial withdrawals and exact retries.
 - `backend/crates/api/src/safety.rs`, route registration, and auth policy: authenticated transport and no-store behavior.

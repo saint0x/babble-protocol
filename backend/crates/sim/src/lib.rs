@@ -1,10 +1,10 @@
-use babel_crypto::Keypair;
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_network::{Envelope, GossipEngine, Message, NetworkAction, NetworkLimits};
-use babel_node::LocalNode;
-use babel_object::Object;
-use babel_types::{EventId, IdentityId, Result};
+use babble_crypto::Keypair;
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_network::{Envelope, GossipEngine, Message, NetworkAction, NetworkLimits};
+use babble_node::LocalNode;
+use babble_object::Object;
+use babble_types::{EventId, IdentityId, Result};
 use std::{
     collections::{BTreeMap, BTreeSet},
     path::PathBuf,
@@ -160,7 +160,7 @@ impl NetworkSimulator {
         self.require_node(source)?;
         self.require_node(target)?;
         let mut envelope = self.envelope(source, message)?;
-        envelope.payload_hash = babel_types::Hash::from_bytes(b"tampered network message");
+        envelope.payload_hash = babble_types::Hash::from_bytes(b"tampered network message");
         self.deliver_envelope(source, target, envelope)
     }
 
@@ -301,13 +301,13 @@ impl NetworkSimulator {
     fn require_node(&self, index: usize) -> Result<&SimNode> {
         self.nodes
             .get(index)
-            .ok_or_else(|| babel_types::Error::NotFound(format!("sim node {index}")))
+            .ok_or_else(|| babble_types::Error::NotFound(format!("sim node {index}")))
     }
 
     fn require_node_mut(&mut self, index: usize) -> Result<&mut SimNode> {
         self.nodes
             .get_mut(index)
-            .ok_or_else(|| babel_types::Error::NotFound(format!("sim node {index}")))
+            .ok_or_else(|| babble_types::Error::NotFound(format!("sim node {index}")))
     }
 }
 

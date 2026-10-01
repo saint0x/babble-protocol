@@ -1,19 +1,19 @@
-use babel_crypto::Keypair;
-use babel_discovery::{
+use babble_crypto::Keypair;
+use babble_discovery::{
     NativeTemporalScorer, TemporalProvider, TemporalProviderVersion, TemporalRequest,
     TemporalResult,
 };
-use babel_graph::{Edge, EdgeOrigin, Relation};
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment::{Judgment, JudgmentProvider, JudgmentRequest, ProviderVersion};
-use babel_judgment_local::LocalProvider;
-use babel_lens::{
+use babble_graph::{Edge, EdgeOrigin, Relation};
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment::{Judgment, JudgmentProvider, JudgmentRequest, ProviderVersion};
+use babble_judgment_local::LocalProvider;
+use babble_lens::{
     CandidateSource, NativeRanker, RankingProvider, RankingProviderVersion, RankingRequest,
     RankingResult,
 };
-use babel_node::{DiscoveryQuery, ImportBundle, LocalNode, ObjectSearchQuery, moderation::*};
-use babel_object::Object;
-use babel_types::{Canonical, IdentityId, Result, Timestamp};
+use babble_node::{DiscoveryQuery, ImportBundle, LocalNode, ObjectSearchQuery, moderation::*};
+use babble_object::Object;
+use babble_types::{Canonical, IdentityId, Result, Timestamp};
 use std::{
     collections::{BTreeMap, BTreeSet},
     path::PathBuf,
@@ -39,7 +39,7 @@ impl JudgmentProvider for Judge {
     fn judge(&self, request: &JudgmentRequest) -> Result<Judgment> {
         self.0.judgments.fetch_add(1, Ordering::Relaxed);
         if self.0.fail.load(Ordering::Relaxed) {
-            return Err(babel_types::Error::ProviderUnavailable(
+            return Err(babble_types::Error::ProviderUnavailable(
                 "injected publication failure".into(),
             ));
         }
@@ -95,7 +95,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicUsize = AtomicUsize::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-indexed-discovery-{}-{}",
+            "babble-indexed-discovery-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
@@ -296,7 +296,7 @@ fn old_sources_complete_overlap_provenance_recent_exploration_and_output_limit_i
     );
     let mut by_emergence = ranked.candidates.iter().collect::<Vec<_>>();
     by_emergence.sort_by(|a, b| {
-        let score = |c: &babel_lens::Candidate| {
+        let score = |c: &babble_lens::Candidate| {
             0.55 * c.signals.temporal
                 + 0.25 * c.signals.novelty
                 + 0.20 * c.signals.reputation.research_score()
@@ -616,12 +616,12 @@ fn roots_are_bounded_and_empty_store_never_calls_enrichment() {
     assert!(f.discover(query()).candidates.is_empty());
     let mut q = query();
     q.anchors = (0..65)
-        .map(|n| babel_types::ObjectId::new_unchecked(format!("obj_{n:064x}")))
+        .map(|n| babble_types::ObjectId::new_unchecked(format!("obj_{n:064x}")))
         .collect();
     assert!(f.node.discover_objects_at(q, clock()).is_err());
     let mut q = query();
     q.followed_objects = (0..201)
-        .map(|n| babel_types::ObjectId::new_unchecked(format!("obj_{n:064x}")))
+        .map(|n| babble_types::ObjectId::new_unchecked(format!("obj_{n:064x}")))
         .collect();
     assert!(f.node.discover_objects_at(q, clock()).is_err());
     assert_eq!(f.calls.judgments.load(Ordering::Relaxed), 0);

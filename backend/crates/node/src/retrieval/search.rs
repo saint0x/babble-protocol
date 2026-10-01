@@ -92,7 +92,7 @@ mod tests {
     fn indexed_substring_search_matches_full_scan_oracle_for_generated_unicode_queries() {
         let key = Keypair::from_ed25519_secret_hex(&"ab".repeat(32)).unwrap();
         let author =
-            Identity::create(babel_identity::IdentityKind::Person, "index-author", &key).unwrap();
+            Identity::create(babble_identity::IdentityKind::Person, "index-author", &key).unwrap();
         let mut index = DiscoveryIndex::default();
         let mut objects = Vec::new();
         let mut seed = 290930_u64;
@@ -168,7 +168,7 @@ mod tests {
                         &ObjectSearchQuery {
                             query: Some(query.clone()),
                             author: Some(author.id.clone()),
-                            kind: Some(babel_object::ObjectKind::text().as_str().into()),
+                            kind: Some(babble_object::ObjectKind::text().as_str().into()),
                             limit
                         },
                         &restricted

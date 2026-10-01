@@ -1,6 +1,6 @@
 //! Canonical source-agreement boundary. Scores describe supplied sources, not truth.
 use crate::JudgmentRequest;
-use babel_types::{Error, Result};
+use babble_types::{Error, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize, de};
 use std::collections::{BTreeMap, BTreeSet};

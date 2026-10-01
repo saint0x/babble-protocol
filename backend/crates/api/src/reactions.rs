@@ -7,8 +7,8 @@ use axum::{
     Extension, Json,
     extract::{Path, State},
 };
-use babel_graph::{ReactionRecord, ReactionState, ReactionSummary, ReactionValue};
-use babel_judgment::JudgmentProvider;
+use babble_graph::{ReactionRecord, ReactionState, ReactionSummary, ReactionValue};
+use babble_judgment::JudgmentProvider;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 

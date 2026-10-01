@@ -1,11 +1,11 @@
 use crate::ApiState;
-use babel_authoring::ObjectDraft;
-use babel_identity::IdentityKind;
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
-use babel_rpc::{RpcBinding, RpcErrorCode, RpcRequestEnvelope, babel_rpc_catalog};
-use babel_types::Canonical;
-use babel_types::{Hash, IdentityId};
+use babble_authoring::ObjectDraft;
+use babble_identity::IdentityKind;
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
+use babble_rpc::{RpcBinding, RpcErrorCode, RpcRequestEnvelope, babble_rpc_catalog};
+use babble_types::Canonical;
+use babble_types::{Hash, IdentityId};
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -24,7 +24,7 @@ impl Root {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-retry-{}-{}",
+            "babble-retry-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
@@ -43,10 +43,10 @@ impl Drop for Root {
 
 fn request(method: &str, payload: Value, key: &str) -> RpcRequestEnvelope {
     RpcRequestEnvelope::new(
-        &babel_rpc_catalog().unwrap(),
+        &babble_rpc_catalog().unwrap(),
         "retry-test",
         method,
-        RpcBinding::host("retry-test", "babel://retry").unwrap(),
+        RpcBinding::host("retry-test", "babble://retry").unwrap(),
         payload,
     )
     .unwrap()
@@ -64,13 +64,13 @@ fn dispatch(state: &ApiState<LocalProvider>, request: &RpcRequestEnvelope) -> Va
 fn prepare_native_invocation(
     state: &ApiState<LocalProvider>,
     request: &RpcRequestEnvelope,
-) -> babel_types::Result<babel_capabilities::invocation::InvocationRecord> {
-    use babel_capabilities::invocation::{InvocationContext, InvocationOrigin};
+) -> babble_types::Result<babble_capabilities::invocation::InvocationRecord> {
+    use babble_capabilities::invocation::{InvocationContext, InvocationOrigin};
     let mut node = state.node.lock().unwrap();
     node.check_ready()?;
     let actor: IdentityId = serde_json::from_value(request.payload["author_id"].clone()).unwrap();
     let object_id =
-        babel_types::ObjectId::new_unchecked(request.binding.object_id.clone().unwrap());
+        babble_types::ObjectId::new_unchecked(request.binding.object_id.clone().unwrap());
     let key = request.idempotency_key.as_deref().unwrap();
     let existing = node.store().list_invocations()?.into_iter().find(|record| {
         record.intent().context.actor == actor && record.intent().request_key == key
@@ -90,9 +90,9 @@ fn prepare_native_invocation(
         });
     let text_method = matches!(
         request.method.as_str(),
-        "babel.social.reply.v2" | "babel.social.share.v2"
+        "babble.social.reply" | "babble.social.share"
     );
-    let payload = babel_node::SocialInvocationPayload {
+    let payload = babble_node::SocialInvocationPayload {
         target_object_id: serde_json::from_value(request.payload["target_object_id"].clone())
             .unwrap(),
         text: if text_method {
@@ -106,25 +106,25 @@ fn prepare_native_invocation(
             .cloned()
             .map(serde_json::from_value)
             .transpose()
-            .map_err(|e| babel_types::Error::Canonical(e.to_string()))?,
+            .map_err(|e| babble_types::Error::Canonical(e.to_string()))?,
     };
     node.prepare_social_invocation(
         context,
         key,
         request.method.as_str(),
         payload,
-        babel_types::Timestamp(time::OffsetDateTime::now_utc() + time::Duration::seconds(30)),
+        babble_types::Timestamp(time::OffsetDateTime::now_utc() + time::Duration::seconds(30)),
     )
 }
 
 fn dispatch_rpc_request(
     state: &ApiState<LocalProvider>,
     request: RpcRequestEnvelope,
-) -> babel_rpc::RpcResponseEnvelope {
+) -> babble_rpc::RpcResponseEnvelope {
     if !crate::invocations::social_method(request.method.as_str()) {
         return crate::dispatch_rpc_request(state, request);
     }
-    let result = (|| -> babel_types::Result<Value> {
+    let result = (|| -> babble_types::Result<Value> {
         let record = prepare_native_invocation(state, &request)?;
         let ctx = &record.intent().context;
         let mut node = state.node.lock().unwrap();
@@ -136,15 +136,15 @@ fn dispatch_rpc_request(
             edge: result.edge,
             receipt: result.receipt,
         })
-        .map_err(|e| babel_types::Error::Canonical(e.to_string()))
+        .map_err(|e| babble_types::Error::Canonical(e.to_string()))
     })();
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
     match result {
-        Ok(result) => babel_rpc::RpcResponseEnvelope::ok(&catalog, &request, result),
-        Err(error) => babel_rpc::RpcResponseEnvelope::err(
+        Ok(result) => babble_rpc::RpcResponseEnvelope::ok(&catalog, &request, result),
+        Err(error) => babble_rpc::RpcResponseEnvelope::err(
             &catalog,
             &request,
-            babel_rpc::RpcError::new(RpcErrorCode::Conflict, error.to_string()),
+            babble_rpc::RpcError::new(RpcErrorCode::Conflict, error.to_string()),
         ),
     }
 }
@@ -152,7 +152,7 @@ fn dispatch_rpc_request(
 fn publication_receipt_id(state: &ApiState<LocalProvider>, request: &RpcRequestEnvelope) -> Hash {
     if crate::invocations::social_method(request.method.as_str()) {
         let record = prepare_native_invocation(state, request).unwrap();
-        ("babel.invocation.publication.v1", record.id())
+        ("babble.invocation.publication.v1", record.id())
             .canonical_hash()
             .unwrap()
     } else {
@@ -187,8 +187,8 @@ fn publication_retry_all_rpc_publication_variants_survive_restart() {
         .put_media_blob("image/png", b"test-media-bytes")
         .unwrap();
     let mut social = ObjectDraft::text("social controller").unwrap();
-    let capabilities: Vec<babel_object::CapabilityRequest> = ["follow", "unfollow", "reply", "share"].into_iter().map(|name| {
-        serde_json::from_value(json!({"id":format!("babel.social.{name}"),"version":1,"scope":{"object_id":target.id}})).unwrap()
+    let capabilities: Vec<babble_object::CapabilityRequest> = ["follow", "unfollow", "reply", "share"].into_iter().map(|name| {
+        serde_json::from_value(json!({"id":format!("babble.social.{name}"),"version":1,"scope":{"object_id":target.id}})).unwrap()
     }).collect();
     for capability in &capabilities {
         social = social.with_capability(capability.clone()).unwrap();
@@ -198,45 +198,45 @@ fn publication_retry_all_rpc_publication_variants_survive_restart() {
         controller.id.to_string(),
         "native-test",
         "retry-test",
-        "babel://retry",
+        "babble://retry",
         vec![],
     )
     .unwrap();
     let mut requests = vec![
         request(
-            "babel.object.publish_text.v1",
+            "babble.object.publish_text.v1",
             json!({"author_id":author.id,"text":"retry text"}),
             "text",
         ),
         request(
-            "babel.object.publish.v1",
+            "babble.object.publish.v1",
             json!({"author_id":author.id,"draft":ObjectDraft::text("retry draft").unwrap()}),
             "draft",
         ),
         request(
-            "babel.object.publish_media.v1",
+            "babble.object.publish_media.v1",
             json!({"author_id":author.id,"title":"media","resources":[media]}),
             "media",
         ),
         request(
-            "babel.object.fork.v1",
+            "babble.object.fork.v1",
             json!({"author_id":author.id,"source_object_id":source.id,"draft":ObjectDraft::text("fork").unwrap()}),
             "fork",
         ),
         request(
-            "babel.object.remix.v1",
+            "babble.object.remix.v1",
             json!({"author_id":author.id,"source_object_ids":[source.id,target.id],"draft":ObjectDraft::text("remix").unwrap()}),
             "remix",
         ),
         request(
-            "babel.graph.edge.publish.v1",
+            "babble.graph.edge.publish.v1",
             json!({"author_id":author.id,"source":source.id,"target":target.id,"relation":"references","origin":"HumanAssertion"}),
             "edge",
         ),
     ];
     for action in ["follow", "unfollow", "reply", "share"] {
         let mut req = request(
-            &format!("babel.social.{action}.v2"),
+            &format!("babble.social.{action}"),
             json!({"author_id":author.id,"target_object_id":target.id,"text":"retry social"}),
             action,
         );
@@ -294,7 +294,7 @@ fn publication_retry_is_scoped_and_serializes_concurrent_requests() {
     let bob = node.create_identity(IdentityKind::Person, "bob").unwrap();
     let state = ApiState::new(node);
     let req = request(
-        "babel.object.publish_text.v1",
+        "babble.object.publish_text.v1",
         json!({"author_id":alice.id,"text":"same intent"}),
         "shared-key",
     );
@@ -333,7 +333,7 @@ fn publication_retry_receipt_install_failure_recovers_without_duplicate() {
     let author = node
         .create_identity(IdentityKind::Person, "author")
         .unwrap();
-    let context = babel_store::PublicationRequest {
+    let context = babble_store::PublicationRequest {
         id: Hash::from_bytes(b"retry-key"),
         fingerprint: Hash::from_bytes(b"intent"),
         author: author.id.clone(),
@@ -374,7 +374,7 @@ fn publication_retry_context_clears_after_failure_and_panic() {
     let author = node
         .create_identity(IdentityKind::Person, "author")
         .unwrap();
-    let context = babel_store::PublicationRequest {
+    let context = babble_store::PublicationRequest {
         id: Hash::from_bytes(b"retry-key"),
         fingerprint: Hash::from_bytes(b"intent"),
         author: author.id.clone(),
@@ -476,11 +476,11 @@ fn assert_receipt_rejected_after_restart(
 fn social_request(
     node: &mut LocalNode<LocalProvider>,
     author: &IdentityId,
-    target: &babel_types::ObjectId,
+    target: &babble_types::ObjectId,
     action: &str,
 ) -> RpcRequestEnvelope {
-    let capability: babel_object::CapabilityRequest = serde_json::from_value(json!({
-        "id":format!("babel.social.{action}"),"version":1,"scope":{"object_id":target},
+    let capability: babble_object::CapabilityRequest = serde_json::from_value(json!({
+        "id":format!("babble.social.{action}"),"version":1,"scope":{"object_id":target},
     }))
     .unwrap();
     let controller = node
@@ -493,7 +493,7 @@ fn social_request(
         )
         .unwrap();
     let mut req = request(
-        &format!("babel.social.{action}.v2"),
+        &format!("babble.social.{action}"),
         json!({"author_id":author,"target_object_id":target,"text":"original social intent"}),
         action,
     );
@@ -501,7 +501,7 @@ fn social_request(
         controller.id.to_string(),
         "retry-surface",
         "retry-test",
-        "babel://retry",
+        "babble://retry",
         vec![],
     )
     .unwrap();
@@ -549,8 +549,8 @@ fn publication_retry_rejects_unrelated_same_author_edge() {
             &author.id,
             unrelated_source.id,
             target.id.clone(),
-            babel_graph::Relation::ReplyTo,
-            babel_graph::EdgeOrigin::HumanAssertion,
+            babble_graph::Relation::ReplyTo,
+            babble_graph::EdgeOrigin::HumanAssertion,
         )
         .unwrap();
     let req = social_request(&mut node, &author.id, &target.id, "reply");
@@ -580,7 +580,7 @@ fn publication_retry_rejects_missing_or_reordered_remix_edges() {
         let source = node.publish_text(&author.id, "source").unwrap();
         let target = node.publish_text(&author.id, "target").unwrap();
         let req = request(
-            "babel.object.remix.v1",
+            "babble.object.remix.v1",
             json!({"author_id":author.id,
             "source_object_ids":[source.id,target.id],"draft":ObjectDraft::text("remix").unwrap()}),
             "remix",
@@ -615,12 +615,12 @@ fn publication_retry_rejects_swapped_same_author_object_and_event() {
         .unwrap();
     let state = ApiState::new(node);
     let req = request(
-        "babel.object.publish_text.v1",
+        "babble.object.publish_text.v1",
         json!({"author_id":author.id,"text":"original"}),
         "original",
     );
     let other = request(
-        "babel.object.publish_text.v1",
+        "babble.object.publish_text.v1",
         json!({"author_id":author.id,"text":"different content"}),
         "other",
     );
@@ -650,7 +650,7 @@ fn publication_retry_malformed_receipts_fail_without_writes() {
             .unwrap();
         let state = ApiState::new(node);
         let req = request(
-            "babel.object.publish_text.v1",
+            "babble.object.publish_text.v1",
             json!({"author_id":author.id,"text":"original"}),
             "original",
         );
@@ -673,7 +673,7 @@ fn publication_retry_malformed_receipts_fail_without_writes() {
                 )
             }
             "missing_event" => {
-                receipt["outcome"]["event"] = json!(babel_types::EventId::from_hash(
+                receipt["outcome"]["event"] = json!(babble_types::EventId::from_hash(
                     &Hash::from_bytes(b"absent event")
                 ));
                 (

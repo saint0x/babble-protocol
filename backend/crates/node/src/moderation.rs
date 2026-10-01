@@ -1,9 +1,9 @@
 //! Account authority and local enforcement. Private receipts never become public events.
 use crate::LocalNode;
-pub use babel_graph::moderation::*;
-use babel_judgment::JudgmentProvider;
-use babel_runtime::SurfaceLifecycle;
-use babel_types::{Error, IdentityId, ObjectId, Result};
+pub use babble_graph::moderation::*;
+use babble_judgment::JudgmentProvider;
+use babble_runtime::SurfaceLifecycle;
+use babble_types::{Error, IdentityId, ObjectId, Result};
 
 impl<P: JudgmentProvider> LocalNode<P> {
     /// Trusted configuration only; no account or RPC operation exposes this setter.
@@ -152,7 +152,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
         for id in ids {
             self.invalidate_social_session(
                 id.as_str(),
-                babel_capabilities::invocation::InvocationInvalidation::PolicyChanged,
+                babble_capabilities::invocation::InvocationInvalidation::PolicyChanged,
             )?;
         }
         Ok(())

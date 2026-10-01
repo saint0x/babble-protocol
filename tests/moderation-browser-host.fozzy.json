@@ -4,7 +4,7 @@
   "steps": [
     {
       "type": "trace_event",
-      "name": "Requires parent source freeze approval, inherited BABEL_MODERATION_SOURCE_FROZEN=1, disposable ports, and host process backend",
+      "name": "Requires parent source freeze approval, inherited BABBLE_MODERATION_SOURCE_FROZEN=1, disposable ports, and host process backend",
       "fields": {}
     },
     {

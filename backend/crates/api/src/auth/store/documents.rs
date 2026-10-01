@@ -140,7 +140,7 @@ mod tests {
     #[test]
     fn invocation_host_document_lease_is_immutable_bounded_and_cannot_revive() {
         let root = std::env::temp_dir().join(format!(
-            "babel-host-documents-{}",
+            "babble-host-documents-{}",
             crate::auth::random_token().unwrap()
         ));
         let mut store = AuthStore::open(&root).unwrap();

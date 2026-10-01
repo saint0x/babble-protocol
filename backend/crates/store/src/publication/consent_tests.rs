@@ -1,9 +1,9 @@
 use super::tests::{Root, assert_records};
 use super::*;
-use babel_crypto::Keypair;
-use babel_identity::IdentityKind;
-use babel_state::{EventKind, EventTarget};
-use babel_types::CapabilityGrantId;
+use babble_crypto::Keypair;
+use babble_identity::IdentityKind;
+use babble_state::{EventKind, EventTarget};
+use babble_types::CapabilityGrantId;
 use serde_json::json;
 use std::process::Command;
 
@@ -17,7 +17,7 @@ fn fixture(store: &FileStore, kind: EventKind) -> (Identity, Keypair, Publicatio
         EventKind::CapabilityGranted => json!({"grant": {
             "id": grant,
             "object_id": object,
-            "capability": "babel.storage.local",
+            "capability": "babble.storage.local",
             "version": 1,
             "scope": {"namespace": "self"},
             "decision": "approved",
@@ -31,7 +31,7 @@ fn fixture(store: &FileStore, kind: EventKind) -> (Identity, Keypair, Publicatio
             "revoked_at": null
         }}),
         EventKind::CapabilityRevoked => json!({
-            "grant_id": grant, "capability": "babel.storage.local", "version": 1
+            "grant_id": grant, "capability": "babble.storage.local", "version": 1
         }),
         _ => unreachable!(),
     };
@@ -159,11 +159,11 @@ fn consent_publication_faults_recover_original_event_and_receipt() {
 
 #[test]
 fn consent_publication_crash_child() {
-    let Some(root) = std::env::var_os("BABEL_CONSENT_CRASH_ROOT") else {
+    let Some(root) = std::env::var_os("BABBLE_CONSENT_CRASH_ROOT") else {
         return;
     };
-    let phase = std::env::var("BABEL_CONSENT_CRASH_PHASE").unwrap();
-    let kind = serde_json::from_str(&std::env::var("BABEL_CONSENT_CRASH_KIND").unwrap()).unwrap();
+    let phase = std::env::var("BABBLE_CONSENT_CRASH_PHASE").unwrap();
+    let kind = serde_json::from_str(&std::env::var("BABBLE_CONSENT_CRASH_KIND").unwrap()).unwrap();
     let store = FileStore::open(PathBuf::from(root)).unwrap();
     let (_, _, batch) = fixture(&store, kind);
     sync_write(
@@ -193,10 +193,10 @@ fn consent_publication_process_exit_at_every_phase_recovers_after_restart() {
                     "publication::consent_tests::consent_publication_crash_child",
                     "--nocapture",
                 ])
-                .env("BABEL_CONSENT_CRASH_ROOT", &root.0)
-                .env("BABEL_CONSENT_CRASH_PHASE", &phase)
+                .env("BABBLE_CONSENT_CRASH_ROOT", &root.0)
+                .env("BABBLE_CONSENT_CRASH_PHASE", &phase)
                 .env(
-                    "BABEL_CONSENT_CRASH_KIND",
+                    "BABBLE_CONSENT_CRASH_KIND",
                     serde_json::to_string(&kind).unwrap(),
                 )
                 .output()

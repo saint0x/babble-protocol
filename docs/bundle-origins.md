@@ -9,7 +9,7 @@ it does not establish support in other browsers or deployments.
 
 [The self-contained fixture](../tests/bundle-origin-browser.mjs) starts its own
 HTTP server and Aegis runtime (default `127.0.0.1:17892`, override with
-`BABEL_ORIGIN_AEGIS_ADDR`), refuses occupied/reserved browser ports, and stops
+`BABBLE_ORIGIN_AEGIS_ADDR`), refuses occupied/reserved browser ports, and stops
 both in `finally`. It only controls the browser with the installed Aegis CLI.
 No production code, SDK contract, build, account credentials, upstream proxy,
 DNS override, or certificate changes are involved. Cookies below are synthetic

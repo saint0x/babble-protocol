@@ -3,6 +3,6 @@
   "name": "quotes-real-regressions",
   "steps": [
     {"type":"trace_event","name":"Real quote context signature/ownership validation, bounded pagination, historical keys, import/restart, public HTTP/RPC and canonical schema tests"},
-    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-node","-p","babel-api","-p","babel-schema","quotes"],"expect_exit":0}
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babble-node","-p","babble-api","-p","babble-schema","quotes"],"expect_exit":0}
   ]
 }

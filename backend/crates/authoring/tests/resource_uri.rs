@@ -1,6 +1,6 @@
-use babel_authoring::ObjectDraft;
-use babel_object::{Resource, Surface, SurfaceRole, SurfaceTarget};
-use babel_types::Hash;
+use babble_authoring::ObjectDraft;
+use babble_object::{Resource, Surface, SurfaceRole, SurfaceTarget};
+use babble_types::Hash;
 
 #[test]
 fn resource_uri_authoring_rejects_unsafe_drafts_and_deserialized_mutations() {
@@ -15,9 +15,9 @@ fn resource_uri_authoring_rejects_unsafe_drafts_and_deserialized_mutations() {
         "index.html\n".into(),
         "a\\b.html".into(),
         "a/%00.html".into(),
-        format!("babel://blobs/{hash}?v=1"),
-        format!("babel://blobs/{}", Hash::from_bytes(b"different")),
-        format!("babel://blobs/{}", "z".repeat(64)),
+        format!("babble://blobs/{hash}?v=1"),
+        format!("babble://blobs/{}", Hash::from_bytes(b"different")),
+        format!("babble://blobs/{}", "z".repeat(64)),
     ] {
         let resource = Resource {
             uri: entry.clone(),
@@ -64,7 +64,7 @@ fn resource_uri_authoring_preserves_safe_entries_and_incremental_builder_order()
         "assets/my%20surface.html".into(),
         "https://cdn.example/index.html?v=1#view".into(),
         "http://[::1]:3000/index.html".into(),
-        format!("babel://blobs/{hash}"),
+        format!("babble://blobs/{hash}"),
         format!("http://localhost:3000/runtime/surfaces/blobs/{hash}?media_type=text/html"),
     ] {
         let surface = Surface {
@@ -157,9 +157,9 @@ fn resource_uri_authoring_accepts_existing_protocol_fixture() {
     let draft: ObjectDraft =
         serde_json::from_value(fixtures["media_object_draft"].clone()).unwrap();
     draft.validate().unwrap();
-    let keypair = babel_crypto::Keypair::generate();
-    let identity = babel_identity::Identity::create(
-        babel_identity::IdentityKind::Person,
+    let keypair = babble_crypto::Keypair::generate();
+    let identity = babble_identity::Identity::create(
+        babble_identity::IdentityKind::Person,
         "fixture-test",
         &keypair,
     )
@@ -169,7 +169,7 @@ fn resource_uri_authoring_accepts_existing_protocol_fixture() {
     assert_eq!(draft.required_blob_hashes().len(), 1);
     for resource in &object.resources {
         assert!(
-            babel_object::resource_uri::ResourceUri::parse(&resource.uri)
+            babble_object::resource_uri::ResourceUri::parse(&resource.uri)
                 .unwrap()
                 .matches_resource(resource)
         );

@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
-import * as sdk from "@babel-protocol/sdk";
+import * as sdk from "@babble-protocol/sdk";
 const { canonicalValueBytes } = sdk;
 
 const context = { exports: {}, require: () => ({ canonicalValueBytes }), TextDecoder, structuredClone, Date, Error };
@@ -11,13 +11,13 @@ vm.runInNewContext(ts.transpileModule(readFileSync(new URL("../src/app/permissio
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS },
 }).outputText, context);
 const { Permissions, samePermission, mayApprove, matchingGrants, permitsSurfaceStart, usesInvocationConsent } = context.exports;
-const protocol = { exports: {}, require: id => id === "@babel-protocol/sdk" ? sdk : {},
+const protocol = { exports: {}, require: id => id === "@babble-protocol/sdk" ? sdk : {},
   URL, Response, Headers, AbortSignal, TextEncoder, Date, Error, crypto, fetch };
 vm.runInNewContext(ts.transpileModule(readFileSync(new URL("../src/app/protocol.ts", import.meta.url), "utf8"), {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS },
 }).outputText, protocol);
 const object = `obj_${"a".repeat(64)}`, other = `obj_${"b".repeat(64)}`;
-const request = { id: "babel.storage.local", version: 1, scope: { namespace: "counter" } };
+const request = { id: "babble.storage.local", version: 1, scope: { namespace: "counter" } };
 const grant = (id = "grant-one", patch = {}) => ({ id, object_id: object, capability: request.id,
   version: 1, scope: { ...request.scope }, decision: "approved", revoked_at: null, expires_at: null, ...patch });
 function review(status = "requires_user", grants = []) {
@@ -31,7 +31,7 @@ const settle = () => new Promise(resolve => setImmediate(resolve));
 test("permission transport uses host RPC binding and exact typed mutation payloads", async () => {
   const calls = [];
   let denied = false;
-  const client = new protocol.exports.BabelFrontendClient("https://babel.test", async (url, init) => {
+  const client = new protocol.exports.BabbleFrontendClient("https://babble.test", async (url, init) => {
     assert.equal(new URL(url).pathname, "/rpc");
     const envelope = JSON.parse(init.body); calls.push(envelope);
     return Response.json({ protocol: envelope.protocol, id: envelope.id, trace_id: null,
@@ -41,12 +41,12 @@ test("permission transport uses host RPC binding and exact typed mutation payloa
   assert.equal((await client.inspectPermissions(object)).manifest.object_id, object);
   await client.approvePermission("viewer", object, request);
   await client.revokePermission("viewer", object, "grant-one");
-  assert.deepEqual(calls.map(call => call.method), ["babel.capabilities.inspect.v1", "babel.capabilities.grant.v1", "babel.capabilities.revoke.v1"]);
+  assert.deepEqual(calls.map(call => call.method), ["babble.capabilities.inspect.v1", "babble.capabilities.grant.v1", "babble.capabilities.revoke.v1"]);
   assert.deepEqual(calls[1].payload, { author_id: "viewer", object_id: object, capability: request, decision: "approved" });
   assert.deepEqual(calls[2].payload, { author_id: "viewer", object_id: object, grant_id: "grant-one" });
   for (const call of calls) {
     assert.deepEqual(call.binding, { object_id: null, surface_session_id: null, identity_id: null,
-      runtime_id: "babel-web-runtime", origin: "browser://babel", capability_grants: [] });
+      runtime_id: "babble-web-runtime", origin: "browser://babble", capability_grants: [] });
     if (call.method.includes("inspect")) assert.equal(call.idempotency_key, null);
     else assert.match(call.idempotency_key, /^web-permission-/, "mutations require envelope keys even though server replay is unfinished");
   }
@@ -68,7 +68,7 @@ function harness() {
 test("scope equality uses canonical values and never widens identity or version", () => {
   assert.equal(samePermission(request, { ...request, scope: { namespace: "counter" } }), true);
   assert.equal(samePermission(request, { ...request, version: 2 }), false);
-  assert.equal(samePermission(request, { ...request, id: "babel.storage.object" }), false);
+  assert.equal(samePermission(request, { ...request, id: "babble.storage.object" }), false);
   assert.equal(samePermission(request, { ...request, scope: { namespace: "other" } }), false);
   assert.equal(samePermission({ ...request, scope: { a: 1, b: 2 } }, { ...request, scope: { b: 2, a: 1 } }), true);
   assert.equal(samePermission({ ...request, scope: { size_bytes: 128 } }, { ...request, scope: { size_bytes: 129 } }), false);
@@ -100,7 +100,7 @@ test("host-denied, unavailable, implicit and unsupported capabilities cannot be 
 });
 
 test("social and native browser invocation consent allow lazy admission but never create reusable approvals", async () => {
-  for (const id of ["babel.social.follow", "babel.social.unfollow", "babel.social.reply", "babel.social.share", "babel.clipboard.write", "babel.fullscreen.enter"]) {
+  for (const id of ["babble.social.follow", "babble.social.unfollow", "babble.social.reply", "babble.social.share", "babble.clipboard.write", "babble.fullscreen.enter"]) {
     const data = review();
     data.manifest.requests[0] = { id, version: 1, scope: { object_id: other } };
     const decision = data.decisions[0] = { ...data.decisions[0], request: structuredClone(data.manifest.requests[0]),
@@ -122,7 +122,7 @@ test("lazy invocation admission does not silently bypass other permission prereq
   const decision = review().decisions[0];
   assert.equal(permitsSurfaceStart(decision), false);
   assert.equal(permitsSurfaceStart({ ...decision, status: "granted" }), true);
-  const external = { ...decision, request: { id: "babel.media.camera", version: 1, scope: {} },
+  const external = { ...decision, request: { id: "babble.media.camera", version: 1, scope: {} },
     definition: { permission: "ask_each_time" } };
   assert.equal(usesInvocationConsent(external), false);
   assert.equal(permitsSurfaceStart(external), false);

@@ -13,23 +13,23 @@ import "../styles/gallery.css";
 import "../styles/safety.css";
 import "../styles/moderation.css";
 
-const apiUrl = import.meta.env.PUBLIC_BABEL_API_URL ?? "http://127.0.0.1:8787";
+const apiUrl = import.meta.env.PUBLIC_BABBLE_API_URL ?? "http://127.0.0.1:8787";
 ---
 
 <!doctype html>
-<html lang="en" data-babel-api={apiUrl}>
+<html lang="en" data-babble-api={apiUrl}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <title>Babel Protocol</title>
+    <title>Babble Protocol</title>
   </head>
   <body>
-    <main class="babel-app" data-feed-root>
-      <header class="babel-header" aria-label="Babel feed controls">
+    <main class="babble-app" data-feed-root>
+      <header class="babble-header" aria-label="Babble feed controls">
         <div class="header-frame">
           <div class="header-title">
-            <h1>Babel Protocol</h1>
+            <h1>Babble Protocol</h1>
           </div>
 
           <form class="header-search" data-search-form>
@@ -300,7 +300,7 @@ const apiUrl = import.meta.env.PUBLIC_BABEL_API_URL ?? "http://127.0.0.1:8787";
       </section>
 
       <section class="feed-stage" id="feed" aria-label="Object feed">
-        <div class="feed-summary" data-feed-summary>Loading Objects from the Babel API</div>
+        <div class="feed-summary" data-feed-summary>Loading Objects from the Babble API</div>
         <div class="following-toolbar" data-following-toolbar hidden>
           <button type="button" class="mini-button" data-following-people>People you follow</button>
           <button type="button" class="mini-button" data-following-signin hidden>Sign in</button>
@@ -359,13 +359,13 @@ const apiUrl = import.meta.env.PUBLIC_BABEL_API_URL ?? "http://127.0.0.1:8787";
           <label>
             <span>Definition</span>
             <select data-judgment-definition>
-              <option value="babel.judgment.spam.v1">spam</option>
-              <option value="babel.judgment.evidence_quality.v1">evidence quality</option>
-              <option value="babel.judgment.content_analysis.v1">content analysis</option>
-              <option value="babel.judgment.moderation.v1">moderation</option>
-              <option value="babel.judgment.relevance.v1">relevance</option>
-              <option value="babel.judgment.relationship.v1">relationship</option>
-              <option value="babel.judgment.source_agreement.v1">source agreement</option>
+              <option value="babble.judgment.spam.v1">spam</option>
+              <option value="babble.judgment.evidence_quality.v1">evidence quality</option>
+              <option value="babble.judgment.content_analysis.v1">content analysis</option>
+              <option value="babble.judgment.moderation.v1">moderation</option>
+              <option value="babble.judgment.relevance.v1">relevance</option>
+              <option value="babble.judgment.relationship.v1">relationship</option>
+              <option value="babble.judgment.source_agreement.v1">source agreement</option>
             </select>
           </label>
           <label data-judgment-query-label hidden>

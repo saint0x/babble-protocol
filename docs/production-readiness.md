@@ -81,7 +81,7 @@ completion still require the open functionality and evidence listed below.
 
 ## Durable Browser Actions
 
-September 30, 2026: clipboard and fullscreen now use v2 RPC methods, the shared
+September 30, 2026: clipboard and fullscreen now use  RPC methods, the shared
 invocation journal, one-use dispatch tickets and typed host-reported outcomes.
 The host keeps the rounded prompt, literal clipboard preview, default Cancel
 focus and separate native-action click after authorization. Browser and social
@@ -299,7 +299,7 @@ September 30, 2026 status: **four social actions verified through real
 API/Astro/Aegis acceptance**. Older sections and traces describe their recorded source
 milestones, not verification of this newer behavior.
 
-- SDK follow/unfollow/share/reply helpers now call `.v2`; the corresponding
+- SDK follow/unfollow/share/reply helpers now call ``; the corresponding
   `.v1` mutations return `UnsupportedVersion` (`UNSUPPORTED_VERSION`). Capability
   declarations stay at version 1. No durable social approval grants are issued
   or accepted as invocation authority. Supported social declarations can be
@@ -339,7 +339,7 @@ refresh and not evidence of browser acceptance:
   `bce05051-43c7-4641-84a6-31f2d6d7a820`, with strict trace verification, replay
   and CI passing. Standard-library conformance also passes after replacing the
   v1-only assumption with explicit metadata-version matching and required social
-  v2 methods. These client checks do not establish real browser acceptance.
+   methods. These client checks do not establish real browser acceptance.
 - Earlier API integration evidence covered 133 API, seven RPC and eleven runtime
   tests with verified/replayed/CI host trace
   `backend/crates/api/artifacts/invocation-consent/verified-host.fozzy`. That report
@@ -371,18 +371,18 @@ Replay validates recorded observations; it does not rerun the live services.
 The strict five-run doctor/test and 32-run client scenario fuzz checks use
 scripted process contracts, distinct from these real host-backed executions.
 
-The normal API at 8787 now runs this build against the existing `.babel-node`
+The normal API at 8787 now runs this build against the existing `.babble-node`
 store. The saved `deepsaint` identity is unchanged. Aegis confirms the preview at
 4321 remains online with nine Objects, its 32px rounded cards, both host-action
 stylesheets loaded, and no Astro/Vite error overlay. No account reset occurred.
 
 At this social milestone, seven `ask_each_time` methods remained outside durable consent:
-`babel.payments.checkout.v1`, `babel.ai.generate.v1`, `babel.ai.transcribe.v1`,
-`babel.media.camera.request.v1`, `babel.media.microphone.request.v1`,
-`babel.clipboard.write.v1`, and `babel.fullscreen.enter.v1`. Raw RPCs still return
+`babble.payments.checkout.v1`, `babble.ai.generate.v1`, `babble.ai.transcribe.v1`,
+`babble.media.camera.request.v1`, `babble.media.microphone.request.v1`,
+`babble.clipboard.write.v1`, and `babble.fullscreen.enter.v1`. Raw RPCs still return
 action descriptors; the browser confirmation at that point was not durable
 invocation enforcement. The later browser integration migrates clipboard and
-fullscreen to v2, leaving five external methods. Sensitive AskOnce migration
+fullscreen to , leaving five external methods. Sensitive AskOnce migration
 and retention/GC remain open. See the current
 [invocation contract](invocation-consent.md) for exact wire behavior and scope.
 
@@ -497,7 +497,7 @@ as a workaround for deployment work.
 
 ## Verified Python Execution Milestone
 
-- The API defaults to a persistent local `babel-python/lexical-v1/1` worker.
+- The API defaults to a persistent local `babble-python/lexical-v1/1` worker.
   Real health exchange precedes listening; startup fails without the installed
   package. Explicit `rust-local` mode is available, never a silent fallback.
 - Versioned Rust-owned DTOs, exported schemas/fixtures, strict Python wire
@@ -524,7 +524,7 @@ as a workaround for deployment work.
   `manual_is_multiple_of` lint in the realtime crate. A follow-up replaced that
   expression with the standard integer method; all six realtime tests and that
   crate's strict Clippy gate pass. The latest whole-workspace strict Clippy run
-  stops on the existing `items_after_test_module` lint in `babel-crypto`; node
+  stops on the existing `items_after_test_module` lint in `babble-crypto`; node
   also has existing argument-count/test-clone warnings. No blanket allowances
   were added to claim a clean workspace gate.
   A root-directory basedpyright attempt
@@ -1005,13 +1005,13 @@ the worker nor its passing transport tests supplies a semantic accuracy claim.
   injected errors and real child-process exits, repeated reopen, malformed
   payloads, orphan/mismatched receipts, corruption, signatures, and compatibility
   with existing Object/edge receipts. Store agent's focused run passed 40 tests;
-  `/tmp/babel-consent-store-verified.fozzy` passed strict verification, replay and
+  `/tmp/babble-consent-store-verified.fozzy` passed strict verification, replay and
   all seven CI checks (run `9bc9cd9a-f879-4509-b100-89f2a69fe7f5`).
 - Final integrated host trace:
   `artifacts/consent-idempotency-api-final-host.fozzy`, run
   `be5eb7ed-e4ef-464c-9108-9dfcac87d1ca`, seed 421. All 369 tests pass with no
   failures, ignored tests or compiler warnings. It executes
-  `CARGO_INCREMENTAL=0 cargo test --manifest-path backend/Cargo.toml -p babel-store -p babel-api -p babel-node -p babel-capabilities`.
+  `CARGO_INCREMENTAL=0 cargo test --manifest-path backend/Cargo.toml -p babble-store -p babble-api -p babble-node -p babble-capabilities`.
   Coverage includes concurrent retries, actor isolation, REST/RPC changed-intent
   conflicts, restart, approval retry after revocation, revocation retry after a
   later approval, and CORS preflight for the new header.
@@ -1086,8 +1086,8 @@ did not replace preview 4321 or persistent API 8787; their original PIDs remain.
 This live suite checks regression compatibility, not the not-yet-wired invocation
 workflow. Source review and focused domain/store tests are separate evidence.
 
-Final integrated native tests for `babel-store`, `babel-api`, `babel-node`, and
-`babel-capabilities` also pass, including the final fractional-deadline regression:
+Final integrated native tests for `babble-store`, `babble-api`, `babble-node`, and
+`babble-capabilities` also pass, including the final fractional-deadline regression:
 `artifacts/invocation-foundation-integrated-host.fozzy`, run
 `cac3a567-c4e1-4dbe-8a60-5bb4f56dd32c`, seed 424. Strict deterministic doctor
 (five runs) and test preceded host execution; strict verification, replay and all
@@ -1451,7 +1451,7 @@ section supersedes its v1 grant and invocation limitations.
   separation, signed-in restoration, reset, and panel/control geometry at
   1280/390/320 px. The geometry check is real DOM evidence, not screenshot or
   physical-touch approval.
-- `BABEL_LIVE_FOCUS=preferences` selects this bounded journey using the same real
+- `BABBLE_LIVE_FOCUS=preferences` selects this bounded journey using the same real
   isolated stack and seed helpers as the full suite; absent that variable, the
   complete suite still runs. Fozzy entrypoints are
   `tests/feed-preferences-browser.fozzy.json` (scripted orchestration) and its
@@ -1536,7 +1536,7 @@ section supersedes its v1 grant and invocation limitations.
   44 px layout height and the existing 0.1 px bounds tolerance used by other
   controls. The application layout did not need changing.
 - The API at 8787 was restarted with the new binary against its existing
-  `.babel-node` store. The existing identity's readback was identical before and
+  `.babble-node` store. The existing identity's readback was identical before and
   after restart. No account or store reset was performed.
 - Five-run strict scenario doctors and scripted scenario tests pass. A 32-run
   scripted fuzz pass covers orchestration only. Distributed exploration does not

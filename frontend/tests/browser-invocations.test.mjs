@@ -3,17 +3,17 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
-import { canonicalValueBytes } from "@babel-protocol/sdk";
+import { canonicalValueBytes } from "@babble-protocol/sdk";
 
 const context = { exports: {}, URL, Error, Date, TextEncoder, AbortSignal, structuredClone,
-  require: name => { assert.equal(name, "@babel-protocol/sdk"); return { canonicalValueBytes }; } };
+  require: name => { assert.equal(name, "@babble-protocol/sdk"); return { canonicalValueBytes }; } };
 vm.runInNewContext(ts.transpileModule(readFileSync(new URL("../src/app/browser-invocations.ts", import.meta.url), "utf8"), {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS },
 }).outputText, context);
 const { BrowserInvocationApi, parseBrowserInvocation: parse, normalizedBrowserPayload: normalize, isBrowserInvocationMethod } = context.exports;
 const actor = `id_${"a".repeat(64)}`, object = `obj_${"b".repeat(64)}`;
 const documentId = "da9bab5c-3a90-4dc2-a9c9-ade1e1f8588c", dispatchId = "e".repeat(64);
-const expected = (method = "babel.clipboard.write.v2") => ({ actorId: actor, objectId: object, method,
+const expected = (method = "babble.clipboard.write") => ({ actorId: actor, objectId: object, method,
   requestKey: "one-browser-operation", origin: { kind: "surface", session_id: "surface-one", document_id: documentId },
   payload: method.includes("clipboard") ? { text: "  <script>literal</script>  " } : {} });
 const pending = (exp = expected()) => ({ invocation_id: "d".repeat(64), actor_id: exp.actorId, object_id: exp.objectId,
@@ -22,7 +22,7 @@ const pending = (exp = expected()) => ({ invocation_id: "d".repeat(64), actor_id
   result: null, execution_ticket: null });
 const approved = (exp = expected()) => ({ ...pending(exp), state: { kind: "approved" }, revision: 1 });
 const running = (exp = expected(), ticket = false) => ({ ...pending(exp), state: { kind: "running", dispatch_id: dispatchId }, revision: 2,
-  execution_ticket: ticket ? { dispatch_id: dispatchId, executor: "babel.browser.v1" } : null });
+  execution_ticket: ticket ? { dispatch_id: dispatchId, executor: "babble.browser.v1" } : null });
 const success = (exp = expected()) => exp.method.includes("clipboard") ? { kind: "clipboard_write", written: true } : { kind: "fullscreen_enter", entered: true };
 const completed = (exp = expected(), result = success(exp)) => ({ ...pending(exp), revision: 3, result,
   state: result.kind === "failed" ? { kind: "failed", code: result.code }
@@ -32,32 +32,32 @@ const signal = () => new AbortController().signal;
 const api = fetcher => new BrowserInvocationApi(new URL("https://node.test/base"), fetcher);
 const deferred = () => { let resolve; const promise = new Promise(yes => { resolve = yes; }); return { promise, resolve }; };
 
-test("only durable v2 methods are recognized; payload normalization preserves literal clipboard bytes", () => {
+test("only durable methods are recognized; payload normalization preserves literal clipboard bytes", () => {
   for (const action of ["clipboard.write", "fullscreen.enter"]) {
-    assert.equal(isBrowserInvocationMethod(`babel.${action}.v2`), true);
-    for (const version of ["v1", "v3"]) assert.equal(isBrowserInvocationMethod(`babel.${action}.${version}`), false);
+    assert.equal(isBrowserInvocationMethod(`babble.${action}`), true);
+    for (const version of ["v1", "v3"]) assert.equal(isBrowserInvocationMethod(`babble.${action}.${version}`), false);
   }
-  assert.equal(isBrowserInvocationMethod("babel.social.reply.v2"), false);
+  assert.equal(isBrowserInvocationMethod("babble.social.reply"), false);
   const exp = expected();
   assert.deepEqual(plain(normalize(exp.method, exp.payload)), exp.payload);
-  assert.deepEqual(plain(normalize("babel.fullscreen.enter.v2", {})), { navigation_ui: "auto", target_hint: null });
-  assert.deepEqual(plain(normalize("babel.fullscreen.enter.v2", { navigation_ui: "hide", target_hint: "#untrusted" })),
+  assert.deepEqual(plain(normalize("babble.fullscreen.enter", {})), { navigation_ui: "auto", target_hint: null });
+  assert.deepEqual(plain(normalize("babble.fullscreen.enter", { navigation_ui: "hide", target_hint: "#untrusted" })),
     { navigation_ui: "hide", target_hint: "#untrusted" });
   for (const payload of [null, [], {}, { text: 1 }, { text: "x".repeat(65_537) }, { text: "\u00e9".repeat(32_769) }, { text: "hi", grant: "x" }]) {
     assert.throws(() => normalize(exp.method, payload));
   }
   for (const payload of [null, [], { navigation_ui: "bad" }, { target_hint: 1 }, { extra: true }]) {
-    assert.throws(() => normalize("babel.fullscreen.enter.v2", payload));
+    assert.throws(() => normalize("babble.fullscreen.enter", payload));
   }
 });
 
 test("clipboard payloads fit both canonical and serialized 65,536-byte journal budgets", () => {
-  const method = "babel.clipboard.write.v2";
+  const method = "babble.clipboard.write";
   // The canonical object/string framing consumes 50 bytes; JSON escaping has
   // its own budget and can dominate even when the literal UTF-8 text is small.
   const cases = [
-    { text: "x".repeat(65_486), encoding: "canonical" },
-    { text: "\u00e9".repeat(32_743), encoding: "canonical" },
+    { text: "x".repeat(65_485), encoding: "canonical" },
+    { text: "\u00e9".repeat(32_742) + "x", encoding: "canonical" },
     { text: '"'.repeat(32_762) + "x", encoding: "json" },
     { text: "\\".repeat(32_762) + "x", encoding: "json" },
     { text: "\n".repeat(32_762) + "x", encoding: "json" },
@@ -76,20 +76,20 @@ test("clipboard payloads fit both canonical and serialized 65,536-byte journal b
 
 test("parser binds actor, object, method, request key, exact document/session source and normalized payload", () => {
   const exp = expected();
-  const mutations = [v => v.actor_id = "other", v => v.object_id = "other", v => v.method = "babel.clipboard.write.v1",
+  const mutations = [v => v.actor_id = "other", v => v.object_id = "other", v => v.method = "babble.clipboard.write.v1",
     v => v.request_key = "other", v => v.origin.document_id = "df9bab5c-3a90-4dc2-a9c9-ade1e1f8588c",
     v => v.origin.session_id = "other", v => v.origin.kind = "host_action", v => v.origin.extra = true,
     v => v.payload.text = "substituted", v => v.payload.text = v.payload.text.trim(), v => v.payload.extra = true];
   for (const mutate of mutations) { const value = pending(exp); mutate(value); assert.throws(() => parse(value, exp), String(mutate)); }
   assert.deepEqual(parse(pending(exp), exp), pending(exp));
-  const full = expected("babel.fullscreen.enter.v2");
+  const full = expected("babble.fullscreen.enter");
   assert.deepEqual(parse(pending(full), full), pending(full));
   const missingDefaults = pending(full); missingDefaults.payload = {};
   assert.throws(() => parse(missingDefaults, full));
 });
 
 test("fullscreen target hint is optional/null or a nonblank string bounded to 256 UTF-8 bytes", () => {
-  const method = "babel.fullscreen.enter.v2";
+  const method = "babble.fullscreen.enter";
   for (const payload of [{}, { target_hint: null }]) assert.equal(normalize(method, payload).target_hint, null);
   for (const target_hint of ["#content", "  #content  ", "x".repeat(256), "\u00e9".repeat(128), "\ud83d\ude00".repeat(64)]) {
     assert.equal(normalize(method, { target_hint }).target_hint, target_hint, "Valid hints retain exact supplied text");
@@ -141,7 +141,7 @@ test("revision observations retain invocation identity and immutable creation/de
 });
 
 test("native typed results require matching method, true confirmation and exact external outcome", () => {
-  for (const method of ["babel.clipboard.write.v2", "babel.fullscreen.enter.v2"]) {
+  for (const method of ["babble.clipboard.write", "babble.fullscreen.enter"]) {
     const exp = expected(method);
     assert.deepEqual(parse(completed(exp), exp, running(exp)), completed(exp));
     for (const mutate of [v => v.result = { kind: "invented" }, v => v.result.extra = true,
@@ -156,7 +156,7 @@ test("native typed results require matching method, true confirmation and exact 
       value.state.code = "different"; assert.throws(() => parse(value, exp));
     }
     for (const result of [{ kind: "failed", code: "unknown" }, { kind: "failed", code: "native_error", extra: true },
-      success(expected(method.includes("clipboard") ? "babel.fullscreen.enter.v2" : "babel.clipboard.write.v2"))]) {
+      success(expected(method.includes("clipboard") ? "babble.fullscreen.enter" : "babble.clipboard.write"))]) {
       assert.throws(() => parse(completed(exp, result), exp));
     }
   }
@@ -174,8 +174,8 @@ test("advance uses exact endpoint, HTTP verb, source document header and abort s
         calls++; assert.equal(url.origin, "https://node.test");
         assert.equal(url.pathname, `/invocations/v1/browser/${before.invocation_id}/${["allow_once", "deny"].includes(action) ? "decision" : action}`);
         assert.equal(init.method, action === "status" ? "GET" : "POST"); assert.equal(init.signal, abort);
-        assert.equal(init.headers[kind === "surface" ? "x-babel-surface-document" : "x-babel-host-document"], documentId);
-        assert.equal(init.headers[kind === "surface" ? "x-babel-host-document" : "x-babel-surface-document"], undefined);
+        assert.equal(init.headers[kind === "surface" ? "x-babble-surface-document" : "x-babble-host-document"], documentId);
+        assert.equal(init.headers[kind === "surface" ? "x-babble-host-document" : "x-babble-surface-document"], undefined);
         assert.equal(init.headers.accept, "application/json");
         if (action === "status") { assert.equal(init.body, undefined); assert.equal(init.headers["content-type"], undefined); }
         else { assert.equal(init.headers["content-type"], "application/json"); assert.deepEqual(JSON.parse(init.body),
@@ -250,7 +250,7 @@ test("HTTP status errors are sanitized and ack never retries nontransient errors
 });
 
 test("enum validation rejects JSON arrays instead of coercing them to strings", () => {
-  assert.throws(() => normalize("babel.fullscreen.enter.v2", { navigation_ui: ["auto"] }));
+  assert.throws(() => normalize("babble.fullscreen.enter", { navigation_ui: ["auto"] }));
   assert.throws(() => parse({ ...pending(), state: { kind: ["pending"] } }, expected()));
   const value = completed(expected(), { kind: "failed", code: ["native_error"] });
   assert.throws(() => parse(value, expected()));
@@ -267,7 +267,7 @@ test("later revisions cannot replace dispatch identity or resurrect completed in
 test("ack snapshots caller result and expectation before awaiting network so retry retains exact intent", async () => {
   const exp = expected(), original = structuredClone(exp), result = success(), lost = deferred(), calls = [];
   const client = api(async (url, init) => {
-    calls.push({ path: url.pathname, body: init.body, document: init.headers["x-babel-surface-document"] });
+    calls.push({ path: url.pathname, body: init.body, document: init.headers["x-babble-surface-document"] });
     return calls.length === 1 ? lost.promise : Response.json(completed(original));
   });
   const work = client.acknowledge(running(exp), exp, dispatchId, result, signal());

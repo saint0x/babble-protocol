@@ -25,17 +25,17 @@ async function fileHash(path) {
 }
 const fixtureOnly = process.argv.includes("--fixture-only");
 assert.ok(process.argv.slice(2).every(arg => arg === "--fixture-only"), "unsupported argument");
-const work = await mkdtemp(join(tmpdir(), "babel-verified-bundle-"));
+const work = await mkdtemp(join(tmpdir(), "babble-verified-bundle-"));
 const nonce = randomBytes(12).toString("hex");
-const aegisAddr = process.env.BABEL_VERIFIED_AEGIS_ADDR ?? "127.0.0.1:17894";
+const aegisAddr = process.env.BABBLE_VERIFIED_AEGIS_ADDR ?? "127.0.0.1:17894";
 assert.match(aegisAddr, /^127\.0\.0\.1:\d+$/);
 assert.ok(![7878, 7879, 17878, 17892].includes(Number(aegisAddr.split(":")[1])), "reserved Aegis port");
-let apiBin = process.env.BABEL_VERIFIED_API_BIN;
-let cliBin = process.env.BABEL_VERIFIED_CLI_BIN;
-const sdkDir = resolve(process.env.BABEL_VERIFIED_SDK_DIST ?? join(root, "sdk/dist"));
+let apiBin = process.env.BABBLE_VERIFIED_API_BIN;
+let cliBin = process.env.BABBLE_VERIFIED_CLI_BIN;
+const sdkDir = resolve(process.env.BABBLE_VERIFIED_SDK_DIST ?? join(root, "sdk/dist"));
 const env = { ...process.env, CARGO_INCREMENTAL: "0" };
 for (const key of Object.keys(env)) if (/^(https?|all|no)_proxy$/i.test(key)) delete env[key];
-for (const key of ["BABEL_ALGORITHMS_DIR", "BABEL_PYTHON_EXECUTABLE", "BABEL_ALGORITHM_TIMEOUT_MS"]) delete env[key];
+for (const key of ["BABBLE_ALGORITHMS_DIR", "BABBLE_PYTHON_EXECUTABLE", "BABBLE_ALGORITHM_TIMEOUT_MS"]) delete env[key];
 const evidence = { scope: "production inline bundle API + SDK", nonce, api: [], gateway: [], fixture: [], browser: null, stages: [] };
 const services = [];
 const leases = new Map();
@@ -175,7 +175,7 @@ function createBundle() {
   add("app/styles/nested/color.css", "text/css", "stylesheet", "body { color: rgb(17, 93, 121); }");
   add("assets/pixel.png", "image/png", "asset", Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=", "base64"));
   for (const [name, bytes] of sdk) add(`sdk/${name}`, "text/javascript", "script", bytes);
-  return { kind: "babel.text", schema: "babel.schema.text.v1", payload: { text: `Verified bundle ${nonce}`, metadata: {} },
+  return { kind: "babble.text", schema: "babble.schema.text.v1", payload: { text: `Verified bundle ${nonce}`, metadata: {} },
     surfaces: [{ role: "Feed", target: "Web", bundle: { entry_path: "app/index.html",
       files: [...files].map(([path, file]) => ({ path, file: `dist/${path}`, media_type: file.type, kind: file.kind })) } }] };
 }
@@ -282,7 +282,7 @@ async function parentMain(c, sdk) {
     let mounted;
     const observe = event => {
       if (event.source === null || !mounted?.frame.contentWindow || event.source !== mounted.frame.contentWindow) return;
-      if (event.data?.type === "babel.surface.connect") {
+      if (event.data?.type === "babble.surface.connect") {
         const offer = { origin: event.origin, sourceMatch: true, closed: false, messages: [] };
         s.offers.push(offer);
         for (const port of event.ports) {
@@ -372,7 +372,7 @@ async function parentMain(c, sdk) {
     const observations = target.s.sibling = { offers: [], reports: [] };
     const observe = event => {
       if (event.source === null || !sibling.contentWindow || event.source !== sibling.contentWindow) return;
-      if (event.data?.type === "babel.surface.connect") observations.offers.push({ origin: event.origin,
+      if (event.data?.type === "babble.surface.connect") observations.offers.push({ origin: event.origin,
         matchesAssignedFrame: event.source === target.mounted.frame.contentWindow });
       if (event.data?.type === "verified.fixture.report") observations.reports.push({ eventOrigin: event.origin, ...event.data.value });
     };
@@ -449,7 +449,7 @@ async function externalMain(parentOrigin, sdk) {
   parent.postMessage({ type: "verified.fixture.report", value: { stage: "external-attempt" } }, parentOrigin);
   try {
     const transport = await sdk.connectSurfaceBridge({ parentOrigin, timeoutMs: 2000 });
-    const client = sdk.createBabelSDK({ transport, binding: sdk.hostBinding("external-control", location.origin) });
+    const client = sdk.createBabbleSDK({ transport, binding: sdk.hostBinding("external-control", location.origin) });
     const result = await client.search.objects({ q: null, author: null, kind: null, limit: 5 }, { id: "external-rpc", traceId: "external-rpc", timeoutMs: 4000 });
     parent.postMessage({ type: "verified.fixture.report", value: { stage: "external-admitted", objectIds: result.results.map(r => r.object.id) } }, parentOrigin);
   } catch (error) {
@@ -507,7 +507,7 @@ async function prepareAndPublish() {
     for (const path of paths) { try { await access(path); return path; } catch (error) { if (error.code !== "ENOENT") throw error; } }
     throw new Error(`parent-built ${name} binary missing: ${paths.join(", ")}`);
   }
-  apiBin = await binary(apiBin, "babel-api"); cliBin = await binary(cliBin, "babel");
+  apiBin = await binary(apiBin, "babble-api"); cliBin = await binary(cliBin, "babble");
   evidence.binaries = { apiBin, cliBin, apiSHA256: await fileHash(apiBin), cliSHA256: await fileHash(cliBin) };
   const apiReservation = await reserve();
   const gatewayReservation = await reserve();
@@ -516,9 +516,9 @@ async function prepareAndPublish() {
   const store = join(work, "store");
   await new Promise(resolve => apiReservation.close(resolve));
   await new Promise(resolve => gatewayReservation.close(resolve));
-  start(apiBin, [], { BABEL_API_ADDR: new URL(apiOrigin).host, BABEL_PUBLIC_ORIGIN: apiOrigin,
-    BABEL_STORE_ROOT: store, BABEL_SEED_PROFILE: "", BABEL_JUDGMENT_PROVIDER: "rust-local",
-    BABEL_CORS_ORIGINS: parentOrigin, BABEL_BUNDLE_GATEWAY_ADDR: gatewayAddr });
+  start(apiBin, [], { BABBLE_API_ADDR: new URL(apiOrigin).host, BABBLE_PUBLIC_ORIGIN: apiOrigin,
+    BABBLE_STORE_ROOT: store, BABBLE_SEED_PROFILE: "", BABBLE_JUDGMENT_PROVIDER: "rust-local",
+    BABBLE_CORS_ORIGINS: parentOrigin, BABBLE_BUNDLE_GATEWAY_ADDR: gatewayAddr });
   await waitFor(async () => (await fetch(apiOrigin + "/health")).ok, "API ready");
   const password = `Verified bundle ${nonce}!`;
   const registered = (await api("/auth/register", { kind: "Person", handle: `verified-${nonce}`, password }, true, false)).body;
@@ -627,7 +627,7 @@ async function prepareAndPublish() {
 }
 
 try {
-  if (!fixtureOnly) assert.equal(process.env.BABEL_VERIFIED_BUNDLE_READY, "1", "await parent's binaries/types-ready signal, then set BABEL_VERIFIED_BUNDLE_READY=1");
+  if (!fixtureOnly) assert.equal(process.env.BABBLE_VERIFIED_BUNDLE_READY, "1", "await parent's binaries/types-ready signal, then set BABBLE_VERIFIED_BUNDLE_READY=1");
   await captureSDK();
   server = createServer((req, res) => fixtureRoute(req, res).catch(error => {
     evidence.controlError = String(error);

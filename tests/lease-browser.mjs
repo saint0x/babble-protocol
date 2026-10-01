@@ -6,7 +6,7 @@ export async function verifySurfaceLease(execute, waitFor, probe) {
     const panel = document.querySelector('[data-surface-panel]');
     const frame = panel.querySelector('iframe');
     const session = [...panel.querySelectorAll('[data-surface-meta] span')].find(node => node.textContent.startsWith('Session: '))?.textContent.slice(9);
-    if (frame?.dataset.babelLifecycle !== 'active' || !session) return {};
+    if (frame?.dataset.babbleLifecycle !== 'active' || !session) return {};
     window.__leaseFrame = frame;
     return { session };
   })()`, value => !!value?.session);
@@ -20,7 +20,7 @@ export async function verifySurfaceLease(execute, waitFor, probe) {
   }
   const renewed = await execute([{ type: "eval", code: `({
     sameFrame: document.querySelector('[data-surface-host] iframe') === window.__leaseFrame,
-    active: window.__leaseFrame.dataset.babelLifecycle === 'active'
+    active: window.__leaseFrame.dataset.babbleLifecycle === 'active'
   })` }]);
   assert.deepEqual(renewed.results[0].value, { sameFrame: true, active: true });
 
@@ -38,7 +38,7 @@ export async function verifySurfaceLease(execute, waitFor, probe) {
   await execute([{ type: "eval", code: "document.querySelector('[data-retry-surface]').click(); ({ retry: true })" }]);
   const reopened = await waitFor(`(() => {
     const panel = document.querySelector('[data-surface-panel]');
-    return { active: panel.querySelector('iframe')?.dataset.babelLifecycle === 'active',
+    return { active: panel.querySelector('iframe')?.dataset.babbleLifecycle === 'active',
       session: [...panel.querySelectorAll('[data-surface-meta] span')].find(node => node.textContent.startsWith('Session: '))?.textContent.slice(9) };
   })()`, value => value?.active && !!value.session);
   assert.notEqual(reopened.session, initial.session);

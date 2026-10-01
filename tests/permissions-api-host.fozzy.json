@@ -2,6 +2,6 @@
   "version": 1,
   "name": "permission-consent-api-host",
   "steps": [
-    { "type": "proc_spawn", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-store", "-p", "babel-api", "-p", "babel-node", "-p", "babel-capabilities"], "expect_exit": 0 }
+    { "type": "proc_spawn", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babble-store", "-p", "babble-api", "-p", "babble-node", "-p", "babble-capabilities"], "expect_exit": 0 }
   ]
 }

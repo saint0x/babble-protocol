@@ -1,18 +1,18 @@
 use artifacts::{CapturedArtifacts, MAX_INPUT_BYTES, read_bounded};
-use babel_authoring::ObjectDraft;
-use babel_capabilities::{CapabilityDecision, CapabilityDecisionStatus};
-use babel_crypto::{Keypair, SignatureAlgorithm};
-use babel_graph::{Edge, GraphIndex};
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
-use babel_object::{
+use babble_authoring::ObjectDraft;
+use babble_capabilities::{CapabilityDecision, CapabilityDecisionStatus};
+use babble_crypto::{Keypair, SignatureAlgorithm};
+use babble_graph::{Edge, GraphIndex};
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
+use babble_object::{
     CapabilityRequest, Object, ObjectKind, Provenance, Resource, Surface, SurfaceRole,
     SurfaceTarget,
 };
-use babel_runtime::{RuntimeAdmissionStatus, SurfaceRuntime, SurfaceSessionPlan};
-use babel_store::FileStore;
-use babel_types::{Canonical, Hash, IdentityId, ObjectId};
+use babble_runtime::{RuntimeAdmissionStatus, SurfaceRuntime, SurfaceSessionPlan};
+use babble_store::FileStore;
+use babble_types::{Canonical, Hash, IdentityId, ObjectId};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{
@@ -311,9 +311,9 @@ fn publish_build(
 fn preview_manifest(manifest_path: &Path) -> Result<PreviewReport, CliError> {
     let output = build_manifest(manifest_path)?;
     let keypair = Keypair::generate();
-    let author = Identity::create(IdentityKind::Application, "babel-preview-host", &keypair)?;
+    let author = Identity::create(IdentityKind::Application, "babble-preview-host", &keypair)?;
     let object = output.draft.build_unsigned(&author)?;
-    let runtime = SurfaceRuntime::babel_default();
+    let runtime = SurfaceRuntime::babble_default();
     let surface_roles = surface_roles(&object);
     let surfaces = surface_roles
         .into_iter()
@@ -620,20 +620,20 @@ fn print_json<T: Serialize>(value: &T) -> Result<(), CliError> {
 
 fn usage() -> String {
     [
-        "babel developer workflow",
+        "babble developer workflow",
         "",
         "Usage:",
-        "  babel validate <manifest.json>",
-        "  babel build <manifest.json> [--out draft.json]",
-        "  babel preview <manifest.json>",
-        "  babel dev <manifest.json>",
-        "  babel identity new <identity.json> <key.json> <kind> <handle>",
-        "  babel sign <identity.json> <key.json> <manifest.json> [--out object.json]",
-        "  babel publish <store-root> <identity.json> <key.json> <manifest.json>",
-        "  babel inspect store <store-root>",
-        "  babel inspect object <store-root> <object-id>",
-        "  babel inspect bundle <store-root> <object-id> <role>",
-        "  babel graph object <store-root> <object-id>",
+        "  babble validate <manifest.json>",
+        "  babble build <manifest.json> [--out draft.json]",
+        "  babble preview <manifest.json>",
+        "  babble dev <manifest.json>",
+        "  babble identity new <identity.json> <key.json> <kind> <handle>",
+        "  babble sign <identity.json> <key.json> <manifest.json> [--out object.json]",
+        "  babble publish <store-root> <identity.json> <key.json> <manifest.json>",
+        "  babble inspect store <store-root>",
+        "  babble inspect object <store-root> <object-id>",
+        "  babble inspect bundle <store-root> <object-id> <role>",
+        "  babble graph object <store-root> <object-id>",
         "",
         "Bundle inputs list already-built local files; compilation and dependency discovery are not performed.",
     ]
@@ -703,7 +703,7 @@ impl ResourceManifest {
         let integrity = merge_integrity(self.integrity, path_hash)?;
         let uri = self
             .uri
-            .unwrap_or_else(|| format!("babel://blobs/{}", integrity.as_str()));
+            .unwrap_or_else(|| format!("babble://blobs/{}", integrity.as_str()));
         Ok(Resource {
             uri,
             media_type: self.media_type,
@@ -760,7 +760,7 @@ impl SurfaceManifest {
             Some(merge_integrity(self.integrity, path_hash)?)
         };
         let entry = match (&integrity, self.path.as_ref()) {
-            (Some(hash), Some(_)) => format!("babel://blobs/{}", hash.as_str()),
+            (Some(hash), Some(_)) => format!("babble://blobs/{}", hash.as_str()),
             _ => self
                 .entry
                 .ok_or_else(|| CliError::Invalid("surface requires entry or path".into()))?,
@@ -1077,7 +1077,7 @@ struct DeveloperIdentityFile {
 struct DeveloperKeyFile {
     identity: IdentityId,
     algorithm: SignatureAlgorithm,
-    public_key: babel_crypto::PublicKey,
+    public_key: babble_crypto::PublicKey,
     secret_key_hex: String,
 }
 
@@ -1150,7 +1150,7 @@ struct StoreCounts {
 
 #[derive(Clone, Debug, Serialize)]
 struct ObjectInspectReport {
-    object: babel_object::Object,
+    object: babble_object::Object,
     verified: bool,
 }
 
@@ -1200,7 +1200,7 @@ enum CliError {
     #[error("not found: {0}")]
     NotFound(String),
     #[error(transparent)]
-    Core(#[from] babel_types::Error),
+    Core(#[from] babble_types::Error),
     #[error(transparent)]
     Serde(#[from] serde_json::Error),
 }

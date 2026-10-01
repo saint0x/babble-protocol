@@ -1,22 +1,22 @@
-use babel_authoring::{CapabilityGrantDraft, EdgeDraft, ObjectDraft};
-use babel_capabilities::{CapabilityUsageWindow, GrantDecision};
-use babel_crypto::Keypair;
-use babel_graph::{Edge, EdgeOrigin, Relation};
-use babel_hashgraph::ValidatorSet;
-use babel_identity::{Identity, IdentityKeyScope, IdentityKind};
-use babel_judgment::DefinitionId;
-use babel_judgment_local::LocalProvider;
-use babel_lens::CandidateSource;
-use babel_media::MediaBlob;
-use babel_node::{CapabilityBindingUsage, DiscoveryQuery, ImportBundle, LocalNode};
-use babel_object::{CapabilityRequest, Object, Resource, Surface, SurfaceRole, SurfaceTarget};
-use babel_realtime::{
+use babble_authoring::{CapabilityGrantDraft, EdgeDraft, ObjectDraft};
+use babble_capabilities::{CapabilityUsageWindow, GrantDecision};
+use babble_crypto::Keypair;
+use babble_graph::{Edge, EdgeOrigin, Relation};
+use babble_hashgraph::ValidatorSet;
+use babble_identity::{Identity, IdentityKeyScope, IdentityKind};
+use babble_judgment::DefinitionId;
+use babble_judgment_local::LocalProvider;
+use babble_lens::CandidateSource;
+use babble_media::MediaBlob;
+use babble_node::{CapabilityBindingUsage, DiscoveryQuery, ImportBundle, LocalNode};
+use babble_object::{CapabilityRequest, Object, Resource, Surface, SurfaceRole, SurfaceTarget};
+use babble_realtime::{
     MembershipPolicy, PersistencePolicy, RealtimeOperation, RealtimePayload, RoomLimits, RoomSpec,
     SessionState,
 };
-use babel_runtime::RuntimeAdmissionStatus;
-use babel_state::{Event, EventKind, EventTarget};
-use babel_types::Hash;
+use babble_runtime::RuntimeAdmissionStatus;
+use babble_state::{Event, EventKind, EventTarget};
+use babble_types::Hash;
 use serde_json::json;
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -37,7 +37,7 @@ fn local_node_publishes_graph_and_persists_judgment() {
     let claim = node
         .publish_text(
             &alice.id,
-            "According to the dataset, Babel discovery should preserve evidence context.",
+            "According to the dataset, Babble discovery should preserve evidence context.",
         )
         .unwrap();
     let evidence = node
@@ -82,7 +82,7 @@ fn local_node_ingests_semantic_and_moderation_judgments_on_publish() {
     let object = node
         .publish_text(
             &alice.id,
-            "According to the dataset and methodology, Babel runtime surfaces preserve source evidence.",
+            "According to the dataset and methodology, Babble runtime surfaces preserve source evidence.",
         )
         .unwrap();
 
@@ -92,10 +92,10 @@ fn local_node_ingests_semantic_and_moderation_judgments_on_publish() {
         .map(|judgment| judgment.definition.as_str().to_string())
         .collect::<BTreeSet<_>>();
 
-    assert!(definitions.contains("babel.judgment.spam.v1"));
-    assert!(definitions.contains("babel.judgment.evidence_quality.v1"));
-    assert!(definitions.contains("babel.judgment.content_analysis.v1"));
-    assert!(definitions.contains("babel.judgment.moderation.v1"));
+    assert!(definitions.contains("babble.judgment.spam.v1"));
+    assert!(definitions.contains("babble.judgment.evidence_quality.v1"));
+    assert!(definitions.contains("babble.judgment.content_analysis.v1"));
+    assert!(definitions.contains("babble.judgment.moderation.v1"));
     let content = judgments
         .iter()
         .find(|judgment| judgment.definition == DefinitionId::content_analysis_v1())
@@ -129,7 +129,7 @@ fn local_node_discovery_derives_reputation_and_preserves_evidence_origin() {
     let claim = node
         .publish_text(
             &alice.id,
-            "According to the dataset, Babel discovery should preserve source accounting.",
+            "According to the dataset, Babble discovery should preserve source accounting.",
         )
         .unwrap();
     let support = node
@@ -578,7 +578,7 @@ fn local_node_publishes_signed_finality_checkpoint() {
 
     let checkpoint = node.publish_checkpoint(&author.id, validator_set).unwrap();
     let stored = node.store().get_event(&checkpoint.id).unwrap().unwrap();
-    let payload: babel_hashgraph::FinalityCheckpoint =
+    let payload: babble_hashgraph::FinalityCheckpoint =
         serde_json::from_value(checkpoint.payload.clone()).unwrap();
 
     assert_eq!(checkpoint.kind, EventKind::ConsensusCheckpoint);
@@ -633,11 +633,11 @@ fn local_node_persists_capability_grants_and_prepares_surfaces() {
         .unwrap();
     let bundle_hash = Hash::from_bytes(b"export default function surface() {}");
     let capability = CapabilityRequest {
-        id: "babel.network.fetch".to_string(),
+        id: "babble.network.fetch".to_string(),
         version: 1,
         scope: json!({"origins": ["https://example.com"]}),
     };
-    let object = Object::text(&identity, "Executable Babel Object")
+    let object = Object::text(&identity, "Executable Babble Object")
         .unwrap()
         .with_resources(vec![Resource {
             uri: "surface.js".to_string(),
@@ -678,7 +678,7 @@ fn local_node_persists_capability_grants_and_prepares_surfaces() {
     let receipt = node
         .authorize_capability_binding_with_usage(
             &object.id,
-            "babel.network.fetch",
+            "babble.network.fetch",
             1,
             &[grant_id.to_string()],
             CapabilityBindingUsage {
@@ -692,7 +692,7 @@ fn local_node_persists_capability_grants_and_prepares_surfaces() {
     assert_eq!(receipt.remaining_bytes_per_minute, (2 * 1024 * 1024) - 4096);
     let exhausted = node.authorize_capability_binding_with_usage(
         &object.id,
-        "babel.network.fetch",
+        "babble.network.fetch",
         1,
         &[grant_id.to_string()],
         CapabilityBindingUsage {
@@ -700,7 +700,7 @@ fn local_node_persists_capability_grants_and_prepares_surfaces() {
             realtime_connections: 0,
             windows: vec![CapabilityUsageWindow {
                 grant_id: grant_id.clone(),
-                window_started_at: babel_types::Timestamp::now(),
+                window_started_at: babble_types::Timestamp::now(),
                 calls: 60,
                 bytes: 0,
                 realtime_connections: 0,
@@ -737,7 +737,7 @@ fn local_node_enforces_capability_backed_object_storage() {
         node.import_signing_identity(identity.clone(), keypair.clone())
             .unwrap();
         let capability = CapabilityRequest {
-            id: "babel.storage.object".to_string(),
+            id: "babble.storage.object".to_string(),
             version: 1,
             scope: json!({"namespace": "self"}),
         };
@@ -786,7 +786,7 @@ fn local_node_enforces_capability_backed_object_storage() {
             )
             .unwrap();
         assert_eq!(stored.value, json!({"mode": "dark"}));
-        assert_eq!(receipt.capability.as_str(), "babel.storage.object");
+        assert_eq!(receipt.capability.as_str(), "babble.storage.object");
         assert_eq!(receipt.remaining_calls_per_minute, 119);
 
         node.object_storage_set(
@@ -850,7 +850,7 @@ fn local_node_enforces_capability_bound_local_storage() {
         let alice = node.create_identity(IdentityKind::Person, "alice").unwrap();
         let bob = node.create_identity(IdentityKind::Person, "bob").unwrap();
         let capability = CapabilityRequest {
-            id: "babel.storage.local".to_string(),
+            id: "babble.storage.local".to_string(),
             version: 1,
             scope: json!({"namespace": "prefs"}),
         };
@@ -887,7 +887,7 @@ fn local_node_enforces_capability_bound_local_storage() {
         assert_eq!(stored.identity_id, alice.id);
         assert_eq!(stored.namespace, "prefs");
         assert_eq!(stored.value, json!({"mode": "dark"}));
-        assert_eq!(receipt.capability.as_str(), "babel.storage.local");
+        assert_eq!(receipt.capability.as_str(), "babble.storage.local");
 
         let (fetched, _) = node
             .local_storage_get(&object.id, &alice.id, "settings/theme", &[grant_id.clone()])
@@ -969,7 +969,7 @@ fn local_node_enforces_capability_bound_current_identity() {
     let mut node = LocalNode::open(&root, LocalProvider::default()).unwrap();
     let alice = node.create_identity(IdentityKind::Person, "alice").unwrap();
     let capability = CapabilityRequest {
-        id: "babel.identity.current".to_string(),
+        id: "babble.identity.current".to_string(),
         version: 1,
         scope: json!({}),
     };
@@ -992,7 +992,7 @@ fn local_node_enforces_capability_bound_current_identity() {
         .unwrap();
     assert_eq!(identity.id, alice.id);
     assert_eq!(identity.handle, "alice");
-    assert_eq!(receipt.capability.as_str(), "babel.identity.current");
+    assert_eq!(receipt.capability.as_str(), "babble.identity.current");
 
     fs::remove_dir_all(root).unwrap();
 }
@@ -1000,7 +1000,7 @@ fn local_node_enforces_capability_bound_current_identity() {
 #[test]
 fn local_node_enforces_capability_bound_network_fetch() {
     let root = unique_root("local-node-network-fetch");
-    let (url, server) = spawn_http_response("hello babel");
+    let (url, server) = spawn_http_response("hello babble");
     let mut node = LocalNode::open(&root, LocalProvider::default()).unwrap();
     let keypair = Keypair::generate();
     let identity = Identity::create(IdentityKind::Person, "alice", &keypair).unwrap();
@@ -1008,7 +1008,7 @@ fn local_node_enforces_capability_bound_network_fetch() {
         .unwrap();
     let origin = url.rsplit_once('/').unwrap().0.to_string();
     let capability = CapabilityRequest {
-        id: "babel.network.fetch".to_string(),
+        id: "babble.network.fetch".to_string(),
         version: 1,
         scope: json!({"origins": [origin]}),
     };
@@ -1056,16 +1056,16 @@ fn local_node_enforces_capability_bound_network_fetch() {
             &object.id,
             "GET",
             &url,
-            BTreeMap::from([("X-Babel-Test".to_string(), "request".to_string())]),
+            BTreeMap::from([("X-Babble-Test".to_string(), "request".to_string())]),
             None,
             &[grant_id],
         )
         .unwrap();
     assert_eq!(fetched.status, 200);
-    assert_eq!(fetched.body, b"hello babel");
-    assert_eq!(fetched.headers.get("x-babel-test"), Some(&"ok".to_string()));
+    assert_eq!(fetched.body, b"hello babble");
+    assert_eq!(fetched.headers.get("x-babble-test"), Some(&"ok".to_string()));
     assert!(!fetched.headers.contains_key("set-cookie"));
-    assert_eq!(fetched.receipt.capability.as_str(), "babel.network.fetch");
+    assert_eq!(fetched.receipt.capability.as_str(), "babble.network.fetch");
     server.join().unwrap();
 
     fs::remove_dir_all(root).unwrap();
@@ -1083,7 +1083,7 @@ fn local_node_commits_realtime_messages_closes_sessions_and_rebuilds_room_state(
         let room = RoomSpec::new(
             object.id.clone(),
             "canvas-main",
-            "babel.realtime.state.v1",
+            "babble.realtime.state.v1",
             MembershipPolicy::Open,
             PersistencePolicy::DurableMessages,
             RoomLimits::default(),
@@ -1151,22 +1151,22 @@ fn local_node_enforces_capability_bound_realtime_calls() {
     let mut node = LocalNode::open(&root, LocalProvider::default()).unwrap();
     let alice = node.create_identity(IdentityKind::Person, "alice").unwrap();
     let join = CapabilityRequest {
-        id: "babel.realtime.join".to_string(),
+        id: "babble.realtime.join".to_string(),
         version: 1,
         scope: json!({"room": "main"}),
     };
     let send = CapabilityRequest {
-        id: "babel.realtime.send".to_string(),
+        id: "babble.realtime.send".to_string(),
         version: 1,
         scope: json!({"room": "main"}),
     };
     let leave = CapabilityRequest {
-        id: "babel.realtime.leave".to_string(),
+        id: "babble.realtime.leave".to_string(),
         version: 1,
         scope: json!({"room": "main"}),
     };
     let wrong_join = CapabilityRequest {
-        id: "babel.realtime.join".to_string(),
+        id: "babble.realtime.join".to_string(),
         version: 1,
         scope: json!({"room": "side"}),
     };
@@ -1184,7 +1184,7 @@ fn local_node_enforces_capability_bound_realtime_calls() {
     let room = RoomSpec::new(
         object.id.clone(),
         "main",
-        "babel.realtime.state.v1",
+        "babble.realtime.state.v1",
         MembershipPolicy::Open,
         PersistencePolicy::DurableMessages,
         RoomLimits::default(),
@@ -1215,7 +1215,7 @@ fn local_node_enforces_capability_bound_realtime_calls() {
     let join_grant = grants
         .iter()
         .find(|grant| {
-            grant.capability.as_str() == "babel.realtime.join"
+            grant.capability.as_str() == "babble.realtime.join"
                 && grant.scope == json!({"room": "main"})
         })
         .unwrap()
@@ -1223,13 +1223,13 @@ fn local_node_enforces_capability_bound_realtime_calls() {
         .to_string();
     let send_grant = grants
         .iter()
-        .find(|grant| grant.capability.as_str() == "babel.realtime.send")
+        .find(|grant| grant.capability.as_str() == "babble.realtime.send")
         .unwrap()
         .id
         .to_string();
     let leave_grant = grants
         .iter()
-        .find(|grant| grant.capability.as_str() == "babel.realtime.leave")
+        .find(|grant| grant.capability.as_str() == "babble.realtime.leave")
         .unwrap()
         .id
         .to_string();
@@ -1237,7 +1237,7 @@ fn local_node_enforces_capability_bound_realtime_calls() {
     let (session, join_receipt) = node
         .start_realtime_session_with_capability(&alice.id, &room_id, &[join_grant])
         .unwrap();
-    assert_eq!(join_receipt.capability.as_str(), "babel.realtime.join");
+    assert_eq!(join_receipt.capability.as_str(), "babble.realtime.join");
     assert_eq!(join_receipt.scope, json!({"room": "main"}));
     assert_eq!(join_receipt.remaining_realtime_connections, 1);
 
@@ -1256,14 +1256,14 @@ fn local_node_enforces_capability_bound_realtime_calls() {
         .unwrap();
     assert_eq!(message.sequence, 1);
     assert!(snapshot.is_none());
-    assert_eq!(send_receipt.capability.as_str(), "babel.realtime.send");
+    assert_eq!(send_receipt.capability.as_str(), "babble.realtime.send");
     assert!(send_receipt.remaining_bytes_per_minute < send_receipt.quota.bytes_per_minute);
 
     let (closed, _, leave_receipt) = node
         .close_realtime_session_with_capability(&alice.id, &session.id, &object.id, &[leave_grant])
         .unwrap();
     assert_eq!(closed.state, SessionState::Closed);
-    assert_eq!(leave_receipt.capability.as_str(), "babel.realtime.leave");
+    assert_eq!(leave_receipt.capability.as_str(), "babble.realtime.leave");
 
     fs::remove_dir_all(root).unwrap();
 }
@@ -1275,22 +1275,22 @@ fn local_node_enforces_capability_bound_social_actions() {
     let alice = node.create_identity(IdentityKind::Person, "alice").unwrap();
     let target = node.publish_text(&alice.id, "Target Object").unwrap();
     let follow = CapabilityRequest {
-        id: "babel.social.follow".to_string(),
+        id: "babble.social.follow".to_string(),
         version: 1,
         scope: json!({"object_id": target.id}),
     };
     let unfollow = CapabilityRequest {
-        id: "babel.social.unfollow".to_string(),
+        id: "babble.social.unfollow".to_string(),
         version: 1,
         scope: json!({"object_id": target.id}),
     };
     let reply = CapabilityRequest {
-        id: "babel.social.reply".to_string(),
+        id: "babble.social.reply".to_string(),
         version: 1,
         scope: json!({"object_id": target.id}),
     };
     let share = CapabilityRequest {
-        id: "babel.social.share".to_string(),
+        id: "babble.social.share".to_string(),
         version: 1,
         scope: json!({"object_id": target.id}),
     };
@@ -1315,7 +1315,7 @@ fn local_node_enforces_capability_bound_social_actions() {
     assert!(node.capability_grants(&caller.id).unwrap().is_empty());
 
     let unscoped = CapabilityRequest {
-        id: "babel.social.follow".to_string(),
+        id: "babble.social.follow".to_string(),
         version: 1,
         scope: json!({}),
     };
@@ -1324,22 +1324,22 @@ fn local_node_enforces_capability_bound_social_actions() {
         .with_capability(unscoped.clone())
         .unwrap();
     let unscoped_caller = node.publish_draft(&alice.id, unscoped_caller).unwrap();
-    use babel_capabilities::invocation::{InvocationContext, InvocationOrigin};
-    use babel_types::{Canonical, Timestamp};
-    let context = |node: &LocalNode<LocalProvider>, object: &babel_object::Object| InvocationContext {
+    use babble_capabilities::invocation::{InvocationContext, InvocationOrigin};
+    use babble_types::{Canonical, Timestamp};
+    let context = |node: &LocalNode<LocalProvider>, object: &babble_object::Object| InvocationContext {
         actor: alice.id.clone(), login_id: "origin-login".into(), object_id: object.id.clone(),
         object_version: object.canonical_hash().unwrap(),
         origin: InvocationOrigin::HostAction { document_id: "host-document".into() },
         policy_revision: node.invocation_policy_revision().unwrap(), context_epoch: node.invocation_epoch(),
     };
     let deadline = Timestamp(Timestamp::now().0 + time::Duration::seconds(60));
-    assert!(node.prepare_social_invocation(context(&node, &unscoped_caller), "unscoped", "babel.social.follow.v2",
-        babel_node::SocialInvocationPayload { target_object_id: target.id.clone(), text: None, media: None }, deadline).is_err());
+    assert!(node.prepare_social_invocation(context(&node, &unscoped_caller), "unscoped", "babble.social.follow",
+        babble_node::SocialInvocationPayload { target_object_id: target.id.clone(), text: None, media: None }, deadline).is_err());
     for (action, relation) in [("follow", Relation::Follows), ("unfollow", Relation::Custom("unfollows".into())),
         ("reply", Relation::ReplyTo), ("share", Relation::Quotes)] {
         let context = context(&node, &caller);
-        let record = node.prepare_social_invocation(context.clone(), action, &format!("babel.social.{action}.v2"),
-            babel_node::SocialInvocationPayload { target_object_id: target.id.clone(),
+        let record = node.prepare_social_invocation(context.clone(), action, &format!("babble.social.{action}"),
+            babble_node::SocialInvocationPayload { target_object_id: target.id.clone(),
                 text: matches!(action, "reply" | "share").then(|| "Signed content".into()), media: None }, deadline).unwrap();
         node.decide_social_invocation(&context, action, record.id(), true).unwrap();
         let result = node.execute_social_invocation(&context, action, record.id()).unwrap();
@@ -1365,7 +1365,7 @@ fn local_node_commits_realtime_snapshots_and_rebuilds_snapshot_state() {
         let room = RoomSpec::new(
             object.id.clone(),
             "world-main",
-            "babel.realtime.state.v1",
+            "babble.realtime.state.v1",
             MembershipPolicy::Open,
             PersistencePolicy::SnapshotEvery { messages: 2 },
             RoomLimits::default(),
@@ -1439,7 +1439,7 @@ fn local_node_publishes_media_objects_from_content_addressed_blobs() {
 
     assert_eq!(loaded, blob);
     assert_eq!(bytes, b"not really png");
-    assert_eq!(object.kind.as_str(), "babel.media");
+    assert_eq!(object.kind.as_str(), "babble.media");
     assert_eq!(object.resources, vec![blob.resource()]);
     assert!(node.object(&object.id).is_some());
 
@@ -1464,7 +1464,7 @@ fn local_node_publishes_validated_authoring_drafts() {
         .put_media_blob("text/javascript", b"export function mount() {}")
         .unwrap();
     let capability = CapabilityRequest {
-        id: "babel.realtime.join".to_string(),
+        id: "babble.realtime.join".to_string(),
         version: 1,
         scope: json!({"room": "media-object"}),
     };
@@ -1487,7 +1487,7 @@ fn local_node_publishes_validated_authoring_drafts() {
 
     let object = node.publish_draft(&alice.id, draft).unwrap();
     object.verify(&alice).unwrap();
-    assert_eq!(object.kind.as_str(), "babel.media");
+    assert_eq!(object.kind.as_str(), "babble.media");
     assert_eq!(object.resources, vec![blob.resource()]);
     assert_eq!(object.surfaces.len(), 1);
     assert_eq!(object.capabilities, vec![capability.clone()]);
@@ -1604,7 +1604,7 @@ fn signed_bundle_records() -> (Identity, Object, Object, Edge, Event, Event, Eve
 struct ValidatorFixture {
     identity: Identity,
     keypair: Keypair,
-    identity_event: babel_types::EventId,
+    identity_event: babble_types::EventId,
 }
 
 fn install_validator_mesh(node: &mut LocalNode<LocalProvider>) -> Vec<ValidatorFixture> {
@@ -1670,7 +1670,7 @@ fn unique_root(name: &str) -> PathBuf {
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_nanos();
-    std::env::temp_dir().join(format!("babel-node-{name}-{nanos}"))
+    std::env::temp_dir().join(format!("babble-node-{name}-{nanos}"))
 }
 
 fn spawn_http_response(body: &'static str) -> (String, JoinHandle<()>) {
@@ -1682,7 +1682,7 @@ fn spawn_http_response(body: &'static str) -> (String, JoinHandle<()>) {
         let mut request = [0_u8; 1024];
         let _ = stream.read(&mut request).unwrap();
         let response = format!(
-            "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nX-Babel-Test: ok\r\nSet-Cookie: secret=1\r\nContent-Length: {}\r\n\r\n{}",
+            "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nX-Babble-Test: ok\r\nSet-Cookie: secret=1\r\nContent-Length: {}\r\n\r\n{}",
             body.len(),
             body
         );

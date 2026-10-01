@@ -1,8 +1,8 @@
-use babel_crypto::Keypair;
-use babel_graph::{Edge, EdgeOrigin, Relation};
-use babel_identity::{Identity, IdentityKind};
-use babel_object::Object;
-use babel_state::MemoryState;
+use babble_crypto::Keypair;
+use babble_graph::{Edge, EdgeOrigin, Relation};
+use babble_identity::{Identity, IdentityKind};
+use babble_object::Object;
+use babble_state::MemoryState;
 
 #[test]
 fn identity_object_and_edge_round_trip_through_state() {
@@ -12,7 +12,7 @@ fn identity_object_and_edge_round_trip_through_state() {
 
     let object = Object::text(
         &identity,
-        "Babel treats claims, evidence, and software as Objects.",
+        "Babble treats claims, evidence, and software as Objects.",
     )
     .unwrap()
     .sign(&identity, &keypair)
@@ -21,7 +21,7 @@ fn identity_object_and_edge_round_trip_through_state() {
 
     let evidence = Object::text(
         &identity,
-        "The v2 spec defines the Object -> Graph -> Judgment pipeline.",
+        "The  spec defines the Object -> Graph -> Judgment pipeline.",
     )
     .unwrap()
     .sign(&identity, &keypair)

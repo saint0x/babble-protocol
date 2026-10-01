@@ -2,7 +2,7 @@
   "version": 1,
   "name": "permission-consent-api-contract",
   "steps": [
-    { "type": "proc_when", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-store", "-p", "babel-api", "-p", "babel-node", "-p", "babel-capabilities"], "exit_code": 0, "times": 1 },
-    { "type": "proc_spawn", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-store", "-p", "babel-api", "-p", "babel-node", "-p", "babel-capabilities"], "expect_exit": 0 }
+    { "type": "proc_when", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babble-store", "-p", "babble-api", "-p", "babble-node", "-p", "babble-capabilities"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babble-store", "-p", "babble-api", "-p", "babble-node", "-p", "babble-capabilities"], "expect_exit": 0 }
   ]
 }

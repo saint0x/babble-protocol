@@ -1,4 +1,4 @@
-use babel_types::{
+use babble_types::{
     Canonical, Hash, IdentityId, ObjectId, RealtimeMessageId, RealtimeRoomId, RealtimeSessionId,
     RealtimeSnapshotId, Result, Timestamp,
 };
@@ -56,11 +56,11 @@ pub struct RealtimeSchemaRegistry {
 }
 
 impl RealtimeSchemaRegistry {
-    pub fn babel_core() -> Self {
+    pub fn babble_core() -> Self {
         Self {
             schemas: vec![
-                "babel.realtime.state.v1".to_string(),
-                "babel.realtime.chat.v1".to_string(),
+                "babble.realtime.state.v1".to_string(),
+                "babble.realtime.chat.v1".to_string(),
             ],
         }
     }
@@ -104,7 +104,7 @@ impl RoomSpec {
         validate_name(&commitment.name)?;
         validate_realtime_schema(&commitment.schema)?;
         if commitment.limits.max_members == 0 || commitment.limits.max_payload_bytes == 0 {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "room limits must allow at least one member and one payload byte".to_string(),
             ));
         }
@@ -112,7 +112,7 @@ impl RoomSpec {
             commitment.persistence,
             PersistencePolicy::SnapshotEvery { messages: 0 }
         ) {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "snapshot cadence must be at least one message".to_string(),
             ));
         }
@@ -281,12 +281,12 @@ struct RoomRuntime {
 
 impl RealtimeHub {
     pub fn create_room(&mut self, spec: RoomSpec) -> Result<RoomSpec> {
-        RealtimeSchemaRegistry::babel_core().validate_room(&spec)?;
+        RealtimeSchemaRegistry::babble_core().validate_room(&spec)?;
         if let Some(existing) = self.rooms.get(&spec.id) {
             if existing.spec == spec {
                 return Ok(spec);
             }
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "room id conflict: {}",
                 spec.id
             )));
@@ -348,9 +348,9 @@ impl RealtimeHub {
         let room = self
             .rooms
             .get(room_id)
-            .ok_or_else(|| babel_types::Error::NotFound(room_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(room_id.to_string()))?;
         if !member_allowed(&room.spec.membership, &participant) {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "participant is not allowed in room: {participant}"
             )));
         }
@@ -360,7 +360,7 @@ impl RealtimeHub {
             .filter(|session| session.room_id == *room_id && session.state == SessionState::Active)
             .count();
         if active_count >= room.spec.limits.max_members {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "room member limit reached: {}",
                 room.spec.id
             )));
@@ -388,9 +388,9 @@ impl RealtimeHub {
         let session = self
             .sessions
             .get_mut(session_id)
-            .ok_or_else(|| babel_types::Error::NotFound(session_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(session_id.to_string()))?;
         if session.state == SessionState::Closed {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "session is already closed: {session_id}"
             )));
         }
@@ -407,30 +407,30 @@ impl RealtimeHub {
         let session = self
             .sessions
             .get_mut(session_id)
-            .ok_or_else(|| babel_types::Error::NotFound(session_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(session_id.to_string()))?;
         if session.state != SessionState::Active {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "session is closed: {session_id}"
             )));
         }
         let room = self
             .rooms
             .get_mut(&session.room_id)
-            .ok_or_else(|| babel_types::Error::NotFound(session.room_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(session.room_id.to_string()))?;
         if session.sent_messages >= room.spec.limits.max_messages_per_session {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "session message limit reached: {session_id}"
             )));
         }
         let payload_bytes = payload.canonical_bytes()?;
         if payload_bytes.len() > room.spec.limits.max_payload_bytes {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "payload exceeds room limit: {} > {}",
                 payload_bytes.len(),
                 room.spec.limits.max_payload_bytes
             )));
         }
-        RealtimeSchemaRegistry::babel_core().validate_payload(&room.spec.schema, &payload)?;
+        RealtimeSchemaRegistry::babble_core().validate_payload(&room.spec.schema, &payload)?;
         let should_persist = match room.spec.persistence {
             PersistencePolicy::Ephemeral => false,
             PersistencePolicy::DurableMessages => durable,
@@ -465,7 +465,7 @@ impl RealtimeHub {
     pub fn apply_session(&mut self, session: RealtimeSession) -> Result<()> {
         self.rooms
             .get(&session.room_id)
-            .ok_or_else(|| babel_types::Error::NotFound(session.room_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(session.room_id.to_string()))?;
         if let Some(existing) = self.sessions.get(&session.id) {
             if existing == &session {
                 return Ok(());
@@ -482,7 +482,7 @@ impl RealtimeHub {
                 self.sessions.insert(session.id.clone(), session);
                 return Ok(());
             }
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "session id conflict: {}",
                 session.id
             )));
@@ -495,8 +495,8 @@ impl RealtimeHub {
         let room = self
             .rooms
             .get_mut(&message.room_id)
-            .ok_or_else(|| babel_types::Error::NotFound(message.room_id.to_string()))?;
-        RealtimeSchemaRegistry::babel_core()
+            .ok_or_else(|| babble_types::Error::NotFound(message.room_id.to_string()))?;
+        RealtimeSchemaRegistry::babble_core()
             .validate_payload(&room.spec.schema, &message.payload)?;
         if room
             .messages
@@ -519,7 +519,7 @@ impl RealtimeHub {
         snapshot.id.validate()?;
         snapshot.state_hash.validate()?;
         if snapshot.state.canonical_hash()? != snapshot.state_hash {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "snapshot state hash mismatch: {}",
                 snapshot.id
             )));
@@ -527,9 +527,9 @@ impl RealtimeHub {
         let room = self
             .rooms
             .get_mut(&snapshot.room_id)
-            .ok_or_else(|| babel_types::Error::NotFound(snapshot.room_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(snapshot.room_id.to_string()))?;
         if room.spec.object_id != snapshot.object_id {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "snapshot object mismatch for room {}",
                 snapshot.room_id
             )));
@@ -743,7 +743,7 @@ fn validate_name(value: &str) -> Result<()> {
     if valid {
         Ok(())
     } else {
-        Err(babel_types::Error::Conflict(format!(
+        Err(babble_types::Error::Conflict(format!(
             "invalid realtime room name: {value}"
         )))
     }
@@ -751,12 +751,12 @@ fn validate_name(value: &str) -> Result<()> {
 
 fn validate_realtime_schema(value: &str) -> Result<()> {
     match value {
-        "babel.realtime.state.v1" | "babel.realtime.chat.v1" => Ok(()),
-        value if value.starts_with("babel.realtime.") => Err(babel_types::Error::Conflict(
+        "babble.realtime.state.v1" | "babble.realtime.chat.v1" => Ok(()),
+        value if value.starts_with("babble.realtime.") => Err(babble_types::Error::Conflict(
             format!("unsupported core realtime schema: {value}"),
         )),
         value if namespaced(value) => Ok(()),
-        value => Err(babel_types::Error::Conflict(format!(
+        value => Err(babble_types::Error::Conflict(format!(
             "realtime schema must be a namespaced identifier: {value}"
         ))),
     }
@@ -764,18 +764,18 @@ fn validate_realtime_schema(value: &str) -> Result<()> {
 
 fn validate_payload(schema: &str, payload: &RealtimePayload) -> Result<()> {
     match schema {
-        "babel.realtime.state.v1" => match payload {
+        "babble.realtime.state.v1" => match payload {
             RealtimePayload::State(operation) => validate_operation(operation),
             RealtimePayload::Presence(value) => validate_json_object("presence payload", value),
-            RealtimePayload::Broadcast(_) => Err(babel_types::Error::Conflict(
+            RealtimePayload::Broadcast(_) => Err(babble_types::Error::Conflict(
                 "state realtime schema does not allow broadcast payloads".to_string(),
             )),
         },
-        "babel.realtime.chat.v1" => match payload {
+        "babble.realtime.chat.v1" => match payload {
             RealtimePayload::Broadcast(value) | RealtimePayload::Presence(value) => {
                 validate_json_object("chat payload", value)
             }
-            RealtimePayload::State(_) => Err(babel_types::Error::Conflict(
+            RealtimePayload::State(_) => Err(babble_types::Error::Conflict(
                 "chat realtime schema does not allow state operations".to_string(),
             )),
         },
@@ -793,7 +793,7 @@ fn validate_operation(operation: &RealtimeOperation) -> Result<()> {
     match operation {
         RealtimeOperation::SetRegister { value, .. } => {
             if value.is_null() {
-                return Err(babel_types::Error::Conflict(
+                return Err(babble_types::Error::Conflict(
                     "register value must not be null".to_string(),
                 ));
             }
@@ -816,7 +816,7 @@ fn validate_key(label: &str, value: &str) -> Result<()> {
     if valid {
         Ok(())
     } else {
-        Err(babel_types::Error::Conflict(format!(
+        Err(babble_types::Error::Conflict(format!(
             "invalid {label}: {value}"
         )))
     }
@@ -826,7 +826,7 @@ fn validate_json_object(label: &str, value: &Value) -> Result<()> {
     if value.is_object() {
         Ok(())
     } else {
-        Err(babel_types::Error::Conflict(format!(
+        Err(babble_types::Error::Conflict(format!(
             "{label} must be a JSON object"
         )))
     }
@@ -859,7 +859,7 @@ mod tests {
         let spec = RoomSpec::new(
             object_id(),
             "main",
-            "babel.realtime.state.v1",
+            "babble.realtime.state.v1",
             MembershipPolicy::Open,
             PersistencePolicy::DurableMessages,
             RoomLimits::default(),
@@ -904,7 +904,7 @@ mod tests {
         let spec = RoomSpec::new(
             object_id(),
             "sets",
-            "babel.realtime.state.v1",
+            "babble.realtime.state.v1",
             MembershipPolicy::Open,
             PersistencePolicy::DurableMessages,
             RoomLimits::default(),
@@ -955,7 +955,7 @@ mod tests {
         let spec = RoomSpec::new(
             object_id(),
             "sets-visible",
-            "babel.realtime.state.v1",
+            "babble.realtime.state.v1",
             MembershipPolicy::Open,
             PersistencePolicy::DurableMessages,
             RoomLimits::default(),
@@ -1006,7 +1006,7 @@ mod tests {
         let spec = RoomSpec::new(
             object_id(),
             "snapshot-room",
-            "babel.realtime.state.v1",
+            "babble.realtime.state.v1",
             MembershipPolicy::Open,
             PersistencePolicy::SnapshotEvery { messages: 2 },
             RoomLimits::default(),
@@ -1067,7 +1067,7 @@ mod tests {
         let spec = RoomSpec::new(
             object_id(),
             "limited",
-            "babel.realtime.chat.v1",
+            "babble.realtime.chat.v1",
             MembershipPolicy::AllowList(BTreeSet::from([allowed.clone()])),
             PersistencePolicy::Ephemeral,
             RoomLimits {
@@ -1094,7 +1094,7 @@ mod tests {
             RoomSpec::new(
                 object_id(),
                 "bad-schema",
-                "babel.realtime.unknown.v1",
+                "babble.realtime.unknown.v1",
                 MembershipPolicy::Open,
                 PersistencePolicy::Ephemeral,
                 RoomLimits::default(),
@@ -1106,7 +1106,7 @@ mod tests {
         let spec = RoomSpec::new(
             object_id(),
             "state-only",
-            "babel.realtime.state.v1",
+            "babble.realtime.state.v1",
             MembershipPolicy::Open,
             PersistencePolicy::DurableMessages,
             RoomLimits::default(),

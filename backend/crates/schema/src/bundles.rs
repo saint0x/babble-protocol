@@ -1,5 +1,5 @@
-use babel_object::bundle::{BundleFile, BundleFileKind, BundleManifest};
-use babel_types::{Canonical, Hash};
+use babble_object::bundle::{BundleFile, BundleFileKind, BundleManifest};
+use babble_types::{Canonical, Hash};
 use serde_json::{Value, json};
 
 pub(crate) fn fixture() -> serde_json::Result<Value> {
@@ -21,7 +21,7 @@ pub(crate) fn fixture() -> serde_json::Result<Value> {
         let integrity = Hash::from_bytes(bytes);
         files.push(BundleFile {
             path: path.into(),
-            source_uri: format!("babel://blobs/{integrity}"),
+            source_uri: format!("babble://blobs/{integrity}"),
             integrity,
             size_bytes: bytes.len() as u64,
             media_type: media_type.into(),
@@ -36,7 +36,7 @@ pub(crate) fn fixture() -> serde_json::Result<Value> {
     let hash = manifest.hash().map_err(super::serde_error)?;
     let bytes = manifest.canonical_bytes().map_err(super::serde_error)?;
     Ok(json!({
-        "version": babel_types::CANONICAL_ENCODING_VERSION,
+        "version": babble_types::CANONICAL_ENCODING_VERSION,
         "sample": manifest,
         "bytes_hex": hex::encode(bytes),
         "hash": hash,

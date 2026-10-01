@@ -1,7 +1,7 @@
 use crate::LocalNode;
-use babel_capabilities::{CapabilityCall, CapabilityId, CapabilityReceipt, GrantDecision};
-use babel_judgment::JudgmentProvider;
-use babel_types::{CapabilityGrantId, ObjectId, Result, Timestamp};
+use babble_capabilities::{CapabilityCall, CapabilityId, CapabilityReceipt, GrantDecision};
+use babble_judgment::JudgmentProvider;
+use babble_types::{CapabilityGrantId, ObjectId, Result, Timestamp};
 use reqwest::{
     Url,
     blocking::Client,
@@ -15,7 +15,7 @@ use std::{
     time::Duration,
 };
 
-const NETWORK_FETCH_CAPABILITY: &str = "babel.network.fetch";
+const NETWORK_FETCH_CAPABILITY: &str = "babble.network.fetch";
 const NETWORK_FETCH_VERSION: u32 = 1;
 const MAX_REQUEST_HEADER_BYTES: usize = 16 * 1024;
 const FETCH_TIMEOUT: Duration = Duration::from_secs(10);
@@ -53,7 +53,7 @@ where
         let receipt = self.authorize_network_fetch(object_id, &origin, grant_ids, request_bytes)?;
         let response = perform_fetch(method, url, headers, body)?;
         if response.body.len() as u64 > receipt.remaining_bytes_per_minute {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "network response exceeds remaining byte quota: {} > {}",
                 response.body.len(),
                 receipt.remaining_bytes_per_minute
@@ -75,7 +75,7 @@ where
         requested_bytes: u64,
     ) -> Result<CapabilityReceipt> {
         if grant_ids.is_empty() {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "missing capability grant binding for {NETWORK_FETCH_CAPABILITY}@{NETWORK_FETCH_VERSION}"
             )));
         }
@@ -115,7 +115,7 @@ where
                 );
             }
         }
-        Err(babel_types::Error::Conflict(format!(
+        Err(babble_types::Error::Conflict(format!(
             "no active network.fetch grant permits origin {origin}"
         )))
     }
@@ -132,7 +132,7 @@ impl FetchMethod {
         match value.trim().to_ascii_uppercase().as_str() {
             "GET" => Ok(Self::Get),
             "POST" => Ok(Self::Post),
-            other => Err(babel_types::Error::Conflict(format!(
+            other => Err(babble_types::Error::Conflict(format!(
                 "unsupported network.fetch method: {other}"
             ))),
         }
@@ -162,11 +162,11 @@ fn perform_fetch(
         .timeout(FETCH_TIMEOUT)
         .redirect(reqwest::redirect::Policy::none())
         .build()
-        .map_err(|err| babel_types::Error::ProviderUnavailable(format!("network client: {err}")))?;
+        .map_err(|err| babble_types::Error::ProviderUnavailable(format!("network client: {err}")))?;
     let request = match method {
         FetchMethod::Get if body.is_empty() => client.get(url),
         FetchMethod::Get => {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "GET network.fetch requests must not include a body".to_string(),
             ));
         }
@@ -175,12 +175,12 @@ fn perform_fetch(
     .headers(headers);
     let response = request
         .send()
-        .map_err(|err| babel_types::Error::ProviderUnavailable(format!("network fetch: {err}")))?;
+        .map_err(|err| babble_types::Error::ProviderUnavailable(format!("network fetch: {err}")))?;
     let status = response.status().as_u16();
     let headers = response_headers(response.headers())?;
     let body = response
         .bytes()
-        .map_err(|err| babel_types::Error::ProviderUnavailable(format!("network body: {err}")))?
+        .map_err(|err| babble_types::Error::ProviderUnavailable(format!("network body: {err}")))?
         .to_vec();
     Ok(FetchedResponse {
         status,
@@ -191,12 +191,12 @@ fn perform_fetch(
 
 fn parse_fetch_url(value: &str) -> Result<Url> {
     let url = Url::parse(value)
-        .map_err(|err| babel_types::Error::Conflict(format!("invalid network.fetch URL: {err}")))?;
+        .map_err(|err| babble_types::Error::Conflict(format!("invalid network.fetch URL: {err}")))?;
     let scheme = url.scheme();
     let valid_scheme = scheme == "https" || (scheme == "http" && is_loopback_host(&url));
     if !valid_scheme || url.username() != "" || url.password().is_some() || url.host_str().is_none()
     {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "network.fetch URL is outside supported origins: {value}"
         )));
     }
@@ -206,9 +206,9 @@ fn parse_fetch_url(value: &str) -> Result<Url> {
 fn url_origin(url: &Url) -> Result<String> {
     let host = url
         .host_str()
-        .ok_or_else(|| babel_types::Error::Conflict("network.fetch URL has no host".to_string()))?;
+        .ok_or_else(|| babble_types::Error::Conflict("network.fetch URL has no host".to_string()))?;
     let Some(port) = url.port_or_known_default() else {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "network.fetch URL has no port or known default".to_string(),
         ));
     };
@@ -240,7 +240,7 @@ fn validate_headers(headers: BTreeMap<String, String>) -> Result<HeaderMap> {
                 | "transfer-encoding"
                 | "proxy-authorization"
         ) {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "network.fetch header is not allowed: {name}"
             )));
         }
@@ -248,17 +248,17 @@ fn validate_headers(headers: BTreeMap<String, String>) -> Result<HeaderMap> {
             .checked_add(name.len())
             .and_then(|size| size.checked_add(value.len()))
             .ok_or_else(|| {
-                babel_types::Error::Conflict("network header size overflow".to_string())
+                babble_types::Error::Conflict("network header size overflow".to_string())
             })?;
         if total > MAX_REQUEST_HEADER_BYTES {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "network.fetch headers exceed limit: {total} > {MAX_REQUEST_HEADER_BYTES}"
             )));
         }
         let name = HeaderName::from_bytes(name.as_bytes())
-            .map_err(|err| babel_types::Error::Conflict(format!("invalid header name: {err}")))?;
+            .map_err(|err| babble_types::Error::Conflict(format!("invalid header name: {err}")))?;
         let value = HeaderValue::from_str(&value)
-            .map_err(|err| babel_types::Error::Conflict(format!("invalid header value: {err}")))?;
+            .map_err(|err| babble_types::Error::Conflict(format!("invalid header value: {err}")))?;
         out.insert(name, value);
     }
     Ok(out)
@@ -281,19 +281,19 @@ fn response_headers(headers: &HeaderMap) -> Result<BTreeMap<String, String>> {
 fn fetch_request_bytes(method: &str, url: &str, headers: &HeaderMap, body: &[u8]) -> Result<u64> {
     let header_bytes = headers.iter().try_fold(0_u64, |total, (name, value)| {
         let value_len = u64::try_from(value.as_bytes().len())
-            .map_err(|_| babel_types::Error::Conflict("header value too large".to_string()))?;
+            .map_err(|_| babble_types::Error::Conflict("header value too large".to_string()))?;
         total
             .checked_add(name.as_str().len() as u64)
             .and_then(|size| size.checked_add(value_len))
             .ok_or_else(|| {
-                babel_types::Error::Conflict("network request size overflow".to_string())
+                babble_types::Error::Conflict("network request size overflow".to_string())
             })
     })?;
     (method.len() as u64)
         .checked_add(url.len() as u64)
         .and_then(|size| size.checked_add(header_bytes))
         .and_then(|size| size.checked_add(body.len() as u64))
-        .ok_or_else(|| babel_types::Error::Conflict("network request size overflow".to_string()))
+        .ok_or_else(|| babble_types::Error::Conflict("network request size overflow".to_string()))
 }
 
 fn scope_allows_origin(scope: &Value, origin: &str) -> bool {

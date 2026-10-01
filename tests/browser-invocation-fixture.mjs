@@ -3,8 +3,8 @@
 export function installBrowserInvocationFixture({ apiUrl, marker, password }) {
   if (window.__browserInvocationTest) throw new Error('browser invocation fixture already installed');
   const api = new URL(apiUrl);
-  if (new URL(document.documentElement.dataset.babelApi).origin !== api.origin) throw new Error('fixture API mismatch');
-  const saved = sessionStorage.getItem(`babel.session.v1:${api.origin}`);
+  if (new URL(document.documentElement.dataset.babbleApi).origin !== api.origin) throw new Error('fixture API mismatch');
+  const saved = sessionStorage.getItem(`babble.session.v1:${api.origin}`);
   const session = JSON.parse(saved ?? 'null');
   if (!session?.token || !/^browser-author-/.test(session.identity?.handle ?? '')) throw new Error('isolated live-stack account required');
   const search = document.querySelector('[data-search-input]');
@@ -17,7 +17,7 @@ export function installBrowserInvocationFixture({ apiUrl, marker, password }) {
   const request = async (path, { method = 'GET', body, token = session.token, document: source = null } = {}) => {
     const headers = { 'content-type': 'application/json' };
     if (token) headers.authorization = `Bearer ${token}`;
-    if (source) headers['x-babel-surface-document'] = source;
+    if (source) headers['x-babble-surface-document'] = source;
     const response = await nativeFetch(new URL(path, api), { method, headers, credentials: 'omit', redirect: 'error',
       ...(body === undefined ? {} : { body: JSON.stringify(body) }), signal: AbortSignal.timeout(15000) });
     return { status: response.status, body: response.status === 204 ? null : await response.json() };
@@ -29,7 +29,7 @@ export function installBrowserInvocationFixture({ apiUrl, marker, password }) {
   };
   const rpc = async (method, payload) => {
     const response = await request('/rpc', { method: 'POST', body: {
-      protocol: 'babel.rpc.v1', id: crypto.randomUUID(), method, payload,
+      protocol: 'babble.rpc.v1', id: crypto.randomUUID(), method, payload,
       binding: { object_id: null, surface_session_id: null, runtime_id: 'browser-invocation-acceptance', origin: location.origin, capability_grants: [] },
       idempotency_key: crypto.randomUUID(), deadline: { timeout_ms: 30000, client_started_at: new Date().toISOString() }, trace_id: null,
     } });
@@ -68,10 +68,10 @@ export function installBrowserInvocationFixture({ apiUrl, marker, password }) {
   s.publish = async (files, source) => {
     const { publishBundle } = await import('/src/app/bundle-publication.ts');
     const capabilities = [
-      { id: 'babel.storage.local', version: 1, scope: { namespace: 'host-actions' } },
-      { id: 'babel.clipboard.write', version: 1, scope: {} },
-      { id: 'babel.fullscreen.enter', version: 1, scope: {} },
-      { id: 'babel.social.reply', version: 1, scope: {} },
+      { id: 'babble.storage.local', version: 1, scope: { namespace: 'host-actions' } },
+      { id: 'babble.clipboard.write', version: 1, scope: {} },
+      { id: 'babble.fullscreen.enter', version: 1, scope: {} },
+      { id: 'babble.social.reply', version: 1, scope: {} },
     ];
     const assets = [
       { path: 'index.html', content: '<!doctype html><html><head><meta charset="utf-8"><title>Browser invocation acceptance</title></head><body><h1>Browser invocation acceptance</h1><output id="status">Connecting</output><script type="module" src="./app.js"></script></body></html>' },
@@ -120,7 +120,7 @@ export function installBrowserInvocationFixture({ apiUrl, marker, password }) {
   s.cancel = id => { s.port.postMessage({ type: 'cancel', id }); return true; };
   s.prepare = (input, changes = {}) => {
     const value = typeof input === 'string' ? requests.get(input) : input;
-    return request(`/invocations/v1/${value.method.startsWith('babel.social.') ? '' : 'browser/'}prepare`, {
+    return request(`/invocations/v1/${value.method.startsWith('babble.social.') ? '' : 'browser/'}prepare`, {
       method: 'POST', document: documentId, body: { origin: { kind: 'surface', session_id: sessionId, document_id: documentId }, object_id: s.objectId,
         method: value.method, request_key: value.key, payload: { ...value.payload, ...changes }, timeout_ms: value.timeoutMs },
     });
@@ -142,10 +142,10 @@ export function installBrowserInvocationFixture({ apiUrl, marker, password }) {
     }
     return results;
   };
-  s.grants = async () => (await rpc('babel.capabilities.inspect.v1', { object_id: s.objectId })).grants;
+  s.grants = async () => (await rpc('babble.capabilities.inspect.v1', { object_id: s.objectId })).grants;
   s.effects = async () => {
     const { edges } = await get(`/graph/objects/${s.objectId}/incoming`);
-    const { results } = await rpc('babel.search.objects.v1', { q: marker, author: s.actorId, kind: null, limit: 100 });
+    const { results } = await rpc('babble.search.objects.v1', { q: marker, author: s.actorId, kind: null, limit: 100 });
     return { edges: edges.map(edge => edge.id).sort(), objects: results.map(item => item.object.id).sort() };
   };
   s.cleanup = async () => {
@@ -167,12 +167,12 @@ export function installBrowserInvocationFixture({ apiUrl, marker, password }) {
       try { await account?.logout(); } catch { errors.push('temporary-login-logout'); }
     }
     search.value = originalSearch; search.form.requestSubmit();
-    return { errors, parentAccountPreserved: sessionStorage.getItem(`babel.session.v1:${api.origin}`) === saved };
+    return { errors, parentAccountPreserved: sessionStorage.getItem(`babble.session.v1:${api.origin}`) === saved };
   };
   (async () => {
-    const [{ Accounts }, { BabelFrontendClient }] = await Promise.all([import('/src/app/accounts.ts'), import('/src/app/protocol.ts')]);
+    const [{ Accounts }, { BabbleFrontendClient }] = await Promise.all([import('/src/app/accounts.ts'), import('/src/app/protocol.ts')]);
     const accounts = new Accounts(api.href, sessionStorage);
-    client = new BabelFrontendClient(api.href, accounts.authenticatedFetch);
+    client = new BabbleFrontendClient(api.href, accounts.authenticatedFetch);
     other = new Accounts(api.href, null);
     secondLogin = new Accounts(api.href, null);
     await other.register(`browser-probe-${crypto.randomUUID()}`, crypto.randomUUID() + crypto.randomUUID());
@@ -203,9 +203,9 @@ export function browserInvocationApplication({ origin, marker }, createSurfaceSD
         inputs.set(data.id, data.payload);
         const controller = new AbortController(); controllers.set(data.id, controller);
         const options = { id: data.id, idempotencyKey: data.key, timeoutMs: data.timeoutMs, signal: controller.signal };
-        const operation = data.method === 'babel.clipboard.write.v2' ? sdk.clipboard.write(data.payload, options)
-          : data.method === 'babel.fullscreen.enter.v2' ? sdk.fullscreen.enter(data.payload, options)
-          : data.method === 'babel.social.reply.v2' ? sdk.social.reply(data.payload, options)
+        const operation = data.method === 'babble.clipboard.write' ? sdk.clipboard.write(data.payload, options)
+          : data.method === 'babble.fullscreen.enter' ? sdk.fullscreen.enter(data.payload, options)
+          : data.method === 'babble.social.reply' ? sdk.social.reply(data.payload, options)
           : sdk.rpc.call(data.method, data.payload, options);
         operation.then(result => probe.postMessage({ type: 'result', id: data.id, result, error: null }),
           error => probe.postMessage({ type: 'result', id: data.id, result: null, error: { name: error.name, code: error.code ?? null } }));

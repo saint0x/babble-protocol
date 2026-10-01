@@ -11,16 +11,16 @@ export async function verifyPermissions({ execute, waitFor, rpc, authorId }) {
     await evaluate(`(() => {
       window.__permissionRpc = null;
       import('/src/app/accounts.ts').then(async ({ Accounts }) => {
-        const accounts = new Accounts(document.documentElement.dataset.babelApi, sessionStorage);
+        const accounts = new Accounts(document.documentElement.dataset.babbleApi, sessionStorage);
         const actorId = accounts.current?.identity.id;
         if (!actorId) throw new Error('Permission request requires the mounted Surface account');
         try {
           const response = await accounts.authenticatedFetch(new URL('/rpc', accounts.origin), {
             method: 'POST', headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ protocol: 'babel.rpc.v1', id: crypto.randomUUID(),
+            body: JSON.stringify({ protocol: 'babble.rpc.v1', id: crypto.randomUUID(),
               method: ${JSON.stringify(method)}, payload: ${JSON.stringify(sessionId ? { ...payload, session_id: sessionId } : payload)},
               binding: { object_id: null, surface_session_id: ${JSON.stringify(sessionId)},
-                runtime_id: 'babel-permission-browser', origin: location.origin, capability_grants: [] },
+                runtime_id: 'babble-permission-browser', origin: location.origin, capability_grants: [] },
               idempotency_key: ${JSON.stringify(idempotencyKey)} ?? crypto.randomUUID(),
               deadline: { timeout_ms: 30000, client_started_at: new Date().toISOString() }, trace_id: null }),
           });
@@ -46,11 +46,11 @@ export async function verifyPermissions({ execute, waitFor, rpc, authorId }) {
     return response;
   };
   const current = await evaluate(`({ id: document.querySelector('.post-card[data-offset="0"]').dataset.objectId })`);
-  const { object } = await rpc("babel.object.get.v1", { object_id: current.id });
+  const { object } = await rpc("babble.object.get.v1", { object_id: current.id });
   assert.ok(object.surfaces[0].bundle, "permission fixture reuses the just-published verified application");
   const marker = `Permission application ${Date.now()}`;
-  const request = { id: "babel.storage.local", version: 1, scope: { namespace: "permission-counter" } };
-  const { object: published } = await rpc("babel.object.publish.v1", { author_id: authorId, draft: {
+  const request = { id: "babble.storage.local", version: 1, scope: { namespace: "permission-counter" } };
+  const { object: published } = await rpc("babble.object.publish.v1", { author_id: authorId, draft: {
     kind: object.kind, schema: object.schema, payload: { text: marker, metadata: {} },
     surfaces: object.surfaces, resources: object.resources, capabilities: [request],
     provenance: { parent: null, forked_from: null, remixed_from: [] },
@@ -63,7 +63,7 @@ export async function verifyPermissions({ execute, waitFor, rpc, authorId }) {
   await waitFor(`({ id: document.querySelector('.post-card[data-offset="0"]')?.dataset.objectId })`, value => value?.id === published.id);
   const state = `(() => {
     const dialog = document.querySelector('[data-permission-dialog]');
-    const row = dialog.querySelector('[data-permission-id="babel.storage.local"]');
+    const row = dialog.querySelector('[data-permission-id="babble.storage.local"]');
     return { open: dialog.open, busy: dialog.getAttribute('aria-busy') === 'true',
       text: row?.textContent, action: row?.querySelector('[data-permission-action]')?.dataset.permissionAction,
       launchDisabled: dialog.querySelector('[data-permission-open]').disabled,
@@ -91,13 +91,13 @@ export async function verifyPermissions({ execute, waitFor, rpc, authorId }) {
       message: host.textContent, retry: !document.querySelector('[data-retry-surface]').hidden,
       reviewOpen: document.querySelector('[data-permission-dialog]').open,
       session: [...panel.querySelectorAll('[data-surface-meta] span')].find(span => span.textContent.startsWith('Session: '))?.textContent.slice(9),
-      active: panel.querySelector('iframe')?.dataset.babelLifecycle === 'active',
-      permission: [...panel.querySelectorAll('[data-surface-meta] span')].some(span => span.textContent.includes('babel.storage.local') && span.textContent.includes('granted')) };
+      active: panel.querySelector('iframe')?.dataset.babbleLifecycle === 'active',
+      permission: [...panel.querySelectorAll('[data-surface-meta] span')].some(span => span.textContent.includes('babble.storage.local') && span.textContent.includes('granted')) };
   })()`;
   const mounted = await waitFor(surfaceState, value => value?.phase === "active" && value.active && value.session);
   assert.equal(mounted.permission, true);
   assert.equal(mounted.reviewOpen, false);
-  const admitted = await accountRpc("babel.runtime.surface.session.get.v1", {}, { sessionId: mounted.session });
+  const admitted = await accountRpc("babble.runtime.surface.session.get.v1", {}, { sessionId: mounted.session });
   const admittedSession = admitted.body.result.session;
   assert.equal(admittedSession.id, mounted.session);
   assert.equal(admittedSession.lifecycle, "active");
@@ -124,13 +124,13 @@ export async function verifyPermissions({ execute, waitFor, rpc, authorId }) {
     return { watching: true };
   })()`);
   try {
-    const remoteRevocation = await accountRpc("babel.capabilities.revoke.v1", revokePayload, { idempotencyKey: revokeKey });
+    const remoteRevocation = await accountRpc("babble.capabilities.revoke.v1", revokePayload, { idempotencyKey: revokeKey });
     assert.equal(remoteRevocation.actorId, admitted.actorId);
     assert.equal(remoteRevocation.body.result.event.kind, "capability_revoked");
     revocationEvent = remoteRevocation.body.result.event;
-    const revokeRetry = await accountRpc("babel.capabilities.revoke.v1", revokePayload, { idempotencyKey: revokeKey });
+    const revokeRetry = await accountRpc("babble.capabilities.revoke.v1", revokePayload, { idempotencyKey: revokeKey });
     assert.deepEqual(revokeRetry.body.result, remoteRevocation.body.result);
-    const retired = await accountRpc("babel.runtime.surface.session.get.v1", {}, { sessionId: mounted.session });
+    const retired = await accountRpc("babble.runtime.surface.session.get.v1", {}, { sessionId: mounted.session });
     assert.equal(retired.body.result.session.id, mounted.session);
     assert.equal(retired.body.result.session.lifecycle, "evicted", "successful remote revocation must retire the server session immediately");
 
@@ -140,8 +140,8 @@ export async function verifyPermissions({ execute, waitFor, rpc, authorId }) {
     assert.equal(stopped.retry, true);
     assert.match(stopped.message, /Open the Surface again to retry/i);
     assert.doesNotMatch(stopped.message, /heartbeat timed out|lease expired/i, "revocation must reject renewal before ordinary lease expiry");
-    await accountRpc("babel.runtime.surface.session.heartbeat.v1", {}, { sessionId: mounted.session, status: 403 });
-    await accountRpc("babel.runtime.surface.session.transition.v1", {
+    await accountRpc("babble.runtime.surface.session.heartbeat.v1", {}, { sessionId: mounted.session, status: 403 });
+    await accountRpc("babble.runtime.surface.session.transition.v1", {
       lifecycle: "active", reason: "Permission regression must not reactivate a revoked session",
     }, { sessionId: mounted.session, status: 403 });
 
@@ -176,20 +176,20 @@ export async function verifyPermissions({ execute, waitFor, rpc, authorId }) {
   const remounted = await waitFor(surfaceState, value => value?.phase === "active" && value.active && value.session);
   assert.notEqual(remounted.session, mounted.session, "explicit reopening must use a fresh session");
   assert.equal(remounted.permission, true);
-  const readmitted = await accountRpc("babel.runtime.surface.session.get.v1", {}, { sessionId: remounted.session });
+  const readmitted = await accountRpc("babble.runtime.surface.session.get.v1", {}, { sessionId: remounted.session });
   const freshGrant = readmitted.body.result.session.plan.capability_decisions.find(decision => decision.request.id === request.id);
   assert.equal(readmitted.actorId, admitted.actorId);
   assert.equal(freshGrant?.status, "granted");
   assert.ok(freshGrant.grant?.id);
   assert.notEqual(freshGrant.grant.id, revokedGrantId, "the revoked grant cannot be reused for admission");
   assert.deepEqual(freshGrant.grant.scope, request.scope);
-  const laterRevokeRetry = await accountRpc("babel.capabilities.revoke.v1", revokePayload, { idempotencyKey: revokeKey });
+  const laterRevokeRetry = await accountRpc("babble.capabilities.revoke.v1", revokePayload, { idempotencyKey: revokeKey });
   assert.deepEqual(laterRevokeRetry.body.result.event, revocationEvent);
   assert.equal(laterRevokeRetry.body.result.grants.find(grant => grant.id === freshGrant.grant.id)?.revoked_at, null,
     "retrying an earlier revocation must leave the later approval intact");
-  const stillRetired = await accountRpc("babel.runtime.surface.session.get.v1", {}, { sessionId: mounted.session });
+  const stillRetired = await accountRpc("babble.runtime.surface.session.get.v1", {}, { sessionId: mounted.session });
   assert.equal(stillRetired.body.result.session.lifecycle, "evicted", "regrant must not resurrect the old session");
-  await accountRpc("babel.runtime.surface.session.heartbeat.v1", {}, { sessionId: mounted.session, status: 403 });
+  await accountRpc("babble.runtime.surface.session.heartbeat.v1", {}, { sessionId: mounted.session, status: 403 });
   await evaluate(`document.querySelector('[data-surface-permissions]').click(); ({ reviewing: true })`);
   await waitFor(state, value => value?.open && !value.busy && value.action === "revoke");
   assert.deepEqual(await evaluate(`({ noFrame: !document.querySelector('[data-surface-host] iframe') })`), { noFrame: true });
@@ -209,18 +209,18 @@ export async function verifyPermissions({ execute, waitFor, rpc, authorId }) {
   await evaluate(`document.querySelector('[aria-label="Close permissions"]').click(); ({ closed: true })`);
   const grantPayload = { author_id: admitted.actorId, object_id: published.id, capability: request, decision: "approved" };
   const grantKey = `permission-grant-${published.id}`;
-  const grantResult = (await accountRpc("babel.capabilities.grant.v1", grantPayload, { idempotencyKey: grantKey })).body.result;
-  const grantRetry = (await accountRpc("babel.capabilities.grant.v1", grantPayload, { idempotencyKey: grantKey })).body.result;
+  const grantResult = (await accountRpc("babble.capabilities.grant.v1", grantPayload, { idempotencyKey: grantKey })).body.result;
+  const grantRetry = (await accountRpc("babble.capabilities.grant.v1", grantPayload, { idempotencyKey: grantKey })).body.result;
   assert.deepEqual(grantRetry, grantResult, "identical browser retries must not issue a second grant");
   const retriedGrantId = grantResult.event.payload.grant.id;
-  await accountRpc("babel.capabilities.revoke.v1", {
+  await accountRpc("babble.capabilities.revoke.v1", {
     author_id: admitted.actorId, object_id: published.id, grant_id: retriedGrantId,
   });
-  const revokedGrantRetry = (await accountRpc("babel.capabilities.grant.v1", grantPayload, { idempotencyKey: grantKey })).body.result;
+  const revokedGrantRetry = (await accountRpc("babble.capabilities.grant.v1", grantPayload, { idempotencyKey: grantKey })).body.result;
   assert.deepEqual(revokedGrantRetry.event, grantResult.event);
   assert.ok(revokedGrantRetry.grants.find(grant => grant.id === retriedGrantId)?.revoked_at,
     "a historical approval replay must report the current revoked grant");
-  const reviewedRetry = (await accountRpc("babel.capabilities.inspect.v1", { object_id: published.id })).body.result;
+  const reviewedRetry = (await accountRpc("babble.capabilities.inspect.v1", { object_id: published.id })).body.result;
   assert.ok(reviewedRetry.decisions.every(decision => decision.status !== "granted"),
     "replaying old approval must not restore launch authority");
   await evaluate(`(() => {

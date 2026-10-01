@@ -1,11 +1,11 @@
-use babel_identity::IdentityKind;
-use babel_judgment_local::LocalProvider;
-use babel_lens::{
+use babble_identity::IdentityKind;
+use babble_judgment_local::LocalProvider;
+use babble_lens::{
     BuiltInLens, LensStack, LensWeight, NativeRanker, RankingProvider, RankingProviderVersion,
     RankingRequest, RankingResult,
 };
-use babel_node::{DiscoveryQuery, FollowingQuery, LocalNode};
-use babel_types::{Error, Result};
+use babble_node::{DiscoveryQuery, FollowingQuery, LocalNode};
+use babble_types::{Error, Result};
 use std::{
     collections::BTreeSet,
     path::PathBuf,
@@ -60,7 +60,7 @@ impl Fixture {
     fn new(behavior: Behavior) -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-ranker-{}-{}-{}",
+            "babble-ranker-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed)

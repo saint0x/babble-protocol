@@ -1,18 +1,18 @@
-use babel_discovery::{CandidateEngine, DiscoveryRequest, ObjectSignals};
-use babel_eval::{
+use babble_discovery::{CandidateEngine, DiscoveryRequest, ObjectSignals};
+use babble_eval::{
     DiscoveryMixEvalCase, JudgmentAgreement, JudgmentEvalCase, JudgmentExpectation, LensEvalCase,
     evaluate_discovery_mix, evaluate_judgment_corpus, evaluate_judgment_provider_matrix,
     evaluate_lens_corpus,
 };
-use babel_graph::{Edge, EdgeOrigin, GraphIndex, Relation};
-use babel_judgment::{DefinitionId, JudgmentRequest, JudgmentState};
-use babel_judgment_jev::{JevConfig, JevProvider, JevRequest, JevResponse, JevTransport};
-use babel_judgment_local::LocalProvider;
-use babel_lens::{
+use babble_graph::{Edge, EdgeOrigin, GraphIndex, Relation};
+use babble_judgment::{DefinitionId, JudgmentRequest, JudgmentState};
+use babble_judgment_jev::{JevConfig, JevProvider, JevRequest, JevResponse, JevTransport};
+use babble_judgment_local::LocalProvider;
+use babble_lens::{
     BuiltInLens, Candidate, CandidateSource, CandidateSourceContribution, EvidenceSignals,
     LensStack, LensWeight, ReputationSignals, Signals,
 };
-use babel_types::{ObjectId, Timestamp};
+use babble_types::{ObjectId, Timestamp};
 use serde_json::json;
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -21,7 +21,7 @@ fn local_judgment_provider_passes_versioned_calibration_corpus() {
     let report = evaluate_judgment_corpus(&LocalProvider::default(), &judgment_corpus()).unwrap();
 
     report.assert_passed().unwrap();
-    assert_eq!(report.provider, "babel-local");
+    assert_eq!(report.provider, "babble-local");
     assert_eq!(report.cases, 8);
     assert_eq!(report.failures, Vec::new());
 }
@@ -37,7 +37,7 @@ fn local_and_jev_compatible_providers_pass_matrix_calibration() {
         ),
         DeterministicJevTransport,
     );
-    let providers: [&dyn babel_judgment::JudgmentProvider; 2] = [&local, &jev];
+    let providers: [&dyn babble_judgment::JudgmentProvider; 2] = [&local, &jev];
     let report = evaluate_judgment_provider_matrix(&providers, &provider_matrix_corpus()).unwrap();
 
     report.assert_passed().unwrap();
@@ -100,7 +100,7 @@ fn judgment_corpus() -> Vec<JudgmentEvalCase> {
         judgment_case(
             "relevance-query-match",
             DefinitionId::relevance_v1(),
-            "Babel runtime capability sandboxes isolate executable Object Surfaces.",
+            "Babble runtime capability sandboxes isolate executable Object Surfaces.",
             BTreeMap::from([("query".to_string(), json!("runtime capability"))]),
             vec![JudgmentExpectation::ScoreAtLeast {
                 field: "score".to_string(),
@@ -154,17 +154,17 @@ fn judgment_corpus() -> Vec<JudgmentEvalCase> {
     ]
 }
 
-fn provider_matrix_corpus() -> Vec<babel_eval::JudgmentProviderMatrixCase> {
+fn provider_matrix_corpus() -> Vec<babble_eval::JudgmentProviderMatrixCase> {
     judgment_corpus()
         .into_iter()
         .filter(|case| {
             matches!(
                 case.request.definition.as_str(),
-                "babel.judgment.spam.v1"
-                    | "babel.judgment.evidence_quality.v1"
-                    | "babel.judgment.relevance.v1"
-                    | "babel.judgment.relationship.v1"
-                    | "babel.judgment.moderation.v1"
+                "babble.judgment.spam.v1"
+                    | "babble.judgment.evidence_quality.v1"
+                    | "babble.judgment.relevance.v1"
+                    | "babble.judgment.relationship.v1"
+                    | "babble.judgment.moderation.v1"
             )
         })
         .map(|case| {
@@ -178,7 +178,7 @@ fn provider_matrix_corpus() -> Vec<babel_eval::JudgmentProviderMatrixCase> {
                     value: 0.20,
                 }]
             };
-            babel_eval::JudgmentProviderMatrixCase {
+            babble_eval::JudgmentProviderMatrixCase {
                 name: case.name,
                 request: case.request,
                 expectations: case.expectations,
@@ -531,14 +531,14 @@ impl JevTransport for DeterministicJevTransport {
         &self,
         _config: &JevConfig,
         request: &JevRequest,
-    ) -> babel_types::Result<JevResponse> {
+    ) -> babble_types::Result<JevResponse> {
         let mirrored_request = JudgmentRequest {
             definition: DefinitionId::new(request.definition.clone()),
             state: request.state.clone(),
             parameters: request.parameters.clone().into_iter().collect(),
         };
         let judgment =
-            babel_judgment::JudgmentProvider::judge(&LocalProvider::default(), &mirrored_request)?;
+            babble_judgment::JudgmentProvider::judge(&LocalProvider::default(), &mirrored_request)?;
         Ok(JevResponse {
             output: judgment.output,
             confidence: judgment.confidence,

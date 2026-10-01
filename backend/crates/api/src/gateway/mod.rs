@@ -9,12 +9,12 @@ use crate::{
     auth::{Auth, Principal, random_token},
     error::ApiError,
 };
-use babel_judgment::JudgmentProvider;
-use babel_node::LocalNode;
-use babel_object::SurfaceRole;
-use babel_runtime::{SurfaceSession, SurfaceSessionId, SurfaceSessionPlan, VerifiedSurfaceMount};
-use babel_store::VerifiedBundle;
-use babel_types::{IdentityId, ObjectId};
+use babble_judgment::JudgmentProvider;
+use babble_node::LocalNode;
+use babble_object::SurfaceRole;
+use babble_runtime::{SurfaceSession, SurfaceSessionId, SurfaceSessionPlan, VerifiedSurfaceMount};
+use babble_store::VerifiedBundle;
+use babble_types::{IdentityId, ObjectId};
 use std::{
     collections::BTreeMap,
     sync::{Arc, Mutex},
@@ -59,7 +59,7 @@ impl Mount {
             Some(&identity),
             &self.bundle,
         )?;
-        if plan.admission != babel_runtime::RuntimeAdmissionStatus::Ready {
+        if plan.admission != babble_runtime::RuntimeAdmissionStatus::Ready {
             return Err(ApiError::forbidden());
         }
         Ok(())

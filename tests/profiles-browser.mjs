@@ -12,7 +12,7 @@ export async function verifyPublicProfiles({ postAegisExecute, waitForAegisEval,
   })`, (value) => value?.ready && value.author && !value.modal);
   const started = await postAegisExecute([{ type: "eval", code: `
     (() => {
-      window.__babelProfilesCheck = null;
+      window.__babbleProfilesCheck = null;
       const exercise = ${exercisePublicProfile.toString()};
       (async () => {
         const results = [await exercise(document, ${JSON.stringify(identityId)}, true)];
@@ -35,14 +35,14 @@ export async function verifyPublicProfiles({ postAegisExecute, waitForAegisEval,
             } finally { frame.remove(); }
           }
         }
-        window.__babelProfilesCheck = { results };
-      })().catch((error) => { window.__babelProfilesCheck = { error: String(error) }; });
+        window.__babbleProfilesCheck = { results };
+      })().catch((error) => { window.__babbleProfilesCheck = { error: String(error) }; });
       return true;
     })()
   ` }]);
   assert.equal(started.results?.[0]?.ok, true, JSON.stringify(started));
-  const result = await waitForAegisEval("window.__babelProfilesCheck", (value) => value != null);
-  await postAegisExecute([{ type: "eval", code: "delete window.__babelProfilesCheck; true" }]);
+  const result = await waitForAegisEval("window.__babbleProfilesCheck", (value) => value != null);
+  await postAegisExecute([{ type: "eval", code: "delete window.__babbleProfilesCheck; true" }]);
   assert.equal(result.error, undefined, JSON.stringify(result));
   assert.equal(result.results.length, responsive ? 3 : 1);
   assert.equal(result.results[0].ownProfile, true);
@@ -85,7 +85,7 @@ async function exercisePublicProfile(doc, identityId, ownProfile) {
   const originalFocus = doc.activeElement;
   const authorButton = required('[data-profile-author]', active());
   const authorId = authorButton.dataset.profileAuthor;
-  const api = new URL(doc.documentElement.dataset.babelApi);
+  const api = new URL(doc.documentElement.dataset.babbleApi);
   const response = await win.fetch(new URL('/identities/' + encodeURIComponent(authorId), api), { signal: win.AbortSignal.timeout(15000) });
   check(response.ok, 'Authoritative identity lookup failed');
   const authoritative = await response.json();

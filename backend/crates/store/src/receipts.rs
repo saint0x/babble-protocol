@@ -66,8 +66,8 @@ impl PublicationReceipt {
 // Decode the persisted consent envelope without pulling the capability broker
 // into storage. Authorization and grant projection remain node responsibilities.
 pub(crate) fn validate_consent_event(event: &Event) -> Result<()> {
-    use babel_state::{EventKind, EventTarget};
-    use babel_types::CapabilityGrantId;
+    use babble_state::{EventKind, EventTarget};
+    use babble_types::CapabilityGrantId;
 
     #[derive(Deserialize)]
     struct Grant {
@@ -137,7 +137,7 @@ pub(crate) fn validate_consent_event(event: &Event) -> Result<()> {
                     "consent grant target or revocation mismatch".into(),
                 ));
             }
-            babel_object::validate_capability_request(&babel_object::CapabilityRequest {
+            babble_object::validate_capability_request(&babble_object::CapabilityRequest {
                 id: grant.capability,
                 version: grant.version,
                 scope: grant.scope,

@@ -3,7 +3,7 @@
   "name": "node-source-agreement-deterministic-orchestration",
   "steps": [
     {"type":"trace_event","name":"Scripted orchestration only; source-agreement-host.fozzy.json executes real signed-import frozen-clock Rust tests"},
-    {"type":"proc_when","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babel-node","--lib","agreement::tests::","--","--test-threads=1"],"exit_code":0,"times":1},
-    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babel-node","--lib","agreement::tests::","--","--test-threads=1"],"expect_exit":0}
+    {"type":"proc_when","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babble-node","--lib","agreement::tests::","--","--test-threads=1"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babble-node","--lib","agreement::tests::","--","--test-threads=1"],"expect_exit":0}
   ]
 }

@@ -1,4 +1,4 @@
-import type { ProtocolTypes } from "@babel-protocol/sdk";
+import type { ProtocolTypes } from "@babble-protocol/sdk";
 import { Accounts, AccountError, newPasswordError, type AccountSession } from "./accounts";
 
 export type AccountSessionInfo = ProtocolTypes["api.AccountSessionInfo"];

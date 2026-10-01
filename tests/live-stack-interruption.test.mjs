@@ -6,13 +6,13 @@ import test from "node:test";
 
 test("terminating the evidence wrapper during the real production build cleans API, observer and store", { timeout: 120_000 }, async () => {
   const child = spawn(process.execPath, ["tests/live-stack-evidence.mjs", "moderation"], {
-    env: { ...process.env, BABEL_MODERATION_SOURCE_FROZEN: "1", BABEL_LIVE_FRONTEND_MODE: "production" },
+    env: { ...process.env, BABBLE_MODERATION_SOURCE_FROZEN: "1", BABBLE_LIVE_FRONTEND_MODE: "production" },
     stdio: ["ignore", "pipe", "pipe"],
   });
   let output = "", storeRoot, evidence, interrupted = false;
   const receive = data => {
     output += data;
-    const path = output.match(/\/var\/folders\/[^\s]+?\/babel-live-stack-[^/\s]+/);
+    const path = output.match(/\/var\/folders\/[^\s]+?\/babble-live-stack-[^/\s]+/);
     const manifest = output.split("\n").find(line => line.startsWith('{"phase":"source-freeze-before"'));
     if (manifest) evidence = JSON.parse(manifest).path;
     if (path && !interrupted) {

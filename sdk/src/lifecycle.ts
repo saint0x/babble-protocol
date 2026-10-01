@@ -1,9 +1,9 @@
 import type { RpcOutput } from "./generated/protocol.js";
 
-export type SurfaceLifecycleState = RpcOutput<"babel.runtime.surface.prepare.v1">["plan"]["lifecycle"];
-export type SurfaceResourceBudget = RpcOutput<"babel.runtime.surface.session.get.v1">["session"]["budget"];
-export type SurfaceRuntimeSession = RpcOutput<"babel.runtime.surface.session.get.v1">["session"];
-export type SurfaceRuntimeEvent = RpcOutput<"babel.runtime.surface.session.transition.v1">["event"];
+export type SurfaceLifecycleState = RpcOutput<"babble.runtime.surface.prepare.v1">["plan"]["lifecycle"];
+export type SurfaceResourceBudget = RpcOutput<"babble.runtime.surface.session.get.v1">["session"]["budget"];
+export type SurfaceRuntimeSession = RpcOutput<"babble.runtime.surface.session.get.v1">["session"];
+export type SurfaceRuntimeEvent = RpcOutput<"babble.runtime.surface.session.transition.v1">["event"];
 
 export interface SurfaceLifecycleEvent {
   readonly previous: SurfaceLifecycleState;
@@ -85,7 +85,7 @@ export class SurfaceLifecycleController {
     }
 
     if (!allowedTransitions.get(this.#state)?.has(next)) {
-      throw new Error(`invalid Babel Surface lifecycle transition: ${this.#state} -> ${next}`);
+      throw new Error(`invalid Babble Surface lifecycle transition: ${this.#state} -> ${next}`);
     }
 
     const previous = this.#state;

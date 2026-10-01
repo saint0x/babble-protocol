@@ -1,5 +1,5 @@
-use babel_graph::{Edge, EdgeOrigin, Relation, RepliesIndex};
-use babel_types::{Hash, ObjectId, Timestamp};
+use babble_graph::{Edge, EdgeOrigin, Relation, RepliesIndex};
+use babble_types::{Hash, ObjectId, Timestamp};
 
 #[test]
 fn replies_index_seeks_orders_and_deduplicates_independently_of_insertion_order() {

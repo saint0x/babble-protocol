@@ -14,7 +14,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-runtime",
+        "babble-runtime",
         "runtime_wasm_policy_uses_isolated_store_and_granted_capability_imports"
       ],
       "exit_code": 0,
@@ -42,7 +42,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-runtime",
+        "babble-runtime",
         "runtime_wasm_policy_uses_isolated_store_and_granted_capability_imports"
       ],
       "expect_exit": 0

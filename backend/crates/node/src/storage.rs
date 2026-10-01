@@ -1,11 +1,11 @@
 use crate::{CapabilityBindingUsage, LocalNode};
-use babel_capabilities::CapabilityReceipt;
-use babel_judgment::JudgmentProvider;
-use babel_store::ObjectStorageRecord;
-use babel_types::{ObjectId, Result};
+use babble_capabilities::CapabilityReceipt;
+use babble_judgment::JudgmentProvider;
+use babble_store::ObjectStorageRecord;
+use babble_types::{ObjectId, Result};
 use serde_json::Value;
 
-const OBJECT_STORAGE_CAPABILITY: &str = "babel.storage.object";
+const OBJECT_STORAGE_CAPABILITY: &str = "babble.storage.object";
 const OBJECT_STORAGE_CAPABILITY_VERSION: u32 = 1;
 const OBJECT_STORAGE_LIST_LIMIT: usize = 256;
 
@@ -43,10 +43,10 @@ where
             .checked_sub(current_size)
             .and_then(|remaining| remaining.checked_add(requested_bytes))
             .ok_or_else(|| {
-                babel_types::Error::Conflict("object storage byte accounting overflow".to_string())
+                babble_types::Error::Conflict("object storage byte accounting overflow".to_string())
             })?;
         if next_used > receipt.quota.persistent_bytes {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "object storage quota exceeded: {next_used} > {}",
                 receipt.quota.persistent_bytes
             )));
@@ -95,14 +95,14 @@ where
         requested_value_bytes: u64,
     ) -> Result<CapabilityReceipt> {
         if key.starts_with("runtime/") {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "runtime state is private to its session".into(),
             ));
         }
         let requested_bytes = (key.len() as u64)
             .checked_add(requested_value_bytes)
             .ok_or_else(|| {
-                babel_types::Error::Conflict("storage call size overflow".to_string())
+                babble_types::Error::Conflict("storage call size overflow".to_string())
             })?;
         self.authorize_capability_binding_with_usage(
             object_id,
@@ -123,7 +123,7 @@ where
             .into_iter()
             .try_fold(0_u64, |total, record| {
                 total.checked_add(record.size_bytes).ok_or_else(|| {
-                    babel_types::Error::Conflict("object storage usage overflow".to_string())
+                    babble_types::Error::Conflict("object storage usage overflow".to_string())
                 })
             })
     }
@@ -132,5 +132,5 @@ where
 fn storage_value_size(value: &Value) -> Result<u64> {
     serde_json::to_vec(value)
         .map(|bytes| bytes.len() as u64)
-        .map_err(|err| babel_types::Error::Canonical(format!("encode object storage value: {err}")))
+        .map_err(|err| babble_types::Error::Canonical(format!("encode object storage value: {err}")))
 }

@@ -3,11 +3,11 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode},
 };
-use babel_api::{ApiState, router};
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
-use babel_rpc::{RpcBinding, RpcRequestEnvelope, babel_rpc_catalog};
-use babel_types::Hash;
+use babble_api::{ApiState, router};
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
+use babble_rpc::{RpcBinding, RpcRequestEnvelope, babble_rpc_catalog};
+use babble_types::Hash;
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -26,7 +26,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-resource-api-{}-{}-{}",
+            "babble-resource-api-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed),
@@ -66,10 +66,10 @@ async fn get(app: &Router, path: &str) -> (StatusCode, axum::http::HeaderMap, Ve
 
 async fn rpc_blob(app: &Router, hash: &Hash) -> Value {
     let request = RpcRequestEnvelope::new(
-        &babel_rpc_catalog().unwrap(),
+        &babble_rpc_catalog().unwrap(),
         "resource-read",
-        "babel.media.blob.get.v1",
-        RpcBinding::host("resource-tests", "http://babel.test").unwrap(),
+        "babble.media.blob.get.v1",
+        RpcBinding::host("resource-tests", "http://babble.test").unwrap(),
         json!({"hash":hash, "media_type":"text/javascript"}),
     )
     .unwrap();
@@ -97,7 +97,7 @@ async fn rpc_blob(app: &Router, hash: &Hash) -> Value {
 #[tokio::test]
 async fn resource_bytes_and_hash_survive_bounded_http_and_rpc_delivery() {
     let fixture = Fixture::new();
-    let payload = b"window.babelResource = 'verified bytes';";
+    let payload = b"window.babbleResource = 'verified bytes';";
     let blob = fixture
         .node
         .put_media_blob("text/javascript", payload)

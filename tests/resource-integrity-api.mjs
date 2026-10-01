@@ -32,8 +32,8 @@ export async function verifyResourceDelivery(api, storeRoot, surface) {
     }
     const rpc = await request(`${api}/rpc`, {
       method: "POST", headers: { "content-type": "application/json" },
-      body: JSON.stringify({ protocol: "babel.rpc.v1", id: "bounded-resource",
-        method: "babel.media.blob.get.v1",
+      body: JSON.stringify({ protocol: "babble.rpc.v1", id: "bounded-resource",
+        method: "babble.media.blob.get.v1",
         binding: { object_id: null, surface_session_id: null, runtime_id: "resource-regression",
           origin: api, identity_id: null, capability_grants: [] },
         payload: { hash, media_type: "text/html" }, idempotency_key: null,

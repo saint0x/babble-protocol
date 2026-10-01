@@ -1,15 +1,15 @@
-use babel_crypto::Keypair;
-use babel_identity::{Identity, IdentityKind};
-use babel_object::{Object, Resource, Surface, SurfaceRole, SurfaceTarget};
-use babel_runtime::{RuntimeAdmissionStatus, SurfaceRuntime};
-use babel_types::Hash;
+use babble_crypto::Keypair;
+use babble_identity::{Identity, IdentityKind};
+use babble_object::{Object, Resource, Surface, SurfaceRole, SurfaceTarget};
+use babble_runtime::{RuntimeAdmissionStatus, SurfaceRuntime};
+use babble_types::Hash;
 
 #[test]
 fn resource_uri_runtime_admits_exact_references_and_seed_gateway_urls() {
     let keypair = Keypair::generate();
     let identity = Identity::create(IdentityKind::Person, "uri-test", &keypair).unwrap();
     let hash = Hash::from_bytes(b"surface");
-    let blob = format!("babel://blobs/{hash}");
+    let blob = format!("babble://blobs/{hash}");
     let cases = [
         (blob.clone(), blob.clone()),
         (
@@ -49,7 +49,7 @@ fn resource_uri_runtime_admits_exact_references_and_seed_gateway_urls() {
             .unwrap()
             .sign(&identity, &keypair)
             .unwrap();
-        let plan = SurfaceRuntime::babel_default()
+        let plan = SurfaceRuntime::babble_default()
             .prepare_surface(&object, SurfaceRole::Feed, &[])
             .unwrap();
         assert_eq!(
@@ -67,7 +67,7 @@ fn resource_uri_runtime_blocks_hash_decoys_credentials_and_traversal() {
     let keypair = Keypair::generate();
     let identity = Identity::create(IdentityKind::Person, "uri-test", &keypair).unwrap();
     let hash = Hash::from_bytes(b"surface");
-    let blob = format!("babel://blobs/{hash}");
+    let blob = format!("babble://blobs/{hash}");
     for entry in [
         format!("https://{hash}.example.com/evil.js"),
         format!("https://example.com/evil.js?hash={hash}"),
@@ -107,7 +107,7 @@ fn resource_uri_runtime_blocks_hash_decoys_credentials_and_traversal() {
             .unwrap()
             .sign(&identity, &keypair)
             .unwrap();
-        let plan = SurfaceRuntime::babel_default()
+        let plan = SurfaceRuntime::babble_default()
             .prepare_surface(&object, SurfaceRole::Feed, &[])
             .unwrap();
         assert_eq!(plan.admission, RuntimeAdmissionStatus::Blocked, "{entry}");
@@ -126,8 +126,8 @@ fn resource_uri_runtime_checks_exact_matches_and_static_entries_too() {
         "a/%2e%2e/index.html".into(),
         "http://localhost:80@evil.com/index.html".into(),
         " index.html".into(),
-        format!("babel://blobs/{wrong}"),
-        format!("babel://blobs/{}", "z".repeat(64)),
+        format!("babble://blobs/{wrong}"),
+        format!("babble://blobs/{}", "z".repeat(64)),
     ] {
         for target in [
             SurfaceTarget::Static,
@@ -157,7 +157,7 @@ fn resource_uri_runtime_checks_exact_matches_and_static_entries_too() {
                 .unwrap()
                 .sign(&identity, &keypair)
                 .unwrap();
-            let plan = SurfaceRuntime::babel_default()
+            let plan = SurfaceRuntime::babble_default()
                 .prepare_surface(&object, SurfaceRole::Feed, &[])
                 .unwrap();
             assert_eq!(
@@ -174,7 +174,7 @@ fn resource_uri_runtime_alias_admission_is_independent_of_resource_order() {
     let keypair = Keypair::generate();
     let identity = Identity::create(IdentityKind::Person, "uri-alias-test", &keypair).unwrap();
     let hash = Hash::from_bytes(b"surface");
-    let blob = format!("babel://blobs/{hash}");
+    let blob = format!("babble://blobs/{hash}");
     for (target, media_type) in [
         (SurfaceTarget::Web, "text/html"),
         (SurfaceTarget::Wasm, "application/wasm"),
@@ -232,7 +232,7 @@ fn resource_uri_runtime_alias_admission_is_independent_of_resource_order() {
                     .unwrap()
                     .sign(&identity, &keypair)
                     .unwrap();
-                let plan = SurfaceRuntime::babel_default()
+                let plan = SurfaceRuntime::babble_default()
                     .prepare_surface(&object, SurfaceRole::Feed, &[])
                     .unwrap();
                 assert_eq!(
@@ -294,7 +294,7 @@ fn resource_uri_runtime_cannot_combine_uri_hash_and_mime_from_different_candidat
                 .unwrap()
                 .sign(&identity, &keypair)
                 .unwrap();
-            let plan = SurfaceRuntime::babel_default()
+            let plan = SurfaceRuntime::babble_default()
                 .prepare_surface(&object, SurfaceRole::Feed, &[])
                 .unwrap();
             assert_eq!(

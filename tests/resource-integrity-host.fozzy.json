@@ -5,7 +5,7 @@
     {
       "type": "proc_spawn",
       "cmd": "env",
-      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-api", "--test", "body_limits"],
+      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babble-api", "--test", "body_limits"],
       "expect_exit": 0
     },
     {
@@ -18,7 +18,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-store",
+        "babble-store",
         "--test",
         "blobs"
       ],
@@ -34,7 +34,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-store",
+        "babble-store",
         "--lib",
         "blobs::tests"
       ],
@@ -50,7 +50,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-api",
+        "babble-api",
         "--test",
         "resources"
       ],

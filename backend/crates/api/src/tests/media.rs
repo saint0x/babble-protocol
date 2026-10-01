@@ -1,13 +1,13 @@
 use super::*;
 use crate::router;
 use axum::{Router, body::to_bytes, http::Request};
-use babel_authoring::ObjectDraft;
-use babel_crypto::Keypair;
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
-use babel_object::{Object, Resource};
-use babel_types::Hash;
+use babble_authoring::ObjectDraft;
+use babble_crypto::Keypair;
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
+use babble_object::{Object, Resource};
+use babble_types::Hash;
 use std::{
     fs,
     path::PathBuf,
@@ -26,7 +26,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-binary-media-{}-{}",
+            "babble-binary-media-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
@@ -284,12 +284,12 @@ async fn binary_media_requires_published_object_and_exact_local_resource_binding
     let fixture = Fixture::new();
     let resource = fixture.resource("image/png", b"unpublished");
     let no_resources = fixture.publish(vec![]);
-    let unknown = babel_types::ObjectId::from_hash(&Hash::from_bytes(b"missing object"));
+    let unknown = babble_types::ObjectId::from_hash(&Hash::from_bytes(b"missing object"));
     let mut remote = resource.clone();
     remote.uri = "https://example.com/image.png".into();
     let remote_id = fixture.publish(vec![remote]);
     let mut mismatched = resource.clone();
-    mismatched.uri = format!("babel://blobs/{}", Hash::from_bytes(b"other"));
+    mismatched.uri = format!("babble://blobs/{}", Hash::from_bytes(b"other"));
     let mismatched_id = fixture.publish_record(vec![mismatched]);
     for id in [no_resources, unknown.to_string(), remote_id, mismatched_id] {
         let uri = format!("/objects/{id}/media/{}", resource.integrity);

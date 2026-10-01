@@ -141,7 +141,7 @@ export class Drafts {
   }
 
   private read(target: DraftTarget): Draft {
-    const key = `babel.draft.v1:${JSON.stringify([this.owner.origin, this.owner.identityId, target.mode, target.parent])}`;
+    const key = `babble.draft.v1:${JSON.stringify([this.owner.origin, this.owner.identityId, target.mode, target.parent])}`;
     const existing = this.entries.get(key);
     if (existing) return existing;
     for (const [cachedKey, draft] of this.entries) {
@@ -189,7 +189,7 @@ export function draftTransport(request: typeof fetch, isAuthorized: () => boolea
     if (!isAuthorized()) throw new Error("Account changed; draft was not submitted with the new account");
     if (typeof init?.body === "string") {
       const envelope = JSON.parse(init.body);
-      if (envelope.protocol === "babel.rpc.v1" && envelope.idempotency_key) {
+      if (envelope.protocol === "babble.rpc.v1" && envelope.idempotency_key) {
         const material = JSON.stringify([operationId, envelope.method, envelope.payload]);
         const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(material)));
         envelope.idempotency_key = `web-draft-${Array.from(digest, (byte) => byte.toString(16).padStart(2, "0")).join("")}`;

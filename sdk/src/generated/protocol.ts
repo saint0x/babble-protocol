@@ -7991,14 +7991,14 @@ export interface ProtocolTypes {
   readonly "types.Timestamp": TypesTimestamp;
 }
 
-export const protocol = "babel.v2" as const;
+export const protocol = "babble" as const;
 export const schemaBundleVersion = 1 as const;
 export const rpcCatalog = {
-  "protocol": "babel.rpc.v1",
+  "protocol": "babble.rpc.v1",
   "methods": [
     {
-      "method": "babel.observability.snapshot.v1",
-      "version": 1,
+      "method": "babble.observability.snapshot.v1",
+      "version": 2,
       "input": "api.EmptyRequest",
       "output": "api.ObservabilitySnapshotResponse",
       "capability": null,
@@ -8006,8 +8006,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.identity.create.v1",
-      "version": 1,
+      "method": "babble.identity.create.v1",
+      "version": 2,
       "input": "api.CreateIdentityRequest",
       "output": "api.CreateIdentityResponse",
       "capability": null,
@@ -8015,12 +8015,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.identity.current.v1",
-      "version": 1,
+      "method": "babble.identity.current.v1",
+      "version": 2,
       "input": "api.EmptyRequest",
       "output": "api.IdentityCurrentResponse",
       "capability": {
-        "capability": "babel.identity.current",
+        "capability": "babble.identity.current",
         "version": 1,
         "required": true
       },
@@ -8028,8 +8028,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.object.publish_text.v1",
-      "version": 1,
+      "method": "babble.object.publish_text.v1",
+      "version": 2,
       "input": "api.PublishTextRequest",
       "output": "api.PublishTextResponse",
       "capability": null,
@@ -8037,8 +8037,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.object.publish.v1",
-      "version": 1,
+      "method": "babble.object.publish.v1",
+      "version": 2,
       "input": "api.PublishObjectRequest",
       "output": "api.PublishObjectResponse",
       "capability": null,
@@ -8046,8 +8046,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.object.publish_media.v1",
-      "version": 1,
+      "method": "babble.object.publish_media.v1",
+      "version": 2,
       "input": "api.PublishMediaObjectRequest",
       "output": "api.PublishMediaObjectResponse",
       "capability": null,
@@ -8055,8 +8055,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.object.fork.v1",
-      "version": 1,
+      "method": "babble.object.fork.v1",
+      "version": 2,
       "input": "api.ForkObjectRequest",
       "output": "api.ProvenancePublicationResponse",
       "capability": null,
@@ -8064,8 +8064,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.object.remix.v1",
-      "version": 1,
+      "method": "babble.object.remix.v1",
+      "version": 2,
       "input": "api.RemixObjectRequest",
       "output": "api.ProvenancePublicationResponse",
       "capability": null,
@@ -8073,8 +8073,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.object.get.v1",
-      "version": 1,
+      "method": "babble.object.get.v1",
+      "version": 2,
       "input": "api.ObjectIdRequest",
       "output": "api.PublishTextResponse",
       "capability": null,
@@ -8082,8 +8082,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.media.blob.put.v1",
-      "version": 1,
+      "method": "babble.media.blob.put.v1",
+      "version": 2,
       "input": "api.PutMediaBlobRequest",
       "output": "api.MediaBlobResponse",
       "capability": null,
@@ -8091,8 +8091,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.media.blob.get.v1",
-      "version": 1,
+      "method": "babble.media.blob.get.v1",
+      "version": 2,
       "input": "api.GetMediaBlobRequest",
       "output": "api.MediaBlobResponse",
       "capability": null,
@@ -8100,8 +8100,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.graph.edge.publish.v1",
-      "version": 1,
+      "method": "babble.graph.edge.publish.v1",
+      "version": 2,
       "input": "api.PublishEdgeRequest",
       "output": "api.PublishEdgeResponse",
       "capability": null,
@@ -8109,8 +8109,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.graph.relationship.infer.v1",
-      "version": 1,
+      "method": "babble.graph.relationship.infer.v1",
+      "version": 2,
       "input": "api.InferRelationshipRequest",
       "output": "api.InferRelationshipResponse",
       "capability": null,
@@ -8118,8 +8118,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.graph.evidence.v1",
-      "version": 1,
+      "method": "babble.graph.evidence.v1",
+      "version": 2,
       "input": "api.ObjectIdRequest",
       "output": "api.ClaimEvidenceResponse",
       "capability": null,
@@ -8127,8 +8127,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.graph.traverse.v1",
-      "version": 1,
+      "method": "babble.graph.traverse.v1",
+      "version": 2,
       "input": "api.GraphTraverseRpcRequest",
       "output": "api.GraphTraversalResponse",
       "capability": null,
@@ -8136,12 +8136,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.social.follow.v1",
-      "version": 1,
+      "method": "babble.social.follow.v1",
+      "version": 2,
       "input": "api.SocialTargetRequest",
       "output": "api.SocialEdgeResponse",
       "capability": {
-        "capability": "babel.social.follow",
+        "capability": "babble.social.follow",
         "version": 1,
         "required": true
       },
@@ -8149,12 +8149,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.social.follow.v2",
+      "method": "babble.social.follow",
       "version": 2,
       "input": "api.SocialTargetRequest",
       "output": "api.InvocationSocialResult",
       "capability": {
-        "capability": "babel.social.follow",
+        "capability": "babble.social.follow",
         "version": 1,
         "required": true
       },
@@ -8162,12 +8162,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.social.unfollow.v2",
+      "method": "babble.social.unfollow",
       "version": 2,
       "input": "api.SocialTargetRequest",
       "output": "api.InvocationSocialResult",
       "capability": {
-        "capability": "babel.social.unfollow",
+        "capability": "babble.social.unfollow",
         "version": 1,
         "required": true
       },
@@ -8175,12 +8175,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.social.share.v2",
+      "method": "babble.social.share",
       "version": 2,
       "input": "api.SocialTextRequest",
       "output": "api.InvocationSocialResult",
       "capability": {
-        "capability": "babel.social.share",
+        "capability": "babble.social.share",
         "version": 1,
         "required": true
       },
@@ -8188,12 +8188,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.social.reply.v2",
+      "method": "babble.social.reply",
       "version": 2,
       "input": "api.SocialTextRequest",
       "output": "api.InvocationSocialResult",
       "capability": {
-        "capability": "babel.social.reply",
+        "capability": "babble.social.reply",
         "version": 1,
         "required": true
       },
@@ -8201,12 +8201,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.social.unfollow.v1",
-      "version": 1,
+      "method": "babble.social.unfollow.v1",
+      "version": 2,
       "input": "api.SocialTargetRequest",
       "output": "api.SocialEdgeResponse",
       "capability": {
-        "capability": "babel.social.unfollow",
+        "capability": "babble.social.unfollow",
         "version": 1,
         "required": true
       },
@@ -8214,12 +8214,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.social.share.v1",
-      "version": 1,
+      "method": "babble.social.share.v1",
+      "version": 2,
       "input": "api.SocialTextRequest",
       "output": "api.SocialTextResponse",
       "capability": {
-        "capability": "babel.social.share",
+        "capability": "babble.social.share",
         "version": 1,
         "required": true
       },
@@ -8227,12 +8227,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.social.reply.v1",
-      "version": 1,
+      "method": "babble.social.reply.v1",
+      "version": 2,
       "input": "api.SocialTextRequest",
       "output": "api.SocialTextResponse",
       "capability": {
-        "capability": "babel.social.reply",
+        "capability": "babble.social.reply",
         "version": 1,
         "required": true
       },
@@ -8240,8 +8240,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.social.replies.list.v1",
-      "version": 1,
+      "method": "babble.social.replies.list.v1",
+      "version": 2,
       "input": "api.RepliesListRequest",
       "output": "api.RepliesListResponse",
       "capability": null,
@@ -8249,8 +8249,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.social.quotes.list.v1",
-      "version": 1,
+      "method": "babble.social.quotes.list.v1",
+      "version": 2,
       "input": "api.QuotesListRequest",
       "output": "api.QuotesListResponse",
       "capability": null,
@@ -8258,8 +8258,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.social.reactions.summary.v1",
-      "version": 1,
+      "method": "babble.social.reactions.summary.v1",
+      "version": 2,
       "input": "api.ReactionObjectRequest",
       "output": "graph.ReactionSummary",
       "capability": null,
@@ -8267,8 +8267,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.social.reactions.record.v1",
-      "version": 1,
+      "method": "babble.social.reactions.record.v1",
+      "version": 2,
       "input": "api.ReactionRecordRequest",
       "output": "graph.ReactionRecord",
       "capability": null,
@@ -8276,8 +8276,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.social.reactions.mine.v1",
-      "version": 1,
+      "method": "babble.social.reactions.mine.v1",
+      "version": 2,
       "input": "api.ReactionObjectRequest",
       "output": "graph.ReactionState",
       "capability": null,
@@ -8285,8 +8285,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.social.reactions.set.v1",
-      "version": 1,
+      "method": "babble.social.reactions.set.v1",
+      "version": 2,
       "input": "api.SetReactionRpcRequest",
       "output": "graph.ReactionState",
       "capability": null,
@@ -8294,8 +8294,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.events.list.v1",
-      "version": 1,
+      "method": "babble.events.list.v1",
+      "version": 2,
       "input": "api.EventListRequest",
       "output": "api.EventListResponse",
       "capability": null,
@@ -8303,8 +8303,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.events.bundle.v1",
-      "version": 1,
+      "method": "babble.events.bundle.v1",
+      "version": 2,
       "input": "api.EventBundleRequest",
       "output": "api.EventBundleResponse",
       "capability": null,
@@ -8312,8 +8312,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.events.import.v1",
-      "version": 1,
+      "method": "babble.events.import.v1",
+      "version": 2,
       "input": "api.EventImportRequest",
       "output": "api.EventImportResponse",
       "capability": null,
@@ -8321,8 +8321,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.consensus.checkpoint.preview.v1",
-      "version": 1,
+      "method": "babble.consensus.checkpoint.preview.v1",
+      "version": 2,
       "input": "api.CheckpointPreviewRequest",
       "output": "api.CheckpointPreviewResponse",
       "capability": null,
@@ -8330,8 +8330,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.consensus.checkpoint.publish.v1",
-      "version": 1,
+      "method": "babble.consensus.checkpoint.publish.v1",
+      "version": 2,
       "input": "api.CheckpointRequest",
       "output": "api.CheckpointEventResponse",
       "capability": null,
@@ -8339,12 +8339,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.judgment.object.evaluate.v1",
-      "version": 1,
+      "method": "babble.judgment.object.evaluate.v1",
+      "version": 2,
       "input": "api.JudgeObjectRpcRequest",
       "output": "api.JudgeObjectResponse",
       "capability": {
-        "capability": "babel.ai.judge",
+        "capability": "babble.ai.judge",
         "version": 1,
         "required": false
       },
@@ -8352,12 +8352,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.ai.judge.v1",
-      "version": 1,
+      "method": "babble.ai.judge.v1",
+      "version": 2,
       "input": "api.JudgeObjectRpcRequest",
       "output": "api.JudgeObjectResponse",
       "capability": {
-        "capability": "babel.ai.judge",
+        "capability": "babble.ai.judge",
         "version": 1,
         "required": true
       },
@@ -8365,12 +8365,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.ai.generate.v1",
-      "version": 1,
+      "method": "babble.ai.generate.v1",
+      "version": 2,
       "input": "api.AiGenerateRequest",
       "output": "api.AiGenerateResponse",
       "capability": {
-        "capability": "babel.ai.generate",
+        "capability": "babble.ai.generate",
         "version": 1,
         "required": true
       },
@@ -8378,12 +8378,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.ai.embed.v1",
-      "version": 1,
+      "method": "babble.ai.embed.v1",
+      "version": 2,
       "input": "api.AiEmbedRequest",
       "output": "api.AiEmbedResponse",
       "capability": {
-        "capability": "babel.ai.embed",
+        "capability": "babble.ai.embed",
         "version": 1,
         "required": true
       },
@@ -8391,12 +8391,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.ai.transcribe.v1",
-      "version": 1,
+      "method": "babble.ai.transcribe.v1",
+      "version": 2,
       "input": "api.AiTranscribeRequest",
       "output": "api.AiTranscribeResponse",
       "capability": {
-        "capability": "babel.ai.transcribe",
+        "capability": "babble.ai.transcribe",
         "version": 1,
         "required": true
       },
@@ -8404,8 +8404,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.judgment.object.list.v1",
-      "version": 1,
+      "method": "babble.judgment.object.list.v1",
+      "version": 2,
       "input": "api.ObjectIdRequest",
       "output": "api.ObjectJudgmentsResponse",
       "capability": null,
@@ -8413,8 +8413,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.judgment.definitions.list.v1",
-      "version": 1,
+      "method": "babble.judgment.definitions.list.v1",
+      "version": 2,
       "input": "api.EmptyRequest",
       "output": "api.JudgmentDefinitionsResponse",
       "capability": null,
@@ -8422,8 +8422,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.judgment.providers.list.v1",
-      "version": 1,
+      "method": "babble.judgment.providers.list.v1",
+      "version": 2,
       "input": "api.EmptyRequest",
       "output": "api.JudgmentProvidersResponse",
       "capability": null,
@@ -8431,8 +8431,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.search.objects.v1",
-      "version": 1,
+      "method": "babble.search.objects.v1",
+      "version": 2,
       "input": "api.ObjectSearchRequest",
       "output": "api.ObjectSearchResponse",
       "capability": null,
@@ -8440,8 +8440,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.lenses.list.v1",
-      "version": 1,
+      "method": "babble.lenses.list.v1",
+      "version": 2,
       "input": "api.EmptyRequest",
       "output": "api.LensCatalogResponse",
       "capability": null,
@@ -8449,8 +8449,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.discovery.candidates.v1",
-      "version": 1,
+      "method": "babble.discovery.candidates.v1",
+      "version": 2,
       "input": "api.DiscoveryRequest",
       "output": "api.DiscoveryResponse",
       "capability": null,
@@ -8458,8 +8458,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.capabilities.list.v1",
-      "version": 1,
+      "method": "babble.capabilities.list.v1",
+      "version": 2,
       "input": "api.EmptyRequest",
       "output": "api.CapabilityCatalogResponse",
       "capability": null,
@@ -8467,8 +8467,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.capabilities.inspect.v1",
-      "version": 1,
+      "method": "babble.capabilities.inspect.v1",
+      "version": 2,
       "input": "api.ObjectIdRequest",
       "output": "api.CapabilitiesResponse",
       "capability": null,
@@ -8476,8 +8476,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.capabilities.grant.v1",
-      "version": 1,
+      "method": "babble.capabilities.grant.v1",
+      "version": 2,
       "input": "api.GrantCapabilityRequest",
       "output": "api.GrantCapabilityResponse",
       "capability": null,
@@ -8485,8 +8485,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.capabilities.revoke.v1",
-      "version": 1,
+      "method": "babble.capabilities.revoke.v1",
+      "version": 2,
       "input": "api.RevokeCapabilityRequest",
       "output": "api.GrantCapabilityResponse",
       "capability": null,
@@ -8494,12 +8494,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.storage.object.get.v1",
-      "version": 1,
+      "method": "babble.storage.object.get.v1",
+      "version": 2,
       "input": "api.ObjectStorageGetRequest",
       "output": "api.ObjectStorageGetResponse",
       "capability": {
-        "capability": "babel.storage.object",
+        "capability": "babble.storage.object",
         "version": 1,
         "required": true
       },
@@ -8507,12 +8507,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.storage.local.get.v1",
-      "version": 1,
+      "method": "babble.storage.local.get.v1",
+      "version": 2,
       "input": "api.LocalStorageGetRequest",
       "output": "api.LocalStorageGetResponse",
       "capability": {
-        "capability": "babel.storage.local",
+        "capability": "babble.storage.local",
         "version": 1,
         "required": true
       },
@@ -8520,12 +8520,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.storage.local.set.v1",
-      "version": 1,
+      "method": "babble.storage.local.set.v1",
+      "version": 2,
       "input": "api.LocalStorageSetRequest",
       "output": "api.LocalStorageSetResponse",
       "capability": {
-        "capability": "babel.storage.local",
+        "capability": "babble.storage.local",
         "version": 1,
         "required": true
       },
@@ -8533,12 +8533,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.storage.local.delete.v1",
-      "version": 1,
+      "method": "babble.storage.local.delete.v1",
+      "version": 2,
       "input": "api.LocalStorageDeleteRequest",
       "output": "api.LocalStorageDeleteResponse",
       "capability": {
-        "capability": "babel.storage.local",
+        "capability": "babble.storage.local",
         "version": 1,
         "required": true
       },
@@ -8546,12 +8546,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.storage.local.list.v1",
-      "version": 1,
+      "method": "babble.storage.local.list.v1",
+      "version": 2,
       "input": "api.LocalStorageListRequest",
       "output": "api.LocalStorageListResponse",
       "capability": {
-        "capability": "babel.storage.local",
+        "capability": "babble.storage.local",
         "version": 1,
         "required": true
       },
@@ -8559,12 +8559,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.storage.object.set.v1",
-      "version": 1,
+      "method": "babble.storage.object.set.v1",
+      "version": 2,
       "input": "api.ObjectStorageSetRequest",
       "output": "api.ObjectStorageSetResponse",
       "capability": {
-        "capability": "babel.storage.object",
+        "capability": "babble.storage.object",
         "version": 1,
         "required": true
       },
@@ -8572,12 +8572,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.storage.object.delete.v1",
-      "version": 1,
+      "method": "babble.storage.object.delete.v1",
+      "version": 2,
       "input": "api.ObjectStorageDeleteRequest",
       "output": "api.ObjectStorageDeleteResponse",
       "capability": {
-        "capability": "babel.storage.object",
+        "capability": "babble.storage.object",
         "version": 1,
         "required": true
       },
@@ -8585,12 +8585,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.storage.object.list.v1",
-      "version": 1,
+      "method": "babble.storage.object.list.v1",
+      "version": 2,
       "input": "api.ObjectStorageListRequest",
       "output": "api.ObjectStorageListResponse",
       "capability": {
-        "capability": "babel.storage.object",
+        "capability": "babble.storage.object",
         "version": 1,
         "required": true
       },
@@ -8598,8 +8598,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.personalization.sync.put.v1",
-      "version": 1,
+      "method": "babble.personalization.sync.put.v1",
+      "version": 2,
       "input": "api.PersonalizationSyncPutRequest",
       "output": "api.PersonalizationSyncPutResponse",
       "capability": null,
@@ -8607,8 +8607,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.personalization.sync.list.v1",
-      "version": 1,
+      "method": "babble.personalization.sync.list.v1",
+      "version": 2,
       "input": "api.PersonalizationSyncListRequest",
       "output": "api.PersonalizationSyncListResponse",
       "capability": null,
@@ -8616,8 +8616,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.personalization.sync.get.v1",
-      "version": 1,
+      "method": "babble.personalization.sync.get.v1",
+      "version": 2,
       "input": "api.PersonalizationSyncGetRequest",
       "output": "api.PersonalizationSyncGetResponse",
       "capability": null,
@@ -8625,8 +8625,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.personalization.sync.delete.v1",
-      "version": 1,
+      "method": "babble.personalization.sync.delete.v1",
+      "version": 2,
       "input": "api.PersonalizationSyncGetRequest",
       "output": "api.PersonalizationSyncDeleteResponse",
       "capability": null,
@@ -8634,12 +8634,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.network.fetch.v1",
-      "version": 1,
+      "method": "babble.network.fetch.v1",
+      "version": 2,
       "input": "api.NetworkFetchRequest",
       "output": "api.NetworkFetchResponse",
       "capability": {
-        "capability": "babel.network.fetch",
+        "capability": "babble.network.fetch",
         "version": 1,
         "required": true
       },
@@ -8647,12 +8647,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.payments.checkout.v1",
-      "version": 1,
+      "method": "babble.payments.checkout.v1",
+      "version": 2,
       "input": "api.PaymentsCheckoutRequest",
       "output": "api.PaymentsCheckoutResponse",
       "capability": {
-        "capability": "babel.payments.checkout",
+        "capability": "babble.payments.checkout",
         "version": 1,
         "required": true
       },
@@ -8660,12 +8660,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.notifications.request.v1",
-      "version": 1,
+      "method": "babble.notifications.request.v1",
+      "version": 2,
       "input": "api.NotificationsRequestRequest",
       "output": "api.NotificationsRequestResponse",
       "capability": {
-        "capability": "babel.notifications.request",
+        "capability": "babble.notifications.request",
         "version": 1,
         "required": true
       },
@@ -8673,12 +8673,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.media.camera.request.v1",
-      "version": 1,
+      "method": "babble.media.camera.request.v1",
+      "version": 2,
       "input": "api.CameraCaptureRequest",
       "output": "api.CameraCaptureResponse",
       "capability": {
-        "capability": "babel.media.camera",
+        "capability": "babble.media.camera",
         "version": 1,
         "required": true
       },
@@ -8686,12 +8686,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.media.microphone.request.v1",
-      "version": 1,
+      "method": "babble.media.microphone.request.v1",
+      "version": 2,
       "input": "api.MicrophoneCaptureRequest",
       "output": "api.MicrophoneCaptureResponse",
       "capability": {
-        "capability": "babel.media.microphone",
+        "capability": "babble.media.microphone",
         "version": 1,
         "required": true
       },
@@ -8699,12 +8699,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.clipboard.write.v1",
-      "version": 1,
+      "method": "babble.clipboard.write.v1",
+      "version": 2,
       "input": "api.ClipboardWriteRequest",
       "output": "api.ClipboardWriteResponse",
       "capability": {
-        "capability": "babel.clipboard.write",
+        "capability": "babble.clipboard.write",
         "version": 1,
         "required": true
       },
@@ -8712,12 +8712,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.fullscreen.enter.v1",
-      "version": 1,
+      "method": "babble.fullscreen.enter.v1",
+      "version": 2,
       "input": "api.FullscreenEnterRequest",
       "output": "api.FullscreenEnterResponse",
       "capability": {
-        "capability": "babel.fullscreen.enter",
+        "capability": "babble.fullscreen.enter",
         "version": 1,
         "required": true
       },
@@ -8725,12 +8725,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.clipboard.write.v2",
+      "method": "babble.clipboard.write",
       "version": 2,
       "input": "api.ClipboardWriteRequest",
       "output": "api.BrowserInvocationResult",
       "capability": {
-        "capability": "babel.clipboard.write",
+        "capability": "babble.clipboard.write",
         "version": 1,
         "required": true
       },
@@ -8738,12 +8738,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.fullscreen.enter.v2",
+      "method": "babble.fullscreen.enter",
       "version": 2,
       "input": "api.FullscreenEnterRequest",
       "output": "api.BrowserInvocationResult",
       "capability": {
-        "capability": "babel.fullscreen.enter",
+        "capability": "babble.fullscreen.enter",
         "version": 1,
         "required": true
       },
@@ -8751,8 +8751,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.runtime.surface.prepare.v1",
-      "version": 1,
+      "method": "babble.runtime.surface.prepare.v1",
+      "version": 2,
       "input": "api.PrepareSurfaceRequest",
       "output": "api.PrepareSurfaceResponse",
       "capability": null,
@@ -8760,8 +8760,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.runtime.surface.session.start.v1",
-      "version": 1,
+      "method": "babble.runtime.surface.session.start.v1",
+      "version": 2,
       "input": "api.StartSurfaceSessionRequest",
       "output": "api.SurfaceSessionResponse",
       "capability": null,
@@ -8769,8 +8769,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.runtime.surface.health.v1",
-      "version": 1,
+      "method": "babble.runtime.surface.health.v1",
+      "version": 2,
       "input": "api.EmptyRequest",
       "output": "api.SurfaceRuntimeHealthResponse",
       "capability": null,
@@ -8778,8 +8778,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.runtime.surface.session.get.v1",
-      "version": 1,
+      "method": "babble.runtime.surface.session.get.v1",
+      "version": 2,
       "input": "api.SurfaceSessionRequest",
       "output": "api.SurfaceSessionResponse",
       "capability": null,
@@ -8787,8 +8787,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.runtime.surface.session.transition.v1",
-      "version": 1,
+      "method": "babble.runtime.surface.session.transition.v1",
+      "version": 2,
       "input": "api.TransitionSurfaceSessionRequest",
       "output": "api.SurfaceSessionEventResponse",
       "capability": null,
@@ -8796,8 +8796,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.runtime.surface.session.heartbeat.v1",
-      "version": 1,
+      "method": "babble.runtime.surface.session.heartbeat.v1",
+      "version": 2,
       "input": "api.EmptyRequest",
       "output": "api.SurfaceLeaseResponse",
       "capability": null,
@@ -8805,8 +8805,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.runtime.surface.session.budget.v1",
-      "version": 1,
+      "method": "babble.runtime.surface.session.budget.v1",
+      "version": 2,
       "input": "api.ChangeSurfaceBudgetRequest",
       "output": "api.SurfaceSessionEventResponse",
       "capability": null,
@@ -8814,8 +8814,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.runtime.surface.session.schedule.v1",
-      "version": 1,
+      "method": "babble.runtime.surface.session.schedule.v1",
+      "version": 2,
       "input": "api.ScheduleSurfaceSessionRequest",
       "output": "api.ScheduleSurfaceSessionResponse",
       "capability": null,
@@ -8823,8 +8823,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.runtime.surface.session.apply_schedule.v1",
-      "version": 1,
+      "method": "babble.runtime.surface.session.apply_schedule.v1",
+      "version": 2,
       "input": "api.ScheduleSurfaceSessionRequest",
       "output": "api.ApplySurfaceScheduleResponse",
       "capability": null,
@@ -8832,8 +8832,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.runtime.surface.session.state.checkpoint.v1",
-      "version": 1,
+      "method": "babble.runtime.surface.session.state.checkpoint.v1",
+      "version": 2,
       "input": "api.CheckpointSurfaceStateRequest",
       "output": "api.SurfaceStateCheckpointResponse",
       "capability": null,
@@ -8841,8 +8841,8 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.runtime.surface.session.state.get.v1",
-      "version": 1,
+      "method": "babble.runtime.surface.session.state.get.v1",
+      "version": 2,
       "input": "api.SurfaceSessionRequest",
       "output": "api.SurfaceStateRestoreResponse",
       "capability": null,
@@ -8850,12 +8850,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.realtime.room.define.v1",
-      "version": 1,
+      "method": "babble.realtime.room.define.v1",
+      "version": 2,
       "input": "api.DefineRealtimeRoomRequest",
       "output": "api.DefineRealtimeRoomResponse",
       "capability": {
-        "capability": "babel.realtime.join",
+        "capability": "babble.realtime.join",
         "version": 1,
         "required": false
       },
@@ -8863,12 +8863,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.realtime.session.start.v1",
-      "version": 1,
+      "method": "babble.realtime.session.start.v1",
+      "version": 2,
       "input": "api.StartRealtimeSessionRequest",
       "output": "api.StartRealtimeSessionResponse",
       "capability": {
-        "capability": "babel.realtime.join",
+        "capability": "babble.realtime.join",
         "version": 1,
         "required": true
       },
@@ -8876,12 +8876,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.realtime.session.leave.v1",
-      "version": 1,
+      "method": "babble.realtime.session.leave.v1",
+      "version": 2,
       "input": "api.CloseRealtimeSessionRequest",
       "output": "api.CloseRealtimeSessionResponse",
       "capability": {
-        "capability": "babel.realtime.leave",
+        "capability": "babble.realtime.leave",
         "version": 1,
         "required": true
       },
@@ -8889,12 +8889,12 @@ export const rpcCatalog = {
       "timeout_ms": 30000
     },
     {
-      "method": "babel.realtime.message.publish.v1",
-      "version": 1,
+      "method": "babble.realtime.message.publish.v1",
+      "version": 2,
       "input": "api.PublishRealtimeMessageRequest",
       "output": "api.PublishRealtimeMessageResponse",
       "capability": {
-        "capability": "babel.realtime.send",
+        "capability": "babble.realtime.send",
         "version": 1,
         "required": true
       },

@@ -1,9 +1,9 @@
 use super::*;
-use babel_crypto::Keypair;
-use babel_graph::{EdgeOrigin, Relation};
-use babel_identity::IdentityKind;
-use babel_judgment::{DefinitionId, ProviderVersion};
-use babel_state::{EventKind, EventTarget};
+use babble_crypto::Keypair;
+use babble_graph::{EdgeOrigin, Relation};
+use babble_identity::IdentityKind;
+use babble_judgment::{DefinitionId, ProviderVersion};
+use babble_state::{EventKind, EventTarget};
 use std::{process::Command, sync::atomic::AtomicU64};
 
 pub(super) struct Root(pub(super) PathBuf);
@@ -11,7 +11,7 @@ impl Root {
     pub(super) fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let path = std::env::temp_dir().join(format!(
-            "babel-atomic-store-{}-{}",
+            "babble-atomic-store-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
@@ -173,10 +173,10 @@ fn publication_errors_at_every_phase_recover_all_or_none() {
 
 #[test]
 fn publication_crash_child() {
-    let Some(root) = std::env::var_os("BABEL_ATOMIC_CRASH_ROOT") else {
+    let Some(root) = std::env::var_os("BABBLE_ATOMIC_CRASH_ROOT") else {
         return;
     };
-    let phase = std::env::var("BABEL_ATOMIC_CRASH_PHASE").unwrap();
+    let phase = std::env::var("BABBLE_ATOMIC_CRASH_PHASE").unwrap();
     let store = FileStore::open(PathBuf::from(root)).unwrap();
     let batch = fixture(&store);
     sync_write(
@@ -205,8 +205,8 @@ fn publication_process_exit_at_every_phase_recovers_after_restart() {
                 "publication::tests::publication_crash_child",
                 "--nocapture",
             ])
-            .env("BABEL_ATOMIC_CRASH_ROOT", &root.0)
-            .env("BABEL_ATOMIC_CRASH_PHASE", &phase)
+            .env("BABBLE_ATOMIC_CRASH_ROOT", &root.0)
+            .env("BABBLE_ATOMIC_CRASH_PHASE", &phase)
             .output()
             .unwrap();
         assert_eq!(

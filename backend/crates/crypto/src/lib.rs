@@ -1,4 +1,4 @@
-use babel_types::{Error, Result};
+use babble_types::{Error, Result};
 use ed25519_dalek::{Signature as DalekSignature, Signer, SigningKey, Verifier, VerifyingKey};
 use rand_core::OsRng;
 use schemars::JsonSchema;
@@ -68,7 +68,7 @@ mod tests {
     fn keypair_round_trips_ed25519_secret_material() {
         let keypair = Keypair::generate();
         let restored = Keypair::from_ed25519_secret_hex(&keypair.ed25519_secret_hex()).unwrap();
-        let payload = b"babel signed payload";
+        let payload = b"babble signed payload";
         let signature = restored.sign(payload);
 
         assert_eq!(restored.public_key(), keypair.public_key());

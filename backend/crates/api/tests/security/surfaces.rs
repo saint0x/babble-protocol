@@ -1,11 +1,11 @@
 use super::*;
-use babel_rpc::{RpcBinding, RpcRequestEnvelope, babel_rpc_catalog};
+use babble_rpc::{RpcBinding, RpcRequestEnvelope, babble_rpc_catalog};
 
 fn envelope(method: &str, binding: RpcBinding, payload: Value) -> Value {
     static SEQUENCE: AtomicU64 = AtomicU64::new(0);
     serde_json::to_value(
         RpcRequestEnvelope::new(
-            &babel_rpc_catalog().unwrap(),
+            &babble_rpc_catalog().unwrap(),
             "security-regression",
             method,
             binding,
@@ -20,16 +20,16 @@ fn envelope(method: &str, binding: RpcBinding, payload: Value) -> Value {
     .unwrap()
 }
 fn host() -> RpcBinding {
-    RpcBinding::host("security-host", "https://babel.test").unwrap()
+    RpcBinding::host("security-host", "https://babble.test").unwrap()
 }
 async fn surface_object(app: &Router, account: &Account) -> (String, String) {
     let uploaded = request(app, "POST", "/media/blobs", Some(&account.token), json!({"media_type":"text/html","bytes_hex":hex::encode(b"<!doctype html><title>Security test</title>")})).await;
     assert_eq!(uploaded.0, StatusCode::OK, "{}", uploaded.1);
     let hash = uploaded.1["blob"]["integrity"].as_str().unwrap();
-    let uri = format!("babel://blobs/{hash}");
-    let capability = json!({"id":"babel.storage.local","version":1,"scope":{"namespace":"self"}});
+    let uri = format!("babble://blobs/{hash}");
+    let capability = json!({"id":"babble.storage.local","version":1,"scope":{"namespace":"self"}});
     let mut draft =
-        serde_json::to_value(babel_authoring::ObjectDraft::text("Security test Surface").unwrap())
+        serde_json::to_value(babble_authoring::ObjectDraft::text("Security test Surface").unwrap())
             .unwrap();
     draft["surfaces"] = json!([{"role":"Feed","target":"Web","entry":uri,"integrity":hash}]);
     draft["resources"] = json!([{"uri":uri,"integrity":hash,"media_type":"text/html"}]);
@@ -77,10 +77,10 @@ async fn start(app: &Router, account: &Account, object: &str) -> String {
     id
 }
 fn lifecycle(state: &ApiState<LocalProvider>, session: &str) -> Value {
-    let response = babel_api::dispatch_rpc_request(
+    let response = babble_api::dispatch_rpc_request(
         state,
         serde_json::from_value(envelope(
-            "babel.runtime.surface.session.get.v1",
+            "babble.runtime.surface.session.get.v1",
             host(),
             json!({"session_id":session}),
         ))
@@ -103,12 +103,12 @@ async fn surface_write(
         Some(&account.token),
         Some(
             &envelope(
-                "babel.storage.local.set.v1",
+                "babble.storage.local.set.v1",
                 RpcBinding::object(
                     object,
                     session,
                     "security-host",
-                    "https://babel.test",
+                    "https://babble.test",
                     vec![grant.to_owned()],
                 )
                 .unwrap(),
@@ -117,7 +117,7 @@ async fn surface_write(
             .to_string(),
         ),
         &[(
-            "x-babel-surface-document",
+            "x-babble-surface-document",
             "550e8400-e29b-41d4-a716-446655440000",
         )],
     )

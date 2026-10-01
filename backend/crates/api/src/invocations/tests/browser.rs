@@ -4,7 +4,7 @@ const PREPARE: &str = "/invocations/v1/browser/prepare";
 
 #[tokio::test]
 async fn browser_surface_rpc_lazy_consent_and_suspend_loses_executor() {
-    for method in ["babel.clipboard.write.v2", "babel.fullscreen.enter.v2"] {
+    for method in ["babble.clipboard.write", "babble.fullscreen.enter"] {
         let f = Fixture::new();
         let principal = f
             .state
@@ -23,7 +23,7 @@ async fn browser_surface_rpc_lazy_consent_and_suspend_loses_executor() {
         .unwrap();
         assert_eq!(
             session.plan.admission,
-            babel_runtime::RuntimeAdmissionStatus::Ready
+            babble_runtime::RuntimeAdmissionStatus::Ready
         );
         crate::auth::bind_surface_document(
             &f.state,
@@ -36,19 +36,19 @@ async fn browser_surface_rpc_lazy_consent_and_suspend_loses_executor() {
             let mut node = f.state.node.lock().unwrap();
             node.transition_surface_session(
                 &session.id,
-                babel_runtime::SurfaceLifecycle::Warm,
+                babble_runtime::SurfaceLifecycle::Warm,
                 "warm",
             )
             .unwrap();
             node.transition_surface_session(
                 &session.id,
-                babel_runtime::SurfaceLifecycle::Active,
+                babble_runtime::SurfaceLifecycle::Active,
                 "visible",
             )
             .unwrap();
         }
         let request = RpcRequestEnvelope::new(
-            &babel_rpc_catalog().unwrap(),
+            &babble_rpc_catalog().unwrap(),
             "browser-rpc",
             method,
             RpcBinding::object(
@@ -63,7 +63,7 @@ async fn browser_surface_rpc_lazy_consent_and_suspend_loses_executor() {
         )
         .unwrap()
         .with_idempotency_key("browser-rpc");
-        let headers = Some(("x-babel-surface-document", DOCUMENT));
+        let headers = Some(("x-babble-surface-document", DOCUMENT));
         let request = serde_json::to_value(request).unwrap();
         let (_, response) = f
             .call("POST", "/rpc", request.clone(), &f.token, headers)
@@ -101,7 +101,7 @@ async fn browser_surface_rpc_lazy_consent_and_suspend_loses_executor() {
             .unwrap()
             .transition_surface_session(
                 &session.id,
-                babel_runtime::SurfaceLifecycle::Suspended,
+                babble_runtime::SurfaceLifecycle::Suspended,
                 "hidden",
             )
             .unwrap();
@@ -128,7 +128,7 @@ async fn browser_prepare_rejects_unbounded_unknown_payload_and_rebound_context()
         json!({"text":"x".repeat(65536)}),
         json!({}),
     ] {
-        let mut request = input(&f, "invalid", "babel.clipboard.write.v2");
+        let mut request = input(&f, "invalid", "babble.clipboard.write");
         request["payload"] = payload;
         assert!(f.host("POST", PREPARE, request).await.0.is_client_error());
     }
@@ -142,7 +142,7 @@ async fn browser_prepare_rejects_unbounded_unknown_payload_and_rebound_context()
             .unwrap()
             .is_empty()
     );
-    let initial = approved(&f, "binding", "babel.clipboard.write.v2").await;
+    let initial = approved(&f, "binding", "babble.clipboard.write").await;
     let id: InvocationId = serde_json::from_value(initial["invocation_id"].clone()).unwrap();
     let mut node = f.state.node.lock().unwrap();
     let record = node.invocation_by_id(&id).unwrap().unwrap();
@@ -155,7 +155,7 @@ async fn browser_prepare_rejects_unbounded_unknown_payload_and_rebound_context()
             "epoch" => ctx.context_epoch = Hash::from_bytes(b"different-epoch"),
             "object" => {
                 ctx.object_id =
-                    babel_types::ObjectId::from_hash(&Hash::from_bytes(b"different-object"))
+                    babble_types::ObjectId::from_hash(&Hash::from_bytes(b"different-object"))
             }
             _ => {
                 ctx.origin = InvocationOrigin::HostAction {
@@ -210,7 +210,7 @@ async fn approved(f: &Fixture, key: &str, method: &str) -> Value {
 
 #[tokio::test]
 async fn browser_dispatch_once_typed_ack_retries_conflicts_and_social_isolation() {
-    for method in ["babel.clipboard.write.v2", "babel.fullscreen.enter.v2"] {
+    for method in ["babble.clipboard.write", "babble.fullscreen.enter"] {
         let f = Fixture::new();
         f.register().await;
         let initial = approved(&f, "once", method).await;
@@ -231,7 +231,7 @@ async fn browser_dispatch_once_typed_ack_retries_conflicts_and_social_isolation(
         } else {
             first.1
         };
-        assert_eq!(running["execution_ticket"]["executor"], "babel.browser.v1");
+        assert_eq!(running["execution_ticket"]["executor"], "babble.browser.v1");
         assert_eq!(
             running["execution_ticket"]["dispatch_id"],
             running["state"]["dispatch_id"]
@@ -292,7 +292,7 @@ async fn browser_dispatch_once_typed_ack_retries_conflicts_and_social_isolation(
 async fn browser_ack_failed_is_durable_bound_and_never_redispatched() {
     let f = Fixture::new();
     f.register().await;
-    let initial = approved(&f, "failure", "babel.fullscreen.enter.v2").await;
+    let initial = approved(&f, "failure", "babble.fullscreen.enter").await;
     let id = initial["invocation_id"].as_str().unwrap();
     let (_, running) = f.host("POST", &path(id, "dispatch"), json!({})).await;
     let ack = json!({"dispatch_id":running["state"]["dispatch_id"],"result":{"kind":"failed","code":"context_lost"}});
@@ -326,7 +326,7 @@ async fn browser_ack_failed_is_durable_bound_and_never_redispatched() {
 async fn browser_auth_other_login_document_actor_and_anonymous_cannot_obtain_or_ack() {
     let f = Fixture::new();
     f.register().await;
-    let initial = approved(&f, "auth", "babel.clipboard.write.v2").await;
+    let initial = approved(&f, "auth", "babble.clipboard.write").await;
     let id = initial["invocation_id"].as_str().unwrap();
     let (_, running) = f.host("POST", &path(id, "dispatch"), json!({})).await;
     let ack = json!({"dispatch_id":running["state"]["dispatch_id"],"result":{"kind":"clipboard_write","written":true}});
@@ -343,11 +343,11 @@ async fn browser_auth_other_login_document_actor_and_anonymous_cannot_obtain_or_
         .with_store(|s| Ok(s.issue(other.id.as_str())?.0))
         .unwrap();
     for (token, header, document) in [
-        (&f.second_login, "x-babel-host-document", DOCUMENT),
-        (&other_token, "x-babel-host-document", DOCUMENT),
-        (&f.token, "x-babel-host-document", OTHER_DOCUMENT),
-        (&f.token, "x-babel-surface-document", DOCUMENT),
-        (&String::new(), "x-babel-host-document", DOCUMENT),
+        (&f.second_login, "x-babble-host-document", DOCUMENT),
+        (&other_token, "x-babble-host-document", DOCUMENT),
+        (&f.token, "x-babble-host-document", OTHER_DOCUMENT),
+        (&f.token, "x-babble-surface-document", DOCUMENT),
+        (&String::new(), "x-babble-host-document", DOCUMENT),
     ] {
         for (operation, method, body) in [
             ("status", "GET", json!({})),
@@ -376,7 +376,7 @@ async fn browser_cancel_deny_deadline_and_restart_never_fabricate_success() {
     let f = Fixture::new();
     f.register().await;
     for operation in ["cancel", "decision"] {
-        let initial = prepared(&f, operation, "babel.clipboard.write.v2").await;
+        let initial = prepared(&f, operation, "babble.clipboard.write").await;
         let id = initial["invocation_id"].as_str().unwrap();
         let (_, terminal) = f
             .host("POST", &path(id, operation), json!({"decision":"deny"}))
@@ -393,7 +393,7 @@ async fn browser_cancel_deny_deadline_and_restart_never_fabricate_success() {
         assert_eq!(retry["state"], terminal["state"]);
         assert!(retry["execution_ticket"].is_null());
     }
-    let mut short = input(&f, "expired", "babel.clipboard.write.v2");
+    let mut short = input(&f, "expired", "babble.clipboard.write");
     short["timeout_ms"] = json!(100);
     let (code, initial) = f.host("POST", PREPARE, short).await;
     assert_eq!(code, StatusCode::OK, "{initial}");
@@ -406,8 +406,8 @@ async fn browser_cancel_deny_deadline_and_restart_never_fabricate_success() {
         )
         .await;
     assert_eq!(expired["state"]["kind"], "expired");
-    let pending = prepared(&f, "restart-pending", "babel.clipboard.write.v2").await;
-    let initial = approved(&f, "restart-running", "babel.clipboard.write.v2").await;
+    let pending = prepared(&f, "restart-pending", "babble.clipboard.write").await;
+    let initial = approved(&f, "restart-running", "babble.clipboard.write").await;
     let id = initial["invocation_id"].as_str().unwrap();
     let (_, running) = f.host("POST", &path(id, "dispatch"), json!({})).await;
     *f.state.node.lock().unwrap() = LocalNode::open(&f.root, LocalProvider::default()).unwrap();
@@ -436,7 +436,7 @@ async fn browser_dispatch_atomic_aggregate_quota_blocks_preapproved_excess() {
     f.register().await;
     let mut records = Vec::new();
     for i in 0..11 {
-        records.push(approved(&f, &format!("quota-{i}"), "babel.fullscreen.enter.v2").await);
+        records.push(approved(&f, &format!("quota-{i}"), "babble.fullscreen.enter").await);
     }
     for record in &records[..10] {
         let (code, running) = f
@@ -470,7 +470,7 @@ async fn browser_dispatch_atomic_aggregate_quota_blocks_preapproved_excess() {
     );
     assert!(
         node.clipboard_write(
-            &babel_types::ObjectId::new_unchecked(f.controller.clone()),
+            &babble_types::ObjectId::new_unchecked(f.controller.clone()),
             "text",
             &[]
         )
@@ -478,7 +478,7 @@ async fn browser_dispatch_atomic_aggregate_quota_blocks_preapproved_excess() {
     );
     assert!(
         node.fullscreen_enter(
-            &babel_types::ObjectId::new_unchecked(f.controller.clone()),
+            &babble_types::ObjectId::new_unchecked(f.controller.clone()),
             None,
             &[]
         )

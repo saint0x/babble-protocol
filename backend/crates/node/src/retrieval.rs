@@ -1,6 +1,6 @@
 //! Rebuilt from committed public Objects. Admission precedes provider enrichment.
 use super::*;
-use babel_lens::{Candidate, CandidateSource, CandidateSourceContribution};
+use babble_lens::{Candidate, CandidateSource, CandidateSourceContribution};
 use std::cmp::Reverse;
 
 mod search;
@@ -129,7 +129,7 @@ const NEIGHBOR_RELATIONS: &[Relation] = &[
     Relation::Forks,
     Relation::Remixes,
 ];
-const BUDGET: usize = babel_discovery::MAX_CANDIDATES;
+const BUDGET: usize = babble_discovery::MAX_CANDIDATES;
 
 struct Source {
     kind: CandidateSource,
@@ -143,7 +143,7 @@ pub(super) struct Admission {
 impl Admission {
     pub fn candidates(
         &self,
-        summaries: &BTreeMap<ObjectId, babel_discovery::ObjectSignals>,
+        summaries: &BTreeMap<ObjectId, babble_discovery::ObjectSignals>,
     ) -> Vec<Candidate> {
         self.members
             .iter()

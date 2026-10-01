@@ -51,7 +51,7 @@ test("decision form requires outcome, reason, explanation and bounded unique sou
   h.enter("outcome", "restrict", "decision"); h.enter("reason", "spam", "decision"); h.enter("explanation", text, "decision");
   h.enter("source_signals", "not-a-judgment", "decision"); assert.equal(h.one("submit-decision").disabled, true);
   h.enter("source_signals", "", "decision"); assert.equal(h.one("submit-decision").disabled, false); h.submit("decision"); await settle();
-  assert.equal(h.calls.decide.length, 1); assert.equal(h.calls.decide[0].intent.policy_version, "babel.integrity.v1"); assert.equal(h.calls.decide[0].intent.expected_revision, 1);
+  assert.equal(h.calls.decide.length, 1); assert.equal(h.calls.decide[0].intent.policy_version, "babble.integrity.v1"); assert.equal(h.calls.decide[0].intent.expected_revision, 1);
 });
 test("initial reviewer cannot resolve own appeal; independent second reviewer can", async () => {
   for (const [actor, eligible] of [[reviewer, false], [second, true]]) {

@@ -1,7 +1,7 @@
 use super::*;
 
 const OTHER: &str = "550e8400-e29b-41d4-a716-446655440001";
-const HEADER: &str = "x-babel-surface-document";
+const HEADER: &str = "x-babble-surface-document";
 
 #[tokio::test]
 async fn document_bound_session_requires_fresh_runtime_after_restart() {
@@ -147,7 +147,7 @@ async fn call(
         "/rpc",
         Some(&account.token),
         envelope(
-            "babel.storage.local.set.v1",
+            "babble.storage.local.set.v1",
             binding,
             json!({"key":"document","value":true}),
         ),
@@ -309,7 +309,7 @@ async fn document_headers_fail_closed_for_unregistered_missing_duplicate_malform
     );
     for headers in [
         vec![(HEADER, DOCUMENT), (HEADER, DOCUMENT)],
-        vec![(HEADER, DOCUMENT), ("X-Babel-Surface-Document", OTHER)],
+        vec![(HEADER, DOCUMENT), ("X-Babble-Surface-Document", OTHER)],
     ] {
         assert_eq!(
             call(&app, &alice, binding.clone(), &headers).await.0,
@@ -357,13 +357,13 @@ async fn document_headers_fail_closed_for_unregistered_missing_duplicate_malform
         (
             "POST",
             "/rpc".to_owned(),
-            envelope("babel.object.get.v1", host(), json!({"object_id":object})),
+            envelope("babble.object.get.v1", host(), json!({"object_id":object})),
         ),
         (
             "POST",
             "/rpc".to_owned(),
             envelope(
-                "babel.runtime.surface.session.get.v1",
+                "babble.runtime.surface.session.get.v1",
                 host(),
                 json!({"session_id":session}),
             ),
@@ -385,7 +385,7 @@ async fn document_headers_fail_closed_for_unregistered_missing_duplicate_malform
         );
     }
     let public = envelope(
-        "babel.object.get.v1",
+        "babble.object.get.v1",
         binding.clone(),
         json!({"object_id":object}),
     );
@@ -408,11 +408,11 @@ async fn document_headers_fail_closed_for_unregistered_missing_duplicate_malform
     assert!(result.1["error"].is_null(), "{}", result.1);
     // No document-registration method is exposed in the embedded RPC catalog.
     let mut delegated = envelope(
-        "babel.runtime.surface.session.get.v1",
+        "babble.runtime.surface.session.get.v1",
         binding,
         json!({"session_id":session,"document_id":OTHER}),
     );
-    delegated["method"] = json!("babel.runtime.surface.session.document.v1");
+    delegated["method"] = json!("babble.runtime.surface.session.document.v1");
     assert_eq!(
         request_with_headers(
             &app,
@@ -429,7 +429,7 @@ async fn document_headers_fail_closed_for_unregistered_missing_duplicate_malform
     let host_read = rpc(
         &app,
         &alice,
-        "babel.runtime.surface.session.get.v1",
+        "babble.runtime.surface.session.get.v1",
         host(),
         json!({"session_id":session}),
     )

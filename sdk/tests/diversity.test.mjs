@@ -4,7 +4,7 @@ import { createServer } from "node:http";
 import { once } from "node:events";
 import test from "node:test";
 import {
-  createBabelSDK, hostBinding, HttpRpcTransport, personalizeCandidates, personalizeFeed, summarizeDiscoveryObject,
+  createBabbleSDK, hostBinding, HttpRpcTransport, personalizeCandidates, personalizeFeed, summarizeDiscoveryObject,
 } from "../dist/index.js";
 import { diversifyRanked } from "../dist/diversity.js";
 
@@ -50,7 +50,7 @@ test("private scoring concentration is corrected after filtering and before fina
   const objects = candidates.map((entry, index) => ({
     id: entry.candidate.object_id,
     author: index === 199 ? "id_private_hidden_author" : "id_public_author",
-    kind: "babel.text.v1",
+    kind: "babble.text.v1",
     payload: { text: index < 197 ? "privateinterest" : "neutral" },
   }));
   const model = { interests: ["privateinterest"], hidden_authors: ["id_private_hidden_author"], muted_terms: ["privatemute"] };
@@ -61,12 +61,12 @@ test("private scoring concentration is corrected after filtering and before fina
     for await (const chunk of req) body += chunk;
     requests.push(JSON.parse(body));
     res.writeHead(200, { "content-type": "application/json" });
-    res.end(JSON.stringify({ protocol: "babel.rpc.v1", id: requests.at(-1).id, result: response, error: null, trace_id: null }));
+    res.end(JSON.stringify({ protocol: "babble.rpc.v1", id: requests.at(-1).id, result: response, error: null, trace_id: null }));
   });
   server.listen(0, "127.0.0.1");
   await once(server, "listening");
   t.after(() => { server.closeAllConnections(); server.close(); });
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport: new HttpRpcTransport(`http://127.0.0.1:${server.address().port}/rpc`),
     binding: hostBinding("feed-test", "http://feed.test"),
   });
@@ -91,7 +91,7 @@ test("private scoring concentration is corrected after filtering and before fina
   }
   assert.ok(!JSON.stringify(requests).includes(id(199)));
   assert.equal(requests.length, 1);
-  assert.equal(requests[0].method, "babel.discovery.candidates.v1");
+  assert.equal(requests[0].method, "babble.discovery.candidates.v1");
   assert.deepEqual(requests[0].payload, publicRequest);
   for (const entry of final.ranked) {
     const publicEntry = candidates.find((item) => item.candidate.object_id === entry.ranked.candidate.object_id);
@@ -252,7 +252,7 @@ function candidate(index, source = "Following", score = 0.9, created_at = "2026-
 }
 
 function summary(entry, text = "neutral") {
-  return { object_id: entry.candidate.object_id, author: "id_public", kind: "babel.text.v1", text, topics: [] };
+  return { object_id: entry.candidate.object_id, author: "id_public", kind: "babble.text.v1", text, topics: [] };
 }
 
 function freeze(value) {

@@ -78,7 +78,7 @@ summary:focus-visible {
   border: 0;
 }
 
-.babel-app {
+.babble-app {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -86,7 +86,7 @@ summary:focus-visible {
   padding: 0 8px;
 }
 
-.babel-header {
+.babble-header {
   position: fixed;
   top: 16px;
   left: 40px;
@@ -2073,7 +2073,7 @@ summary:focus-visible {
     --card-step: 72%;
     --card-height: clamp(260px, 42dvh, 440px);
   }
-  .babel-header {
+  .babble-header {
     top: 8px;
     left: 12px;
     right: 12px;
@@ -2207,7 +2207,7 @@ summary:focus-visible {
 }
 
 @media (max-width: 620px) {
-  .babel-header {
+  .babble-header {
     left: 8px;
     right: 8px;
   }

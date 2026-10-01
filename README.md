@@ -1,6 +1,6 @@
-# Babel Protocol v2
+# Babble Protocol
 
-Babel v2 is a programmable social information protocol: signed Objects, typed graph relationships, replaceable Judgment providers, user-controlled Lenses, executable Surfaces, algorithmic discovery, and selective decentralized ordering.
+Babble  is a programmable social information protocol: signed Objects, typed graph relationships, replaceable Judgment providers, user-controlled Lenses, executable Surfaces, algorithmic discovery, and selective decentralized ordering.
 
 Implementation is ongoing. Working local flows are not proof of complete production
 readiness; the [readiness ledger](docs/production-readiness.md) tracks verified
@@ -12,8 +12,8 @@ deployment hardening is tracked separately so it does not displace unfinished
 user workflows. See [current priorities](docs/production-readiness.md#current-priorities).
 
 The old Go/Python/Java prototype is preserved under `deprecated/`. The original
-Next.js client remains in the history of [babel-frontend](https://github.com/saint0x/babel-frontend).
-The active implementation starts from the v2 spec in [spec.md](spec.md).
+Next.js client remains in the history of [babble-frontend](https://github.com/saint0x/babel-frontend).
+The active implementation starts from the  spec in [spec.md](spec.md).
 
 ## Layout
 
@@ -35,48 +35,48 @@ in the readiness ledger refer to local evidence rather than bundled release file
 ## Backend Crates
 
 ```text
-babel-types     Shared identifiers, timestamps, versioned canonical encoding, hashing, errors
-babel-api       HTTP/JSON API over the local node
-babel-authoring Validated unsigned publication drafts for Objects, edges, and capability grants
-babel-cli      Developer workflow CLI for manifest validation/build and local store inspection
-babel-capabilities
+babble-types     Shared identifiers, timestamps, versioned canonical encoding, hashing, errors
+babble-api       HTTP/JSON API over the local node
+babble-authoring Validated unsigned publication drafts for Objects, edges, and capability grants
+babble-cli      Developer workflow CLI for manifest validation/build and local store inspection
+babble-capabilities
                 Host capability definitions, permission modes, scoped grants, quotas, and broker decisions
-babel-crypto    Ed25519 keypairs, public keys, signatures
-babel-discovery Graph-backed mixed candidate generation
-babel-eval      Judgment, Lens/ranking, discovery, finality, and realtime regression corpus metrics
-babel-identity  Signed cryptographic identities
-babel-object    Signed Object envelopes, resources, surfaces, capabilities
+babble-crypto    Ed25519 keypairs, public keys, signatures
+babble-discovery Graph-backed mixed candidate generation
+babble-eval      Judgment, Lens/ranking, discovery, finality, and realtime regression corpus metrics
+babble-identity  Signed cryptographic identities
+babble-object    Signed Object envelopes, resources, surfaces, capabilities
                 Core Object schema registry and typed payload/capability validation
-babel-personalization
+babble-personalization
                 Local-only user model, private preference filters, and inspectable
                 post-Lens reranking traces for client-side personalization, plus
                 opt-in encrypted sync envelopes for explicit cross-device model transfer
-babel-graph     Signed typed edges and in-memory graph index
-babel-hashgraph Deterministic event DAG, ancestry, virtual voting, finality, and checkpoints
-babel-judgment  Provider-independent Judgment definitions for moderation, content analysis,
+babble-graph     Signed typed edges and in-memory graph index
+babble-hashgraph Deterministic event DAG, ancestry, virtual voting, finality, and checkpoints
+babble-judgment  Provider-independent Judgment definitions for moderation, content analysis,
                 relevance, relationships, spam, and evidence quality; typed input/output registry, provider trait,
                 privacy-aware orchestration, batching, cache metadata, and provider decision traces
-babel-judgment-local
+babble-judgment-local
                 Deterministic local Judgment provider with publish-time Object analysis and moderation
-babel-judgment-python
+babble-judgment-python
                 Bounded persistent Python worker, versioned wire schemas, and core-owned Judgment records
-babel-judgment-jev
+babble-judgment-jev
                 Jev-compatible HTTP adapter behind the Judgment provider trait
-babel-lens      Built-in Lens ranking policies, composition, and ranking traces
-babel-media     Content-addressed media blob descriptors and media Object payload contracts
-babel-network   Versioned gossip envelopes, inventory/request/bundle exchange, bounds checks
-babel-node      Local node composition API for authoring, persistence, graph, and Judgment
-babel-realtime  Room specs, typed payload registry, sessions, presence, durable messages, and collaborative state reducers
-babel-rpc       Versioned RPC method catalog, request/response envelopes, binding validation, and structured errors
-babel-runtime   Surface lifecycle admission, resource budgets, sandbox policy, and capability gating
-babel-schema    Rust-derived JSON Schema bundle and golden fixture exporter
-babel-sim       Deterministic multi-node gossip simulation with adversarial delivery cases
-babel-state     Signed events and local in-memory protocol state
-babel-store     File-backed protocol record store, opaque encrypted personalization sync vault,
+babble-lens      Built-in Lens ranking policies, composition, and ranking traces
+babble-media     Content-addressed media blob descriptors and media Object payload contracts
+babble-network   Versioned gossip envelopes, inventory/request/bundle exchange, bounds checks
+babble-node      Local node composition API for authoring, persistence, graph, and Judgment
+babble-realtime  Room specs, typed payload registry, sessions, presence, durable messages, and collaborative state reducers
+babble-rpc       Versioned RPC method catalog, request/response envelopes, binding validation, and structured errors
+babble-runtime   Surface lifecycle admission, resource budgets, sandbox policy, and capability gating
+babble-schema    Rust-derived JSON Schema bundle and golden fixture exporter
+babble-sim       Deterministic multi-node gossip simulation with adversarial delivery cases
+babble-state     Signed events and local in-memory protocol state
+babble-store     File-backed protocol record store, opaque encrypted personalization sync vault,
                 and content-addressed blob store
 ```
 
-The current backend milestone covers Phase 1 foundations plus the first provider-independent Judgment layer. Jev-specific code lives only in `babel-judgment-jev`.
+The current backend milestone covers Phase 1 foundations plus the first provider-independent Judgment layer. Jev-specific code lives only in `babble-judgment-jev`.
 
 ## Algorithms
 
@@ -124,11 +124,11 @@ uv run --frozen ruff check
 
 The TypeScript SDK is generated from `fixtures/protocol/v1/schema-bundle.json` and wraps the RPC envelope contract without reimplementing protocol logic. It exposes the generated protocol surface, typed RPC client, HTTP transport, browser message bridge transport/host listener, browser Surface host mounting, prepared-Surface SDK binding, capability-bound SDK namespaces, encrypted personalization sync helpers, and Surface lifecycle helpers.
 
-Social follow/unfollow/share/reply helpers now use `.v2` RPC methods; their old
+Social follow/unfollow/share/reply helpers now use `` RPC methods; their old
 `.v1` mutations return `UnsupportedVersion` (`UNSUPPORTED_VERSION`). Capability
 declarations remain version 1. These four actions use exact, one-use invocation
 consent and publication receipts, never reusable social approval grants.
-Clipboard/fullscreen helpers also use `.v2`, with one-use dispatch and typed
+Clipboard/fullscreen helpers also use ``, with one-use dispatch and typed
 native outcomes. See the [current contract and five remaining external methods](docs/invocation-consent.md).
 
 ```bash
@@ -139,32 +139,32 @@ npm --prefix sdk test
 
 ## Developer CLI
 
-The `babel` CLI is the local developer workflow entrypoint for production Object manifests and node-store inspection. It validates manifests through the same `babel-authoring` domain checks used by the node, computes content hashes for local resources, writes validated draft JSON, previews runtime admission and sandbox diagnostics for declared Surfaces, emulates local dev-host capability decisions, creates local signing identity files, signs manifests into Objects, publishes manifests into a file-backed node store, verifies signed stored Objects, and summarizes graph edges from the file store.
+The `babble` CLI is the local developer workflow entrypoint for production Object manifests and node-store inspection. It validates manifests through the same `babble-authoring` domain checks used by the node, computes content hashes for local resources, writes validated draft JSON, previews runtime admission and sandbox diagnostics for declared Surfaces, emulates local dev-host capability decisions, creates local signing identity files, signs manifests into Objects, publishes manifests into a file-backed node store, verifies signed stored Objects, and summarizes graph edges from the file store.
 
 ```bash
-cargo run --manifest-path backend/Cargo.toml -p babel-cli -- --help
-cargo run --manifest-path backend/Cargo.toml -p babel-cli -- validate path/to/manifest.json
-cargo run --manifest-path backend/Cargo.toml -p babel-cli -- build path/to/manifest.json --out draft.json
-cargo run --manifest-path backend/Cargo.toml -p babel-cli -- preview path/to/manifest.json
-cargo run --manifest-path backend/Cargo.toml -p babel-cli -- dev path/to/manifest.json
-cargo run --manifest-path backend/Cargo.toml -p babel-cli -- identity new .babel/alice.identity.json .babel/alice.key.json Person alice
-cargo run --manifest-path backend/Cargo.toml -p babel-cli -- sign .babel/alice.identity.json .babel/alice.key.json path/to/manifest.json --out object.json
-cargo run --manifest-path backend/Cargo.toml -p babel-cli -- publish .babel-node .babel/alice.identity.json .babel/alice.key.json path/to/manifest.json
-cargo run --manifest-path backend/Cargo.toml -p babel-cli -- inspect store .babel-node
-cargo run --manifest-path backend/Cargo.toml -p babel-cli -- inspect object .babel-node obj_<hash>
-cargo run --manifest-path backend/Cargo.toml -p babel-cli -- graph object .babel-node obj_<hash>
+cargo run --manifest-path backend/Cargo.toml -p babble-cli -- --help
+cargo run --manifest-path backend/Cargo.toml -p babble-cli -- validate path/to/manifest.json
+cargo run --manifest-path backend/Cargo.toml -p babble-cli -- build path/to/manifest.json --out draft.json
+cargo run --manifest-path backend/Cargo.toml -p babble-cli -- preview path/to/manifest.json
+cargo run --manifest-path backend/Cargo.toml -p babble-cli -- dev path/to/manifest.json
+cargo run --manifest-path backend/Cargo.toml -p babble-cli -- identity new .babble/alice.identity.json .babble/alice.key.json Person alice
+cargo run --manifest-path backend/Cargo.toml -p babble-cli -- sign .babble/alice.identity.json .babble/alice.key.json path/to/manifest.json --out object.json
+cargo run --manifest-path backend/Cargo.toml -p babble-cli -- publish .babble-node .babble/alice.identity.json .babble/alice.key.json path/to/manifest.json
+cargo run --manifest-path backend/Cargo.toml -p babble-cli -- inspect store .babble-node
+cargo run --manifest-path backend/Cargo.toml -p babble-cli -- inspect object .babble-node obj_<hash>
+cargo run --manifest-path backend/Cargo.toml -p babble-cli -- graph object .babble-node obj_<hash>
 ```
 
-Manifest resources and executable Surfaces accept either declared `integrity` or a local `path`; when `path` is present the CLI computes the BLAKE3 content hash and rejects mismatches. Local-path executable Surfaces are rewritten to `babel://blobs/<hash>` entries during build/sign/publish, and `publish` uploads every referenced resource and Surface file into the node's content-addressed blob store before signing the Object. `preview` and `dev` also require executable Surface integrity to match a declared Object resource, then report runtime admission, CSP, resource budgets, WASM policy where applicable, capability prompts, and blocked reasons before an author signs or publishes.
+Manifest resources and executable Surfaces accept either declared `integrity` or a local `path`; when `path` is present the CLI computes the BLAKE3 content hash and rejects mismatches. Local-path executable Surfaces are rewritten to `babble://blobs/<hash>` entries during build/sign/publish, and `publish` uploads every referenced resource and Surface file into the node's content-addressed blob store before signing the Object. `preview` and `dev` also require executable Surface integrity to match a declared Object resource, then report runtime admission, CSP, resource budgets, WASM policy where applicable, capability prompts, and blocked reasons before an author signs or publishes.
 
 For multi-file applications, [local bundle inputs](backend/crates/cli/README.md)
 produce a signed inline inventory with exact paths, MIME, sizes and hashes.
-`babel inspect bundle <store> <object-id> Feed` verifies every materialized member
+`babble inspect bundle <store> <object-id> Feed` verifies every materialized member
 through the authoritative historical signing key. Build/publish capture files
 once and upload those exact bytes. This accepts already-built outputs. The
 [local verified gateway](docs/verified-bundles.md#local-gateway-operation) enables
-execution when the API is started with `BABEL_BUNDLE_GATEWAY_ADDR=127.0.0.1:8788`
-(use a free port) and explicit `BABEL_CORS_ORIGINS` for its parent application.
+execution when the API is started with `BABBLE_BUNDLE_GATEWAY_ADDR=127.0.0.1:8788`
+(use a free port) and explicit `BABBLE_CORS_ORIGINS` for its parent application.
 Without the gateway, bundle execution remains blocked.
 
 ## Frontend
@@ -214,7 +214,7 @@ The current [design research](docs/design-research.md) separates evidence from
 design hypotheses. The client now uses horizontal Object columns with vertically
 connected conversations: content-first text/media cards, compact paginated
 replies, nested threads with Back navigation, and per-post scroll restoration.
-The backend exposes verified direct replies through `babel.social.replies.list.v1`.
+The backend exposes verified direct replies through `babble.social.replies.list.v1`.
 These engineering checks do not establish usability or production readiness;
 see the [remaining production work](docs/production-readiness.md).
 
@@ -273,7 +273,7 @@ npm run check
 npm run build
 ```
 
-Set `PUBLIC_BABEL_API_URL` when the API is not running at `http://127.0.0.1:8787`.
+Set `PUBLIC_BABBLE_API_URL` when the API is not running at `http://127.0.0.1:8787`.
 
 ## Run
 
@@ -287,29 +287,29 @@ uv sync --frozen --project algorithms
 ```bash
 cd backend
 cargo test --workspace
-cargo test -p babel-cli
+cargo test -p babble-cli
 cargo clippy --workspace --all-targets -- -D warnings
-cargo run -p babel-schema --bin export -- bundle ../fixtures/protocol/v1/schema-bundle.json
-cargo run -p babel-schema --bin export -- fixtures ../fixtures/protocol/v1/fixtures.json
+cargo run -p babble-schema --bin export -- bundle ../fixtures/protocol/v1/schema-bundle.json
+cargo run -p babble-schema --bin export -- fixtures ../fixtures/protocol/v1/fixtures.json
 ```
 
 Local API server:
 
 ```bash
 cd backend
-BABEL_STORE_ROOT=.babel-node \
-BABEL_SEED_PROFILE=card-feed \
-BABEL_PUBLIC_ORIGIN=http://127.0.0.1:8787 \
-BABEL_CORS_ORIGINS=http://127.0.0.1:4321 \
-cargo run -p babel-api --bin babel-api
+BABBLE_STORE_ROOT=.babble-node \
+BABBLE_SEED_PROFILE=card-feed \
+BABBLE_PUBLIC_ORIGIN=http://127.0.0.1:8787 \
+BABBLE_CORS_ORIGINS=http://127.0.0.1:4321 \
+cargo run -p babble-api --bin babble-api
 ```
 
-`BABEL_SEED_PROFILE=card-feed` is optional. It creates signed local Objects and content-addressed Web Surface resources only when the store has no Objects.
+`BABBLE_SEED_PROFILE=card-feed` is optional. It creates signed local Objects and content-addressed Web Surface resources only when the store has no Objects.
 
 The API health-checks the Python worker before listening and fails startup if it
 is unavailable. Defaults use `algorithms/.venv/bin/python`; deployments can set
-`BABEL_ALGORITHMS_DIR`, `BABEL_PYTHON_EXECUTABLE`, and
-`BABEL_ALGORITHM_TIMEOUT_MS`. `BABEL_JUDGMENT_PROVIDER=rust-local` explicitly
+`BABBLE_ALGORITHMS_DIR`, `BABBLE_PYTHON_EXECUTABLE`, and
+`BABBLE_ALGORITHM_TIMEOUT_MS`. `BABBLE_JUDGMENT_PROVIDER=rust-local` explicitly
 selects the older Rust rules; there is no silent fallback. Do not combine that
 selection with Python-specific settings. Run one serving node per private store.
 
@@ -359,7 +359,7 @@ three service ports before startup; Astro also rejects its own port conflicts.
 Normal completion and assertion failures remove the test services and store.
 Astro additionally stops on parent IPC disconnection; abrupt live-stack signals
 still need API/store cleanup hardening. Development fixtures may use alternate
-`BABEL_LIVE_*_PORT` values when their own isolation guard permits them;
+`BABBLE_LIVE_*_PORT` values when their own isolation guard permits them;
 production and browser-invocation acceptance reserve the fixed ports above.
 
 The browser-invocation acceptance wrapper defaults to an isolated **production
@@ -376,22 +376,22 @@ Production acceptance reserves API/gateway/frontend ports 18787/18788/14329 and
 Aegis 17878. It rejects occupied service ports before starting the fixture.
 
 ```bash
-BABEL_FOZZY=/Users/deepsaint/.cargo/bin/fozzy
-"$BABEL_FOZZY" doctor --deep --scenario tests/browser-invocations.fozzy.json --runs 5 --seed 930 --json
-"$BABEL_FOZZY" test --det --strict tests/browser-invocations.fozzy.json --json
-export BABEL_BROWSER_INVOCATION_SOURCE_FROZEN=1
-export BABEL_LIVE_FRONTEND_MODE=production
-"$BABEL_FOZZY" run tests/browser-invocations-host.fozzy.json --det --seed 930 --proc-backend host --fs-backend host --http-backend host --record artifacts/browser-invocations/production-focus.fozzy --record-collision error --json
-"$BABEL_FOZZY" run tests/browser-invocations-full-host.fozzy.json --det --seed 930 --proc-backend host --fs-backend host --http-backend host --record artifacts/browser-invocations/production-full.fozzy --record-collision error --json
+BABBLE_FOZZY=/Users/deepsaint/.cargo/bin/fozzy
+"$BABBLE_FOZZY" doctor --deep --scenario tests/browser-invocations.fozzy.json --runs 5 --seed 930 --json
+"$BABBLE_FOZZY" test --det --strict tests/browser-invocations.fozzy.json --json
+export BABBLE_BROWSER_INVOCATION_SOURCE_FROZEN=1
+export BABBLE_LIVE_FRONTEND_MODE=production
+"$BABBLE_FOZZY" run tests/browser-invocations-host.fozzy.json --det --seed 930 --proc-backend host --fs-backend host --http-backend host --record artifacts/browser-invocations/production-focus.fozzy --record-collision error --json
+"$BABBLE_FOZZY" run tests/browser-invocations-full-host.fozzy.json --det --seed 930 --proc-backend host --fs-backend host --http-backend host --record artifacts/browser-invocations/production-full.fozzy --record-collision error --json
 for trace in artifacts/browser-invocations/production-focus.fozzy artifacts/browser-invocations/production-full.fozzy; do
-  "$BABEL_FOZZY" trace verify "$trace" --strict --json
-  "$BABEL_FOZZY" replay "$trace" --json
-  "$BABEL_FOZZY" ci "$trace" --json
+  "$BABBLE_FOZZY" trace verify "$trace" --strict --json
+  "$BABBLE_FOZZY" replay "$trace" --json
+  "$BABBLE_FOZZY" ci "$trace" --json
 done
 ```
 
 Choose new trace filenames for another run; existing evidence is preserved.
-`BABEL_LIVE_FRONTEND_MODE=dev` selects historical development-server behavior.
+`BABBLE_LIVE_FRONTEND_MODE=dev` selects historical development-server behavior.
 Other focused fixtures retain development mode until individually migrated.
 Native clipboard execution is intentionally excluded, and Aegis fullscreen
 rejection is recorded as a limitation rather than native-success evidence.
@@ -403,7 +403,7 @@ Implemented:
 - cryptographic identities
 - versioned canonical binary encoding for signed/hash-addressed protocol commitments
 - deterministic content-addressed IDs over canonical protocol bytes
-- core Object schema registry for Babel text/media payloads and capability scope validation
+- core Object schema registry for Babble text/media payloads and capability scope validation
 - core realtime schema registry for state/chat payload validation
 - Judgment definition registry for spam, relevance, relationship, evidence-quality, content-analysis, and moderation input/output contracts
 - Judgment provider orchestration with batch evaluation, cache metadata, provider-declared privacy boundaries, privacy-minimized remote inputs, outage/low-confidence fallback traces, and traceable provider selection
@@ -422,7 +422,7 @@ Implemented:
 - Surface runtime admission plans with lifecycle state, resource budgets, sandbox policy, integrity checks, and permission gating
 - Surface runtime abuse hardening for unsafe executable entries, ambiguous role declarations,
   target/media mismatches, WebGPU capability declaration, path traversal, and budget escalation
-- Surface runtime support for integrity-addressed `babel://blobs/<hash>` executable entries with
+- Surface runtime support for integrity-addressed `babble://blobs/<hash>` executable entries with
   hash validation and declared-resource matching
 - WASM Surface execution plans with isolated-store requirements, memory ceilings, fuel and
   epoch-deadline budgets, bounded host-call budgets, denied WASI filesystem/network access, and
@@ -441,7 +441,7 @@ Implemented:
 - browser Surface host bridge hardening that binds iframe RPC dispatch to the admitted Object,
   Surface session, expected origin, and backend-issued capability grants
 - browser Surface iframe hardening that applies backend CSP restrictions without self-blocking
-  Babel embedding, uses credentialless isolated frames when host cookies are unavailable, and
+  Babble embedding, uses credentialless isolated frames when host cookies are unavailable, and
   mirrors lifecycle/resource-budget state for suspension and pressure handling
 - browser Surface Permissions Policy hardening that denies ambient device/browser APIs by
   default, denies WebGPU for ordinary Web Surfaces, and enables WebGPU only for admitted
@@ -515,7 +515,7 @@ Implemented:
   modes, required signals, candidate sources, and permission requirements for client inspection
 - HTTP/JSON and typed RPC Object Judgment inspection for persisted publish-time spam,
   evidence-quality, content-analysis, and moderation outputs
-- HTTP/JSON, typed RPC, and SDK Judgment definition catalog exposing Babel-owned definition
+- HTTP/JSON, typed RPC, and SDK Judgment definition catalog exposing Babble-owned definition
   ids, input/output schema names, semantic meaning, and calibration notes
 - HTTP/JSON, typed RPC, and SDK Judgment provider catalog exposing connected provider
   versions, local/remote role, supported definitions, enabled state, and privacy policy
@@ -531,7 +531,7 @@ Implemented:
 - object-bound `social.follow`/`unfollow`/`share`/`reply` capability calls with scoped
   target Object authorization, signed graph edges, signed reply/share text or media Objects,
   broker receipts, RPC catalog/schema coverage, and SDK helpers
-- public, paginated `babel.social.quotes.list.v1` / `GET /objects/{id}/quotes`
+- public, paginated `babble.social.quotes.list.v1` / `GET /objects/{id}/quotes`
   for verified source-author quote links; compact shared-post previews and original-post
   navigation preserve feed position, reading position, and profile return history
 - object-bound `network.fetch` capability calls with scoped origin grants, request header policy,
@@ -542,7 +542,7 @@ Implemented:
 - object-bound `media.camera.request` and `media.microphone.request` trusted-host capability
   calls with capture mode, media type, duration, and device-facing scope enforcement,
   user-activation action plans, broker receipts, RPC catalog/schema coverage, and SDK helpers
-- object-bound `clipboard.write.v2` and `fullscreen.enter.v2` with durable one-use
+- object-bound `clipboard.write` and `fullscreen.enter` with durable one-use
   consent, a fresh native-action gesture, typed host-reported outcomes and no
   redispatch on retry; [production-asset consent/protocol acceptance passes](docs/invocation-consent.md#native-browser-methods),
   with physical native completion still unverified
@@ -569,8 +569,8 @@ Implemented:
 - HTTP/JSON, typed RPC, schema, and SDK observability snapshot over aggregate protocol,
   runtime, semantic, discovery, capability, and encrypted personalization sync health without
   raw private personalization data or encrypted envelope bodies
-- local `babel-api` server binary with durable store configuration, constrained CORS for browser clients, optional deterministic card-feed seed profile, and content-addressed Surface resource serving
-- local `babel` developer CLI for manifest validation/build, local resource hashing, runtime preview/dev-host diagnostics, signed Object inspection, and graph summaries
+- local `babble-api` server binary with durable store configuration, constrained CORS for browser clients, optional deterministic card-feed seed profile, and content-addressed Surface resource serving
+- local `babble` developer CLI for manifest validation/build, local resource hashing, runtime preview/dev-host diagnostics, signed Object inspection, and graph summaries
 - generated TypeScript protocol types, RPC method maps, HTTP transport, browser message bridge transport and host listener, browser Surface host mounting, typed client, prepared-Surface SDK binding, capability-aware SDK namespaces, Surface lifecycle controller, and structured error wrapper derived from the checked-in schema bundle
 - TypeScript SDK local personalization helpers that rerank public discovery candidates with
   private client-side interests, expertise, hidden authors, muted terms, creator affinities,

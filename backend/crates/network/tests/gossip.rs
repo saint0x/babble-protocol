@@ -1,10 +1,10 @@
-use babel_crypto::Keypair;
-use babel_hashgraph::{FinalityCheckpoint, ValidatorSet};
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_network::{Envelope, GossipEngine, Message, NetworkAction, NetworkLimits};
-use babel_node::{ImportBundle, LocalNode};
-use babel_state::{Event, EventKind, EventTarget};
+use babble_crypto::Keypair;
+use babble_hashgraph::{FinalityCheckpoint, ValidatorSet};
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_network::{Envelope, GossipEngine, Message, NetworkAction, NetworkLimits};
+use babble_node::{ImportBundle, LocalNode};
+use babble_state::{Event, EventKind, EventTarget};
 
 #[test]
 fn gossip_inventory_request_bundle_import_round_trip() {
@@ -25,7 +25,7 @@ fn gossip_inventory_request_bundle_import_round_trip() {
         .find(|event| {
             matches!(
                 &event.target,
-                babel_state::EventTarget::Object(object_id) if object_id == &object.id
+                babble_state::EventTarget::Object(object_id) if object_id == &object.id
             )
         })
         .unwrap()
@@ -111,8 +111,8 @@ fn gossip_object_inventory_repairs_missing_content_by_hash() {
             &source_peer.identity.id,
             source_object.id.clone(),
             target_object.id.clone(),
-            babel_graph::Relation::References,
-            babel_graph::EdgeOrigin::HumanAssertion,
+            babble_graph::Relation::References,
+            babble_graph::EdgeOrigin::HumanAssertion,
         )
         .unwrap();
     let engine = GossipEngine::new(NetworkLimits::default());
@@ -297,7 +297,7 @@ fn gossip_rejects_oversized_inventory_and_tampered_payload_hash() {
                 .filter(|event| {
                     matches!(
                         &event.target,
-                        babel_state::EventTarget::Object(object_id)
+                        babble_state::EventTarget::Object(object_id)
                             if object_id == &first.id || object_id == &second.id
                     )
                 })
@@ -314,7 +314,7 @@ fn gossip_rejects_oversized_inventory_and_tampered_payload_hash() {
         Message::Inventory { events: Vec::new() },
     )
     .unwrap();
-    tampered.payload_hash = babel_types::Hash::from_bytes(b"wrong");
+    tampered.payload_hash = babble_types::Hash::from_bytes(b"wrong");
     assert!(engine.receive(&mut node, tampered).is_err());
 }
 
@@ -364,7 +364,7 @@ fn gossip_rejects_unsigned_unknown_peer_traffic_before_hello() {
 struct ValidatorFixture {
     identity: Identity,
     keypair: Keypair,
-    identity_event: babel_types::EventId,
+    identity_event: babble_types::EventId,
 }
 
 fn install_node_identity(node: &mut LocalNode<LocalProvider>, handle: &str) -> ValidatorFixture {

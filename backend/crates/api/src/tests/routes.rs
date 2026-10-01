@@ -1,4 +1,4 @@
-use crate as babel_api;
+use crate as babble_api;
 use crate::routes::trusted_router as router;
 use crate::{
     ApiState, ApplySurfaceScheduleResponse, CapabilitiesResponse, CapabilityCatalogResponse,
@@ -21,24 +21,24 @@ use axum::{
     body::{Body, to_bytes},
     http::{HeaderMap, Method, Request, StatusCode, header},
 };
-use babel_authoring::ObjectDraft;
-use babel_capabilities::{GrantDecision, PermissionMode};
-use babel_crypto::Keypair;
-use babel_graph::{EdgeOrigin, Relation, TraversalDirection};
-use babel_identity::{Identity, IdentityKeyScope, IdentityKind};
-use babel_judgment::{DefinitionId, ProviderRole};
-use babel_judgment_local::LocalProvider;
-use babel_lens::{BuiltInLens, CandidateSource, LensExecution};
-use babel_media::MediaBlob;
-use babel_node::{ImportBundle, LocalNode};
-use babel_object::{CapabilityRequest, Object, Resource, Surface, SurfaceRole, SurfaceTarget};
-use babel_personalization::{
+use babble_authoring::ObjectDraft;
+use babble_capabilities::{GrantDecision, PermissionMode};
+use babble_crypto::Keypair;
+use babble_graph::{EdgeOrigin, Relation, TraversalDirection};
+use babble_identity::{Identity, IdentityKeyScope, IdentityKind};
+use babble_judgment::{DefinitionId, ProviderRole};
+use babble_judgment_local::LocalProvider;
+use babble_lens::{BuiltInLens, CandidateSource, LensExecution};
+use babble_media::MediaBlob;
+use babble_node::{ImportBundle, LocalNode};
+use babble_object::{CapabilityRequest, Object, Resource, Surface, SurfaceRole, SurfaceTarget};
+use babble_personalization::{
     EncryptedLocalUserModel, LocalUserModel, PersonalizationSyncKey, PersonalizationSyncRecipient,
 };
-use babel_realtime::{MembershipPolicy, PersistencePolicy, RealtimeOperation, RealtimePayload};
-use babel_runtime::{RuntimeAdmissionStatus, SurfaceLifecycle, SurfaceRuntimeEventKind};
-use babel_state::{Event, EventKind, EventTarget};
-use babel_types::Hash;
+use babble_realtime::{MembershipPolicy, PersistencePolicy, RealtimeOperation, RealtimePayload};
+use babble_runtime::{RuntimeAdmissionStatus, SurfaceLifecycle, SurfaceRuntimeEventKind};
+use babble_state::{Event, EventKind, EventTarget};
+use babble_types::Hash;
 use serde_json::{Value, json};
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -69,7 +69,7 @@ async fn api_publishes_and_judges_text_objects() {
         "/objects/text",
         json!({
             "author_id": identity.identity.id,
-            "text": "According to the dataset, Babel keeps evidence attached to discovery."
+            "text": "According to the dataset, Babble keeps evidence attached to discovery."
         }),
     )
     .await;
@@ -120,10 +120,10 @@ async fn api_publishes_and_judges_text_objects() {
         .map(|judgment| judgment.definition.as_str().to_string())
         .collect::<BTreeSet<_>>();
     assert_eq!(object_judgments.object_id, claim.object.id.to_string());
-    assert!(definitions.contains("babel.judgment.spam.v1"));
-    assert!(definitions.contains("babel.judgment.evidence_quality.v1"));
-    assert!(definitions.contains("babel.judgment.content_analysis.v1"));
-    assert!(definitions.contains("babel.judgment.moderation.v1"));
+    assert!(definitions.contains("babble.judgment.spam.v1"));
+    assert!(definitions.contains("babble.judgment.evidence_quality.v1"));
+    assert!(definitions.contains("babble.judgment.content_analysis.v1"));
+    assert!(definitions.contains("babble.judgment.moderation.v1"));
 
     let judged = request_json(
         app.clone(),
@@ -140,7 +140,7 @@ async fn api_publishes_and_judges_text_objects() {
         .expect("fresh Judgment evaluation should include orchestration trace");
     assert_eq!(orchestration.judgment, judged.judgment);
     assert_eq!(orchestration.decisions.len(), 1);
-    assert_eq!(orchestration.decisions[0].provider.provider, "babel-local");
+    assert_eq!(orchestration.decisions[0].provider.provider, "babble-local");
     assert!(orchestration.decisions[0].cache_hit);
 
     let fetched = request_json(
@@ -198,11 +198,11 @@ async fn api_lists_judgment_definitions() {
         .expect("relationship Judgment definition should be listed");
     assert_eq!(
         relationship.input_schema,
-        "babel.judgment.input.object_text.v1"
+        "babble.judgment.input.object_text.v1"
     );
     assert_eq!(
         relationship.output_schema,
-        "babel.judgment.output.relationship.v1"
+        "babble.judgment.output.relationship.v1"
     );
     assert!(relationship.meaning.contains("supports"));
     assert!(relationship.calibration.contains("[0, 1]"));
@@ -221,7 +221,7 @@ async fn api_lists_judgment_providers() {
 
     assert_eq!(providers.providers.len(), 1);
     let provider = &providers.providers[0];
-    assert_eq!(provider.provider.provider, "babel-local");
+    assert_eq!(provider.provider.provider, "babble-local");
     assert_eq!(provider.provider.model, "rules-v1");
     assert_eq!(provider.role, ProviderRole::Local);
     assert!(provider.enabled);
@@ -268,7 +268,7 @@ async fn api_rotates_identity_key_and_continues_publishing() {
     )
     .await;
     assert_eq!(rotated.status, StatusCode::OK);
-    let rotated: babel_api::RotateIdentityKeyResponse =
+    let rotated: babble_api::RotateIdentityKeyResponse =
         serde_json::from_value(rotated.body).unwrap();
     assert_eq!(rotated.event.kind, EventKind::IdentityKeyTransition);
     assert_eq!(
@@ -504,7 +504,7 @@ async fn api_stores_media_blobs_and_publishes_resource_objects() {
     .await;
     assert_eq!(published.status, StatusCode::OK);
     let published: PublishMediaObjectResponse = serde_json::from_value(published.body).unwrap();
-    assert_eq!(published.object.kind.as_str(), "babel.media");
+    assert_eq!(published.object.kind.as_str(), "babble.media");
     assert_eq!(published.object.resources, vec![fetched.blob.resource()]);
     assert_eq!(published.object.payload["title"], "First image");
     assert_eq!(
@@ -567,9 +567,9 @@ async fn api_publishes_general_object_drafts_with_executable_surfaces() {
     .await;
     assert_eq!(stored.status, StatusCode::OK);
     let stored: MediaBlobResponse = serde_json::from_value(stored.body).unwrap();
-    let surface_uri = format!("babel://blobs/{}", stored.blob.integrity);
+    let surface_uri = format!("babble://blobs/{}", stored.blob.integrity);
     let capability = json!({
-        "id": "babel.network.fetch",
+        "id": "babble.network.fetch",
         "version": 1,
         "scope": {"origins": ["https://example.com"]}
     });
@@ -581,7 +581,7 @@ async fn api_publishes_general_object_drafts_with_executable_surfaces() {
         json!({
             "author_id": identity.identity.id,
             "draft": {
-                "kind": "babel.application",
+                "kind": "babble.application",
                 "schema": "example.application.v1",
                 "payload": {
                     "title": "Interactive Lens Toy",
@@ -611,7 +611,7 @@ async fn api_publishes_general_object_drafts_with_executable_surfaces() {
     .await;
     assert_eq!(published.status, StatusCode::OK);
     let published: PublishObjectResponse = serde_json::from_value(published.body).unwrap();
-    assert_eq!(published.object.kind.as_str(), "babel.application");
+    assert_eq!(published.object.kind.as_str(), "babble.application");
     assert_eq!(published.object.surfaces.len(), 1);
     assert_eq!(published.object.capabilities.len(), 1);
     assert_eq!(published.object.resources[0].uri, surface_uri);
@@ -639,17 +639,17 @@ async fn api_publishes_general_object_drafts_with_executable_surfaces() {
         json!({
             "author_id": identity.identity.id,
             "draft": {
-                "kind": "babel.application",
+                "kind": "babble.application",
                 "schema": "example.application.v1",
                 "payload": {"title": "Broken app"},
                 "surfaces": [{
                     "role": "Feed",
                     "target": "Web",
-                    "entry": format!("babel://blobs/{missing_hash}"),
+                    "entry": format!("babble://blobs/{missing_hash}"),
                     "integrity": missing_hash
                 }],
                 "resources": [{
-                    "uri": format!("babel://blobs/{missing_hash}"),
+                    "uri": format!("babble://blobs/{missing_hash}"),
                     "media_type": "text/javascript",
                     "integrity": missing_hash
                 }],
@@ -673,7 +673,7 @@ async fn api_publishes_general_object_drafts_with_executable_surfaces() {
 async fn api_serves_surface_blobs_with_worker_locked_csp() {
     let root = unique_root("api-surface-blob-csp");
     let app = test_app(&root);
-    let html = b"<!doctype html><title>Babel Surface</title><script type=\"module\" src=\"./surface.js\"></script>";
+    let html = b"<!doctype html><title>Babble Surface</title><script type=\"module\" src=\"./surface.js\"></script>";
 
     let stored = request_json(
         app.clone(),
@@ -888,7 +888,7 @@ async fn api_queries_graph_edges_and_event_bundles() {
     );
     assert_eq!(
         inferred.edge.metadata.get("definition"),
-        Some(&json!("babel.judgment.relationship.v1"))
+        Some(&json!("babble.judgment.relationship.v1"))
     );
     assert!(
         inferred
@@ -930,7 +930,7 @@ async fn api_queries_graph_edges_and_event_bundles() {
         model_support
             .evidence_judgments
             .iter()
-            .any(|judgment| judgment.definition.as_str() == "babel.judgment.evidence_quality.v1")
+            .any(|judgment| judgment.definition.as_str() == "babble.judgment.evidence_quality.v1")
     );
 
     let source = request_json(
@@ -1063,7 +1063,7 @@ async fn api_lists_and_imports_event_sync_bundles() {
         .events
         .iter()
         .find(|event| {
-            matches!(&event.target, babel_state::EventTarget::Object(object_id) if object_id == &published.object.id)
+            matches!(&event.target, babble_state::EventTarget::Object(object_id) if object_id == &published.object.id)
         })
         .expect("published Object should have an event");
     assert_eq!(
@@ -1139,7 +1139,7 @@ async fn api_searches_objects_with_filters_and_scores() {
         "/objects/text",
         json!({
             "author_id": alice.identity.id,
-            "text": "Babel search indexes evidence-rich protocol records."
+            "text": "Babble search indexes evidence-rich protocol records."
         }),
     )
     .await;
@@ -1170,7 +1170,7 @@ async fn api_searches_objects_with_filters_and_scores() {
     let search = request_json(
         app.clone(),
         Method::GET,
-        "/search/objects?q=protocol%20records&kind=babel.text&limit=10",
+        "/search/objects?q=protocol%20records&kind=babble.text&limit=10",
         Value::Null,
     )
     .await;
@@ -1233,7 +1233,7 @@ async fn api_lists_lens_catalog() {
         .iter()
         .find(|lens| lens.lens == BuiltInLens::Research)
         .expect("Research Lens should be advertised");
-    assert_eq!(research.id, "babel.lens.research.v1");
+    assert_eq!(research.id, "babble.lens.research.v1");
     assert_eq!(research.version, 1);
     assert_eq!(research.execution, LensExecution::LocalDeterministic);
     assert!(
@@ -1270,7 +1270,7 @@ async fn api_discovers_candidates_from_graph_search_judgment_and_lenses() {
     let claim = publish_test_text(
         app.clone(),
         &identity.identity.id.to_string(),
-        "Babel discovery should combine graph evidence, local judgment, search relevance, and lens traces.",
+        "Babble discovery should combine graph evidence, local judgment, search relevance, and lens traces.",
     )
     .await;
     let supporting = publish_test_text(
@@ -1409,7 +1409,7 @@ async fn api_discovers_candidates_from_graph_search_judgment_and_lenses() {
     assert!(!searched_ids.contains(&unrelated.object.id));
     assert_eq!(
         discovered.discovery.trace.stack_id,
-        "babel.lens.stack.balanced.v1"
+        "babble.lens.stack.balanced.v1"
     );
     assert_eq!(
         discovered.discovery.trace.candidates.len(),
@@ -1469,7 +1469,7 @@ async fn api_lists_capability_catalog() {
     let network = catalog
         .capabilities
         .iter()
-        .find(|capability| capability.id.as_str() == "babel.network.fetch")
+        .find(|capability| capability.id.as_str() == "babble.network.fetch")
         .expect("network.fetch capability should be cataloged");
     assert_eq!(network.version, 1);
     assert_eq!(network.permission, PermissionMode::AskOnce);
@@ -1481,7 +1481,7 @@ async fn api_lists_capability_catalog() {
     let location = catalog
         .capabilities
         .iter()
-        .find(|capability| capability.id.as_str() == "babel.location")
+        .find(|capability| capability.id.as_str() == "babble.location")
         .expect("denied platform capabilities should remain inspectable");
     assert_eq!(location.permission, PermissionMode::DeniedByDefault);
 
@@ -1649,11 +1649,11 @@ async fn api_inspects_grants_revokes_and_prepares_surface_runtime() {
         .unwrap();
     let bundle_hash = Hash::from_bytes(b"export default function surface() {}");
     let capability = CapabilityRequest {
-        id: "babel.network.fetch".to_string(),
+        id: "babble.network.fetch".to_string(),
         version: 1,
         scope: json!({"origins": ["https://example.com"]}),
     };
-    let object = Object::text(&identity, "Executable Babel Object")
+    let object = Object::text(&identity, "Executable Babble Object")
         .unwrap()
         .with_resources(vec![Resource {
             uri: "surface.js".to_string(),
@@ -1984,14 +1984,14 @@ async fn api_defines_realtime_room_and_commits_state_messages() {
             "author_id": identity.identity.id,
             "object_id": object.object.id,
             "name": "canvas-main",
-            "schema": "babel.realtime.state.v1",
+            "schema": "babble.realtime.state.v1",
             "membership": MembershipPolicy::Open,
             "persistence": PersistencePolicy::DurableMessages
         }),
     )
     .await;
     assert_eq!(room.status, StatusCode::OK);
-    let room: babel_api::DefineRealtimeRoomResponse = serde_json::from_value(room.body).unwrap();
+    let room: babble_api::DefineRealtimeRoomResponse = serde_json::from_value(room.body).unwrap();
     assert_eq!(room.event.kind, EventKind::RealtimeRoomDefined);
 
     let session = request_json(
@@ -2205,14 +2205,14 @@ async fn api_commits_realtime_snapshots_for_snapshot_rooms() {
             "author_id": identity.identity.id,
             "object_id": object.object.id,
             "name": "snapshot-main",
-            "schema": "babel.realtime.state.v1",
+            "schema": "babble.realtime.state.v1",
             "membership": MembershipPolicy::Open,
             "persistence": PersistencePolicy::SnapshotEvery { messages: 2 }
         }),
     )
     .await;
     assert_eq!(room.status, StatusCode::OK);
-    let room: babel_api::DefineRealtimeRoomResponse = serde_json::from_value(room.body).unwrap();
+    let room: babble_api::DefineRealtimeRoomResponse = serde_json::from_value(room.body).unwrap();
 
     let session = request_json(
         app.clone(),
@@ -2310,7 +2310,7 @@ async fn publish_test_text(app: Router, author_id: &str, text: &str) -> PublishT
 struct ValidatorFixture {
     identity: Identity,
     keypair: Keypair,
-    identity_event: babel_types::EventId,
+    identity_event: babble_types::EventId,
 }
 
 fn install_validator_mesh(node: &mut LocalNode<LocalProvider>) -> Vec<ValidatorFixture> {
@@ -2436,5 +2436,5 @@ fn unique_root(name: &str) -> PathBuf {
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_nanos();
-    std::env::temp_dir().join(format!("babel-api-{name}-{nanos}"))
+    std::env::temp_dir().join(format!("babble-api-{name}-{nanos}"))
 }

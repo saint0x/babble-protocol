@@ -3,6 +3,6 @@
   "name": "node-source-agreement-real-signed-import-regressions",
   "steps": [
     {"type":"trace_event","name":"Real node source selection: 200/64KiB/512KiB boundaries, temporal eligibility, exact-copy context roles, real LocalProvider component scores, persisted reuse/expiry/history, native early rejection"},
-    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babel-node","--lib","agreement::tests::","--","--test-threads=1"],"expect_exit":0}
+    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babble-node","--lib","agreement::tests::","--","--test-threads=1"],"expect_exit":0}
   ]
 }

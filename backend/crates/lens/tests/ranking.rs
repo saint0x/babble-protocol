@@ -1,10 +1,10 @@
-use babel_lens::{
+use babble_lens::{
     BuiltInLens, Candidate, CandidateSource, CandidateSourceContribution, ContradictionsLens,
     DiversityPolicy, EmergingLens, EvidenceSignals, FollowingLens, FriendsLens,
     IntellectualSerendipityLens, Lens, LensExecution, LensStack, LensWeight, ReputationSignals,
     ResearchLens, Signals, SlowInternetLens, SourceFloor, WeirdLens, diversify_ranked,
 };
-use babel_types::{Hash, ObjectId, Timestamp};
+use babble_types::{Hash, ObjectId, Timestamp};
 use time::OffsetDateTime;
 
 #[test]
@@ -57,7 +57,7 @@ fn built_in_lenses_expose_inspectable_definitions() {
         .collect::<Vec<_>>();
     assert_eq!(definitions.len(), 8);
     assert!(definitions.iter().all(|definition| {
-        definition.id.starts_with("babel.lens.")
+        definition.id.starts_with("babble.lens.")
             && definition.version == 1
             && definition.execution == LensExecution::LocalDeterministic
             && !definition.required_signals.is_empty()
@@ -216,7 +216,7 @@ fn lens_stack_returns_weighted_ranking_trace() {
         candidate
             .lens_contributions
             .iter()
-            .any(|contribution| contribution.lens_id == "babel.lens.research.v1")
+            .any(|contribution| contribution.lens_id == "babble.lens.research.v1")
     }));
 }
 
@@ -234,7 +234,7 @@ fn empty_lens_stack_falls_back_to_following() {
 
     assert_eq!(
         trace.candidates[0].lens_contributions[0].lens_id,
-        "babel.lens.following.v1"
+        "babble.lens.following.v1"
     );
     assert_eq!(trace.candidates[0].lens_contributions[0].weight, 1.0);
 }

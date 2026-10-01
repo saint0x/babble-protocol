@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
-import { createPersonalizationFilter, summarizeDiscoveryObject } from "@babel-protocol/sdk";
+import { createPersonalizationFilter, summarizeDiscoveryObject } from "@babble-protocol/sdk";
 
 const source = ts.createSourceFile("main.ts", readFileSync(new URL("../src/app/main.ts", import.meta.url), "utf8"), ts.ScriptTarget.Latest, true);
 function functions(names, context) {

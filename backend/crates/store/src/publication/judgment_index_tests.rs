@@ -1,6 +1,6 @@
 use super::object_judgment_tests::{Root, batch, fixture};
 use super::*;
-use babel_judgment::{ConstantProvider, DefinitionId, JudgmentProvider};
+use babble_judgment::{ConstantProvider, DefinitionId, JudgmentProvider};
 use rusqlite::{Connection, params};
 
 const INDEX: &str = "object-judgments.sqlite3";

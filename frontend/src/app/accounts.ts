@@ -30,7 +30,7 @@ export class Accounts extends EventTarget {
   ) {
     super();
     this.origin = new URL(apiUrl);
-    this.storageKey = `babel.session.v1:${this.origin.origin}`;
+    this.storageKey = `babble.session.v1:${this.origin.origin}`;
     try {
       const value: unknown = JSON.parse(storage?.getItem(this.storageKey) ?? "null");
       if (isSession(value) && Date.parse(value.expires_at) > Date.now()) this.session = value;
@@ -47,7 +47,7 @@ export class Accounts extends EventTarget {
   }
 
   localDataKey(kind: "preferences" | "seen"): string {
-    return `babel.local.v2:${JSON.stringify([this.origin.origin, this.current?.identity.id ?? null, kind])}`;
+    return `babble.local:${JSON.stringify([this.origin.origin, this.current?.identity.id ?? null, kind])}`;
   }
 
   /** Private endpoints never run as a guest or deliver a previous session's data. */
@@ -66,7 +66,7 @@ export class Accounts extends EventTarget {
   readonly fetch: typeof fetch = async (input, init = {}) => {
     const url = new URL(input instanceof Request ? input.url : input.toString());
     if (url.origin !== this.origin.origin || url.username || url.password) {
-      throw new AccountError("Refusing to send a Babel session to another origin", 0);
+      throw new AccountError("Refusing to send a Babble session to another origin", 0);
     }
     const token = this.current?.token;
     const headers = new Headers(input instanceof Request ? input.headers : undefined);

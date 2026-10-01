@@ -5,7 +5,7 @@ export CARGO_BUILD_JOBS=2
 export RUST_TEST_THREADS=1
 log=$(mktemp)
 trap 'rm -f "$log"' EXIT
-if ! cargo test --manifest-path ../../Cargo.toml -p babel-capabilities -p babel-store -p babel-node -p babel-api -p babel-runtime -p babel-rpc -p babel-schema --tests --no-fail-fast -- --test-threads=1 >"$log" 2>&1; then
+if ! cargo test --manifest-path ../../Cargo.toml -p babble-capabilities -p babble-store -p babble-node -p babble-api -p babble-runtime -p babble-rpc -p babble-schema --tests --no-fail-fast -- --test-threads=1 >"$log" 2>&1; then
     cat "$log" >&2
     exit 1
 fi

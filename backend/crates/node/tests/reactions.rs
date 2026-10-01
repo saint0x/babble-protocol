@@ -1,10 +1,10 @@
-use babel_crypto::Keypair;
-use babel_identity::{Identity, IdentityKeyScope, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_node::{
+use babble_crypto::Keypair;
+use babble_identity::{Identity, IdentityKeyScope, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_node::{
     Appreciation, Engagement, ImportBundle, LocalNode, ReactionSummary, ReactionValue, Stance,
 };
-use babel_types::{Error, IdentityId, ObjectId};
+use babble_types::{Error, IdentityId, ObjectId};
 use std::{
     path::PathBuf,
     sync::atomic::{AtomicU64, Ordering},
@@ -21,7 +21,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-reactions-node-{}-{}-{}",
+            "babble-reactions-node-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed)
@@ -321,7 +321,7 @@ fn reactions_do_not_enter_object_discovery_or_generic_event_log() {
     let mut f = Fixture::new();
     let before = f
         .node
-        .list_events(babel_node::EventListQuery {
+        .list_events(babble_node::EventListQuery {
             after: None,
             limit: 100,
         })
@@ -333,14 +333,14 @@ fn reactions_do_not_enter_object_discovery_or_generic_event_log() {
     assert_eq!(
         before,
         f.node
-            .list_events(babel_node::EventListQuery {
+            .list_events(babble_node::EventListQuery {
                 after: None,
                 limit: 100
             })
             .unwrap()
             .events
     );
-    let store = babel_store::FileStore::open(&f.root).unwrap();
+    let store = babble_store::FileStore::open(&f.root).unwrap();
     assert_eq!(store.list_objects().unwrap().len(), 1);
     assert!(store.list_edges().unwrap().is_empty());
 }

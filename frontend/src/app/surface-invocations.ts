@@ -1,4 +1,4 @@
-import type { BridgeDispatch, JsonValue, RpcRequestEnvelope, RpcResponseEnvelope } from "@babel-protocol/sdk";
+import type { BridgeDispatch, JsonValue, RpcRequestEnvelope, RpcResponseEnvelope } from "@babble-protocol/sdk";
 import { InvocationApi, isInvocationMethod, parseInvocation, type Invocation, type InvocationExpectation } from "./invocations";
 import { InvocationPrompt } from "./invocation-prompt";
 
@@ -121,7 +121,7 @@ export class SurfaceInvocations {
               error: null, result: reconciled.result as unknown as JsonValue };
           }
         }
-        catch (cause) { console.warn("Babel could not confirm action cancellation", cause); }
+        catch (cause) { console.warn("Babble could not confirm action cancellation", cause); }
       }
       return failure(request, context.signal.aborted || !this.#live() ? "CANCELLED" : "INTERNAL",
         context.signal.aborted || !this.#live() ? "The action was cancelled." : error instanceof Error ? error.message : "The action could not be confirmed.");

@@ -1,5 +1,5 @@
-use babel_object::{CapabilityRequest, Object, validate_capability_request};
-use babel_types::{Canonical, CapabilityGrantId, ObjectId, Result, Timestamp};
+use babble_object::{CapabilityRequest, Object, validate_capability_request};
+use babble_types::{Canonical, CapabilityGrantId, ObjectId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -168,7 +168,7 @@ impl CapabilityBroker {
         let mut by_key = BTreeMap::new();
         for definition in definitions {
             if definition.version == 0 {
-                return Err(babel_types::Error::Conflict(format!(
+                return Err(babble_types::Error::Conflict(format!(
                     "capability version must be positive: {}",
                     definition.id.as_str()
                 )));
@@ -180,7 +180,7 @@ impl CapabilityBroker {
         })
     }
 
-    pub fn babel_default() -> Self {
+    pub fn babble_default() -> Self {
         Self::new(default_capabilities()).expect("default capabilities are valid")
     }
 
@@ -335,7 +335,7 @@ impl CapabilityBroker {
             .definitions
             .get(&(capability.clone(), request.version))
             .ok_or_else(|| {
-                babel_types::Error::NotFound(format!(
+                babble_types::Error::NotFound(format!(
                     "capability {}@{}",
                     capability.as_str(),
                     request.version
@@ -344,7 +344,7 @@ impl CapabilityBroker {
         if definition.permission == PermissionMode::Unavailable
             || definition.permission == PermissionMode::DeniedByDefault
         {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "capability cannot be granted by user decision: {}",
                 capability.as_str()
             )));
@@ -353,7 +353,7 @@ impl CapabilityBroker {
             && invocation::is_one_use_invocation(capability.as_str())
             && decision == GrantDecision::Approved
         {
-            return Err(babel_types::Error::Conflict("social effects require one-use invocation approval".into()));
+            return Err(babble_types::Error::Conflict("social effects require one-use invocation approval".into()));
         }
         let commitment = CapabilityGrantCommitment {
             object_id,
@@ -398,7 +398,7 @@ impl CapabilityBroker {
             .definitions
             .get(&(call.capability.clone(), call.version))
             .ok_or_else(|| {
-                babel_types::Error::NotFound(format!(
+                babble_types::Error::NotFound(format!(
                     "capability {}@{}",
                     call.capability.as_str(),
                     call.version
@@ -407,12 +407,12 @@ impl CapabilityBroker {
         if definition.permission == PermissionMode::AskEachTime
             && invocation::is_one_use_invocation(call.capability.as_str())
         {
-            return Err(babel_types::Error::Conflict("social effects require one-use invocation approval".into()));
+            return Err(babble_types::Error::Conflict("social effects require one-use invocation approval".into()));
         }
         if definition.permission == PermissionMode::Unavailable
             || definition.permission == PermissionMode::DeniedByDefault
         {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "capability call denied by host policy: {}",
                 call.capability.as_str()
             )));
@@ -439,7 +439,7 @@ impl CapabilityBroker {
             now,
         )
         .ok_or_else(|| {
-            babel_types::Error::Conflict(format!(
+            babble_types::Error::Conflict(format!(
                 "missing active grant for {}@{}",
                 call.capability.as_str(),
                 call.version
@@ -483,14 +483,14 @@ fn metered_receipt(
     now: Timestamp,
 ) -> Result<CapabilityReceipt> {
     if call.requested_bytes > grant.quota.bytes_per_minute {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "capability {}@{} byte request exceeds per-minute quota",
             grant.capability.as_str(),
             grant.version
         )));
     }
     if call.realtime_connections > grant.quota.realtime_connections {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "capability {}@{} realtime connection request exceeds quota",
             grant.capability.as_str(),
             grant.version
@@ -501,34 +501,34 @@ fn metered_receipt(
     let used_bytes = current.bytes;
     let used_realtime = current.realtime_connections;
     let next_calls = used_calls.checked_add(1).ok_or_else(|| {
-        babel_types::Error::Conflict("capability call count overflow".to_string())
+        babble_types::Error::Conflict("capability call count overflow".to_string())
     })?;
     let next_bytes = used_bytes
         .checked_add(call.requested_bytes)
         .ok_or_else(|| {
-            babel_types::Error::Conflict("capability byte usage overflow".to_string())
+            babble_types::Error::Conflict("capability byte usage overflow".to_string())
         })?;
     let next_realtime = used_realtime
         .checked_add(call.realtime_connections)
         .ok_or_else(|| {
-            babel_types::Error::Conflict("capability realtime usage overflow".to_string())
+            babble_types::Error::Conflict("capability realtime usage overflow".to_string())
         })?;
     if next_calls > grant.quota.calls_per_minute {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "capability {}@{} call quota exhausted",
             grant.capability.as_str(),
             grant.version
         )));
     }
     if next_bytes > grant.quota.bytes_per_minute {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "capability {}@{} byte quota exhausted",
             grant.capability.as_str(),
             grant.version
         )));
     }
     if next_realtime > grant.quota.realtime_connections {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "capability {}@{} realtime connection quota exhausted",
             grant.capability.as_str(),
             grant.version
@@ -568,16 +568,16 @@ fn usage_for_grant(
         })
     {
         aggregate.calls = aggregate.calls.checked_add(window.calls).ok_or_else(|| {
-            babel_types::Error::Conflict("capability call usage overflow".to_string())
+            babble_types::Error::Conflict("capability call usage overflow".to_string())
         })?;
         aggregate.bytes = aggregate.bytes.checked_add(window.bytes).ok_or_else(|| {
-            babel_types::Error::Conflict("capability byte usage overflow".to_string())
+            babble_types::Error::Conflict("capability byte usage overflow".to_string())
         })?;
         aggregate.realtime_connections = aggregate
             .realtime_connections
             .checked_add(window.realtime_connections)
             .ok_or_else(|| {
-                babel_types::Error::Conflict("capability realtime usage overflow".to_string())
+                babble_types::Error::Conflict("capability realtime usage overflow".to_string())
             })?;
     }
     Ok(aggregate)
@@ -586,42 +586,42 @@ fn usage_for_grant(
 fn default_capabilities() -> Vec<CapabilityDefinition> {
     vec![
         definition(
-            "babel.identity.current",
+            "babble.identity.current",
             PermissionMode::AskOnce,
             20,
             4 * 1024,
             false,
         ),
         definition(
-            "babel.social.follow",
+            "babble.social.follow",
             PermissionMode::AskEachTime,
             10,
             4 * 1024,
             false,
         ),
         definition(
-            "babel.social.unfollow",
+            "babble.social.unfollow",
             PermissionMode::AskEachTime,
             10,
             4 * 1024,
             false,
         ),
         definition(
-            "babel.social.share",
+            "babble.social.share",
             PermissionMode::AskEachTime,
             20,
             16 * 1024,
             false,
         ),
         definition(
-            "babel.social.reply",
+            "babble.social.reply",
             PermissionMode::AskEachTime,
             30,
             32 * 1024,
             false,
         ),
         definition(
-            "babel.storage.local",
+            "babble.storage.local",
             PermissionMode::AskOnce,
             120,
             128 * 1024,
@@ -629,7 +629,7 @@ fn default_capabilities() -> Vec<CapabilityDefinition> {
         )
         .with_persistent_bytes(10 * 1024 * 1024),
         definition(
-            "babel.storage.object",
+            "babble.storage.object",
             PermissionMode::AskOnce,
             120,
             128 * 1024,
@@ -637,7 +637,7 @@ fn default_capabilities() -> Vec<CapabilityDefinition> {
         )
         .with_persistent_bytes(10 * 1024 * 1024),
         definition(
-            "babel.realtime.join",
+            "babble.realtime.join",
             PermissionMode::AskOnce,
             30,
             32 * 1024,
@@ -645,111 +645,111 @@ fn default_capabilities() -> Vec<CapabilityDefinition> {
         )
         .with_realtime_connections(2),
         definition(
-            "babel.realtime.send",
+            "babble.realtime.send",
             PermissionMode::AskOnce,
             120,
             256 * 1024,
             false,
         ),
         definition(
-            "babel.realtime.leave",
+            "babble.realtime.leave",
             PermissionMode::ImplicitSafe,
             120,
             4 * 1024,
             false,
         ),
         definition(
-            "babel.payments.checkout",
+            "babble.payments.checkout",
             PermissionMode::AskEachTime,
             4,
             16 * 1024,
             false,
         ),
         definition(
-            "babel.ai.judge",
+            "babble.ai.judge",
             PermissionMode::AskOnce,
             20,
             256 * 1024,
             false,
         ),
         definition(
-            "babel.ai.generate",
+            "babble.ai.generate",
             PermissionMode::AskEachTime,
             10,
             512 * 1024,
             false,
         ),
         definition(
-            "babel.ai.embed",
+            "babble.ai.embed",
             PermissionMode::AskOnce,
             60,
             512 * 1024,
             false,
         ),
         definition(
-            "babel.ai.transcribe",
+            "babble.ai.transcribe",
             PermissionMode::AskEachTime,
             6,
             16 * 1024 * 1024,
             false,
         ),
         definition(
-            "babel.media.camera",
+            "babble.media.camera",
             PermissionMode::AskEachTime,
             4,
             16 * 1024 * 1024,
             false,
         ),
         definition(
-            "babel.media.microphone",
+            "babble.media.microphone",
             PermissionMode::AskEachTime,
             4,
             16 * 1024 * 1024,
             false,
         ),
         definition(
-            "babel.graphics.webgpu",
+            "babble.graphics.webgpu",
             PermissionMode::AskOnce,
             60,
             8 * 1024 * 1024,
             false,
         ),
         definition(
-            "babel.notifications.request",
+            "babble.notifications.request",
             PermissionMode::AskOnce,
             4,
             4 * 1024,
             false,
         ),
         definition(
-            "babel.clipboard.write",
+            "babble.clipboard.write",
             PermissionMode::AskEachTime,
             20,
             64 * 1024,
             false,
         ),
         definition(
-            "babel.fullscreen.enter",
+            "babble.fullscreen.enter",
             PermissionMode::AskEachTime,
             10,
             4 * 1024,
             false,
         ),
         definition(
-            "babel.network.fetch",
+            "babble.network.fetch",
             PermissionMode::AskOnce,
             60,
             2 * 1024 * 1024,
             false,
         ),
         definition(
-            "babel.location",
+            "babble.location",
             PermissionMode::DeniedByDefault,
             0,
             0,
             false,
         ),
-        definition("babel.files", PermissionMode::DeniedByDefault, 0, 0, false),
+        definition("babble.files", PermissionMode::DeniedByDefault, 0, 0, false),
     ]
 }
 
@@ -806,7 +806,7 @@ fn validate_capability_id(value: &str) -> Result<()> {
     if valid {
         Ok(())
     } else {
-        Err(babel_types::Error::Conflict(format!(
+        Err(babble_types::Error::Conflict(format!(
             "invalid capability id: {value}"
         )))
     }
@@ -815,18 +815,18 @@ fn validate_capability_id(value: &str) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use babel_crypto::Keypair;
-    use babel_identity::{Identity, IdentityKind};
-    use babel_object::Object;
+    use babble_crypto::Keypair;
+    use babble_identity::{Identity, IdentityKind};
+    use babble_object::Object;
 
     #[test]
     fn imported_social_and_browser_grants_never_satisfy_one_use_consent() {
-        let broker = CapabilityBroker::babel_default();
-        let object_id = ObjectId::from_hash(&babel_types::Hash::from_bytes(b"controller"));
+        let broker = CapabilityBroker::babble_default();
+        let object_id = ObjectId::from_hash(&babble_types::Hash::from_bytes(b"controller"));
         for definition in broker.definitions().into_iter().filter(|d| invocation::is_one_use_invocation(d.id.as_str())) {
             let request = CapabilityRequest { id: definition.id.as_str().into(), version: 1, scope: json!({}) };
             let grant = CapabilityGrant {
-                id: CapabilityGrantId::from_hash(&babel_types::Hash::from_bytes(definition.id.as_str().as_bytes())),
+                id: CapabilityGrantId::from_hash(&babble_types::Hash::from_bytes(definition.id.as_str().as_bytes())),
                 object_id: object_id.clone(), capability: definition.id.clone(), version: 1,
                 scope: json!({}), decision: GrantDecision::Approved, quota: definition.quota,
                 created_at: Timestamp::now(), expires_at: None, revoked_at: None,
@@ -846,14 +846,14 @@ mod tests {
         let object = Object::text(&identity, "hello")
             .unwrap()
             .with_capabilities(vec![CapabilityRequest {
-                id: "babel.network.fetch".to_string(),
+                id: "babble.network.fetch".to_string(),
                 version: 1,
                 scope: json!({"origins": ["https://example.com"]}),
             }])
             .unwrap()
             .sign(&identity, &keypair)
             .unwrap();
-        let broker = CapabilityBroker::babel_default();
+        let broker = CapabilityBroker::babble_default();
         let request = object.capabilities[0].clone();
 
         let before = broker.evaluate_object(&object, &[]);
@@ -873,7 +873,7 @@ mod tests {
             .authorize_call(
                 CapabilityCall {
                     object_id: object.id.clone(),
-                    capability: CapabilityId::new("babel.network.fetch").unwrap(),
+                    capability: CapabilityId::new("babble.network.fetch").unwrap(),
                     version: 1,
                     scope: request.scope,
                     requested_bytes: 1024,
@@ -882,14 +882,14 @@ mod tests {
                 std::slice::from_ref(&grant),
             )
             .unwrap();
-        assert_eq!(receipt.capability.as_str(), "babel.network.fetch");
+        assert_eq!(receipt.capability.as_str(), "babble.network.fetch");
         assert_eq!(receipt.remaining_calls_per_minute, 59);
         assert_eq!(receipt.remaining_bytes_per_minute, (2 * 1024 * 1024) - 1024);
 
         let exhausted = broker.authorize_call_with_usage(
             CapabilityCall {
                 object_id: object.id.clone(),
-                capability: CapabilityId::new("babel.network.fetch").unwrap(),
+                capability: CapabilityId::new("babble.network.fetch").unwrap(),
                 version: 1,
                 scope: json!({"origins": ["https://example.com"]}),
                 requested_bytes: 1,
@@ -910,12 +910,12 @@ mod tests {
 
     #[test]
     fn broker_rejects_unavailable_or_denied_capability_grants() {
-        let broker = CapabilityBroker::babel_default();
+        let broker = CapabilityBroker::babble_default();
         let object_id = ObjectId::new_unchecked(format!("obj_{}", "0".repeat(64)));
         let denied = broker.issue_grant(
             object_id,
             CapabilityRequest {
-                id: "babel.location".to_string(),
+                id: "babble.location".to_string(),
                 version: 1,
                 scope: json!({}),
             },
@@ -933,14 +933,14 @@ mod tests {
         let object = Object::text(&identity, "hello")
             .unwrap()
             .with_capabilities(vec![CapabilityRequest {
-                id: "babel.ai.judge".to_string(),
+                id: "babble.ai.judge".to_string(),
                 version: 1,
-                scope: json!({"definition": "babel.judgment.relevance.v1"}),
+                scope: json!({"definition": "babble.judgment.relevance.v1"}),
             }])
             .unwrap()
             .sign(&identity, &keypair)
             .unwrap();
-        let broker = CapabilityBroker::babel_default();
+        let broker = CapabilityBroker::babble_default();
         let request = object.capabilities[0].clone();
         let expired_at = Timestamp(Timestamp::now().0 - time::Duration::seconds(1));
         let grant = broker
@@ -957,7 +957,7 @@ mod tests {
         let authorized = broker.authorize_call(
             CapabilityCall {
                 object_id: object.id,
-                capability: CapabilityId::new("babel.ai.judge").unwrap(),
+                capability: CapabilityId::new("babble.ai.judge").unwrap(),
                 version: 1,
                 scope: request.scope,
                 requested_bytes: 128,

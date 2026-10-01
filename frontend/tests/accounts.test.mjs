@@ -10,8 +10,8 @@ const code = ts.transpileModule(readFileSync(new URL("../src/app/accounts.ts", i
 const exports = {};
 vm.runInNewContext(code, { exports, EventTarget, Event, URL, Request, Headers, Date, fetch, AbortSignal, TextDecoder, TextEncoder });
 const { Accounts, AccountError } = exports;
-const origin = "https://babel.test";
-const key = `babel.session.v1:${origin}`;
+const origin = "https://babble.test";
+const key = `babble.session.v1:${origin}`;
 const identity = { id: "id_test", handle: "reader" };
 const session = (token = "a".repeat(64)) => ({ identity, token, expires_at: new Date(Date.now() + 3600000).toISOString() });
 const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
@@ -81,13 +81,13 @@ test("local preferences and history are isolated by origin and account, not sess
   otherStore.setItem(key, JSON.stringify({ ...session(), identity: { id: "id_other", handle: "reader" } }));
   assert.notEqual(new Accounts(origin, otherStore).localDataKey("seen"), owner);
   const otherOrigin = "https://other.test";
-  otherStore.setItem(`babel.session.v1:${otherOrigin}`, JSON.stringify(session()));
+  otherStore.setItem(`babble.session.v1:${otherOrigin}`, JSON.stringify(session()));
   assert.notEqual(new Accounts(otherOrigin, otherStore).localDataKey("seen"), owner);
 });
 
 test("login uses the canonical identity ID, not an unverified stored author", async () => {
   const store = storage();
-  store.setItem("babel.frontend.author.v1", JSON.stringify({ identityId: "forged", handle: "reader" }));
+  store.setItem("babble.frontend.author.v1", JSON.stringify({ identityId: "forged", handle: "reader" }));
   const accounts = new Accounts(origin, store, async (url, init) => {
     assert.equal(url.pathname, "/auth/login");
     assert.equal(JSON.parse(init.body).identity_id, identity.id);
@@ -134,7 +134,7 @@ test("host transport rejects foreign origins, overrides injected auth and refuse
   });
   await accounts.fetch(`${origin}/rpc`, { headers: { authorization: "Bearer malicious", "content-type": "application/json" } });
   await assert.rejects(accounts.fetch("https://attacker.test/rpc"), /another origin/);
-  await assert.rejects(accounts.fetch("https://user:secret@babel.test/rpc"), /another origin/);
+  await assert.rejects(accounts.fetch("https://user:secret@babble.test/rpc"), /another origin/);
   assert.equal(calls, 1);
 });
 

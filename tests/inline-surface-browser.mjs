@@ -4,7 +4,7 @@ export async function verifyInlineSurface(execute, waitFor) {
   const initial = await waitFor(`(() => {
     const panel = document.querySelector('[data-surface-panel]');
     const frame = panel.querySelector('iframe');
-    if (!frame || frame.dataset.babelLifecycle !== 'active') return {};
+    if (!frame || frame.dataset.babbleLifecycle !== 'active') return {};
     const primary = panel.closest('.post-primary');
     const column = panel.closest('.post-card');
     const session = [...panel.querySelectorAll('[data-surface-meta] span')].find(node => node.textContent.startsWith('Session: '))?.textContent.slice(9);
@@ -45,7 +45,7 @@ export async function verifyInlineSurface(execute, waitFor) {
   await execute([{ type: "eval", code: `(() => {
     window.__inlineEviction = null;
     import('/src/app/accounts.ts').then(async ({ Accounts }) => {
-      const accounts = new Accounts(document.documentElement.dataset.babelApi, sessionStorage);
+      const accounts = new Accounts(document.documentElement.dataset.babbleApi, sessionStorage);
       for (let attempt = 0; attempt < 100; attempt++) {
         const response = await accounts.authenticatedFetch(new URL('/runtime/surfaces/sessions/' + window.__inlineSurface.session, accounts.origin));
         const result = await response.json();
@@ -69,7 +69,7 @@ export async function verifyInlineSurface(execute, waitFor) {
   })()` }]);
   const reopened = await waitFor(`(() => {
     const panel = document.querySelector('[data-surface-panel]');
-    return { active: panel.querySelector('iframe')?.dataset.babelLifecycle === 'active',
+    return { active: panel.querySelector('iframe')?.dataset.babbleLifecycle === 'active',
       sameObject: panel.closest('.post-card')?.dataset.objectId === window.__inlineSurface.object,
       newFrame: !!panel.querySelector('iframe') && panel.querySelector('iframe') !== window.__inlineSurface.frame,
       session: [...panel.querySelectorAll('[data-surface-meta] span')].find(node => node.textContent.startsWith('Session: '))?.textContent.slice(9) };

@@ -9,17 +9,17 @@ import pytest
 from ranking_assertions import assert_json_close
 from test_worker import error, exchange, frame, health, judge
 
-from babel_algorithms.execution import AlgorithmExecutor
-from babel_algorithms.ranking_time import timestamp_nanos
-from babel_algorithms.temporal import (
+from babble_algorithms.execution import AlgorithmExecutor
+from babble_algorithms.ranking_time import timestamp_nanos
+from babble_algorithms.temporal import (
     ContentTimeClass,
     EngagementWindow,
     TemporalInput,
     TemporalScorer,
 )
-from babel_algorithms.temporal_types import TEMPORAL_PROVIDER, TemporalRequest, TemporalResult
-from babel_algorithms.wire import MAX_ID, PROTOCOL, Json, decode, object_value
-from babel_algorithms.worker import encode, handle
+from babble_algorithms.temporal_types import TEMPORAL_PROVIDER, TemporalRequest, TemporalResult
+from babble_algorithms.wire import MAX_ID, PROTOCOL, Json, decode, object_value
+from babble_algorithms.worker import encode, handle
 
 
 def item(index: int = 0) -> dict[str, Json]:
@@ -374,7 +374,7 @@ def test_canonical_rust_temporal_corpus() -> None:
         case = object_value(raw)
         expected = object_value(case["result"])
         expected["provider"] = {
-            "provider": "babel-python", "model": "temporal-v1", "version": "1",
+            "provider": "babble-python", "model": "temporal-v1", "version": "1",
         }
         request = envelope()
         request["request"] = case["request"]

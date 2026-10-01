@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 /**
  * Parent owns live-stack, builds, Aegis navigation and account teardown. Requires
  * the online production page, its isolated browser-author-* account, a working
- * bundle gateway, and sdk/dist built from the integrated v2 SDK. No server starts
+ * bundle gateway, and sdk/dist built from the integrated  SDK. No server starts
  * here. Fixture Objects live only in the parent's disposable store.
  *
  * Covers actual SDK -> main -> host prompt -> API -> durable social effects.
@@ -57,7 +57,7 @@ export async function verifyInvocationConsent(execute, waitFor, { apiUrl, readSu
     assert.equal(prepared.status, 200);
     const view = prepared.body;
     assert.equal(view.state.kind, "pending");
-    assert.equal(view.method, `babel.social.${method}.v2`);
+    assert.equal(view.method, `babble.social.${method}`);
     assert.equal(view.actor_id, value.actorId);
     assert.equal(view.object_id, value.objectId);
     assert.deepEqual(view.origin, { kind: "surface", session_id: value.sessionId, document_id: value.documentId });
@@ -84,8 +84,8 @@ export async function verifyInvocationConsent(execute, waitFor, { apiUrl, readSu
   const files = await Promise.all(sdkPaths.map(async path => ({
     path: `sdk/${path}`, content: await readFile(new URL(`../sdk/dist/${path}`, import.meta.url), "utf8"),
   })));
-  assert.match(files.find(file => file.path === "sdk/sdk.js").content, /babel\.social\.reply\.v2/,
-    "parent must build the integrated v2 SDK before browser acceptance");
+  assert.match(files.find(file => file.path === "sdk/sdk.js").content, /babble\.social\.reply\/,
+    "parent must build the integrated  SDK before browser acceptance");
   let installed = false;
   const evidence = { operations: [], geometry: [], remaining: ["same-actor different login", "restart", "media", "real gesture input at each viewport"] };
   try {
@@ -98,7 +98,7 @@ export async function verifyInvocationConsent(execute, waitFor, { apiUrl, readSu
     assert.match(setup.signature.bytes, /^[0-9a-f]{128}$/);
     assert.equal(setup.bundle.version, 1);
     assert.deepEqual(setup.capabilities.map(item => item.id).sort(),
-      ["babel.social.follow", "babel.social.reply", "babel.social.share", "babel.social.unfollow"]);
+      ["babble.social.follow", "babble.social.reply", "babble.social.share", "babble.social.unfollow"]);
     assert.deepEqual(await task(s => s.grants()), []);
     await evaluate(`(() => {
       const search = document.querySelector('[data-search-input]');
@@ -245,8 +245,8 @@ export async function verifyInvocationConsent(execute, waitFor, { apiUrl, readSu
 function install({ apiUrl, marker }) {
   if (window.__invocationAcceptance) throw new Error("invocation test already active");
   const api = new URL(apiUrl);
-  if (new URL(document.documentElement.dataset.babelApi).origin !== api.origin) throw new Error("fixture API mismatch");
-  const saved = sessionStorage.getItem(`babel.session.v1:${api.origin}`);
+  if (new URL(document.documentElement.dataset.babbleApi).origin !== api.origin) throw new Error("fixture API mismatch");
+  const saved = sessionStorage.getItem(`babble.session.v1:${api.origin}`);
   const session = JSON.parse(saved ?? "null");
   if (!session?.token || !/^browser-author-/.test(session.identity?.handle ?? "")) throw new Error("isolated live-stack fixture account required");
   const originalSearch = document.querySelector('[data-search-input]').value;
@@ -259,7 +259,7 @@ function install({ apiUrl, marker }) {
   const request = async (path, { method = "GET", body, token = session.token, document = null } = {}) => {
     const headers = { "content-type": "application/json" };
     if (token) headers.authorization = `Bearer ${token}`;
-    if (document) headers["x-babel-surface-document"] = document;
+    if (document) headers["x-babble-surface-document"] = document;
     const response = await nativeFetch(new URL(path, api), { method, headers, credentials: "omit", redirect: "error",
       ...(body === undefined ? {} : { body: JSON.stringify(body) }), signal: AbortSignal.timeout(15000) });
     return { status: response.status, body: response.status === 204 ? null : await response.json() };
@@ -271,7 +271,7 @@ function install({ apiUrl, marker }) {
   };
   const rpc = async (method, payload) => {
     const response = await request("/rpc", { method: "POST", body: {
-      protocol: "babel.rpc.v1", id: crypto.randomUUID(), method, payload,
+      protocol: "babble.rpc.v1", id: crypto.randomUUID(), method, payload,
       binding: { object_id: null, surface_session_id: null, runtime_id: "invocation-acceptance", origin: location.origin, capability_grants: [] },
       idempotency_key: crypto.randomUUID(), deadline: { timeout_ms: 30000, client_started_at: new Date().toISOString() }, trace_id: null,
     } });
@@ -304,7 +304,7 @@ function install({ apiUrl, marker }) {
     const target = await client.publishText(s.actorId, `${marker} recipient`);
     s.targetId = target.id;
     const capabilities = ["follow", "unfollow", "share", "reply"].map(method => ({
-      id: `babel.social.${method}`, version: 1, scope: { object_id: target.id },
+      id: `babble.social.${method}`, version: 1, scope: { object_id: target.id },
     }));
     const assets = [
       { path: "index.html", content: '<!doctype html><html><head><meta charset="utf-8"><title>Consent acceptance</title></head><body><h1>Consent acceptance</h1><output id="status">Connecting</output><script type="module" src="./app.js"></script></body></html>' },
@@ -320,7 +320,7 @@ function install({ apiUrl, marker }) {
     s.objectId = object.id;
     return { objectId: object.id, signature: object.signature, bundle: object.surfaces[0].bundle, capabilities: object.capabilities };
   };
-  s.grants = async () => (await rpc('babel.capabilities.inspect.v1', { object_id: s.objectId })).grants;
+  s.grants = async () => (await rpc('babble.capabilities.inspect.v1', { object_id: s.objectId })).grants;
   s.connect = async binding => {
     // Read-only parent observation of registration is checked against the API;
     // this does not depend on sharing a class with the production bundle.
@@ -356,7 +356,7 @@ function install({ apiUrl, marker }) {
     const input = requests.get(id);
     return request('/invocations/v1/prepare', { method: 'POST', document: documentId, body: {
       origin: { kind: 'surface', session_id: lastSession, document_id: documentId }, object_id: s.objectId,
-      method: `babel.social.${input.method}.v2`, request_key: input.key,
+      method: `babble.social.${input.method}`, request_key: input.key,
       payload: { ...input.payload, ...changes }, timeout_ms: input.timeoutMs,
     } });
   };
@@ -373,7 +373,7 @@ function install({ apiUrl, marker }) {
   };
   s.effects = async () => {
     const { edges } = await get(`/graph/objects/${s.targetId}/incoming`);
-    const search = await rpc('babel.search.objects.v1', { q: marker, author: s.actorId, kind: null, limit: 100 });
+    const search = await rpc('babble.search.objects.v1', { q: marker, author: s.actorId, kind: null, limit: 100 });
     return { objects: search.results.map(item => item.object).filter(object =>
       object.id !== s.targetId && object.id !== s.objectId && object.payload.text?.includes(marker)).map(object => object.id).sort(),
       edges: edges.map(edge => edge.id).sort() };
@@ -399,14 +399,14 @@ function install({ apiUrl, marker }) {
     try { await other?.logout(); } catch { errors.push('temporary-account-logout'); }
     const search = document.querySelector('[data-search-input]');
     search.value = originalSearch; search.form.requestSubmit();
-    return { errors, parentAccountPreserved: sessionStorage.getItem(`babel.session.v1:${api.origin}`) === saved };
+    return { errors, parentAccountPreserved: sessionStorage.getItem(`babble.session.v1:${api.origin}`) === saved };
   };
   (async () => {
-    const [{ Accounts }, { BabelFrontendClient }] = await Promise.all([
+    const [{ Accounts }, { BabbleFrontendClient }] = await Promise.all([
       import('/src/app/accounts.ts'), import('/src/app/protocol.ts'),
     ]);
     const accounts = new Accounts(api.href, sessionStorage);
-    client = new BabelFrontendClient(api.href, accounts.authenticatedFetch);
+    client = new BabbleFrontendClient(api.href, accounts.authenticatedFetch);
     other = new Accounts(api.href, null);
     await other.register(`consent-probe-${crypto.randomUUID()}`, crypto.randomUUID() + crypto.randomUUID());
     s.ready = true;

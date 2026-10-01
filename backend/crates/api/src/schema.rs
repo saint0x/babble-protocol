@@ -1,33 +1,33 @@
-use babel_authoring::ObjectDraft;
-use babel_capabilities::{
+use babble_authoring::ObjectDraft;
+use babble_capabilities::{
     CapabilityDecision, CapabilityDefinition, CapabilityGrant, CapabilityManifest,
     CapabilityReceipt, GrantDecision,
 };
-use babel_graph::{Edge, EdgeOrigin, GraphTraversal, Relation, TraversalDirection};
-use babel_hashgraph::FinalityCheckpoint;
-use babel_identity::{Identity, IdentityKeyScope, IdentityKeyTransition, IdentityKind};
-use babel_judgment::{
+use babble_graph::{Edge, EdgeOrigin, GraphTraversal, Relation, TraversalDirection};
+use babble_hashgraph::FinalityCheckpoint;
+use babble_identity::{Identity, IdentityKeyScope, IdentityKeyTransition, IdentityKind};
+use babble_judgment::{
     DefinitionId, Judgment, JudgmentDefinition, JudgmentProviderDescriptor, OrchestratedJudgment,
 };
-use babel_lens::{LensDefinition, LensStack};
-use babel_media::MediaBlob;
-use babel_node::{
+use babble_lens::{LensDefinition, LensStack};
+use babble_media::MediaBlob;
+use babble_node::{
     ClaimEvidenceProjection, DiscoveryResult, ImportBundle, ImportReport, ObjectSearchResult,
     ObservabilitySnapshot, ProvenancePublication,
 };
-use babel_object::{CapabilityRequest as ObjectCapabilityRequest, Object, SurfaceRole};
-use babel_personalization::EncryptedLocalUserModel;
-use babel_realtime::{
+use babble_object::{CapabilityRequest as ObjectCapabilityRequest, Object, SurfaceRole};
+use babble_personalization::EncryptedLocalUserModel;
+use babble_realtime::{
     MembershipPolicy, PersistencePolicy, RealtimeMessage, RealtimePayload, RealtimeSession,
     RealtimeSnapshot, RoomLimits, RoomSpec, RoomView,
 };
-use babel_runtime::{
+use babble_runtime::{
     ResourceBudget, SurfaceLifecycle, SurfaceRuntimeEvent, SurfaceRuntimeHealthSnapshot,
     SurfaceScheduleDecision, SurfaceSchedulingInput, SurfaceSession, SurfaceSessionId,
     SurfaceSessionPlan, SurfaceStateCheckpoint,
 };
-use babel_state::Event;
-use babel_types::Timestamp;
+use babble_state::Event;
+use babble_types::Timestamp;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -208,7 +208,7 @@ pub struct SocialTextRequest {
     pub media: Option<SocialMediaAttachment>,
 }
 
-pub type SocialMediaAttachment = babel_node::SocialMediaAttachment;
+pub type SocialMediaAttachment = babble_node::SocialMediaAttachment;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct SocialTextResponse {
@@ -217,10 +217,10 @@ pub struct SocialTextResponse {
     pub receipt: CapabilityReceipt,
 }
 
-pub type RepliesListRequest = babel_node::RepliesListQuery;
-pub type RepliesListResponse = babel_node::RepliesListResult;
-pub type QuotesListRequest = babel_node::QuotesListQuery;
-pub type QuotesListResponse = babel_node::QuotesListResult;
+pub type RepliesListRequest = babble_node::RepliesListQuery;
+pub type RepliesListResponse = babble_node::RepliesListResult;
+pub type QuotesListRequest = babble_node::QuotesListQuery;
+pub type QuotesListResponse = babble_node::QuotesListResult;
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct EdgeListResponse {
@@ -928,7 +928,7 @@ pub struct JudgeObjectRpcRequest {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct JudgeObjectResponse {
     pub judgment: Judgment,
-    pub input: Option<babel_store::ObjectJudgmentInput>,
+    pub input: Option<babble_store::ObjectJudgmentInput>,
     pub orchestration: Option<OrchestratedJudgment>,
     pub receipt: Option<CapabilityReceipt>,
 }

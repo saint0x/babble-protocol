@@ -1,5 +1,5 @@
-use babel_network::{Message, NetworkLimits};
-use babel_sim::{DeliveryStatus, NetworkSimulator, event_sets_by_node};
+use babble_network::{Message, NetworkLimits};
+use babble_sim::{DeliveryStatus, NetworkSimulator, event_sets_by_node};
 
 #[test]
 fn simulation_converges_through_relay_after_direct_partition() {

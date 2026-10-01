@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  BabelError,
-  createBabelSDK,
+  BabbleError,
+  createBabbleSDK,
   createSurfaceLifecycle,
-  createBabelClient,
+  createBabbleClient,
   hostBinding,
   hostSurfaceBinding,
   objectBinding,
@@ -15,54 +15,54 @@ import {
 } from "../dist/index.js";
 
 test("generated catalog exposes the Rust protocol contract", () => {
-  assert.equal(protocol, "babel.v2");
-  assert.equal(rpcCatalog.protocol, "babel.rpc.v1");
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.object.publish.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.object.publish_text.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.graph.relationship.infer.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.graph.evidence.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.graph.traverse.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.identity.current.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.object.fork.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.object.remix.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.runtime.surface.session.start.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.runtime.surface.session.state.checkpoint.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.runtime.surface.session.state.get.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.realtime.session.start.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.realtime.session.leave.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.storage.object.set.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.storage.local.set.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.personalization.sync.put.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.personalization.sync.list.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.personalization.sync.get.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.personalization.sync.delete.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.social.follow.v2"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.social.unfollow.v2"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.social.share.v2"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.social.reply.v2"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.events.list.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.events.import.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.network.fetch.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.payments.checkout.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.notifications.request.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.media.camera.request.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.media.microphone.request.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.clipboard.write.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.fullscreen.enter.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.clipboard.write.v2"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.fullscreen.enter.v2"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.lenses.list.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.capabilities.list.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.judgment.definitions.list.v1"));
-  assert.ok(rpcCatalog.methods.some((method) => method.method === "babel.judgment.providers.list.v1"));
+  assert.equal(protocol, "babble");
+  assert.equal(rpcCatalog.protocol, "babble.rpc.v1");
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.object.publish.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.object.publish_text.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.graph.relationship.infer.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.graph.evidence.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.graph.traverse.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.identity.current.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.object.fork.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.object.remix.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.runtime.surface.session.start.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.runtime.surface.session.state.checkpoint.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.runtime.surface.session.state.get.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.realtime.session.start.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.realtime.session.leave.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.storage.object.set.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.storage.local.set.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.personalization.sync.put.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.personalization.sync.list.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.personalization.sync.get.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.personalization.sync.delete.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.social.follow"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.social.unfollow"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.social.share"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.social.reply"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.events.list.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.events.import.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.network.fetch.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.payments.checkout.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.notifications.request.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.media.camera.request.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.media.microphone.request.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.clipboard.write.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.fullscreen.enter.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.clipboard.write"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.fullscreen.enter"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.lenses.list.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.capabilities.list.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.judgment.definitions.list.v1"));
+  assert.ok(rpcCatalog.methods.some((method) => method.method === "babble.judgment.providers.list.v1"));
 });
 
 test("host SDK renews its bound Surface lease through the canonical method", async () => {
   const lease = { session_id: "surf_live", expires_at: "2026-09-30T09:00:00Z", ttl_ms: 60_000, renew_after_ms: 15_000 };
-  const transport = new CaptureTransport({ protocol: "babel.rpc.v1", id: "heartbeat", result: { lease }, error: null, trace_id: null });
-  const sdk = createBabelSDK({ transport, binding: hostSurfaceBinding({ runtimeId: "host", origin: "https://host.test", surfaceSessionId: lease.session_id }) });
+  const transport = new CaptureTransport({ protocol: "babble.rpc.v1", id: "heartbeat", result: { lease }, error: null, trace_id: null });
+  const sdk = createBabbleSDK({ transport, binding: hostSurfaceBinding({ runtimeId: "host", origin: "https://host.test", surfaceSessionId: lease.session_id }) });
   assert.deepEqual(await sdk.runtime.heartbeatSurfaceSession(undefined, { id: "heartbeat" }), { lease });
-  assert.equal(transport.envelopes[0].method, "babel.runtime.surface.session.heartbeat.v1");
+  assert.equal(transport.envelopes[0].method, "babble.runtime.surface.session.heartbeat.v1");
   assert.equal(transport.envelopes[0].binding.object_id, null);
   assert.equal(transport.envelopes[0].binding.surface_session_id, lease.session_id);
   assert.deepEqual(transport.envelopes[0].payload, {});
@@ -79,11 +79,11 @@ test("reaction SDK preserves independent dimensions and durable mutation keys", 
     ["mine", { object_id }, {}],
     ["set", { object_id, value, expected_revision: 0 }, { idempotencyKey: "reaction-retry" }],
   ]) {
-    const transport = new CaptureTransport({ protocol: "babel.rpc.v1", id: name, result: state, error: null, trace_id: null });
-    const sdk = createBabelSDK({ transport, binding: hostBinding({ runtimeId: "host", origin: "https://host.test", identityId: actor_id }) });
+    const transport = new CaptureTransport({ protocol: "babble.rpc.v1", id: name, result: state, error: null, trace_id: null });
+    const sdk = createBabbleSDK({ transport, binding: hostBinding({ runtimeId: "host", origin: "https://host.test", identityId: actor_id }) });
     assert.deepEqual(await sdk.social.reactions[name](payload, { id: name, ...options }), state);
     const envelope = transport.envelopes[0];
-    assert.equal(envelope.method, `babel.social.reactions.${name}.v1`);
+    assert.equal(envelope.method, `babble.social.reactions.${name}.v1`);
     assert.deepEqual(envelope.payload, payload);
     assert.equal(envelope.binding.object_id, null);
     assert.equal(envelope.binding.surface_session_id, null);
@@ -93,24 +93,24 @@ test("reaction SDK preserves independent dimensions and durable mutation keys", 
 
 test("client builds envelopes and returns typed RPC results", async () => {
   const transport = new CaptureTransport({
-    protocol: "babel.rpc.v1",
+    protocol: "babble.rpc.v1",
     id: "publish-1",
     result: {
       object: {
         id: "obj_abc",
-        kind: "babel.text",
+        kind: "babble.text",
         payload: { text: "hello" },
       },
     },
     error: null,
     trace_id: "trace-1",
   });
-  const client = createBabelClient({
+  const client = createBabbleClient({
     transport,
     binding: hostBinding("runtime", "https://example.test"),
   });
   const result = await client.request(
-    "babel.object.publish_text.v1",
+    "babble.object.publish_text.v1",
     { author_id: "id_abc", text: "hello" },
     { id: "publish-1", idempotencyKey: "idem-1", traceId: "trace-1" },
   );
@@ -119,12 +119,12 @@ test("client builds envelopes and returns typed RPC results", async () => {
   assert.equal(transport.envelopes.length, 1);
   assert.equal(transport.envelopes[0].idempotency_key, "idem-1");
   assert.equal(transport.envelopes[0].binding.runtime_id, "runtime");
-  assert.equal(transport.envelopes[0].method, "babel.object.publish_text.v1");
+  assert.equal(transport.envelopes[0].method, "babble.object.publish_text.v1");
 });
 
-test("client turns structured RPC errors into BabelError", async () => {
+test("client turns structured RPC errors into BabbleError", async () => {
   const transport = new CaptureTransport({
-    protocol: "babel.rpc.v1",
+    protocol: "babble.rpc.v1",
     id: "missing",
     result: null,
     error: {
@@ -136,21 +136,21 @@ test("client turns structured RPC errors into BabelError", async () => {
     },
     trace_id: null,
   });
-  const client = createBabelClient({
+  const client = createBabbleClient({
     transport,
     binding: objectBinding({
       objectId: "obj_bound",
       surfaceSessionId: "surface",
       runtimeId: "runtime",
-      origin: "babel://test",
+      origin: "babble://test",
       capabilityGrants: ["grant_1"],
     }),
   });
 
   await assert.rejects(
-    client.request("babel.object.get.v1", { object_id: "obj_missing" }, { id: "missing" }),
+    client.request("babble.object.get.v1", { object_id: "obj_missing" }, { id: "missing" }),
     (error) => {
-      assert.ok(error instanceof BabelError);
+      assert.ok(error instanceof BabbleError);
       assert.equal(error.code, "NOT_FOUND");
       assert.deepEqual(error.details, { object_id: "obj_missing" });
       return true;
@@ -160,18 +160,18 @@ test("client turns structured RPC errors into BabelError", async () => {
 
 test("request id generation is deterministic for method and payload", () => {
   assert.equal(
-    requestId("babel.object.get.v1", { object_id: "obj_1" }),
-    requestId("babel.object.get.v1", { object_id: "obj_1" }),
+    requestId("babble.object.get.v1", { object_id: "obj_1" }),
+    requestId("babble.object.get.v1", { object_id: "obj_1" }),
   );
   assert.notEqual(
-    requestId("babel.object.get.v1", { object_id: "obj_1" }),
-    requestId("babel.object.get.v1", { object_id: "obj_2" }),
+    requestId("babble.object.get.v1", { object_id: "obj_1" }),
+    requestId("babble.object.get.v1", { object_id: "obj_2" }),
   );
 });
 
 test("SDK exposes capability-bound object storage helpers", async () => {
   const transport = new CaptureTransport({
-    protocol: "babel.rpc.v1",
+    protocol: "babble.rpc.v1",
     id: "storage-set-1",
     result: {
       entry: {
@@ -180,18 +180,18 @@ test("SDK exposes capability-bound object storage helpers", async () => {
         updated_at: "2026-09-27T00:00:00Z",
         size_bytes: 15,
       },
-      receipt: capabilityReceiptFixture("babel.storage.object"),
+      receipt: capabilityReceiptFixture("babble.storage.object"),
     },
     error: null,
     trace_id: null,
   });
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport,
     binding: objectBinding({
       objectId: "obj_bound",
       surfaceSessionId: "surface",
       runtimeId: "runtime",
-      origin: "babel://test",
+      origin: "babble://test",
       capabilityGrants: ["grant_storage"],
     }),
   });
@@ -202,15 +202,15 @@ test("SDK exposes capability-bound object storage helpers", async () => {
   );
 
   assert.equal(response.entry.key, "settings/theme");
-  assert.equal(response.receipt.capability, "babel.storage.object");
-  assert.equal(transport.envelopes[0].method, "babel.storage.object.set.v1");
+  assert.equal(response.receipt.capability, "babble.storage.object");
+  assert.equal(transport.envelopes[0].method, "babble.storage.object.set.v1");
   assert.equal(transport.envelopes[0].idempotency_key, "storage-set-key");
   assert.deepEqual(transport.envelopes[0].binding.capability_grants, ["grant_storage"]);
 });
 
 test("SDK exposes capability-bound local storage helpers", async () => {
   const transport = new CaptureTransport({
-    protocol: "babel.rpc.v1",
+    protocol: "babble.rpc.v1",
     id: "local-storage-set-1",
     result: {
       entry: {
@@ -219,18 +219,18 @@ test("SDK exposes capability-bound local storage helpers", async () => {
         updated_at: "2026-09-27T00:00:00Z",
         size_bytes: 15,
       },
-      receipt: capabilityReceiptFixture("babel.storage.local"),
+      receipt: capabilityReceiptFixture("babble.storage.local"),
     },
     error: null,
     trace_id: null,
   });
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport,
     binding: objectBinding({
       objectId: "obj_bound",
       surfaceSessionId: "surface",
       runtimeId: "runtime",
-      origin: "babel://test",
+      origin: "babble://test",
       capabilityGrants: ["grant_local"],
       identityId: "id_alice",
     }),
@@ -242,8 +242,8 @@ test("SDK exposes capability-bound local storage helpers", async () => {
   );
 
   assert.equal(response.entry.key, "settings/theme");
-  assert.equal(response.receipt.capability, "babel.storage.local");
-  assert.equal(transport.envelopes[0].method, "babel.storage.local.set.v1");
+  assert.equal(response.receipt.capability, "babble.storage.local");
+  assert.equal(transport.envelopes[0].method, "babble.storage.local.set.v1");
   assert.equal(transport.envelopes[0].idempotency_key, "local-storage-set-key");
   assert.equal(transport.envelopes[0].binding.identity_id, "id_alice");
   assert.deepEqual(transport.envelopes[0].binding.capability_grants, ["grant_local"]);
@@ -253,7 +253,7 @@ test("SDK exposes encrypted personalization sync helpers", async () => {
   const envelope = encryptedEnvelopeFixture();
   const transport = new QueueTransport([
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "personalization-sync-put-1",
       result: {
         envelope: envelopeSummaryFixture(),
@@ -262,28 +262,28 @@ test("SDK exposes encrypted personalization sync helpers", async () => {
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "personalization-sync-list-1",
       result: { envelopes: [envelopeSummaryFixture()] },
       error: null,
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "personalization-sync-get-1",
       result: { envelope, summary: envelopeSummaryFixture() },
       error: null,
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "personalization-sync-delete-1",
       result: { deleted: envelopeSummaryFixture() },
       error: null,
       trace_id: null,
     },
   ]);
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport,
     binding: hostBinding("runtime", "https://example.test"),
   });
@@ -293,7 +293,7 @@ test("SDK exposes encrypted personalization sync helpers", async () => {
     { id: "personalization-sync-put-1", idempotencyKey: "personalization-sync-put-key" },
   );
   assert.equal(put.envelope.device_id, "desktop-main");
-  assert.equal(transport.envelopes[0].method, "babel.personalization.sync.put.v1");
+  assert.equal(transport.envelopes[0].method, "babble.personalization.sync.put.v1");
   assert.equal(transport.envelopes[0].idempotency_key, "personalization-sync-put-key");
 
   const listed = await sdk.personalization.sync.list({
@@ -301,7 +301,7 @@ test("SDK exposes encrypted personalization sync helpers", async () => {
     device_id: "desktop-main",
   }, { id: "personalization-sync-list-1" });
   assert.equal(listed.envelopes.length, 1);
-  assert.equal(transport.envelopes[1].method, "babel.personalization.sync.list.v1");
+  assert.equal(transport.envelopes[1].method, "babble.personalization.sync.list.v1");
 
   const fetched = await sdk.personalization.sync.get({
     identity_id: envelope.recipient.identity_id,
@@ -309,7 +309,7 @@ test("SDK exposes encrypted personalization sync helpers", async () => {
     envelope_hash: envelopeSummaryFixture().envelope_hash,
   }, { id: "personalization-sync-get-1" });
   assert.equal(fetched.envelope.ciphertext, envelope.ciphertext);
-  assert.equal(transport.envelopes[2].method, "babel.personalization.sync.get.v1");
+  assert.equal(transport.envelopes[2].method, "babble.personalization.sync.get.v1");
 
   const deleted = await sdk.personalization.sync.delete({
     identity_id: envelope.recipient.identity_id,
@@ -317,28 +317,28 @@ test("SDK exposes encrypted personalization sync helpers", async () => {
     envelope_hash: envelopeSummaryFixture().envelope_hash,
   }, { id: "personalization-sync-delete-1", idempotencyKey: "personalization-sync-delete-key" });
   assert.equal(deleted.deleted.device_id, "desktop-main");
-  assert.equal(transport.envelopes[3].method, "babel.personalization.sync.delete.v1");
+  assert.equal(transport.envelopes[3].method, "babble.personalization.sync.delete.v1");
   assert.equal(transport.envelopes[3].idempotency_key, "personalization-sync-delete-key");
 });
 
 test("SDK exposes capability-bound current identity helper", async () => {
   const transport = new CaptureTransport({
-    protocol: "babel.rpc.v1",
+    protocol: "babble.rpc.v1",
     id: "identity-current-1",
     result: {
       identity: identityFixture("id_alice", "alice"),
-      receipt: capabilityReceiptFixture("babel.identity.current"),
+      receipt: capabilityReceiptFixture("babble.identity.current"),
     },
     error: null,
     trace_id: null,
   });
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport,
     binding: objectBinding({
       objectId: "obj_bound",
       surfaceSessionId: "surface",
       runtimeId: "runtime",
-      origin: "babel://test",
+      origin: "babble://test",
       capabilityGrants: ["grant_identity"],
       identityId: "id_alice",
     }),
@@ -347,31 +347,31 @@ test("SDK exposes capability-bound current identity helper", async () => {
   const response = await sdk.identity.current({}, { id: "identity-current-1" });
 
   assert.equal(response.identity.handle, "alice");
-  assert.equal(response.receipt.capability, "babel.identity.current");
-  assert.equal(transport.envelopes[0].method, "babel.identity.current.v1");
+  assert.equal(response.receipt.capability, "babble.identity.current");
+  assert.equal(transport.envelopes[0].method, "babble.identity.current.v1");
   assert.equal(transport.envelopes[0].binding.identity_id, "id_alice");
   assert.deepEqual(transport.envelopes[0].binding.capability_grants, ["grant_identity"]);
 });
 
 test("SDK exposes capability-bound social helpers", async () => {
   const transport = new CaptureTransport({
-    protocol: "babel.rpc.v1",
+    protocol: "babble.rpc.v1",
     id: "social-share-1",
     result: {
       object: textObjectFixture("obj_share", "Sharing with signed context."),
       edge: edgeFixture("edge_share", "obj_share", "obj_target", "quotes"),
-      receipt: capabilityReceiptFixture("babel.social.share", { object_id: "obj_target" }),
+      receipt: capabilityReceiptFixture("babble.social.share", { object_id: "obj_target" }),
     },
     error: null,
     trace_id: null,
   });
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport,
     binding: objectBinding({
       objectId: "obj_bound",
       surfaceSessionId: "surface",
       runtimeId: "runtime",
-      origin: "babel://test",
+      origin: "babble://test",
       capabilityGrants: ["grant_share"],
     }),
   });
@@ -386,15 +386,15 @@ test("SDK exposes capability-bound social helpers", async () => {
   );
 
   assert.equal(response.edge.relation, "quotes");
-  assert.equal(response.receipt.capability, "babel.social.share");
-  assert.equal(transport.envelopes[0].method, "babel.social.share.v2");
+  assert.equal(response.receipt.capability, "babble.social.share");
+  assert.equal(transport.envelopes[0].method, "babble.social.share");
   assert.equal(transport.envelopes[0].idempotency_key, "social-share-key");
   assert.deepEqual(transport.envelopes[0].binding.capability_grants, ["grant_share"]);
 });
 
 test("SDK exposes capability-bound realtime leave helper", async () => {
   const transport = new CaptureTransport({
-    protocol: "babel.rpc.v1",
+    protocol: "babble.rpc.v1",
     id: "leave-1",
     result: {
       session: realtimeSessionFixture("closed"),
@@ -408,18 +408,18 @@ test("SDK exposes capability-bound realtime leave helper", async () => {
         created_at: "2026-09-27T00:00:00Z",
         signature: null,
       },
-      receipt: capabilityReceiptFixture("babel.realtime.leave", { room: "main" }),
+      receipt: capabilityReceiptFixture("babble.realtime.leave", { room: "main" }),
     },
     error: null,
     trace_id: null,
   });
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport,
     binding: objectBinding({
       objectId: "obj_bound",
       surfaceSessionId: "surface",
       runtimeId: "runtime",
-      origin: "babel://test",
+      origin: "babble://test",
       capabilityGrants: ["grant_leave"],
     }),
   });
@@ -431,34 +431,34 @@ test("SDK exposes capability-bound realtime leave helper", async () => {
 
   assert.equal(response.session.state, "closed");
   assert.equal(response.event.kind, "realtime_session_closed");
-  assert.equal(response.receipt.capability, "babel.realtime.leave");
-  assert.equal(transport.envelopes[0].method, "babel.realtime.session.leave.v1");
+  assert.equal(response.receipt.capability, "babble.realtime.leave");
+  assert.equal(transport.envelopes[0].method, "babble.realtime.session.leave.v1");
   assert.equal(transport.envelopes[0].idempotency_key, "leave-key");
 });
 
 test("SDK exposes capability-bound network fetch helper", async () => {
   const transport = new CaptureTransport({
-    protocol: "babel.rpc.v1",
+    protocol: "babble.rpc.v1",
     id: "network-fetch-1",
     result: {
       status: 200,
       headers: {
         "content-type": "text/plain",
-        "x-babel-test": "ok",
+        "x-babble-test": "ok",
       },
       body_hex: "68656c6c6f",
-      receipt: capabilityReceiptFixture("babel.network.fetch"),
+      receipt: capabilityReceiptFixture("babble.network.fetch"),
     },
     error: null,
     trace_id: null,
   });
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport,
     binding: objectBinding({
       objectId: "obj_bound",
       surfaceSessionId: "surface",
       runtimeId: "runtime",
-      origin: "babel://test",
+      origin: "babble://test",
       capabilityGrants: ["grant_network"],
     }),
   });
@@ -467,7 +467,7 @@ test("SDK exposes capability-bound network fetch helper", async () => {
     {
       method: "GET",
       url: "https://example.com/data",
-      headers: { "X-Babel-Test": "request" },
+      headers: { "X-Babble-Test": "request" },
       body_hex: null,
     },
     { id: "network-fetch-1", idempotencyKey: "network-fetch-key" },
@@ -475,8 +475,8 @@ test("SDK exposes capability-bound network fetch helper", async () => {
 
   assert.equal(response.status, 200);
   assert.equal(response.body_hex, "68656c6c6f");
-  assert.equal(response.receipt.capability, "babel.network.fetch");
-  assert.equal(transport.envelopes[0].method, "babel.network.fetch.v1");
+  assert.equal(response.receipt.capability, "babble.network.fetch");
+  assert.equal(transport.envelopes[0].method, "babble.network.fetch.v1");
   assert.equal(transport.envelopes[0].idempotency_key, "network-fetch-key");
   assert.deepEqual(transport.envelopes[0].binding.capability_grants, ["grant_network"]);
 });
@@ -484,13 +484,13 @@ test("SDK exposes capability-bound network fetch helper", async () => {
 test("SDK exposes capability-bound payments and notification helpers", async () => {
   const transport = new QueueTransport([
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "checkout-1",
       result: {
         action: {
           kind: "payments.checkout",
-          merchant_id: "merchant.babel",
-          merchant_name: "Babel Merchant",
+          merchant_id: "merchant.babble",
+          merchant_name: "Babble Merchant",
           currency: "USD",
           total_amount_minor: 2500,
           line_items: [{ label: "Creator pass", amount_minor: 2500, quantity: 1 }],
@@ -499,17 +499,17 @@ test("SDK exposes capability-bound payments and notification helpers", async () 
           reference: "order_2",
           requires_user_activation: true,
         },
-        receipt: capabilityReceiptFixture("babel.payments.checkout", {
+        receipt: capabilityReceiptFixture("babble.payments.checkout", {
           currencies: ["USD"],
           max_amount_minor: 5000,
-          merchant_id: "merchant.babel",
+          merchant_id: "merchant.babble",
         }),
       },
       error: null,
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "notifications-1",
       result: {
         action: {
@@ -518,7 +518,7 @@ test("SDK exposes capability-bound payments and notification helpers", async () 
           categories: ["game.turn"],
           requires_user_activation: true,
         },
-        receipt: capabilityReceiptFixture("babel.notifications.request", {
+        receipt: capabilityReceiptFixture("babble.notifications.request", {
           categories: ["game.turn", "creator.update"],
           purpose: "Notify players and followers about Object activity.",
         }),
@@ -527,21 +527,21 @@ test("SDK exposes capability-bound payments and notification helpers", async () 
       trace_id: null,
     },
   ]);
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport,
     binding: objectBinding({
       objectId: "obj_bound",
       surfaceSessionId: "surface",
       runtimeId: "runtime",
-      origin: "babel://test",
+      origin: "babble://test",
       capabilityGrants: ["grant_payment", "grant_notifications"],
     }),
   });
 
   const checkout = await sdk.payments.checkout(
     {
-      merchant_id: "merchant.babel",
-      merchant_name: "Babel Merchant",
+      merchant_id: "merchant.babble",
+      merchant_name: "Babble Merchant",
       currency: "USD",
       total_amount_minor: 2500,
       line_items: [{ label: "Creator pass", amount_minor: 2500, quantity: 1 }],
@@ -561,15 +561,15 @@ test("SDK exposes capability-bound payments and notification helpers", async () 
 
   assert.equal(checkout.action.kind, "payments.checkout");
   assert.equal(checkout.action.total_amount_minor, 2500);
-  assert.equal(checkout.receipt.capability, "babel.payments.checkout");
+  assert.equal(checkout.receipt.capability, "babble.payments.checkout");
   assert.equal(notifications.action.kind, "notifications.request");
   assert.deepEqual(notifications.action.categories, ["game.turn"]);
-  assert.equal(notifications.receipt.capability, "babel.notifications.request");
+  assert.equal(notifications.receipt.capability, "babble.notifications.request");
   assert.deepEqual(
     transport.envelopes.map((envelope) => [envelope.method, envelope.idempotency_key ?? null]),
     [
-      ["babel.payments.checkout.v1", "checkout-key"],
-      ["babel.notifications.request.v1", null],
+      ["babble.payments.checkout.v1", "checkout-key"],
+      ["babble.notifications.request.v1", null],
     ],
   );
 });
@@ -577,7 +577,7 @@ test("SDK exposes capability-bound payments and notification helpers", async () 
 test("SDK exposes capability-bound media capture helpers", async () => {
   const transport = new QueueTransport([
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "camera-1",
       result: {
         action: {
@@ -591,7 +591,7 @@ test("SDK exposes capability-bound media capture helpers", async () => {
           height: 720,
           requires_user_activation: true,
         },
-        receipt: capabilityReceiptFixture("babel.media.camera", {
+        receipt: capabilityReceiptFixture("babble.media.camera", {
           modes: ["photo"],
           media_types: ["image/jpeg"],
           max_duration_ms: 30000,
@@ -602,7 +602,7 @@ test("SDK exposes capability-bound media capture helpers", async () => {
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "microphone-1",
       result: {
         action: {
@@ -615,7 +615,7 @@ test("SDK exposes capability-bound media capture helpers", async () => {
           noise_suppression: true,
           requires_user_activation: true,
         },
-        receipt: capabilityReceiptFixture("babel.media.microphone", {
+        receipt: capabilityReceiptFixture("babble.media.microphone", {
           modes: ["audio_clip"],
           media_types: ["audio/webm"],
           max_duration_ms: 30000,
@@ -625,13 +625,13 @@ test("SDK exposes capability-bound media capture helpers", async () => {
       trace_id: null,
     },
   ]);
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport,
     binding: objectBinding({
       objectId: "obj_bound",
       surfaceSessionId: "surface",
       runtimeId: "runtime",
-      origin: "babel://test",
+      origin: "babble://test",
       capabilityGrants: ["grant_camera", "grant_microphone"],
     }),
   });
@@ -662,23 +662,23 @@ test("SDK exposes capability-bound media capture helpers", async () => {
 
   assert.equal(camera.action.kind, "media.camera.request");
   assert.equal(camera.action.facing_mode, "user");
-  assert.equal(camera.receipt.capability, "babel.media.camera");
+  assert.equal(camera.receipt.capability, "babble.media.camera");
   assert.equal(microphone.action.kind, "media.microphone.request");
   assert.equal(microphone.action.echo_cancellation, true);
-  assert.equal(microphone.receipt.capability, "babel.media.microphone");
+  assert.equal(microphone.receipt.capability, "babble.media.microphone");
   assert.deepEqual(
     transport.envelopes.map((envelope) => [envelope.method, envelope.idempotency_key ?? null]),
     [
-      ["babel.media.camera.request.v1", null],
-      ["babel.media.microphone.request.v1", null],
+      ["babble.media.camera.request.v1", null],
+      ["babble.media.microphone.request.v1", null],
     ],
   );
 });
 
-test("SDK browser helpers use v2 completed results and explicit idempotency keys", async () => {
+test("SDK browser helpers use completed results and explicit idempotency keys", async () => {
   const transport = new QueueTransport([
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "clipboard-1",
       result: {
         kind: "clipboard_write",
@@ -688,7 +688,7 @@ test("SDK browser helpers use v2 completed results and explicit idempotency keys
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "fullscreen-1",
       result: {
         kind: "fullscreen_enter",
@@ -698,13 +698,13 @@ test("SDK browser helpers use v2 completed results and explicit idempotency keys
       trace_id: null,
     },
   ]);
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport,
     binding: objectBinding({
       objectId: "obj_bound",
       surfaceSessionId: "surface",
       runtimeId: "runtime",
-      origin: "babel://test",
+      origin: "babble://test",
       capabilityGrants: [],
     }),
   });
@@ -726,8 +726,8 @@ test("SDK browser helpers use v2 completed results and explicit idempotency keys
   assert.deepEqual(
     transport.envelopes.map((envelope) => [envelope.method, envelope.idempotency_key ?? null]),
     [
-      ["babel.clipboard.write.v2", "clipboard-key"],
-      ["babel.fullscreen.enter.v2", "fullscreen-key"],
+      ["babble.clipboard.write", "clipboard-key"],
+      ["babble.fullscreen.enter", "fullscreen-key"],
     ],
   );
 });
@@ -739,8 +739,8 @@ test("SDK browser retries preserve caller keys and propagate durable errors with
   ]) {
     const envelopes = [];
     let rejected = false;
-    const sdk = createBabelSDK({ binding: objectBinding({ objectId: "obj_bound", surfaceSessionId: "surface",
-      runtimeId: "runtime", origin: "babel://test", capabilityGrants: [] }), transport: {
+    const sdk = createBabbleSDK({ binding: objectBinding({ objectId: "obj_bound", surfaceSessionId: "surface",
+      runtimeId: "runtime", origin: "babble://test", capabilityGrants: [] }), transport: {
       async request(envelope) {
         envelopes.push(envelope);
         return { protocol: envelope.protocol, id: envelope.id, trace_id: null,
@@ -753,36 +753,36 @@ test("SDK browser retries preserve caller keys and propagate durable errors with
     assert.deepEqual(await sdk[namespace][operation](payload, { id: "retry", idempotencyKey: "caller-key" }), completed);
     rejected = true;
     await assert.rejects(sdk[namespace][operation](payload, { id: "denied", idempotencyKey: "denied-key" }),
-      error => error instanceof BabelError && error.code === "CAPABILITY_DENIED");
+      error => error instanceof BabbleError && error.code === "CAPABILITY_DENIED");
     assert.equal(envelopes.length, 3, "SDK must not auto-retry a browser mutation");
     assert.deepEqual(envelopes.map(value => value.idempotency_key), ["caller-key", "caller-key", "denied-key"]);
-    assert.ok(envelopes.every(value => value.method === `babel.${namespace}.${operation}.v2`));
+    assert.ok(envelopes.every(value => value.method === `babble.${namespace}.${operation}`));
     assert.ok(envelopes.every(value => JSON.stringify(value.payload) === JSON.stringify(payload)));
   }
 });
 
 test("SDK exposes capability-bound AI Judgment helper", async () => {
   const transport = new CaptureTransport({
-    protocol: "babel.rpc.v1",
+    protocol: "babble.rpc.v1",
     id: "ai-judge-1",
     result: {
-      judgment: judgmentFixture("jud_ai", "babel.judgment.evidence_quality.v1"),
+      judgment: judgmentFixture("jud_ai", "babble.judgment.evidence_quality.v1"),
       orchestration: null,
-      receipt: capabilityReceiptFixture("babel.ai.judge", {
-        definition: "babel.judgment.evidence_quality.v1",
+      receipt: capabilityReceiptFixture("babble.ai.judge", {
+        definition: "babble.judgment.evidence_quality.v1",
         object_id: "obj_target",
       }),
     },
     error: null,
     trace_id: null,
   });
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport,
     binding: objectBinding({
       objectId: "obj_bound",
       surfaceSessionId: "surface",
       runtimeId: "runtime",
-      origin: "babel://test",
+      origin: "babble://test",
       capabilityGrants: ["grant_ai"],
     }),
   });
@@ -790,22 +790,22 @@ test("SDK exposes capability-bound AI Judgment helper", async () => {
   const response = await sdk.ai.judge(
     {
       object_id: "obj_target",
-      definition: "babel.judgment.evidence_quality.v1",
+      definition: "babble.judgment.evidence_quality.v1",
       parameters: {},
     },
     { id: "ai-judge-1" },
   );
 
-  assert.equal(response.judgment.definition, "babel.judgment.evidence_quality.v1");
-  assert.equal(response.receipt?.capability, "babel.ai.judge");
-  assert.equal(transport.envelopes[0].method, "babel.ai.judge.v1");
+  assert.equal(response.judgment.definition, "babble.judgment.evidence_quality.v1");
+  assert.equal(response.receipt?.capability, "babble.ai.judge");
+  assert.equal(transport.envelopes[0].method, "babble.ai.judge.v1");
   assert.deepEqual(transport.envelopes[0].binding.capability_grants, ["grant_ai"]);
 });
 
 test("SDK exposes capability-bound AI host action helpers", async () => {
   const transport = new QueueTransport([
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "ai-generate",
       result: {
         action: {
@@ -819,7 +819,7 @@ test("SDK exposes capability-bound AI host action helpers", async () => {
           temperature_millis: 700,
           requires_user_activation: false,
         },
-        receipt: capabilityReceiptFixture("babel.ai.generate", {
+        receipt: capabilityReceiptFixture("babble.ai.generate", {
           tasks: ["text"],
           output_modalities: ["text"],
         }),
@@ -828,19 +828,19 @@ test("SDK exposes capability-bound AI host action helpers", async () => {
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "ai-embed",
       result: {
         action: {
           kind: "ai.embed",
           purpose: "Rank related Objects",
           input_modality: "text",
-          inputs: ["Babel Objects are executable social media."],
+          inputs: ["Babble Objects are executable social media."],
           model: "local/embed-v1",
           dimensions: 384,
           requires_user_activation: false,
         },
-        receipt: capabilityReceiptFixture("babel.ai.embed", {
+        receipt: capabilityReceiptFixture("babble.ai.embed", {
           input_modalities: ["text"],
         }),
       },
@@ -848,20 +848,20 @@ test("SDK exposes capability-bound AI host action helpers", async () => {
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "ai-transcribe",
       result: {
         action: {
           kind: "ai.transcribe",
           purpose: "Caption Object audio",
-          media_uri: "babel://blobs/sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          media_uri: "babble://blobs/sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
           media_type: "audio/webm",
           model: "local/transcribe-v1",
           language: "en-US",
           max_duration_ms: 30000,
           requires_user_activation: false,
         },
-        receipt: capabilityReceiptFixture("babel.ai.transcribe", {
+        receipt: capabilityReceiptFixture("babble.ai.transcribe", {
           media_types: ["audio/webm"],
         }),
       },
@@ -869,13 +869,13 @@ test("SDK exposes capability-bound AI host action helpers", async () => {
       trace_id: null,
     },
   ]);
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport,
     binding: objectBinding({
       objectId: "obj_bound",
       surfaceSessionId: "surface",
       runtimeId: "runtime",
-      origin: "babel://test",
+      origin: "babble://test",
       capabilityGrants: ["grant_ai_actions"],
     }),
   });
@@ -896,7 +896,7 @@ test("SDK exposes capability-bound AI host action helpers", async () => {
     {
       purpose: "Rank related Objects",
       input_modality: "text",
-      inputs: ["Babel Objects are executable social media."],
+      inputs: ["Babble Objects are executable social media."],
       model: "local/embed-v1",
       dimensions: 384,
     },
@@ -905,7 +905,7 @@ test("SDK exposes capability-bound AI host action helpers", async () => {
   const transcribed = await sdk.ai.transcribe(
     {
       purpose: "Caption Object audio",
-      media_uri: "babel://blobs/sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      media_uri: "babble://blobs/sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
       media_type: "audio/webm",
       model: "local/transcribe-v1",
       language: "en-US",
@@ -914,12 +914,12 @@ test("SDK exposes capability-bound AI host action helpers", async () => {
     { id: "ai-transcribe" },
   );
 
-  assert.equal(generated.receipt.capability, "babel.ai.generate");
-  assert.equal(embedded.receipt.capability, "babel.ai.embed");
-  assert.equal(transcribed.receipt.capability, "babel.ai.transcribe");
+  assert.equal(generated.receipt.capability, "babble.ai.generate");
+  assert.equal(embedded.receipt.capability, "babble.ai.embed");
+  assert.equal(transcribed.receipt.capability, "babble.ai.transcribe");
   assert.deepEqual(
     transport.envelopes.map((envelope) => envelope.method),
-    ["babel.ai.generate.v1", "babel.ai.embed.v1", "babel.ai.transcribe.v1"],
+    ["babble.ai.generate.v1", "babble.ai.embed.v1", "babble.ai.transcribe.v1"],
   );
   assert.deepEqual(transport.envelopes[0].binding.capability_grants, ["grant_ai_actions"]);
 });
@@ -938,7 +938,7 @@ test("SDK exposes event listing, bundle, and import helpers", async () => {
   };
   const transport = new QueueTransport([
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "events-list",
       result: {
         events: [event],
@@ -948,14 +948,14 @@ test("SDK exposes event listing, bundle, and import helpers", async () => {
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "events-bundle",
       result: { bundle },
       error: null,
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "events-import",
       result: {
         report: {
@@ -970,9 +970,9 @@ test("SDK exposes event listing, bundle, and import helpers", async () => {
       trace_id: null,
     },
   ]);
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport,
-    binding: hostBinding("runtime", "babel://test"),
+    binding: hostBinding("runtime", "babble://test"),
   });
 
   const listed = await sdk.events.list({ after: null, limit: 25 }, { id: "events-list" });
@@ -988,9 +988,9 @@ test("SDK exposes event listing, bundle, and import helpers", async () => {
   assert.deepEqual(
     transport.envelopes.map((envelope) => [envelope.method, envelope.idempotency_key ?? null]),
     [
-      ["babel.events.list.v1", null],
-      ["babel.events.bundle.v1", null],
-      ["babel.events.import.v1", "events-import-key"],
+      ["babble.events.list.v1", null],
+      ["babble.events.bundle.v1", null],
+      ["babble.events.import.v1", "events-import-key"],
     ],
   );
 });
@@ -1004,7 +1004,7 @@ test("HTTP transport binds the default browser fetch receiver", async () => {
         ok: true,
         async json() {
           return {
-            protocol: "babel.rpc.v1",
+            protocol: "babble.rpc.v1",
             id: "bound-fetch",
             result: { ok: true },
             error: null,
@@ -1014,12 +1014,12 @@ test("HTTP transport binds the default browser fetch receiver", async () => {
       };
     };
 
-    const transport = new HttpRpcTransport("https://babel.test/rpc");
+    const transport = new HttpRpcTransport("https://babble.test/rpc");
     const response = await transport.request({
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "bound-fetch",
-      method: "babel.search.objects.v1",
-      binding: hostBinding("runtime", "https://babel.test"),
+      method: "babble.search.objects.v1",
+      binding: hostBinding("runtime", "https://babble.test"),
       payload: { q: null, author: null, kind: null, limit: 1 },
       idempotency_key: null,
       deadline: {
@@ -1038,7 +1038,7 @@ test("HTTP transport binds the default browser fetch receiver", async () => {
 test("SDK namespaces map to exact RPC methods and preserve idempotency", async () => {
   const transport = new QueueTransport([
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "identity-1",
       result: {
         identity: {
@@ -1054,21 +1054,21 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "search-1",
       result: { results: [] },
       error: null,
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "judgment-definitions-1",
       result: {
         definitions: [
           {
-            id: "babel.judgment.relationship.v1",
-            input_schema: "babel.judgment.input.object_text.v1",
-            output_schema: "babel.judgment.output.relationship.v1",
+            id: "babble.judgment.relationship.v1",
+            input_schema: "babble.judgment.input.object_text.v1",
+            output_schema: "babble.judgment.output.relationship.v1",
             meaning: "Estimate whether the subject text supports, contradicts, or relates to context.",
             calibration: "score is bounded in [0, 1]; relation names the evaluated edge semantics",
           },
@@ -1078,18 +1078,18 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "judgment-providers-1",
       result: {
         providers: [
           {
             provider: {
-              provider: "babel-local",
+              provider: "babble-local",
               model: "rules-v1",
               version: "1",
             },
             role: "Local",
-            supported_definitions: ["babel.judgment.relationship.v1"],
+            supported_definitions: ["babble.judgment.relationship.v1"],
             privacy_policy: {
               include_subject: true,
               allowed_context_keys: ["object", "text"],
@@ -1103,12 +1103,12 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "lenses-1",
       result: {
         lenses: [
           {
-            id: "babel.lens.research.v1",
+            id: "babble.lens.research.v1",
             lens: "Research",
             version: 1,
             name: "Research",
@@ -1124,12 +1124,12 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "capabilities-list-1",
       result: {
         capabilities: [
           {
-            id: "babel.network.fetch",
+            id: "babble.network.fetch",
             version: 1,
             request_schema: { type: "object" },
             response_schema: { type: "object" },
@@ -1149,12 +1149,12 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "publish-object-1",
       result: {
         object: {
           ...textObjectFixture("obj_canvas", "generic Object draft"),
-          kind: "babel.canvas",
+          kind: "babble.canvas",
           schema: "example.canvas.v1",
           payload: { title: "Collaborative canvas", layers: [] },
           state: { revision: 1 },
@@ -1164,21 +1164,21 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "fork-1",
       result: provenancePublicationFixture("forked"),
       error: null,
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "remix-1",
       result: provenancePublicationFixture("remixed"),
       error: null,
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "graph-relationship-1",
       result: {
         edge: edgeFixture(
@@ -1189,16 +1189,16 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
           "JudgmentDerived",
           {
             judgment_id: "jud_relationship",
-            definition: "babel.judgment.relationship.v1",
+            definition: "babble.judgment.relationship.v1",
           },
         ),
-        judgment: judgmentFixture("jud_relationship", "babel.judgment.relationship.v1"),
+        judgment: judgmentFixture("jud_relationship", "babble.judgment.relationship.v1"),
       },
       error: null,
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "graph-traverse-1",
       result: {
         traversal: {
@@ -1220,7 +1220,7 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "graph-evidence-1",
       result: {
         projection: {
@@ -1236,12 +1236,12 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
                 "JudgmentDerived",
                 {
                   judgment_id: "jud_relationship",
-                  definition: "babel.judgment.relationship.v1",
+                  definition: "babble.judgment.relationship.v1",
                 },
               ),
               evidence: textObjectFixture("obj_evidence", "Evidence"),
-              relationship_judgment: judgmentFixture("jud_relationship", "babel.judgment.relationship.v1"),
-              evidence_judgments: [judgmentFixture("jud_evidence", "babel.judgment.evidence_quality.v1")],
+              relationship_judgment: judgmentFixture("jud_relationship", "babble.judgment.relationship.v1"),
+              evidence_judgments: [judgmentFixture("jud_evidence", "babble.judgment.evidence_quality.v1")],
             },
           ],
           contradicting: [],
@@ -1259,7 +1259,7 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "room-1",
       result: {
         event: eventFixture("event_room"),
@@ -1269,13 +1269,13 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
       trace_id: null,
     },
   ]);
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport,
     binding: objectBinding({
       objectId: "obj_bound",
       surfaceSessionId: "surface",
       runtimeId: "runtime",
-      origin: "babel://test",
+      origin: "babble://test",
       capabilityGrants: ["grant_realtime"],
     }),
   });
@@ -1284,7 +1284,7 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
     { kind: "Person", handle: "alice" },
     { id: "identity-1", idempotencyKey: "identity-key" },
   );
-  const search = await sdk.search.objects({ q: "babel", author: null, kind: null, limit: 10 }, { id: "search-1" });
+  const search = await sdk.search.objects({ q: "babble", author: null, kind: null, limit: 10 }, { id: "search-1" });
   const judgmentDefinitions = await sdk.judgment.listDefinitions({}, { id: "judgment-definitions-1" });
   const judgmentProviders = await sdk.judgment.listProviders({}, { id: "judgment-providers-1" });
   const lenses = await sdk.lenses.list({}, { id: "lenses-1" });
@@ -1294,7 +1294,7 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
       author_id: "id_alice",
       draft: {
         ...textDraft("generic Object draft"),
-        kind: "babel.canvas",
+        kind: "babble.canvas",
         schema: "example.canvas.v1",
         payload: { title: "Collaborative canvas", layers: [] },
         state: { revision: 1 },
@@ -1344,7 +1344,7 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
       author_id: "id_alice",
       object_id: "obj_bound",
       name: "main",
-      schema: "babel.realtime.chat.v1",
+      schema: "babble.realtime.chat.v1",
       membership: "open",
       persistence: "ephemeral",
       limits: null,
@@ -1354,11 +1354,11 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
 
   assert.equal(identity.identity.id, "id_alice");
   assert.deepEqual(search.results, []);
-  assert.equal(judgmentDefinitions.definitions[0].id, "babel.judgment.relationship.v1");
-  assert.equal(judgmentProviders.providers[0].provider.provider, "babel-local");
-  assert.equal(lenses.lenses[0].id, "babel.lens.research.v1");
-  assert.equal(capabilities.capabilities[0].id, "babel.network.fetch");
-  assert.equal(published.object.kind, "babel.canvas");
+  assert.equal(judgmentDefinitions.definitions[0].id, "babble.judgment.relationship.v1");
+  assert.equal(judgmentProviders.providers[0].provider.provider, "babble-local");
+  assert.equal(lenses.lenses[0].id, "babble.lens.research.v1");
+  assert.equal(capabilities.capabilities[0].id, "babble.network.fetch");
+  assert.equal(published.object.kind, "babble.canvas");
   assert.equal(fork.event.kind, "object_forked");
   assert.equal(remix.event.kind, "object_remixed");
   assert.equal(traversal.traversal.steps[0].next_object, "obj_evidence");
@@ -1370,19 +1370,19 @@ test("SDK namespaces map to exact RPC methods and preserve idempotency", async (
   assert.deepEqual(
     transport.envelopes.map((envelope) => envelope.method),
     [
-      "babel.identity.create.v1",
-      "babel.search.objects.v1",
-      "babel.judgment.definitions.list.v1",
-      "babel.judgment.providers.list.v1",
-      "babel.lenses.list.v1",
-      "babel.capabilities.list.v1",
-      "babel.object.publish.v1",
-      "babel.object.fork.v1",
-      "babel.object.remix.v1",
-      "babel.graph.relationship.infer.v1",
-      "babel.graph.traverse.v1",
-      "babel.graph.evidence.v1",
-      "babel.realtime.room.define.v1",
+      "babble.identity.create.v1",
+      "babble.search.objects.v1",
+      "babble.judgment.definitions.list.v1",
+      "babble.judgment.providers.list.v1",
+      "babble.lenses.list.v1",
+      "babble.capabilities.list.v1",
+      "babble.object.publish.v1",
+      "babble.object.fork.v1",
+      "babble.object.remix.v1",
+      "babble.graph.relationship.infer.v1",
+      "babble.graph.traverse.v1",
+      "babble.graph.evidence.v1",
+      "babble.realtime.room.define.v1",
     ],
   );
   assert.deepEqual(
@@ -1426,7 +1426,7 @@ test("Surface lifecycle helper enforces protocol lifecycle transitions", () => {
       ["active", "suspended", "offscreen"],
     ],
   );
-  assert.throws(() => lifecycle.transition("prefetched"), /invalid Babel Surface lifecycle transition/);
+  assert.throws(() => lifecycle.transition("prefetched"), /invalid Babble Surface lifecycle transition/);
 
   lifecycle.transition("evicted", "host reclaimed resources");
   assert.equal(lifecycle.signal.aborted, true);
@@ -1448,7 +1448,7 @@ test("SDK runtime namespace controls host-bound Surface sessions", async () => {
   };
   const transport = new QueueTransport([
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "runtime-health",
       result: {
         health: {
@@ -1491,14 +1491,14 @@ test("SDK runtime namespace controls host-bound Surface sessions", async () => {
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "start-surface",
       result: { session },
       error: null,
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "activate-surface",
       result: {
         session: surfaceSessionFixture("warm", surfaceBudgetFixture()),
@@ -1508,7 +1508,7 @@ test("SDK runtime namespace controls host-bound Surface sessions", async () => {
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "budget-surface",
       result: {
         session: surfaceSessionFixture("warm", lowered),
@@ -1518,14 +1518,14 @@ test("SDK runtime namespace controls host-bound Surface sessions", async () => {
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "schedule-surface",
       result: { decision },
       error: null,
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "apply-schedule-surface",
       result: {
         session: surfaceSessionFixture("active", surfaceBudgetFixture()),
@@ -1536,7 +1536,7 @@ test("SDK runtime namespace controls host-bound Surface sessions", async () => {
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "checkpoint-surface-state",
       result: {
         session: surfaceSessionFixture("active", surfaceBudgetFixture()),
@@ -1547,7 +1547,7 @@ test("SDK runtime namespace controls host-bound Surface sessions", async () => {
       trace_id: null,
     },
     {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "get-surface-state",
       result: {
         checkpoint: surfaceStateCheckpointFixture(),
@@ -1556,7 +1556,7 @@ test("SDK runtime namespace controls host-bound Surface sessions", async () => {
       trace_id: null,
     },
   ]);
-  const sdk = createBabelSDK({
+  const sdk = createBabbleSDK({
     transport,
     binding: hostSurfaceBinding({
       runtimeId: "runtime",
@@ -1634,14 +1634,14 @@ test("SDK runtime namespace controls host-bound Surface sessions", async () => {
   assert.deepEqual(
     transport.envelopes.map((envelope) => [envelope.method, envelope.binding.object_id, envelope.binding.surface_session_id]),
     [
-      ["babel.runtime.surface.health.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
-      ["babel.runtime.surface.session.start.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
-      ["babel.runtime.surface.session.transition.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
-      ["babel.runtime.surface.session.budget.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
-      ["babel.runtime.surface.session.schedule.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
-      ["babel.runtime.surface.session.apply_schedule.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
-      ["babel.runtime.surface.session.state.checkpoint.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
-      ["babel.runtime.surface.session.state.get.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
+      ["babble.runtime.surface.health.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
+      ["babble.runtime.surface.session.start.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
+      ["babble.runtime.surface.session.transition.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
+      ["babble.runtime.surface.session.budget.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
+      ["babble.runtime.surface.session.schedule.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
+      ["babble.runtime.surface.session.apply_schedule.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
+      ["babble.runtime.surface.session.state.checkpoint.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
+      ["babble.runtime.surface.session.state.get.v1", null, "surf_0000000000000000000000000000000000000000000000000000000000000000"],
     ],
   );
 });
@@ -1716,7 +1716,7 @@ function roomFixture(id) {
     id,
     object_id: "obj_bound",
     name: "main",
-    schema: "babel.realtime.chat.v1",
+    schema: "babble.realtime.chat.v1",
     membership: "open",
     persistence: "ephemeral",
     limits: {
@@ -1729,8 +1729,8 @@ function roomFixture(id) {
 
 function textDraft(text) {
   return {
-    kind: "babel.text",
-    schema: "babel.schema.text.v1",
+    kind: "babble.text",
+    schema: "babble.schema.text.v1",
     payload: { text, metadata: {} },
     surfaces: [],
     resources: [],
@@ -1770,7 +1770,7 @@ function judgmentFixture(id, definition) {
     definition,
     input_hash: "hash_judgment_input",
     provider: {
-      provider: "babel-local",
+      provider: "babble-local",
       model: "local-rules",
       version: "1",
     },
@@ -1785,12 +1785,12 @@ function judgmentFixture(id, definition) {
 
 function textObjectFixture(id, text) {
   return {
-    protocol: { version: "babel.v2" },
+    protocol: { version: "babble" },
     id,
     author: "id_alice",
     created_at: "2026-09-27T00:00:00Z",
-    kind: "babel.text",
-    schema: "babel.schema.text.v1",
+    kind: "babble.text",
+    schema: "babble.schema.text.v1",
     payload: { text, metadata: {} },
     surfaces: [],
     resources: [],
@@ -1847,12 +1847,12 @@ function provenancePublicationFixture(suffix) {
   const forked = suffix === "forked";
   return {
     object: {
-      protocol: { version: "babel.v2" },
+      protocol: { version: "babble" },
       id: `obj_${suffix}`,
       author: "id_alice",
       created_at: "2026-09-27T00:00:00Z",
-      kind: "babel.text",
-      schema: "babel.schema.text.v1",
+      kind: "babble.text",
+      schema: "babble.schema.text.v1",
       payload: { text: suffix, metadata: {} },
       surfaces: [],
       resources: [],
@@ -1956,7 +1956,7 @@ function surfaceStateCheckpointFixture() {
 
 function encryptedEnvelopeFixture() {
   return {
-    version: "babel.personalization.sync.v1",
+    version: "babble.personalization.sync.v1",
     data_class: "encrypted_synchronized_state",
     algorithm: "XChaCha20-Poly1305",
     recipient: {

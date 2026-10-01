@@ -233,7 +233,7 @@ impl RpcMethodDefinition {
         idempotency: RpcIdempotency,
     ) -> Result<Self, RpcCatalogError> {
         let method = RpcMethodName::new(method)?;
-        let version = if method.as_str().ends_with(".v2") {
+        let version = if method.as_str().ends_with("") {
             2
         } else {
             1
@@ -454,555 +454,555 @@ impl RpcError {
     }
 }
 
-pub fn babel_rpc_catalog() -> Result<RpcCatalog, RpcCatalogError> {
+pub fn babble_rpc_catalog() -> Result<RpcCatalog, RpcCatalogError> {
     RpcCatalog::new(
-        "babel.rpc.v1",
+        "babble.rpc.v1",
         vec![
             method(
-                "babel.observability.snapshot.v1",
+                "babble.observability.snapshot.v1",
                 "api.EmptyRequest",
                 "api.ObservabilitySnapshotResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.identity.create.v1",
+                "babble.identity.create.v1",
                 "api.CreateIdentityRequest",
                 "api.CreateIdentityResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?,
             method(
-                "babel.identity.current.v1",
+                "babble.identity.current.v1",
                 "api.EmptyRequest",
                 "api.IdentityCurrentResponse",
                 RpcIdempotency::ReadOnly,
             )?
-            .with_capability("babel.identity.current", 1, true)?,
+            .with_capability("babble.identity.current", 1, true)?,
             method(
-                "babel.object.publish_text.v1",
+                "babble.object.publish_text.v1",
                 "api.PublishTextRequest",
                 "api.PublishTextResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?,
             method(
-                "babel.object.publish.v1",
+                "babble.object.publish.v1",
                 "api.PublishObjectRequest",
                 "api.PublishObjectResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?,
             method(
-                "babel.object.publish_media.v1",
+                "babble.object.publish_media.v1",
                 "api.PublishMediaObjectRequest",
                 "api.PublishMediaObjectResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?,
             method(
-                "babel.object.fork.v1",
+                "babble.object.fork.v1",
                 "api.ForkObjectRequest",
                 "api.ProvenancePublicationResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?,
             method(
-                "babel.object.remix.v1",
+                "babble.object.remix.v1",
                 "api.RemixObjectRequest",
                 "api.ProvenancePublicationResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?,
             method(
-                "babel.object.get.v1",
+                "babble.object.get.v1",
                 "api.ObjectIdRequest",
                 "api.PublishTextResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.media.blob.put.v1",
+                "babble.media.blob.put.v1",
                 "api.PutMediaBlobRequest",
                 "api.MediaBlobResponse",
                 RpcIdempotency::IdempotentByInput,
             )?,
             method(
-                "babel.media.blob.get.v1",
+                "babble.media.blob.get.v1",
                 "api.GetMediaBlobRequest",
                 "api.MediaBlobResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.graph.edge.publish.v1",
+                "babble.graph.edge.publish.v1",
                 "api.PublishEdgeRequest",
                 "api.PublishEdgeResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?,
             method(
-                "babel.graph.relationship.infer.v1",
+                "babble.graph.relationship.infer.v1",
                 "api.InferRelationshipRequest",
                 "api.InferRelationshipResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?,
             method(
-                "babel.graph.evidence.v1",
+                "babble.graph.evidence.v1",
                 "api.ObjectIdRequest",
                 "api.ClaimEvidenceResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.graph.traverse.v1",
+                "babble.graph.traverse.v1",
                 "api.GraphTraverseRpcRequest",
                 "api.GraphTraversalResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.social.follow.v1",
+                "babble.social.follow.v1",
                 "api.SocialTargetRequest",
                 "api.SocialEdgeResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.social.follow", 1, true)?,
+            .with_capability("babble.social.follow", 1, true)?,
             method(
-                "babel.social.follow.v2",
+                "babble.social.follow",
                 "api.SocialTargetRequest",
                 "api.InvocationSocialResult",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.social.follow", 1, true)?,
+            .with_capability("babble.social.follow", 1, true)?,
             method(
-                "babel.social.unfollow.v2",
+                "babble.social.unfollow",
                 "api.SocialTargetRequest",
                 "api.InvocationSocialResult",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.social.unfollow", 1, true)?,
+            .with_capability("babble.social.unfollow", 1, true)?,
             method(
-                "babel.social.share.v2",
+                "babble.social.share",
                 "api.SocialTextRequest",
                 "api.InvocationSocialResult",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.social.share", 1, true)?,
+            .with_capability("babble.social.share", 1, true)?,
             method(
-                "babel.social.reply.v2",
+                "babble.social.reply",
                 "api.SocialTextRequest",
                 "api.InvocationSocialResult",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.social.reply", 1, true)?,
+            .with_capability("babble.social.reply", 1, true)?,
             method(
-                "babel.social.unfollow.v1",
+                "babble.social.unfollow.v1",
                 "api.SocialTargetRequest",
                 "api.SocialEdgeResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.social.unfollow", 1, true)?,
+            .with_capability("babble.social.unfollow", 1, true)?,
             method(
-                "babel.social.share.v1",
+                "babble.social.share.v1",
                 "api.SocialTextRequest",
                 "api.SocialTextResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.social.share", 1, true)?,
+            .with_capability("babble.social.share", 1, true)?,
             method(
-                "babel.social.reply.v1",
+                "babble.social.reply.v1",
                 "api.SocialTextRequest",
                 "api.SocialTextResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.social.reply", 1, true)?,
+            .with_capability("babble.social.reply", 1, true)?,
             method(
-                "babel.social.replies.list.v1",
+                "babble.social.replies.list.v1",
                 "api.RepliesListRequest",
                 "api.RepliesListResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.social.quotes.list.v1",
+                "babble.social.quotes.list.v1",
                 "api.QuotesListRequest",
                 "api.QuotesListResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.social.reactions.summary.v1",
+                "babble.social.reactions.summary.v1",
                 "api.ReactionObjectRequest",
                 "graph.ReactionSummary",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.social.reactions.record.v1",
+                "babble.social.reactions.record.v1",
                 "api.ReactionRecordRequest",
                 "graph.ReactionRecord",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.social.reactions.mine.v1",
+                "babble.social.reactions.mine.v1",
                 "api.ReactionObjectRequest",
                 "graph.ReactionState",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.social.reactions.set.v1",
+                "babble.social.reactions.set.v1",
                 "api.SetReactionRpcRequest",
                 "graph.ReactionState",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?,
             method(
-                "babel.events.list.v1",
+                "babble.events.list.v1",
                 "api.EventListRequest",
                 "api.EventListResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.events.bundle.v1",
+                "babble.events.bundle.v1",
                 "api.EventBundleRequest",
                 "api.EventBundleResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.events.import.v1",
+                "babble.events.import.v1",
                 "api.EventImportRequest",
                 "api.EventImportResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?,
             method(
-                "babel.consensus.checkpoint.preview.v1",
+                "babble.consensus.checkpoint.preview.v1",
                 "api.CheckpointPreviewRequest",
                 "api.CheckpointPreviewResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.consensus.checkpoint.publish.v1",
+                "babble.consensus.checkpoint.publish.v1",
                 "api.CheckpointRequest",
                 "api.CheckpointEventResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?,
             method(
-                "babel.judgment.object.evaluate.v1",
+                "babble.judgment.object.evaluate.v1",
                 "api.JudgeObjectRpcRequest",
                 "api.JudgeObjectResponse",
                 RpcIdempotency::IdempotentByInput,
             )?
-            .with_capability("babel.ai.judge", 1, false)?,
+            .with_capability("babble.ai.judge", 1, false)?,
             method(
-                "babel.ai.judge.v1",
+                "babble.ai.judge.v1",
                 "api.JudgeObjectRpcRequest",
                 "api.JudgeObjectResponse",
                 RpcIdempotency::IdempotentByInput,
             )?
-            .with_capability("babel.ai.judge", 1, true)?,
+            .with_capability("babble.ai.judge", 1, true)?,
             method(
-                "babel.ai.generate.v1",
+                "babble.ai.generate.v1",
                 "api.AiGenerateRequest",
                 "api.AiGenerateResponse",
                 RpcIdempotency::NonIdempotent,
             )?
-            .with_capability("babel.ai.generate", 1, true)?,
+            .with_capability("babble.ai.generate", 1, true)?,
             method(
-                "babel.ai.embed.v1",
+                "babble.ai.embed.v1",
                 "api.AiEmbedRequest",
                 "api.AiEmbedResponse",
                 RpcIdempotency::IdempotentByInput,
             )?
-            .with_capability("babel.ai.embed", 1, true)?,
+            .with_capability("babble.ai.embed", 1, true)?,
             method(
-                "babel.ai.transcribe.v1",
+                "babble.ai.transcribe.v1",
                 "api.AiTranscribeRequest",
                 "api.AiTranscribeResponse",
                 RpcIdempotency::NonIdempotent,
             )?
-            .with_capability("babel.ai.transcribe", 1, true)?,
+            .with_capability("babble.ai.transcribe", 1, true)?,
             method(
-                "babel.judgment.object.list.v1",
+                "babble.judgment.object.list.v1",
                 "api.ObjectIdRequest",
                 "api.ObjectJudgmentsResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.judgment.definitions.list.v1",
+                "babble.judgment.definitions.list.v1",
                 "api.EmptyRequest",
                 "api.JudgmentDefinitionsResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.judgment.providers.list.v1",
+                "babble.judgment.providers.list.v1",
                 "api.EmptyRequest",
                 "api.JudgmentProvidersResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.search.objects.v1",
+                "babble.search.objects.v1",
                 "api.ObjectSearchRequest",
                 "api.ObjectSearchResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.lenses.list.v1",
+                "babble.lenses.list.v1",
                 "api.EmptyRequest",
                 "api.LensCatalogResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.discovery.candidates.v1",
+                "babble.discovery.candidates.v1",
                 "api.DiscoveryRequest",
                 "api.DiscoveryResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.capabilities.list.v1",
+                "babble.capabilities.list.v1",
                 "api.EmptyRequest",
                 "api.CapabilityCatalogResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.capabilities.inspect.v1",
+                "babble.capabilities.inspect.v1",
                 "api.ObjectIdRequest",
                 "api.CapabilitiesResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.capabilities.grant.v1",
+                "babble.capabilities.grant.v1",
                 "api.GrantCapabilityRequest",
                 "api.GrantCapabilityResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?,
             method(
-                "babel.capabilities.revoke.v1",
+                "babble.capabilities.revoke.v1",
                 "api.RevokeCapabilityRequest",
                 "api.GrantCapabilityResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?,
             method(
-                "babel.storage.object.get.v1",
+                "babble.storage.object.get.v1",
                 "api.ObjectStorageGetRequest",
                 "api.ObjectStorageGetResponse",
                 RpcIdempotency::ReadOnly,
             )?
-            .with_capability("babel.storage.object", 1, true)?,
+            .with_capability("babble.storage.object", 1, true)?,
             method(
-                "babel.storage.local.get.v1",
+                "babble.storage.local.get.v1",
                 "api.LocalStorageGetRequest",
                 "api.LocalStorageGetResponse",
                 RpcIdempotency::ReadOnly,
             )?
-            .with_capability("babel.storage.local", 1, true)?,
+            .with_capability("babble.storage.local", 1, true)?,
             method(
-                "babel.storage.local.set.v1",
+                "babble.storage.local.set.v1",
                 "api.LocalStorageSetRequest",
                 "api.LocalStorageSetResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.storage.local", 1, true)?,
+            .with_capability("babble.storage.local", 1, true)?,
             method(
-                "babel.storage.local.delete.v1",
+                "babble.storage.local.delete.v1",
                 "api.LocalStorageDeleteRequest",
                 "api.LocalStorageDeleteResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.storage.local", 1, true)?,
+            .with_capability("babble.storage.local", 1, true)?,
             method(
-                "babel.storage.local.list.v1",
+                "babble.storage.local.list.v1",
                 "api.LocalStorageListRequest",
                 "api.LocalStorageListResponse",
                 RpcIdempotency::ReadOnly,
             )?
-            .with_capability("babel.storage.local", 1, true)?,
+            .with_capability("babble.storage.local", 1, true)?,
             method(
-                "babel.storage.object.set.v1",
+                "babble.storage.object.set.v1",
                 "api.ObjectStorageSetRequest",
                 "api.ObjectStorageSetResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.storage.object", 1, true)?,
+            .with_capability("babble.storage.object", 1, true)?,
             method(
-                "babel.storage.object.delete.v1",
+                "babble.storage.object.delete.v1",
                 "api.ObjectStorageDeleteRequest",
                 "api.ObjectStorageDeleteResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.storage.object", 1, true)?,
+            .with_capability("babble.storage.object", 1, true)?,
             method(
-                "babel.storage.object.list.v1",
+                "babble.storage.object.list.v1",
                 "api.ObjectStorageListRequest",
                 "api.ObjectStorageListResponse",
                 RpcIdempotency::ReadOnly,
             )?
-            .with_capability("babel.storage.object", 1, true)?,
+            .with_capability("babble.storage.object", 1, true)?,
             method(
-                "babel.personalization.sync.put.v1",
+                "babble.personalization.sync.put.v1",
                 "api.PersonalizationSyncPutRequest",
                 "api.PersonalizationSyncPutResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?,
             method(
-                "babel.personalization.sync.list.v1",
+                "babble.personalization.sync.list.v1",
                 "api.PersonalizationSyncListRequest",
                 "api.PersonalizationSyncListResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.personalization.sync.get.v1",
+                "babble.personalization.sync.get.v1",
                 "api.PersonalizationSyncGetRequest",
                 "api.PersonalizationSyncGetResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.personalization.sync.delete.v1",
+                "babble.personalization.sync.delete.v1",
                 "api.PersonalizationSyncGetRequest",
                 "api.PersonalizationSyncDeleteResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?,
             method(
-                "babel.network.fetch.v1",
+                "babble.network.fetch.v1",
                 "api.NetworkFetchRequest",
                 "api.NetworkFetchResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.network.fetch", 1, true)?,
+            .with_capability("babble.network.fetch", 1, true)?,
             method(
-                "babel.payments.checkout.v1",
+                "babble.payments.checkout.v1",
                 "api.PaymentsCheckoutRequest",
                 "api.PaymentsCheckoutResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.payments.checkout", 1, true)?,
+            .with_capability("babble.payments.checkout", 1, true)?,
             method(
-                "babel.notifications.request.v1",
+                "babble.notifications.request.v1",
                 "api.NotificationsRequestRequest",
                 "api.NotificationsRequestResponse",
                 RpcIdempotency::NonIdempotent,
             )?
-            .with_capability("babel.notifications.request", 1, true)?,
+            .with_capability("babble.notifications.request", 1, true)?,
             method(
-                "babel.media.camera.request.v1",
+                "babble.media.camera.request.v1",
                 "api.CameraCaptureRequest",
                 "api.CameraCaptureResponse",
                 RpcIdempotency::NonIdempotent,
             )?
-            .with_capability("babel.media.camera", 1, true)?,
+            .with_capability("babble.media.camera", 1, true)?,
             method(
-                "babel.media.microphone.request.v1",
+                "babble.media.microphone.request.v1",
                 "api.MicrophoneCaptureRequest",
                 "api.MicrophoneCaptureResponse",
                 RpcIdempotency::NonIdempotent,
             )?
-            .with_capability("babel.media.microphone", 1, true)?,
+            .with_capability("babble.media.microphone", 1, true)?,
             method(
-                "babel.clipboard.write.v1",
+                "babble.clipboard.write.v1",
                 "api.ClipboardWriteRequest",
                 "api.ClipboardWriteResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.clipboard.write", 1, true)?,
+            .with_capability("babble.clipboard.write", 1, true)?,
             method(
-                "babel.fullscreen.enter.v1",
+                "babble.fullscreen.enter.v1",
                 "api.FullscreenEnterRequest",
                 "api.FullscreenEnterResponse",
                 RpcIdempotency::NonIdempotent,
             )?
-            .with_capability("babel.fullscreen.enter", 1, true)?,
+            .with_capability("babble.fullscreen.enter", 1, true)?,
             method(
-                "babel.clipboard.write.v2",
+                "babble.clipboard.write",
                 "api.ClipboardWriteRequest",
                 "api.BrowserInvocationResult",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.clipboard.write", 1, true)?,
+            .with_capability("babble.clipboard.write", 1, true)?,
             method(
-                "babel.fullscreen.enter.v2",
+                "babble.fullscreen.enter",
                 "api.FullscreenEnterRequest",
                 "api.BrowserInvocationResult",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.fullscreen.enter", 1, true)?,
+            .with_capability("babble.fullscreen.enter", 1, true)?,
             method(
-                "babel.runtime.surface.prepare.v1",
+                "babble.runtime.surface.prepare.v1",
                 "api.PrepareSurfaceRequest",
                 "api.PrepareSurfaceResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.runtime.surface.session.start.v1",
+                "babble.runtime.surface.session.start.v1",
                 "api.StartSurfaceSessionRequest",
                 "api.SurfaceSessionResponse",
                 RpcIdempotency::NonIdempotent,
             )?,
             method(
-                "babel.runtime.surface.health.v1",
+                "babble.runtime.surface.health.v1",
                 "api.EmptyRequest",
                 "api.SurfaceRuntimeHealthResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.runtime.surface.session.get.v1",
+                "babble.runtime.surface.session.get.v1",
                 "api.SurfaceSessionRequest",
                 "api.SurfaceSessionResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.runtime.surface.session.transition.v1",
+                "babble.runtime.surface.session.transition.v1",
                 "api.TransitionSurfaceSessionRequest",
                 "api.SurfaceSessionEventResponse",
                 RpcIdempotency::NonIdempotent,
             )?,
             method(
-                "babel.runtime.surface.session.heartbeat.v1",
+                "babble.runtime.surface.session.heartbeat.v1",
                 "api.EmptyRequest",
                 "api.SurfaceLeaseResponse",
                 RpcIdempotency::NonIdempotent,
             )?,
             method(
-                "babel.runtime.surface.session.budget.v1",
+                "babble.runtime.surface.session.budget.v1",
                 "api.ChangeSurfaceBudgetRequest",
                 "api.SurfaceSessionEventResponse",
                 RpcIdempotency::NonIdempotent,
             )?,
             method(
-                "babel.runtime.surface.session.schedule.v1",
+                "babble.runtime.surface.session.schedule.v1",
                 "api.ScheduleSurfaceSessionRequest",
                 "api.ScheduleSurfaceSessionResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.runtime.surface.session.apply_schedule.v1",
+                "babble.runtime.surface.session.apply_schedule.v1",
                 "api.ScheduleSurfaceSessionRequest",
                 "api.ApplySurfaceScheduleResponse",
                 RpcIdempotency::NonIdempotent,
             )?,
             method(
-                "babel.runtime.surface.session.state.checkpoint.v1",
+                "babble.runtime.surface.session.state.checkpoint.v1",
                 "api.CheckpointSurfaceStateRequest",
                 "api.SurfaceStateCheckpointResponse",
                 RpcIdempotency::NonIdempotent,
             )?,
             method(
-                "babel.runtime.surface.session.state.get.v1",
+                "babble.runtime.surface.session.state.get.v1",
                 "api.SurfaceSessionRequest",
                 "api.SurfaceStateRestoreResponse",
                 RpcIdempotency::ReadOnly,
             )?,
             method(
-                "babel.realtime.room.define.v1",
+                "babble.realtime.room.define.v1",
                 "api.DefineRealtimeRoomRequest",
                 "api.DefineRealtimeRoomResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.realtime.join", 1, false)?,
+            .with_capability("babble.realtime.join", 1, false)?,
             method(
-                "babel.realtime.session.start.v1",
+                "babble.realtime.session.start.v1",
                 "api.StartRealtimeSessionRequest",
                 "api.StartRealtimeSessionResponse",
                 RpcIdempotency::NonIdempotent,
             )?
-            .with_capability("babel.realtime.join", 1, true)?,
+            .with_capability("babble.realtime.join", 1, true)?,
             method(
-                "babel.realtime.session.leave.v1",
+                "babble.realtime.session.leave.v1",
                 "api.CloseRealtimeSessionRequest",
                 "api.CloseRealtimeSessionResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.realtime.leave", 1, true)?,
+            .with_capability("babble.realtime.leave", 1, true)?,
             method(
-                "babel.realtime.message.publish.v1",
+                "babble.realtime.message.publish.v1",
                 "api.PublishRealtimeMessageRequest",
                 "api.PublishRealtimeMessageResponse",
                 RpcIdempotency::RequiresIdempotencyKey,
             )?
-            .with_capability("babel.realtime.send", 1, true)?,
+            .with_capability("babble.realtime.send", 1, true)?,
         ],
     )
 }
@@ -1018,8 +1018,8 @@ fn method(
 
 fn validate_method_name(value: &str) -> Result<(), RpcCatalogError> {
     let valid = !value.is_empty()
-        && value.starts_with("babel.")
-        && (value.ends_with(".v1") || value.ends_with(".v2"))
+        && value.starts_with("babble.")
+        && (value.ends_with(".v1") || value.ends_with(""))
         && value.bytes().all(|byte| {
             byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'.' || byte == b'_'
         });
@@ -1035,10 +1035,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn invocation_social_v2_catalog_has_honest_receipt_contract_and_capability_v1() {
-        let catalog = babel_rpc_catalog().unwrap();
+    fn invocation_social_catalog_has_honest_receipt_contract_and_capability_v1() {
+        let catalog = babble_rpc_catalog().unwrap();
         for action in ["follow", "unfollow", "share", "reply"] {
-            let name = RpcMethodName::new(format!("babel.social.{action}.v2")).unwrap();
+            let name = RpcMethodName::new(format!("babble.social.{action}")).unwrap();
             let definition = catalog.get(&name).unwrap();
             assert_eq!(definition.version, 2);
             assert_eq!(definition.output, "api.InvocationSocialResult");
@@ -1060,7 +1060,7 @@ mod tests {
 
     #[test]
     fn default_catalog_has_unique_versioned_methods() {
-        let catalog = babel_rpc_catalog().unwrap();
+        let catalog = babble_rpc_catalog().unwrap();
         let names = catalog
             .methods
             .iter()
@@ -1068,40 +1068,40 @@ mod tests {
             .collect::<BTreeSet<_>>();
 
         assert_eq!(names.len(), catalog.methods.len());
-        assert!(names.contains("babel.object.publish_media.v1"));
-        assert!(names.contains("babel.object.fork.v1"));
-        assert!(names.contains("babel.object.remix.v1"));
-        assert!(names.contains("babel.judgment.object.list.v1"));
-        assert!(names.contains("babel.realtime.message.publish.v1"));
+        assert!(names.contains("babble.object.publish_media.v1"));
+        assert!(names.contains("babble.object.fork.v1"));
+        assert!(names.contains("babble.object.remix.v1"));
+        assert!(names.contains("babble.judgment.object.list.v1"));
+        assert!(names.contains("babble.realtime.message.publish.v1"));
         assert!(catalog.methods.iter().all(|method| method.method.as_str().ends_with(&format!(".v{}", method.version))));
     }
 
     #[test]
     fn mutating_methods_declare_idempotency() {
-        let catalog = babel_rpc_catalog().unwrap();
+        let catalog = babble_rpc_catalog().unwrap();
 
         assert_eq!(
-            idempotency(&catalog, "babel.object.get.v1"),
+            idempotency(&catalog, "babble.object.get.v1"),
             RpcIdempotency::ReadOnly
         );
         assert_eq!(
-            idempotency(&catalog, "babel.runtime.surface.prepare.v1"),
+            idempotency(&catalog, "babble.runtime.surface.prepare.v1"),
             RpcIdempotency::ReadOnly
         );
         assert_eq!(
-            idempotency(&catalog, "babel.judgment.object.list.v1"),
+            idempotency(&catalog, "babble.judgment.object.list.v1"),
             RpcIdempotency::ReadOnly
         );
         assert_eq!(
-            idempotency(&catalog, "babel.object.publish_media.v1"),
+            idempotency(&catalog, "babble.object.publish_media.v1"),
             RpcIdempotency::RequiresIdempotencyKey
         );
         assert_eq!(
-            idempotency(&catalog, "babel.realtime.session.start.v1"),
+            idempotency(&catalog, "babble.realtime.session.start.v1"),
             RpcIdempotency::NonIdempotent
         );
         assert_eq!(
-            idempotency(&catalog, "babel.realtime.session.leave.v1"),
+            idempotency(&catalog, "babble.realtime.session.leave.v1"),
             RpcIdempotency::RequiresIdempotencyKey
         );
     }
@@ -1109,14 +1109,14 @@ mod tests {
     #[test]
     fn invalid_method_names_are_rejected() {
         assert!(RpcMethodName::new("object.publish").is_err());
-        assert!(RpcMethodName::new("babel.object.publish.v0").is_err());
-        assert!(RpcMethodName::new("babel.social.reply.v2").is_ok());
-        assert!(RpcMethodName::new("babel.object.Publish.v1").is_err());
+        assert!(RpcMethodName::new("babble.object.publish.v0").is_err());
+        assert!(RpcMethodName::new("babble.social.reply").is_ok());
+        assert!(RpcMethodName::new("babble.object.Publish.v1").is_err());
     }
 
     #[test]
     fn request_envelopes_bind_callers_deadlines_and_idempotency() {
-        let catalog = babel_rpc_catalog().unwrap();
+        let catalog = babble_rpc_catalog().unwrap();
         let binding = RpcBinding::object(
             "obj_abc",
             "sess_abc",
@@ -1128,7 +1128,7 @@ mod tests {
         let request = RpcRequestEnvelope::new(
             &catalog,
             "req-1",
-            "babel.object.publish_media.v1",
+            "babble.object.publish_media.v1",
             binding,
             serde_json::json!({"title": "draft"}),
         )
@@ -1144,12 +1144,12 @@ mod tests {
 
     #[test]
     fn response_envelopes_require_exactly_one_outcome() {
-        let catalog = babel_rpc_catalog().unwrap();
+        let catalog = babble_rpc_catalog().unwrap();
         let request = RpcRequestEnvelope::new(
             &catalog,
             "req-2",
-            "babel.object.get.v1",
-            RpcBinding::host("host-runtime", "babel://host").unwrap(),
+            "babble.object.get.v1",
+            RpcBinding::host("host-runtime", "babble://host").unwrap(),
             serde_json::json!({"id": "obj"}),
         )
         .unwrap();
@@ -1170,7 +1170,7 @@ mod tests {
                 error: None,
                 trace_id: None,
             }
-            .validate(&babel_rpc_catalog().unwrap())
+            .validate(&babble_rpc_catalog().unwrap())
             .is_err()
         );
     }

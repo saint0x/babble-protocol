@@ -3,7 +3,7 @@
   "name": "authenticated-http-real-host-regressions",
   "steps": [
     {"type":"trace_event","name":"Execute real Rust account, authorization, persistence, Surface isolation and signed-grant regressions"},
-    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--test","auth"],"expect_exit":0},
-    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-node","--test","grants"],"expect_exit":0}
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babble-api","--test","auth"],"expect_exit":0},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babble-node","--test","grants"],"expect_exit":0}
   ]
 }

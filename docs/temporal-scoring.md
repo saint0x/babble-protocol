@@ -1,8 +1,8 @@
 # Temporal Scoring
 
 Public discovery invokes the typed Python `TemporalScorer` through the shared
-local algorithm worker. Its version is `babel-python/temporal-v1/1`. The explicit
-native configuration uses `babel-rust/temporal-v1/1`; a Python failure does not
+local algorithm worker. Its version is `babble-python/temporal-v1/1`. The explicit
+native configuration uses `babble-rust/temporal-v1/1`; a Python failure does not
 silently select it.
 
 ## Inputs And Meaning

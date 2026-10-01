@@ -1,7 +1,7 @@
 //! URI admission for Surface resources. Admission never verifies fetched bytes.
 
 use crate::Resource;
-use babel_types::{Error, Hash, Result};
+use babble_types::{Error, Hash, Result};
 use url::{Host, ParseError, Url};
 
 #[derive(Debug)]
@@ -18,7 +18,7 @@ enum Location<'a> {
 }
 
 impl<'a> ResourceUri<'a> {
-    /// Accept canonical Babel blobs, safe relative references, HTTPS and loopback HTTP.
+    /// Accept canonical Babble blobs, safe relative references, HTTPS and loopback HTTP.
     /// Queries and fragments on explicitly declared external references are preserved.
     pub fn parse(raw: &'a str) -> Result<Self> {
         if raw.is_empty()
@@ -45,8 +45,8 @@ impl<'a> ResourceUri<'a> {
                 // Check the original path before the URL parser removes dot segments.
                 validate_path(reference_path(&remainder[authority_end..]), false)?;
                 match url.scheme() {
-                    "babel" => {
-                        let hash = raw.strip_prefix("babel://blobs/").ok_or_else(invalid_uri)?;
+                    "babble" => {
+                        let hash = raw.strip_prefix("babble://blobs/").ok_or_else(invalid_uri)?;
                         if !is_canonical_hash(hash) {
                             return Err(invalid_uri());
                         }
@@ -94,7 +94,7 @@ impl<'a> ResourceUri<'a> {
         Ok(())
     }
 
-    /// Match the signed URI exactly, or a known gateway representation of a Babel blob.
+    /// Match the signed URI exactly, or a known gateway representation of a Babble blob.
     /// Gateway shape binds the requested hash, not the response bytes or server identity.
     pub fn matches_resource(&self, resource: &Resource) -> bool {
         let Ok(declared) = ResourceUri::parse(&resource.uri) else {
@@ -125,7 +125,7 @@ impl<'a> ResourceUri<'a> {
             return false;
         }
         // Both API blob routes require a single media_type selector. Other query
-        // parameters cannot establish an alias for a signed Babel blob URI.
+        // parameters cannot establish an alias for a signed Babble blob URI.
         match url.query() {
             None => false,
             Some(_) => {
@@ -139,7 +139,7 @@ impl<'a> ResourceUri<'a> {
 }
 
 fn invalid_uri() -> Error {
-    Error::Conflict("resource URI must be a safe relative reference, canonical Babel blob, HTTPS, or loopback HTTP URL".into())
+    Error::Conflict("resource URI must be a safe relative reference, canonical Babble blob, HTTPS, or loopback HTTP URL".into())
 }
 
 fn is_canonical_hash(value: &str) -> bool {

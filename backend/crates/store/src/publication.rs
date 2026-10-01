@@ -335,12 +335,12 @@ impl FileStore {
     }
 
     pub(super) fn verify_recovered_signatures(&self, records: &[Record]) -> Result<()> {
-        let mut state = babel_state::MemoryState::default();
+        let mut state = babble_state::MemoryState::default();
         for identity in read_all_json::<Identity>(&self.root.join("identities"))? {
             state.apply_identity(identity)?;
         }
         let mut transitions = read_all_json::<Event>(&self.root.join("events"))?;
-        transitions.retain(|event| event.kind == babel_state::EventKind::IdentityKeyTransition);
+        transitions.retain(|event| event.kind == babble_state::EventKind::IdentityKeyTransition);
         transitions.sort_by(|left, right| {
             left.created_at
                 .cmp(&right.created_at)
@@ -508,12 +508,12 @@ pub(super) fn validate_records(records: &[Record]) -> Result<()> {
             let object: Object = serde_json::from_value(required("objects", id.as_str())?.clone())
                 .map_err(encoding)?;
             if object.author != receipt.request.author
-                || event.target != babel_state::EventTarget::Object(id.clone())
+                || event.target != babble_state::EventTarget::Object(id.clone())
                 || !matches!(
                     event.kind,
-                    babel_state::EventKind::ObjectPublished
-                        | babel_state::EventKind::ObjectForked
-                        | babel_state::EventKind::ObjectRemixed
+                    babble_state::EventKind::ObjectPublished
+                        | babble_state::EventKind::ObjectForked
+                        | babble_state::EventKind::ObjectRemixed
                 )
             {
                 return Err(conflict("receipt object mismatch"));
@@ -526,8 +526,8 @@ pub(super) fn validate_records(records: &[Record]) -> Result<()> {
                 ));
             }
             validate_consent_receipt(&receipt, &event)?;
-        } else if event.target != babel_state::EventTarget::Edge(receipt.outcome.edges[0].clone())
-            || event.kind != babel_state::EventKind::EdgePublished
+        } else if event.target != babble_state::EventTarget::Edge(receipt.outcome.edges[0].clone())
+            || event.kind != babble_state::EventKind::EdgePublished
         {
             return Err(conflict("receipt edge event mismatch"));
         }
@@ -606,7 +606,7 @@ pub(super) fn validate_value(collection: &str, id: &str, value: &Value) -> Resul
             receipt.request.id.to_string()
         }
         "invocations" => {
-            let phase: babel_capabilities::invocation::InvocationRecord =
+            let phase: babble_capabilities::invocation::InvocationRecord =
                 serde_json::from_value(value.clone()).map_err(encoding)?;
             phase.validate()?;
             phase.storage_id()?

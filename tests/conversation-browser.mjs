@@ -11,7 +11,7 @@ export async function verifyConversationReading(execute, waitFor) {
 async function verifyConversationWidth(execute, waitFor, columnWidth) {
   await execute([{ type: "eval", code: `
     (() => {
-      window.__babelReadingCheck = null;
+      window.__babbleReadingCheck = null;
       import('/src/app/conversations.ts').then(async ({ Conversations }) => {
         const host = document.createElement('div');
         host.style.cssText = 'position:fixed;inset:0;z-index:9999;background:white';
@@ -66,7 +66,7 @@ async function verifyConversationWidth(execute, waitFor, columnWidth) {
           [...panel.querySelectorAll('.conversation-header button')].find((button) => button.textContent === 'Back').click();
           await frame();
           const returnedReply = panel.querySelector('[data-object-id="reading-2"]');
-          window.__babelReadingCheck = {
+          window.__babbleReadingCheck = {
             before, after, returned: offset(), parentText, completeText, headingFocused,
             rootWidth, nestedWidth, nestedRadius, nestedPadding, nestedOverflow,
             count: panel.querySelectorAll('.reply-row').length,
@@ -80,12 +80,12 @@ async function verifyConversationWidth(execute, waitFor, columnWidth) {
         } finally {
           host.remove();
         }
-      }).catch((error) => { window.__babelReadingCheck = { error: String(error) }; });
+      }).catch((error) => { window.__babbleReadingCheck = { error: String(error) }; });
       return true;
     })()
   ` }]);
-  const result = await waitFor("window.__babelReadingCheck", (value) => value != null);
-  await execute([{ type: "eval", code: "delete window.__babelReadingCheck; true" }]);
+  const result = await waitFor("window.__babbleReadingCheck", (value) => value != null);
+  await execute([{ type: "eval", code: "delete window.__babbleReadingCheck; true" }]);
   assert.equal(result.error, undefined, JSON.stringify(result));
   assert.equal(result.count, 7);
   assert.ok(Math.abs(result.before - result.after) <= 1, "insertion must preserve the visible reply offset");

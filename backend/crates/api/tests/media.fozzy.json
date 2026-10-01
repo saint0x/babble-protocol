@@ -3,7 +3,7 @@
   "name": "binary-media-process-contract",
   "steps": [
     {"type":"trace_event","name":"Scripted process contract only; media-host.fozzy.json executes the actual public Router media regressions"},
-    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--lib","media::tests"],"exit_code":0,"times":1},
-    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--lib","media::tests"],"expect_exit":0}
+    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babble-api","--lib","media::tests"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babble-api","--lib","media::tests"],"expect_exit":0}
   ]
 }

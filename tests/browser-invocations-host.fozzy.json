@@ -4,7 +4,7 @@
   "steps": [
     {
       "type": "trace_event",
-      "name": "Parent GO required: BABEL_BROWSER_INVOCATION_SOURCE_FROZEN=1; native clipboard excluded; run separate full regression after focus",
+      "name": "Parent GO required: BABBLE_BROWSER_INVOCATION_SOURCE_FROZEN=1; native clipboard excluded; run separate full regression after focus",
       "fields": {}
     },
     {

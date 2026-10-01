@@ -4,7 +4,7 @@ use std::path::PathBuf;
 struct Root(PathBuf);
 impl Root {
     fn new() -> Self {
-        Self(std::env::temp_dir().join(format!("babel-auth-security-{}", random_token().unwrap())))
+        Self(std::env::temp_dir().join(format!("babble-auth-security-{}", random_token().unwrap())))
     }
     fn db(&self) -> PathBuf {
         self.0.join("auth/accounts.sqlite3")

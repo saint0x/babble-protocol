@@ -1,6 +1,6 @@
 use super::tests::{Root, fixture};
 use super::*;
-use babel_capabilities::{CapabilityId, invocation::*};
+use babble_capabilities::{CapabilityId, invocation::*};
 use serde_json::json;
 use std::{
     process::Command,
@@ -34,9 +34,9 @@ fn intent(actor: IdentityId) -> InvocationIntent {
             policy_revision: Hash::from_bytes(b"policy"),
             context_epoch: Hash::from_bytes(b"server-epoch"),
         },
-        method: "babel.social.reply.v2".into(),
+        method: "babble.social.reply".into(),
         method_version: 2,
-        capability: CapabilityId::new("babel.social.reply").unwrap(),
+        capability: CapabilityId::new("babble.social.reply").unwrap(),
         capability_version: 1,
         scope: json!({"target": "stored-resource"}),
         executor: InvocationExecutor::LocalPublication,
@@ -91,10 +91,10 @@ pub(super) fn completion(
 
 #[test]
 fn invocation_social_quota_serializes_competing_effects_under_writer_lock() {
-    use babel_crypto::Keypair;
-    use babel_graph::{EdgeOrigin, Relation};
-    use babel_identity::IdentityKind;
-    use babel_state::{EventKind, EventTarget};
+    use babble_crypto::Keypair;
+    use babble_graph::{EdgeOrigin, Relation};
+    use babble_identity::IdentityKind;
+    use babble_state::{EventKind, EventTarget};
     let root = Root::new();
     let store = FileStore::open(&root.0).unwrap();
     let keypair = Keypair::generate();
@@ -108,8 +108,8 @@ fn invocation_social_quota_serializes_competing_effects_under_writer_lock() {
         intent.request_key = format!("quota-{n}");
         intent.context.object_id = object.id.clone();
         intent.context.login_id = format!("login-{n}");
-        intent.capability = CapabilityId::new("babel.social.follow").unwrap();
-        intent.method = "babel.social.follow.v2".into();
+        intent.capability = CapabilityId::new("babble.social.follow").unwrap();
+        intent.method = "babble.social.follow".into();
         intent.payload = json!({"target_object_id":object.id,"text":null,"media":null});
         let approved = approve(&store, intent);
         let edge = Edge::new(object.id.clone(), object.id.clone(), Relation::Follows,
@@ -754,10 +754,10 @@ fn invocation_fault_at_every_publication_phase_recovers_consumption_and_effect_t
 
 #[test]
 fn invocation_crash_child() {
-    let Some(root) = std::env::var_os("BABEL_INVOCATION_CRASH_ROOT") else {
+    let Some(root) = std::env::var_os("BABBLE_INVOCATION_CRASH_ROOT") else {
         return;
     };
-    let phase = std::env::var("BABEL_INVOCATION_CRASH_PHASE").unwrap();
+    let phase = std::env::var("BABBLE_INVOCATION_CRASH_PHASE").unwrap();
     let store = FileStore::open(PathBuf::from(root)).unwrap();
     let (batch, approved, complete) = completion(&store);
     sync_write(
@@ -786,8 +786,8 @@ fn invocation_process_exit_at_every_phase_recovers_after_restart() {
                 "publication::invocation_tests::invocation_crash_child",
                 "--nocapture",
             ])
-            .env("BABEL_INVOCATION_CRASH_ROOT", &root.0)
-            .env("BABEL_INVOCATION_CRASH_PHASE", &phase)
+            .env("BABBLE_INVOCATION_CRASH_ROOT", &root.0)
+            .env("BABBLE_INVOCATION_CRASH_PHASE", &phase)
             .output()
             .unwrap();
         assert_eq!(

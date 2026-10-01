@@ -3,15 +3,15 @@ use axum::{
     body::{Body, to_bytes},
     http::{Method, Request, StatusCode, header},
 };
-use babel_api::{
+use babble_api::{
     ApiState, DiscoveryResponse, PrepareSurfaceResponse,
     config::{SeedProfile, ServerConfig},
     seed::apply_seed_profile,
     serve::configured_router,
 };
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
-use babel_object::SurfaceRole;
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
+use babble_object::SurfaceRole;
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -35,7 +35,7 @@ async fn configured_server_serves_seeded_feed_and_surface_resources() {
             store_root: root.clone(),
             seed_profile: Some(SeedProfile::CardFeed),
             cors_origins: vec!["http://127.0.0.1:4329".parse().unwrap()],
-            judgment: babel_api::provider::JudgmentConfig::RustLocal,
+            judgment: babble_api::provider::JudgmentConfig::RustLocal,
             bundle_gateway: None,
         },
         ApiState::new(node),
@@ -113,11 +113,11 @@ async fn configured_server_serves_seeded_feed_and_surface_resources() {
     let prepared: PrepareSurfaceResponse = serde_json::from_value(prepared.body).unwrap();
     assert_eq!(
         prepared.plan.admission,
-        babel_runtime::RuntimeAdmissionStatus::Ready
+        babble_runtime::RuntimeAdmissionStatus::Ready
     );
     assert_eq!(
         prepared.plan.surface.target,
-        babel_object::SurfaceTarget::Web
+        babble_object::SurfaceTarget::Web
     );
 
     let (_, entry_path_and_query) = prepared
@@ -157,7 +157,7 @@ async fn configured_server_serves_seeded_feed_and_surface_resources() {
             .body
             .as_str()
             .expect("surface HTML body")
-            .contains("Babel Object Surface")
+            .contains("Babble Object Surface")
     );
 
     fs::remove_dir_all(root).unwrap();
@@ -211,5 +211,5 @@ fn unique_root(name: &str) -> PathBuf {
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_nanos();
-    std::env::temp_dir().join(format!("babel-api-server-{name}-{nanos}"))
+    std::env::temp_dir().join(format!("babble-api-server-{name}-{nanos}"))
 }

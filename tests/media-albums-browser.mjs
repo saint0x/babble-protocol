@@ -62,7 +62,7 @@ export async function verifyMediaAlbums(execute, waitFor) {
       text:card?.querySelector('.post-context .post-content')?.textContent,
       id:card?.dataset.objectId, album:!!card?.querySelector('.post-primary [data-media-gallery]')};
   })()`, value => value.closed && value.text === caption && value.album);
-  const {api} = await evaluate("({api:document.documentElement.dataset.babelApi})");
+  const {api} = await evaluate("({api:document.documentElement.dataset.babbleApi})");
   await verifyObject(api, published.id, ordered);
   const mainGallery = `${active} .post-primary [data-media-gallery]`;
   await verifyGallery(mainGallery, ordered, published.id, evaluate, waitFor);
@@ -115,7 +115,7 @@ async function verifyObject(api, id, fixtures, relation) {
   const response = await fetch(`${api}/objects/${id}`);
   assert.equal(response.status, 200);
   const {object} = await response.json();
-  assert.equal(object.kind, "babel.media");
+  assert.equal(object.kind, "babble.media");
   assert.deepEqual(object.payload.resources.map(resource=>resource.media_type), fixtures.map(file=>file.type));
   assert.deepEqual(object.payload.primary_resource, object.payload.resources[0]);
   assert.deepEqual(object.resources.map(resource=>resource.integrity), object.payload.resources.map(resource=>resource.integrity));
@@ -184,9 +184,9 @@ async function verifyGallery(selector, fixtures, activeId, evaluate, waitFor) {
 
 async function verifyLayouts(evaluate, waitFor, id, api) {
   const setup = `(async()=>{
-    const {BabelFrontendClient}=await import('/src/app/protocol.ts');
+    const {BabbleFrontendClient}=await import('/src/app/protocol.ts');
     const {createMediaGallery}=await import('/src/app/media-gallery.ts');
-    const client=new BabelFrontendClient(${JSON.stringify(api)});
+    const client=new BabbleFrontendClient(${JSON.stringify(api)});
     const response=await fetch(${JSON.stringify(`${api}/objects/${id}`)});
     const {object}=await response.json(),resolved=await client.describeObject(object);
     const card={...resolved,title:'A long album title with an-unbroken-word-'.repeat(12)};

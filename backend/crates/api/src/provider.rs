@@ -1,14 +1,14 @@
-use babel_discovery::{
+use babble_discovery::{
     NativeTemporalScorer, TemporalProvider, TemporalProviderVersion, TemporalRequest,
     TemporalResult,
 };
-use babel_judgment::{Judgment, JudgmentProvider, JudgmentRequest, ProviderVersion};
-use babel_judgment_local::LocalProvider;
-use babel_judgment_python::{PythonProvider, WorkerConfig};
-use babel_lens::{
+use babble_judgment::{Judgment, JudgmentProvider, JudgmentRequest, ProviderVersion};
+use babble_judgment_local::LocalProvider;
+use babble_judgment_python::{PythonProvider, WorkerConfig};
+use babble_lens::{
     NativeRanker, RankingProvider, RankingProviderVersion, RankingRequest, RankingResult,
 };
-use babel_types::Result;
+use babble_types::Result;
 use std::{env, path::PathBuf, sync::Arc, time::Duration};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -35,10 +35,10 @@ impl Default for JudgmentConfig {
 impl JudgmentConfig {
     pub fn from_env() -> std::result::Result<Self, crate::config::ConfigError> {
         Self::from_values(
-            env::var("BABEL_JUDGMENT_PROVIDER").ok().as_deref(),
-            env::var_os("BABEL_ALGORITHMS_DIR").map(PathBuf::from),
-            env::var_os("BABEL_PYTHON_EXECUTABLE").map(PathBuf::from),
-            env::var("BABEL_ALGORITHM_TIMEOUT_MS").ok().as_deref(),
+            env::var("BABBLE_JUDGMENT_PROVIDER").ok().as_deref(),
+            env::var_os("BABBLE_ALGORITHMS_DIR").map(PathBuf::from),
+            env::var_os("BABBLE_PYTHON_EXECUTABLE").map(PathBuf::from),
+            env::var("BABBLE_ALGORITHM_TIMEOUT_MS").ok().as_deref(),
         )
     }
 
@@ -53,7 +53,7 @@ impl JudgmentConfig {
             "rust-local" => {
                 if directory.is_some() || executable.is_some() || timeout.is_some() {
                     return Err(invalid(
-                        "Python settings require BABEL_JUDGMENT_PROVIDER=python",
+                        "Python settings require BABBLE_JUDGMENT_PROVIDER=python",
                     ));
                 }
                 Ok(Self::RustLocal)
@@ -63,7 +63,7 @@ impl JudgmentConfig {
                     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../algorithms")
                 });
                 if directory.as_os_str().is_empty() {
-                    return Err(invalid("BABEL_ALGORITHMS_DIR"));
+                    return Err(invalid("BABBLE_ALGORITHMS_DIR"));
                 }
                 let directory = if directory.is_absolute() {
                     directory
@@ -74,16 +74,16 @@ impl JudgmentConfig {
                 };
                 let executable = executable.unwrap_or_else(|| directory.join(".venv/bin/python"));
                 if executable.as_os_str().is_empty() {
-                    return Err(invalid("BABEL_PYTHON_EXECUTABLE"));
+                    return Err(invalid("BABBLE_PYTHON_EXECUTABLE"));
                 }
                 let timeout_ms = match timeout {
                     None => 5_000,
                     Some(value) => value
                         .parse::<u64>()
-                        .map_err(|_| invalid("BABEL_ALGORITHM_TIMEOUT_MS"))?,
+                        .map_err(|_| invalid("BABBLE_ALGORITHM_TIMEOUT_MS"))?,
                 };
                 if !(1..=120_000).contains(&timeout_ms) {
-                    return Err(invalid("BABEL_ALGORITHM_TIMEOUT_MS"));
+                    return Err(invalid("BABBLE_ALGORITHM_TIMEOUT_MS"));
                 }
                 Ok(Self::Python {
                     executable,
@@ -91,7 +91,7 @@ impl JudgmentConfig {
                     timeout_ms,
                 })
             }
-            _ => Err(invalid("BABEL_JUDGMENT_PROVIDER")),
+            _ => Err(invalid("BABBLE_JUDGMENT_PROVIDER")),
         }
     }
 
@@ -105,7 +105,7 @@ impl JudgmentConfig {
             } => {
                 let provider = PythonProvider::new(WorkerConfig {
                     executable: executable.clone(),
-                    args: vec!["-I".into(), "-m".into(), "babel_algorithms.worker".into()],
+                    args: vec!["-I".into(), "-m".into(), "babble_algorithms.worker".into()],
                     working_directory: Some(directory.clone()),
                     timeout: Duration::from_millis(*timeout_ms),
                 })?;
@@ -147,14 +147,14 @@ impl JudgmentProvider for ServerProvider {
         }
     }
 
-    fn supported_definitions(&self) -> Vec<babel_judgment::DefinitionId> {
+    fn supported_definitions(&self) -> Vec<babble_judgment::DefinitionId> {
         match self {
             Self::Python(provider) => provider.supported_definitions(),
             Self::RustLocal(provider) => provider.supported_definitions(),
         }
     }
 
-    fn privacy_policy(&self) -> babel_judgment::JudgmentPrivacyPolicy {
+    fn privacy_policy(&self) -> babble_judgment::JudgmentPrivacyPolicy {
         match self {
             Self::Python(provider) => provider.privacy_policy(),
             Self::RustLocal(provider) => provider.privacy_policy(),

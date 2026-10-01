@@ -1,10 +1,10 @@
 use crate::LocalNode;
-use babel_capabilities::CapabilityReceipt;
-use babel_graph::Edge;
-use babel_judgment::JudgmentProvider;
-use babel_media::MediaBlob;
-use babel_object::Object;
-use babel_types::{IdentityId, ObjectId, Result};
+use babble_capabilities::CapabilityReceipt;
+use babble_graph::Edge;
+use babble_judgment::JudgmentProvider;
+use babble_media::MediaBlob;
+use babble_object::Object;
+use babble_types::{IdentityId, ObjectId, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -104,8 +104,8 @@ impl<P: JudgmentProvider> LocalNode<P> {
     }
 }
 
-fn invocation_required() -> babel_types::Error {
-    babel_types::Error::Conflict(
+fn invocation_required() -> babble_types::Error {
+    babble_types::Error::Conflict(
         "social effects require prepare/approve/execute with one-use invocation authority".into(),
     )
 }

@@ -1,4 +1,4 @@
-use babel_types::{Canonical, Error, Hash, JudgmentId, Result, Timestamp};
+use babble_types::{Canonical, Error, Hash, JudgmentId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -29,31 +29,31 @@ impl DefinitionId {
     }
 
     pub fn spam_v1() -> Self {
-        Self::new("babel.judgment.spam.v1")
+        Self::new("babble.judgment.spam.v1")
     }
 
     pub fn relevance_v1() -> Self {
-        Self::new("babel.judgment.relevance.v1")
+        Self::new("babble.judgment.relevance.v1")
     }
 
     pub fn relationship_v1() -> Self {
-        Self::new("babel.judgment.relationship.v1")
+        Self::new("babble.judgment.relationship.v1")
     }
 
     pub fn evidence_quality_v1() -> Self {
-        Self::new("babel.judgment.evidence_quality.v1")
+        Self::new("babble.judgment.evidence_quality.v1")
     }
 
     pub fn content_analysis_v1() -> Self {
-        Self::new("babel.judgment.content_analysis.v1")
+        Self::new("babble.judgment.content_analysis.v1")
     }
 
     pub fn moderation_v1() -> Self {
-        Self::new("babel.judgment.moderation.v1")
+        Self::new("babble.judgment.moderation.v1")
     }
 
     pub fn source_agreement_v1() -> Self {
-        Self::new("babel.judgment.source_agreement.v1")
+        Self::new("babble.judgment.source_agreement.v1")
     }
 
     pub fn as_str(&self) -> &str {
@@ -76,55 +76,55 @@ pub struct JudgmentRegistry {
 }
 
 impl JudgmentRegistry {
-    pub fn babel_core() -> Self {
+    pub fn babble_core() -> Self {
         Self {
             definitions: vec![
                 JudgmentDefinition {
                     id: DefinitionId::spam_v1(),
-                    input_schema: "babel.judgment.input.object_text.v1".to_string(),
-                    output_schema: "babel.judgment.output.probability.v1".to_string(),
+                    input_schema: "babble.judgment.input.object_text.v1".to_string(),
+                    output_schema: "babble.judgment.output.probability.v1".to_string(),
                     meaning: "Estimate whether the subject text is spam or manipulation.".to_string(),
                     calibration: "score is probability-like in [0, 1]; higher means more spam".to_string(),
                 },
                 JudgmentDefinition {
                     id: DefinitionId::relevance_v1(),
-                    input_schema: "babel.judgment.input.object_text.v1".to_string(),
-                    output_schema: "babel.judgment.output.bounded_score.v1".to_string(),
+                    input_schema: "babble.judgment.input.object_text.v1".to_string(),
+                    output_schema: "babble.judgment.output.bounded_score.v1".to_string(),
                     meaning: "Estimate relevance between subject text and a query.".to_string(),
                     calibration: "score is bounded in [0, 1]; higher means more relevant".to_string(),
                 },
                 JudgmentDefinition {
                     id: DefinitionId::relationship_v1(),
-                    input_schema: "babel.judgment.input.object_text.v1".to_string(),
-                    output_schema: "babel.judgment.output.relationship.v1".to_string(),
+                    input_schema: "babble.judgment.input.object_text.v1".to_string(),
+                    output_schema: "babble.judgment.output.relationship.v1".to_string(),
                     meaning: "Estimate whether the subject text supports, contradicts, or relates to context.".to_string(),
                     calibration: "score is bounded in [0, 1]; relation names the evaluated edge semantics".to_string(),
                 },
                 JudgmentDefinition {
                     id: DefinitionId::evidence_quality_v1(),
-                    input_schema: "babel.judgment.input.object_text.v1".to_string(),
-                    output_schema: "babel.judgment.output.bounded_score.v1".to_string(),
+                    input_schema: "babble.judgment.input.object_text.v1".to_string(),
+                    output_schema: "babble.judgment.output.bounded_score.v1".to_string(),
                     meaning: "Estimate the quality of evidence signals in subject text.".to_string(),
                     calibration: "score is bounded in [0, 1]; higher means stronger evidence quality".to_string(),
                 },
                 JudgmentDefinition {
                     id: DefinitionId::content_analysis_v1(),
-                    input_schema: "babel.judgment.input.object_text.v1".to_string(),
-                    output_schema: "babel.judgment.output.content_analysis.v1".to_string(),
+                    input_schema: "babble.judgment.input.object_text.v1".to_string(),
+                    output_schema: "babble.judgment.output.content_analysis.v1".to_string(),
                     meaning: "Extract reusable content features for discovery, provenance, and Lens inputs.".to_string(),
                     calibration: "topics, evidence markers, key terms, sentiment, and summary are descriptive features, not truth claims".to_string(),
                 },
                 JudgmentDefinition {
                     id: DefinitionId::moderation_v1(),
-                    input_schema: "babel.judgment.input.object_text.v1".to_string(),
-                    output_schema: "babel.judgment.output.moderation.v1".to_string(),
+                    input_schema: "babble.judgment.input.object_text.v1".to_string(),
+                    output_schema: "babble.judgment.output.moderation.v1".to_string(),
                     meaning: "Evaluate network-integrity and moderation policy signals without erasing protocol history.".to_string(),
                     calibration: "scores are bounded in [0, 1]; action is advisory policy output with reason flags".to_string(),
                 },
                 JudgmentDefinition {
                     id: DefinitionId::source_agreement_v1(),
-                    input_schema: "babel.judgment.input.source_agreement.v1".to_string(),
-                    output_schema: "babel.judgment.output.source_agreement.v1".to_string(),
+                    input_schema: "babble.judgment.input.source_agreement.v1".to_string(),
+                    output_schema: "babble.judgment.output.source_agreement.v1".to_string(),
                     meaning: "Describe lexical agreement among explicitly supplied sources; not truth or network consensus.".to_string(),
                     calibration: "bounded heuristic scores; confidence is zero and explicitly uncalibrated".to_string(),
                 },
@@ -147,13 +147,13 @@ impl JudgmentRegistry {
         })?;
         request.validate_shape()?;
         match definition.id.as_str() {
-            "babel.judgment.source_agreement.v1" => {
+            "babble.judgment.source_agreement.v1" => {
                 SourceAgreementInput::from_request(request)?;
             }
-            "babel.judgment.relevance.v1" => {
+            "babble.judgment.relevance.v1" => {
                 optional_string_parameter(request, "query")?;
             }
-            "babel.judgment.relationship.v1" => {
+            "babble.judgment.relationship.v1" => {
                 if let Some(value) = request.parameters.get("relation") {
                     let relation = value.as_str().ok_or_else(|| {
                         Error::Conflict(
@@ -273,7 +273,7 @@ pub trait JudgmentProvider {
     }
 
     fn supported_definitions(&self) -> Vec<DefinitionId> {
-        JudgmentRegistry::babel_core()
+        JudgmentRegistry::babble_core()
             .definitions
             .into_iter()
             .map(|definition| definition.id)
@@ -373,7 +373,7 @@ impl JudgmentProvider for ProviderCascade<'_> {
     }
 
     fn judge(&self, request: &JudgmentRequest) -> Result<Judgment> {
-        JudgmentRegistry::babel_core().validate_request(request)?;
+        JudgmentRegistry::babble_core().validate_request(request)?;
         if self.steps.is_empty() {
             return Err(Error::ProviderUnavailable(
                 "judgment cascade has no providers".to_string(),
@@ -450,7 +450,7 @@ impl JudgmentProvider for ProviderCascade<'_> {
             confidence: selected.confidence,
             created_at: Timestamp::now(),
         };
-        JudgmentRegistry::babel_core().validate_output(&judgment.definition, &judgment.output)?;
+        JudgmentRegistry::babble_core().validate_output(&judgment.definition, &judgment.output)?;
         Ok(judgment)
     }
 }
@@ -499,13 +499,13 @@ impl JudgmentCache {
         provider: &P,
         request: &JudgmentRequest,
     ) -> Result<Judgment> {
-        JudgmentRegistry::babel_core().validate_request(request)?;
+        JudgmentRegistry::babble_core().validate_request(request)?;
         let key = cache_key(&provider.version(), request)?;
         if let Some(cached) = self.record_hit(&key) {
             return Ok(cached);
         }
         let judgment = provider.judge(request)?;
-        JudgmentRegistry::babel_core().validate_output(&judgment.definition, &judgment.output)?;
+        JudgmentRegistry::babble_core().validate_output(&judgment.definition, &judgment.output)?;
         self.insert(key, judgment.clone());
         Ok(judgment)
     }
@@ -519,7 +519,7 @@ pub struct CachedJudgment {
 }
 
 pub fn cache_key(provider: &ProviderVersion, request: &JudgmentRequest) -> Result<CacheKey> {
-    JudgmentRegistry::babel_core().validate_request(request)?;
+    JudgmentRegistry::babble_core().validate_request(request)?;
     Ok(CacheKey {
         definition: request.definition.clone(),
         input_hash: request.state.canonical_hash()?,
@@ -550,7 +550,7 @@ impl Default for ConstantProvider {
     fn default() -> Self {
         Self {
             version: ProviderVersion {
-                provider: "babel-constant".to_string(),
+                provider: "babble-constant".to_string(),
                 model: "deterministic-baseline".to_string(),
                 version: "1".to_string(),
             },
@@ -570,7 +570,7 @@ impl JudgmentProvider for ConstantProvider {
     }
 
     fn judge(&self, request: &JudgmentRequest) -> Result<Judgment> {
-        JudgmentRegistry::babel_core().validate_request(request)?;
+        JudgmentRegistry::babble_core().validate_request(request)?;
         let input_hash = request.state.canonical_hash()?;
         let commitment = (
             request.definition.clone(),
@@ -589,7 +589,7 @@ impl JudgmentProvider for ConstantProvider {
             confidence: self.confidence,
             created_at: Timestamp::now(),
         };
-        JudgmentRegistry::babel_core().validate_output(&judgment.definition, &judgment.output)?;
+        JudgmentRegistry::babble_core().validate_output(&judgment.definition, &judgment.output)?;
         Ok(judgment)
     }
 }
@@ -606,25 +606,25 @@ fn validate_output_shape(definition: &JudgmentDefinition, output: &Value) -> Res
         return Ok(());
     }
     match definition.output_schema.as_str() {
-        "babel.judgment.output.source_agreement.v1" => {
+        "babble.judgment.output.source_agreement.v1" => {
             let result: SourceAgreementOutput = serde_json::from_value(output.clone())
                 .map_err(|_| Error::Conflict("invalid source agreement output fields".into()))?;
             result.validate()?;
         }
-        "babel.judgment.output.probability.v1" => {
+        "babble.judgment.output.probability.v1" => {
             require_kind(object, "probability")?;
             bounded_number(object, "score")?;
             bounded_number(object, "confidence")?;
             non_empty_string(object, "label")?;
         }
-        "babel.judgment.output.bounded_score.v1" => {
+        "babble.judgment.output.bounded_score.v1" => {
             require_kind(object, "bounded_score")?;
             bounded_number(object, "score")?;
             if object.contains_key("confidence") {
                 bounded_number(object, "confidence")?;
             }
         }
-        "babel.judgment.output.relationship.v1" => {
+        "babble.judgment.output.relationship.v1" => {
             require_kind(object, "relationship")?;
             bounded_number(object, "score")?;
             bounded_number(object, "confidence")?;
@@ -635,7 +635,7 @@ fn validate_output_shape(definition: &JudgmentDefinition, output: &Value) -> Res
                 )));
             }
         }
-        "babel.judgment.output.content_analysis.v1" => {
+        "babble.judgment.output.content_analysis.v1" => {
             require_kind(object, "content_analysis")?;
             array_of_strings(object, "topics")?;
             array_of_strings(object, "evidence_markers")?;
@@ -644,7 +644,7 @@ fn validate_output_shape(definition: &JudgmentDefinition, output: &Value) -> Res
             bounded_number(object, "sentiment")?;
             bounded_number(object, "confidence")?;
         }
-        "babel.judgment.output.moderation.v1" => {
+        "babble.judgment.output.moderation.v1" => {
             require_kind(object, "moderation")?;
             let action = non_empty_string(object, "action")?;
             if !matches!(action, "allow" | "limit" | "flag" | "remove") {

@@ -1,10 +1,10 @@
 use crate::{LocalNode, ProvenancePublication};
-use babel_graph::Edge;
-use babel_judgment::JudgmentProvider;
-use babel_object::Object;
-use babel_state::{Event, EventKind, EventTarget};
-use babel_store::{PublicationBatch, PublicationOutcome, PublicationReceipt, PublicationRequest};
-use babel_types::{Error, IdentityId, ObjectId, Result};
+use babble_graph::Edge;
+use babble_judgment::JudgmentProvider;
+use babble_object::Object;
+use babble_state::{Event, EventKind, EventTarget};
+use babble_store::{PublicationBatch, PublicationOutcome, PublicationReceipt, PublicationRequest};
+use babble_types::{Error, IdentityId, ObjectId, Result};
 
 impl<P: JudgmentProvider> LocalNode<P> {
     /// One exclusively borrowed publication operation. Authorization and validation

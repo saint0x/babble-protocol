@@ -1,10 +1,10 @@
-use babel_crypto::Keypair;
-use babel_graph::{Edge, EdgeOrigin, Relation};
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_node::{ImportBundle, LocalNode, RepliesListQuery};
-use babel_object::Object;
-use babel_types::{Hash, ObjectId, Timestamp};
+use babble_crypto::Keypair;
+use babble_graph::{Edge, EdgeOrigin, Relation};
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_node::{ImportBundle, LocalNode, RepliesListQuery};
+use babble_object::Object;
+use babble_types::{Hash, ObjectId, Timestamp};
 use std::{
     fs,
     path::PathBuf,
@@ -23,7 +23,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT_PATH: AtomicU64 = AtomicU64::new(0);
         let path = std::env::temp_dir().join(format!(
-            "babel-replies-{}-{}-{}",
+            "babble-replies-{}-{}-{}",
             std::process::id(),
             SystemTime::now()
                 .duration_since(UNIX_EPOCH)
@@ -177,12 +177,12 @@ fn replies_reject_bad_limits_cursors_and_missing_parents() {
     for limit in [0, 51, usize::MAX] {
         assert!(matches!(
             f.node.list_replies(&query(&root, None, limit)),
-            Err(babel_types::Error::Canonical(_))
+            Err(babble_types::Error::Canonical(_))
         ));
     }
     for cursor in [
         String::new(),
-        "v2|bad".into(),
+        "|bad".into(),
         "x".repeat(100_000),
         format!("v1|{}|{}", other.id, root.id),
         format!("v1|{}|{}", root.id, other.id),
@@ -190,7 +190,7 @@ fn replies_reject_bad_limits_cursors_and_missing_parents() {
     ] {
         assert!(matches!(
             f.node.list_replies(&query(&root, Some(cursor), 1)),
-            Err(babel_types::Error::Canonical(_))
+            Err(babble_types::Error::Canonical(_))
         ));
     }
     let missing = RepliesListQuery {
@@ -200,7 +200,7 @@ fn replies_reject_bad_limits_cursors_and_missing_parents() {
     };
     assert!(matches!(
         f.node.list_replies(&missing),
-        Err(babel_types::Error::NotFound(_))
+        Err(babble_types::Error::NotFound(_))
     ));
 }
 

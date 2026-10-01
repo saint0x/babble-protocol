@@ -1,9 +1,9 @@
-use babel_graph::{GraphIndex, Relation};
-use babel_lens::{
+use babble_graph::{GraphIndex, Relation};
+use babble_lens::{
     Candidate, CandidateSource, CandidateSourceContribution, EvidenceSignals, ReputationSignals,
     Signals,
 };
-use babel_types::{ObjectId, Timestamp};
+use babble_types::{ObjectId, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};

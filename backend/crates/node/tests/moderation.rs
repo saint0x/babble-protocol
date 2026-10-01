@@ -1,10 +1,10 @@
-use babel_authoring::ObjectDraft;
-use babel_identity::IdentityKind;
-use babel_judgment_local::LocalProvider;
-use babel_node::{LocalNode, moderation::*};
-use babel_object::{Surface, SurfaceRole, SurfaceTarget};
-use babel_runtime::{SurfaceLifecycle, SurfaceSessionId};
-use babel_types::{IdentityId, ObjectId};
+use babble_authoring::ObjectDraft;
+use babble_identity::IdentityKind;
+use babble_judgment_local::LocalProvider;
+use babble_node::{LocalNode, moderation::*};
+use babble_object::{Surface, SurfaceRole, SurfaceTarget};
+use babble_runtime::{SurfaceLifecycle, SurfaceSessionId};
+use babble_types::{IdentityId, ObjectId};
 use std::{
     path::PathBuf,
     sync::atomic::{AtomicU64, Ordering},
@@ -23,7 +23,7 @@ impl Fixture {
     fn new() -> Self {
         static N: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-moderation-{}-{}-{}",
+            "babble-moderation-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             N.fetch_add(1, Ordering::Relaxed)
@@ -171,11 +171,11 @@ fn moderation_full_lifecycle_retires_runtime_preserves_history_composes_and_rest
     );
     assert!(
         f.node
-            .authorize_capability_binding(&f.object, "babel.storage.local", 1, &[])
+            .authorize_capability_binding(&f.object, "babble.storage.local", 1, &[])
             .is_err()
     );
     assert!(
-        matches!(f.node.network_fetch(&f.object,"GET","https://example.com/",Default::default(),None,&[]),Err(babel_types::Error::Conflict(message)) if message.contains("execution is restricted"))
+        matches!(f.node.network_fetch(&f.object,"GET","https://example.com/",Default::default(),None,&[]),Err(babble_types::Error::Conflict(message)) if message.contains("execution is restricted"))
     );
     let redacted = f.node.moderation_case(&f.author, &first.id).unwrap();
     assert!(
@@ -328,7 +328,7 @@ fn moderation_authority_cas_signals_bounds_pagination_and_reporter_appeal() {
     let mut signal = decision(ModerationOutcome::Restrict, 1, "signal");
     signal
         .source_signals
-        .push(babel_types::JudgmentId::new_unchecked(format!(
+        .push(babble_types::JudgmentId::new_unchecked(format!(
             "jud_{}",
             "a".repeat(64)
         )));
@@ -444,7 +444,7 @@ fn moderation_discovery_following_cursor_and_personal_safety_compose() {
     f.node
         .set_following(&f.reporter, &f.author, true, 0, "follow")
         .unwrap();
-    let mut query = babel_node::FollowingQuery {
+    let mut query = babble_node::FollowingQuery {
         limit: 1,
         cursor: None,
         search: None,
@@ -453,7 +453,7 @@ fn moderation_discovery_following_cursor_and_personal_safety_compose() {
     assert!(initial.next_cursor.is_some());
     assert!(
         f.node
-            .discover_objects(babel_node::DiscoveryQuery::default())
+            .discover_objects(babble_node::DiscoveryQuery::default())
             .unwrap()
             .objects
             .iter()
@@ -475,13 +475,13 @@ fn moderation_discovery_following_cursor_and_personal_safety_compose() {
     );
     assert!(
         f.node
-            .discover_objects(babel_node::DiscoveryQuery::default())
+            .discover_objects(babble_node::DiscoveryQuery::default())
             .unwrap()
             .objects
             .iter()
             .all(|o| o.id != f.object)
     );
-    let search = babel_node::ObjectSearchQuery {
+    let search = babble_node::ObjectSearchQuery {
         query: None,
         author: None,
         kind: None,
@@ -530,7 +530,7 @@ fn moderation_atomic_failure_rolls_back_receipt_audit_projection_and_retry() {
             c.id.clone(),
             decision(ModerationOutcome::Restrict, 1, "retry")
         ),
-        Err(babel_types::Error::StorageUnavailable(_))
+        Err(babble_types::Error::StorageUnavailable(_))
     ));
     assert_eq!(f.node.moderation_case(&f.first, &c.id).unwrap(), c);
     assert!(f.node.require_moderation_execution(&f.object).is_ok());
@@ -555,7 +555,7 @@ fn moderation_intake_limit_preserves_retries_review_and_appeal() {
         f.report(&format!("report-{n}"));
     }
     assert!(
-        matches!(f.node.moderation_report(&f.reporter,report(&f.object,"excess")),Err(babel_types::Error::Conflict(message)) if message == REPORT_INTAKE_LIMIT)
+        matches!(f.node.moderation_report(&f.reporter,report(&f.object,"excess")),Err(babble_types::Error::Conflict(message)) if message == REPORT_INTAKE_LIMIT)
     );
     assert_eq!(
         f.node
@@ -646,7 +646,7 @@ fn moderation_concurrent_revision_decisions_commit_exactly_one_history() {
     assert_eq!(
         outcomes
             .iter()
-            .filter(|r| matches!(r, Err(babel_types::Error::Conflict(_))))
+            .filter(|r| matches!(r, Err(babble_types::Error::Conflict(_))))
             .count(),
         1
     );
@@ -675,7 +675,7 @@ fn moderation_following_cursor_depends_only_on_effective_restrictions() {
     f.node
         .set_following(&f.reporter, &f.author, true, 0, "follow")
         .unwrap();
-    let mut query = babel_node::FollowingQuery {
+    let mut query = babble_node::FollowingQuery {
         limit: 1,
         cursor: None,
         search: None,

@@ -3,9 +3,9 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode},
 };
-use babel_api::{ApiState, router};
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
+use babble_api::{ApiState, router};
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
 use serde_json::{Value, json};
 use std::{
     path::PathBuf,
@@ -18,7 +18,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         Self(std::env::temp_dir().join(format!(
-            "babel-moderation-http-{}-{}-{}",
+            "babble-moderation-http-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed)
@@ -97,7 +97,7 @@ fn report(object: &str, key: &str) -> Value {
     json!({"object_id":object,"reason":"fraud","details":"Reporter private evidence sufficiently detailed","idempotency_key":key})
 }
 fn decision(outcome: &str, revision: u64, key: &str) -> Value {
-    json!({"outcome":outcome,"reason":"fraud","explanation":"Reviewer explained the integrity policy decision","policy_version":"babel.integrity.v1","source_signals":[],"expected_revision":revision,"idempotency_key":key})
+    json!({"outcome":outcome,"reason":"fraud","explanation":"Reviewer explained the integrity policy decision","policy_version":"babble.integrity.v1","source_signals":[],"expected_revision":revision,"idempotency_key":key})
 }
 fn appeal(revision: u64, key: &str) -> Value {
     json!({"details":"Appellant private explanation sufficiently detailed","expected_revision":revision,"idempotency_key":key})
@@ -387,7 +387,7 @@ async fn moderation_http_auth_redaction_review_appeal_retry_and_restart() {
                 .uri("/moderation/access")
                 .header("authorization", format!("Bearer {}", reporter.token))
                 .header(
-                    "x-babel-surface-document",
+                    "x-babble-surface-document",
                     "00000000-0000-0000-0000-000000000000",
                 )
                 .body(Body::empty())
@@ -491,7 +491,7 @@ async fn moderation_transport_bounds_private_failures_and_default_deny_rpc() {
             .0,
         StatusCode::OK
     );
-    let catalog = babel_rpc::babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc::babble_rpc_catalog().unwrap();
     assert!(
         !catalog
             .methods
@@ -499,17 +499,17 @@ async fn moderation_transport_bounds_private_failures_and_default_deny_rpc() {
             .any(|m| m.method.as_str().contains("moderation"))
     );
     let mut rpc = serde_json::to_value(
-        babel_rpc::RpcRequestEnvelope::new(
+        babble_rpc::RpcRequestEnvelope::new(
             &catalog,
             "forged",
-            "babel.identity.current.v1",
-            babel_rpc::RpcBinding::host("moderation", "https://babel.test").unwrap(),
+            "babble.identity.current.v1",
+            babble_rpc::RpcBinding::host("moderation", "https://babble.test").unwrap(),
             json!({}),
         )
         .unwrap(),
     )
     .unwrap();
-    rpc["method"] = json!("babel.moderation.reports.create.v1");
+    rpc["method"] = json!("babble.moderation.reports.create.v1");
     rpc["payload"] = report(object, "rpc");
     assert!(
         call(&app, "POST", "/rpc", Some(&actor), rpc)

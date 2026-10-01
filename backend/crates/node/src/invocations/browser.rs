@@ -1,7 +1,7 @@
 //! Browser effects are host-reported. Durable dispatch is at most once; it is
 //! deliberately not an exactly-once transaction with a native browser API.
 use super::*;
-use babel_capabilities::invocation::{browser::*, is_browser_invocation, new_context_epoch};
+use babble_capabilities::invocation::{browser::*, is_browser_invocation, new_context_epoch};
 
 impl<P: JudgmentProvider> LocalNode<P> {
     pub fn prepare_browser_invocation(
@@ -189,7 +189,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
 
     fn browser_definition(&self, method: &str) -> Result<CapabilityDefinition> {
         let capability = method
-            .strip_suffix(".v2")
+            .strip_suffix("")
             .filter(|c| is_browser_invocation(c))
             .ok_or_else(|| conflict("unsupported browser invocation method"))?;
         self.capability_definitions()
@@ -252,11 +252,11 @@ fn normalize_browser_payload(method: &str, value: Value) -> Result<Value> {
         navigation_ui: Option<String>,
     }
     match method {
-        "babel.clipboard.write.v2" => {
+        "babble.clipboard.write" => {
             let input: Clipboard = serde_json::from_value(value).map_err(encoding)?;
             Ok(json!({"text":input.text}))
         }
-        "babel.fullscreen.enter.v2" => {
+        "babble.fullscreen.enter" => {
             let input: Fullscreen = serde_json::from_value(value).map_err(encoding)?;
             if input
                 .target_hint

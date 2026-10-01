@@ -5,17 +5,17 @@ use crate::{
     routes::{lock_node, object_id},
     schema::StartSurfaceSessionRequest,
 };
-use babel_judgment::JudgmentProvider;
-use babel_node::LocalNode;
-use babel_runtime::{SurfaceLifecycle, SurfaceSession, SurfaceSessionId};
-use babel_types::IdentityId;
+use babble_judgment::JudgmentProvider;
+use babble_node::LocalNode;
+use babble_runtime::{SurfaceLifecycle, SurfaceSession, SurfaceSessionId};
+use babble_types::IdentityId;
 
 pub(crate) fn authorize_bundle<P: JudgmentProvider>(
     auth: &Auth,
     node: &LocalNode<P>,
     principal: &Principal,
     session: &SurfaceSessionId,
-    object: &babel_types::ObjectId,
+    object: &babble_types::ObjectId,
     allow_suspended: bool,
 ) -> Result<(), ApiError> {
     let current = auth.with_store(|store| store.authenticate_hash(&principal.account_session))?;
@@ -117,7 +117,7 @@ pub(crate) fn require_owner<P: JudgmentProvider>(
     Ok(())
 }
 
-pub(crate) const DOCUMENT_HEADER: &str = "x-babel-surface-document";
+pub(crate) const DOCUMENT_HEADER: &str = "x-babble-surface-document";
 
 pub(crate) fn validate_document(document: &str) -> Result<(), ApiError> {
     if document.len() != 36
@@ -245,7 +245,7 @@ fn retire_runtime<P: JudgmentProvider>(
                 "Surface host lease or account session expired or revoked",
             )?;
         }
-        Ok(_) | Err(babel_types::Error::NotFound(_)) => {}
+        Ok(_) | Err(babble_types::Error::NotFound(_)) => {}
         Err(error) => return Err(error.into()),
     }
     auth.with_store(|store| store.retire_surface(id))

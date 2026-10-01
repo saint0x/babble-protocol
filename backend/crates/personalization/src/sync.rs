@@ -1,5 +1,5 @@
 use crate::LocalUserModel;
-use babel_types::{Canonical, Error, Hash, IdentityId, Result, Timestamp};
+use babble_types::{Canonical, Error, Hash, IdentityId, Result, Timestamp};
 use chacha20poly1305::aead::{Aead, KeyInit};
 use chacha20poly1305::{Key, XChaCha20Poly1305, XNonce};
 use rand_core::{OsRng, RngCore};
@@ -8,10 +8,10 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Formatter};
 use zeroize::{Zeroize, ZeroizeOnDrop};
 
-pub const PERSONALIZATION_SYNC_VERSION: &str = "babel.personalization.sync.v1";
+pub const PERSONALIZATION_SYNC_VERSION: &str = "babble.personalization.sync.v1";
 pub const PERSONALIZATION_SYNC_DATA_CLASS: &str = "encrypted_synchronized_state";
 pub const PERSONALIZATION_SYNC_ALGORITHM: &str = "XChaCha20-Poly1305";
-const PERSONALIZATION_MODEL_PAYLOAD: &str = "babel.personalization.local_user_model.v1";
+const PERSONALIZATION_MODEL_PAYLOAD: &str = "babble.personalization.local_user_model.v1";
 const SYNC_KEY_BYTES: usize = 32;
 const XCHACHA_NONCE_BYTES: usize = 24;
 
@@ -290,7 +290,7 @@ fn validate_revision(value: &str) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use babel_types::Hash;
+    use babble_types::Hash;
     use std::collections::{BTreeMap, BTreeSet};
     use time::OffsetDateTime;
 
@@ -424,8 +424,8 @@ mod tests {
         Timestamp(OffsetDateTime::from_unix_timestamp(seconds).unwrap())
     }
 
-    fn object_id(seed: &str) -> babel_types::ObjectId {
-        babel_types::ObjectId::from_hash(&Hash::from_bytes(seed.as_bytes()))
+    fn object_id(seed: &str) -> babble_types::ObjectId {
+        babble_types::ObjectId::from_hash(&Hash::from_bytes(seed.as_bytes()))
     }
 
     fn identity_id(seed: &str) -> IdentityId {

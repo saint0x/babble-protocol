@@ -9,7 +9,7 @@ async fn auth_private_realtime_room_reads_and_session_mutations_obey_membership(
     let object = publish(&app, &alice, "private realtime object").await;
     let (status, room) = request(&app, "POST", "/realtime/rooms", Some(&alice.token), json!({
         "author_id":alice.id,"object_id":object,"name":"private-room",
-        "schema":"babel.realtime.state.v1","membership":{"allow_list":[alice.id]},"persistence":"durable_messages"
+        "schema":"babble.realtime.state.v1","membership":{"allow_list":[alice.id]},"persistence":"durable_messages"
     })).await;
     assert_eq!(status, StatusCode::OK, "{room}");
     let room_id = room["room"]["id"].as_str().unwrap();

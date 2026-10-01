@@ -4,7 +4,7 @@ export CARGO_INCREMENTAL=0
 export CARGO_BUILD_JOBS=1
 log=$(mktemp)
 trap 'rm -f "$log"' EXIT
-if ! cargo test --manifest-path ../../Cargo.toml -p babel-api -p babel-runtime -p babel-rpc --tests --no-fail-fast >"$log" 2>&1; then
+if ! cargo test --manifest-path ../../Cargo.toml -p babble-api -p babble-runtime -p babble-rpc --tests --no-fail-fast >"$log" 2>&1; then
     cat "$log" >&2
     exit 1
 fi

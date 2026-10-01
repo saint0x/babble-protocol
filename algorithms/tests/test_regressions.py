@@ -2,18 +2,18 @@ import math
 
 import pytest
 
-from babel_algorithms.consensus import ConsensusAnalyzer, ConsensusSource, ConsensusState
-from babel_algorithms.discovery import CandidateEngine, DiscoveryRequest
-from babel_algorithms.lens import BuiltInLens, LensStack, LensWeight
-from babel_algorithms.recommendation import (
+from babble_algorithms.consensus import ConsensusAnalyzer, ConsensusSource, ConsensusState
+from babble_algorithms.discovery import CandidateEngine, DiscoveryRequest
+from babble_algorithms.lens import BuiltInLens, LensStack, LensWeight
+from babble_algorithms.recommendation import (
     ContentProfile,
     Interaction,
     RecommendationEngine,
     RecommendationWeights,
     UserProfile,
 )
-from babel_algorithms.text import tokens
-from babel_algorithms.types import Candidate, ObjectId, ObjectSignals, clamp_score
+from babble_algorithms.text import tokens
+from babble_algorithms.types import Candidate, ObjectId, ObjectSignals, clamp_score
 
 
 @pytest.mark.parametrize("value", [math.nan, math.inf, -math.inf])

@@ -14,7 +14,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-runtime",
+        "babble-runtime",
         "scheduler_"
       ],
       "exit_code": 0,
@@ -28,7 +28,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-api",
+        "babble-api",
         "rpc_dispatch_schedules_host_owned_surface_sessions"
       ],
       "exit_code": 0,
@@ -56,7 +56,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-runtime",
+        "babble-runtime",
         "scheduler_"
       ],
       "expect_exit": 0
@@ -69,7 +69,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-api",
+        "babble-api",
         "rpc_dispatch_schedules_host_owned_surface_sessions"
       ],
       "expect_exit": 0

@@ -41,7 +41,7 @@ export async function verifySocialSafety({ execute, waitFor, rpc, authorId, apiU
     })()`);
     const fixture = await run("setup");
     assert.notEqual(fixture.ownerId, fixture.targetId);
-    const publicRead = await rpc("babel.search.objects.v1", {
+    const publicRead = await rpc("babble.search.objects.v1", {
       q: marker, author: fixture.targetId, kind: null, limit: 20,
     });
     assert.ok(publicRead.results.some(item => item.object.id === fixture.objectId), "Real RPC must discover the signed fixture");
@@ -91,11 +91,11 @@ function socialSafetyHarness({ apiUrl, marker }) {
     button.click();
     return button;
   };
-  const sessionKey = `babel.session.v1:${apiUrl}`;
+  const sessionKey = `babble.session.v1:${apiUrl}`;
   const savedSession = sessionStorage.getItem(sessionKey);
   const owner = JSON.parse(savedSession ?? 'null');
   check(owner?.token && owner.identity?.id, 'Parent must supply an authenticated browser');
-  check(new URL(document.documentElement.dataset.babelApi).origin === apiUrl, 'Browser and fixture API differ');
+  check(new URL(document.documentElement.dataset.babbleApi).origin === apiUrl, 'Browser and fixture API differ');
   const ownerId = owner.identity.id;
   const savedSearch = required('[data-search-input]').value;
   const savedLens = document.querySelector('[data-lens][aria-pressed="true"]')?.dataset.lens;
@@ -148,7 +148,7 @@ function socialSafetyHarness({ apiUrl, marker }) {
   };
   const rpcRequest = async (method, payload, account = owner) => {
     const response = await request('/rpc', { method: 'POST', account, body: {
-      protocol: 'babel.rpc.v1', id: `safety-${crypto.randomUUID()}`, method, payload, idempotency_key: key('rpc-receipt'),
+      protocol: 'babble.rpc.v1', id: `safety-${crypto.randomUUID()}`, method, payload, idempotency_key: key('rpc-receipt'),
       binding: { object_id: null, surface_session_id: null, runtime_id: 'safety-browser', origin: location.origin, capability_grants: [] },
       deadline: { timeout_ms: 30000, client_started_at: null }, trace_id: null,
     } });
@@ -157,9 +157,9 @@ function socialSafetyHarness({ apiUrl, marker }) {
   };
   const controller = async (account, targetId) => {
     const response = await ok('/objects', { method: 'POST', account, body: { author_id: account.identity.id, draft: {
-      kind: 'babel.text', schema: 'babel.schema.text.v1', payload: { text: `Safety controller ${crypto.randomUUID()}`, metadata: {} },
+      kind: 'babble.text', schema: 'babble.schema.text.v1', payload: { text: `Safety controller ${crypto.randomUUID()}`, metadata: {} },
       provenance: { parent: null, forked_from: null, remixed_from: [] }, resources: [], surfaces: [],
-      capabilities: ['follow', 'reply', 'share'].map(action => ({ id: `babel.social.${action}`, version: 1, scope: { object_id: targetId } })),
+      capabilities: ['follow', 'reply', 'share'].map(action => ({ id: `babble.social.${action}`, version: 1, scope: { object_id: targetId } })),
     } } });
     return response.object;
   };
@@ -167,10 +167,10 @@ function socialSafetyHarness({ apiUrl, marker }) {
     const documentId = crypto.randomUUID();
     await ok(`/invocations/v1/documents/${documentId}`, { method: 'PUT', account, body: { object_id: control.id } });
     documents.push({ documentId, account });
-    const headers = { 'x-babel-host-document': documentId };
+    const headers = { 'x-babble-host-document': documentId };
     let response = await request('/invocations/v1/prepare', { method: 'POST', account, headers, body: {
       origin: { kind: 'host_action', document_id: documentId }, object_id: control.id,
-      method: `babel.social.${action}.v2`, request_key: key(action), timeout_ms: 30000,
+      method: `babble.social.${action}`, request_key: key(action), timeout_ms: 30000,
       payload: { author_id: account.identity.id, target_object_id: targetId, ...(action === 'follow' ? {} : { text: `Safety ${action} ${crypto.randomUUID()}` }) },
     } });
     for (const phase of ['decision', 'execute']) {
@@ -317,7 +317,7 @@ function socialSafetyHarness({ apiUrl, marker }) {
     const quote = active().querySelector(`[data-quoted-object="${object.id}"]`);
     check(blocked ? !replyRow : visible(replyRow), 'Blocked reply filtering or mute-only reply visibility is wrong');
     check(blocked ? !quote : visible(quote), 'Blocked quote filtering or mute-only quote visibility is wrong');
-    const publicReplies = await rpcRequest('babel.social.replies.list.v1', { object_id: source.id, limit: 20, cursor: null });
+    const publicReplies = await rpcRequest('babble.social.replies.list.v1', { object_id: source.id, limit: 20, cursor: null });
     check(publicReplies.error === null && publicReplies.result.replies.some(item => item.object.id === reply.id), 'Public reply readback lost signed history');
     // The public graph must retain both signed relationships even while host
     // presentation filters their target author.
@@ -334,7 +334,7 @@ function socialSafetyHarness({ apiUrl, marker }) {
     for (const relation of ['references', 'reply_to', 'quotes', 'follows']) {
       const payload = edgePayload(account, from, to, relation);
       const rest = await request('/graph/edges', { method: 'POST', account, body: payload });
-      const rpc = await rpcRequest('babel.graph.edge.publish.v1', payload, account);
+      const rpc = await rpcRequest('babble.graph.edge.publish.v1', payload, account);
       if (blocked) {
         check(rest.status === 409 && /interaction unavailable/.test(rest.value?.message ?? ''), `REST ${relation} bypassed block or failed for another reason`);
         check(rpc.result === null && rpc.error?.code === 'CONFLICT' && /interaction unavailable/.test(rpc.error.message), `RPC ${relation} did not reject for safety: ${JSON.stringify(rpc)}`);

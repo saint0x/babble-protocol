@@ -1,4 +1,4 @@
-use crate as babel_api;
+use crate as babble_api;
 use crate::routes::trusted_router as router;
 use crate::{
     AiEmbedResponse, AiGenerateResponse, AiTranscribeResponse, ApiState,
@@ -25,26 +25,26 @@ use axum::{
     body::{Body, to_bytes},
     http::{Method, Request, StatusCode, header},
 };
-use babel_authoring::ObjectDraft;
-use babel_capabilities::PermissionMode;
-use babel_graph::{EdgeOrigin, Relation, TraversalDirection};
-use babel_identity::IdentityKind;
-use babel_judgment::{DefinitionId, ProviderRole};
-use babel_judgment_local::LocalProvider;
-use babel_lens::{BuiltInLens, CandidateSource, LensExecution};
-use babel_node::LocalNode;
-use babel_object::{Resource, Surface, SurfaceRole, SurfaceTarget};
-use babel_personalization::{
+use babble_authoring::ObjectDraft;
+use babble_capabilities::PermissionMode;
+use babble_graph::{EdgeOrigin, Relation, TraversalDirection};
+use babble_identity::IdentityKind;
+use babble_judgment::{DefinitionId, ProviderRole};
+use babble_judgment_local::LocalProvider;
+use babble_lens::{BuiltInLens, CandidateSource, LensExecution};
+use babble_node::LocalNode;
+use babble_object::{Resource, Surface, SurfaceRole, SurfaceTarget};
+use babble_personalization::{
     EncryptedLocalUserModel, LocalUserModel, PersonalizationSyncKey, PersonalizationSyncRecipient,
 };
-use babel_realtime::{MembershipPolicy, PersistencePolicy, RealtimeOperation, RealtimePayload};
-use babel_rpc::{
+use babble_realtime::{MembershipPolicy, PersistencePolicy, RealtimeOperation, RealtimePayload};
+use babble_rpc::{
     RpcBinding, RpcCatalog, RpcErrorCode, RpcRequestEnvelope, RpcResponseEnvelope,
-    babel_rpc_catalog,
+    babble_rpc_catalog,
 };
-use babel_runtime::{SurfaceLifecycle, SurfaceRuntimeEventKind};
-use babel_state::EventKind;
-use babel_types::Hash;
+use babble_runtime::{SurfaceLifecycle, SurfaceRuntimeEventKind};
+use babble_state::EventKind;
+use babble_types::Hash;
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -60,15 +60,15 @@ use tower::ServiceExt;
 fn rpc_dispatch_publishes_and_fetches_text_objects() {
     let root = unique_root("dispatch-text");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
 
     let created = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "request-identity",
-            "babel.identity.create.v1",
-            RpcBinding::host("test-runtime", "babel://test").unwrap(),
+            "babble.identity.create.v1",
+            RpcBinding::host("test-runtime", "babble://test").unwrap(),
             json!({"kind": "Person", "handle": "alice"}),
         )
         .unwrap()
@@ -82,8 +82,8 @@ fn rpc_dispatch_publishes_and_fetches_text_objects() {
         RpcRequestEnvelope::new(
             &catalog,
             "request-publish",
-            "babel.object.publish_text.v1",
-            RpcBinding::host("test-runtime", "babel://test").unwrap(),
+            "babble.object.publish_text.v1",
+            RpcBinding::host("test-runtime", "babble://test").unwrap(),
             json!({
                 "author_id": identity.identity.id,
                 "text": "RPC dispatch should share the real local node publication path."
@@ -100,8 +100,8 @@ fn rpc_dispatch_publishes_and_fetches_text_objects() {
         RpcRequestEnvelope::new(
             &catalog,
             "request-get",
-            "babel.object.get.v1",
-            RpcBinding::host("test-runtime", "babel://test").unwrap(),
+            "babble.object.get.v1",
+            RpcBinding::host("test-runtime", "babble://test").unwrap(),
             json!({"object_id": published.object.id}),
         )
         .unwrap(),
@@ -117,15 +117,15 @@ fn rpc_dispatch_publishes_and_fetches_text_objects() {
 fn rpc_dispatch_lists_lens_catalog() {
     let root = unique_root("dispatch-lenses");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
 
     let response = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "request-lenses",
-            "babel.lenses.list.v1",
-            RpcBinding::host("test-runtime", "babel://test").unwrap(),
+            "babble.lenses.list.v1",
+            RpcBinding::host("test-runtime", "babble://test").unwrap(),
             json!({}),
         )
         .unwrap(),
@@ -139,7 +139,7 @@ fn rpc_dispatch_lists_lens_catalog() {
         .iter()
         .find(|lens| lens.lens == BuiltInLens::Research)
         .expect("Research Lens should be advertised");
-    assert_eq!(research.id, "babel.lens.research.v1");
+    assert_eq!(research.id, "babble.lens.research.v1");
     assert_eq!(research.execution, LensExecution::LocalDeterministic);
     assert!(
         research
@@ -160,25 +160,25 @@ fn rpc_dispatch_lists_lens_catalog() {
 #[tokio::test]
 async fn publication_recovery_required_rejects_infallible_api_readers() {
     let root = unique_root("publication-recovery-required");
-    let keypair = babel_crypto::Keypair::generate();
+    let keypair = babble_crypto::Keypair::generate();
     let author =
-        babel_identity::Identity::create(IdentityKind::Person, "publisher", &keypair).unwrap();
+        babble_identity::Identity::create(IdentityKind::Person, "publisher", &keypair).unwrap();
     let mut node = LocalNode::open(&root, LocalProvider::default()).unwrap();
     node.import_signing_identity(author.clone(), keypair.clone())
         .unwrap();
     let existing = node
         .publish_text(&author.id, "Existing readable Object")
         .unwrap();
-    let pending = babel_object::Object::text(&author, "Recover this committed publication")
+    let pending = babble_object::Object::text(&author, "Recover this committed publication")
         .unwrap()
         .sign(&author, &keypair)
         .unwrap();
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
     let request = RpcRequestEnvelope::new(
         &catalog,
         "read-after-publication-failure",
-        "babel.object.get.v1",
-        RpcBinding::host("test-runtime", "babel://test").unwrap(),
+        "babble.object.get.v1",
+        RpcBinding::host("test-runtime", "babble://test").unwrap(),
         json!({"object_id": existing.id}),
     )
     .unwrap();
@@ -269,15 +269,15 @@ async fn publication_recovery_required_rejects_infallible_api_readers() {
 fn rpc_dispatch_lists_judgment_definitions() {
     let root = unique_root("dispatch-judgment-definitions");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
 
     let response = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "request-judgment-definitions",
-            "babel.judgment.definitions.list.v1",
-            RpcBinding::host("test-runtime", "babel://test").unwrap(),
+            "babble.judgment.definitions.list.v1",
+            RpcBinding::host("test-runtime", "babble://test").unwrap(),
             json!({}),
         )
         .unwrap(),
@@ -300,7 +300,7 @@ fn rpc_dispatch_lists_judgment_definitions() {
         .expect("evidence quality Judgment definition should be listed");
     assert_eq!(
         evidence.output_schema,
-        "babel.judgment.output.bounded_score.v1"
+        "babble.judgment.output.bounded_score.v1"
     );
     assert!(evidence.meaning.contains("evidence"));
     assert!(evidence.calibration.contains("higher means"));
@@ -312,15 +312,15 @@ fn rpc_dispatch_lists_judgment_definitions() {
 fn rpc_dispatch_lists_judgment_providers() {
     let root = unique_root("dispatch-judgment-providers");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
 
     let response = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "request-judgment-providers",
-            "babel.judgment.providers.list.v1",
-            RpcBinding::host("test-runtime", "babel://test").unwrap(),
+            "babble.judgment.providers.list.v1",
+            RpcBinding::host("test-runtime", "babble://test").unwrap(),
             json!({}),
         )
         .unwrap(),
@@ -331,7 +331,7 @@ fn rpc_dispatch_lists_judgment_providers() {
 
     assert_eq!(providers.providers.len(), 1);
     let provider = &providers.providers[0];
-    assert_eq!(provider.provider.provider, "babel-local");
+    assert_eq!(provider.provider.provider, "babble-local");
     assert_eq!(provider.role, ProviderRole::Local);
     assert!(provider.enabled);
     assert!(provider.privacy_policy.include_subject);
@@ -348,15 +348,15 @@ fn rpc_dispatch_lists_judgment_providers() {
 fn rpc_dispatch_lists_capability_catalog() {
     let root = unique_root("dispatch-capability-catalog");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
 
     let response = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "request-capabilities",
-            "babel.capabilities.list.v1",
-            RpcBinding::host("test-runtime", "babel://test").unwrap(),
+            "babble.capabilities.list.v1",
+            RpcBinding::host("test-runtime", "babble://test").unwrap(),
             json!({}),
         )
         .unwrap(),
@@ -369,7 +369,7 @@ fn rpc_dispatch_lists_capability_catalog() {
     let network = catalog
         .capabilities
         .iter()
-        .find(|capability| capability.id.as_str() == "babel.network.fetch")
+        .find(|capability| capability.id.as_str() == "babble.network.fetch")
         .expect("network.fetch capability should be cataloged");
     assert_eq!(network.version, 1);
     assert_eq!(network.permission, PermissionMode::AskOnce);
@@ -379,7 +379,7 @@ fn rpc_dispatch_lists_capability_catalog() {
     let files = catalog
         .capabilities
         .iter()
-        .find(|capability| capability.id.as_str() == "babel.files")
+        .find(|capability| capability.id.as_str() == "babble.files")
         .expect("denied file access capability should be cataloged");
     assert_eq!(files.permission, PermissionMode::DeniedByDefault);
 
@@ -390,15 +390,15 @@ fn rpc_dispatch_lists_capability_catalog() {
 fn rpc_dispatch_traverses_typed_graph_neighborhoods() {
     let root = unique_root("dispatch-graph-traverse");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
 
     let created = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "graph-traverse-identity",
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             binding.clone(),
             json!({"kind": "Person", "handle": "alice"}),
         )
@@ -414,7 +414,7 @@ fn rpc_dispatch_traverses_typed_graph_neighborhoods() {
             RpcRequestEnvelope::new(
                 &catalog,
                 id,
-                "babel.object.publish_text.v1",
+                "babble.object.publish_text.v1",
                 binding.clone(),
                 json!({"author_id": identity.identity.id, "text": text}),
             )
@@ -442,7 +442,7 @@ fn rpc_dispatch_traverses_typed_graph_neighborhoods() {
         RpcRequestEnvelope::new(
             &catalog,
             "graph-traverse-inferred-edge",
-            "babel.graph.relationship.infer.v1",
+            "babble.graph.relationship.infer.v1",
             binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -470,7 +470,7 @@ fn rpc_dispatch_traverses_typed_graph_neighborhoods() {
         RpcRequestEnvelope::new(
             &catalog,
             "graph-evidence-projection",
-            "babel.graph.evidence.v1",
+            "babble.graph.evidence.v1",
             binding.clone(),
             json!({"object_id": claim.object.id}),
         )
@@ -499,7 +499,7 @@ fn rpc_dispatch_traverses_typed_graph_neighborhoods() {
         RpcRequestEnvelope::new(
             &catalog,
             "graph-traverse-evidence-edge",
-            "babel.graph.edge.publish.v1",
+            "babble.graph.edge.publish.v1",
             binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -521,7 +521,7 @@ fn rpc_dispatch_traverses_typed_graph_neighborhoods() {
         RpcRequestEnvelope::new(
             &catalog,
             "graph-traverse-source-edge",
-            "babel.graph.edge.publish.v1",
+            "babble.graph.edge.publish.v1",
             binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -543,7 +543,7 @@ fn rpc_dispatch_traverses_typed_graph_neighborhoods() {
         RpcRequestEnvelope::new(
             &catalog,
             "graph-traverse",
-            "babel.graph.traverse.v1",
+            "babble.graph.traverse.v1",
             binding,
             json!({
                 "object_id": claim.object.id,
@@ -571,15 +571,15 @@ fn rpc_dispatch_traverses_typed_graph_neighborhoods() {
 fn rpc_dispatch_publishes_general_object_drafts() {
     let root = unique_root("dispatch-object-draft");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
 
     let created = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "draft-identity",
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             binding.clone(),
             json!({"kind": "Person", "handle": "alice"}),
         )
@@ -589,7 +589,7 @@ fn rpc_dispatch_publishes_general_object_drafts() {
     assert!(created.error.is_none(), "{:?}", created.error);
     let identity: CreateIdentityResponse = serde_json::from_value(created.result.unwrap()).unwrap();
     let draft = ObjectDraft::new(
-        babel_object::ObjectKind::new("babel.canvas"),
+        babble_object::ObjectKind::new("babble.canvas"),
         "example.canvas.v1",
         json!({
             "title": "Collaborative canvas",
@@ -599,7 +599,7 @@ fn rpc_dispatch_publishes_general_object_drafts() {
     .unwrap()
     .with_capability(
         serde_json::from_value(json!({
-            "id": "babel.storage.object",
+            "id": "babble.storage.object",
             "version": 1,
             "scope": {"namespace": "canvas"}
         }))
@@ -614,7 +614,7 @@ fn rpc_dispatch_publishes_general_object_drafts() {
         RpcRequestEnvelope::new(
             &catalog,
             "draft-missing-idempotency",
-            "babel.object.publish.v1",
+            "babble.object.publish.v1",
             binding.clone(),
             json!({"author_id": identity.identity.id, "draft": draft}),
         )
@@ -630,7 +630,7 @@ fn rpc_dispatch_publishes_general_object_drafts() {
         RpcRequestEnvelope::new(
             &catalog,
             "draft-publish",
-            "babel.object.publish.v1",
+            "babble.object.publish.v1",
             binding.clone(),
             json!({"author_id": identity.identity.id, "draft": draft}),
         )
@@ -640,7 +640,7 @@ fn rpc_dispatch_publishes_general_object_drafts() {
     assert!(published.error.is_none(), "{:?}", published.error);
     let published: PublishObjectResponse =
         serde_json::from_value(published.result.unwrap()).unwrap();
-    assert_eq!(published.object.kind.as_str(), "babel.canvas");
+    assert_eq!(published.object.kind.as_str(), "babble.canvas");
     assert_eq!(published.object.schema, "example.canvas.v1");
     assert_eq!(published.object.capabilities.len(), 1);
     assert_eq!(published.object.state, Some(json!({"revision": 1})));
@@ -650,7 +650,7 @@ fn rpc_dispatch_publishes_general_object_drafts() {
         RpcRequestEnvelope::new(
             &catalog,
             "draft-fetch",
-            "babel.object.get.v1",
+            "babble.object.get.v1",
             binding,
             json!({"object_id": published.object.id}),
         )
@@ -669,15 +669,15 @@ fn rpc_dispatch_lists_bundles_and_imports_protocol_events() {
     let target_root = unique_root("dispatch-events-target");
     let source = test_state(&source_root);
     let target = test_state(&target_root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
 
     let created = dispatch(
         &source,
         RpcRequestEnvelope::new(
             &catalog,
             "events-identity",
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             binding.clone(),
             json!({"kind": "Person", "handle": "alice"}),
         )
@@ -692,7 +692,7 @@ fn rpc_dispatch_lists_bundles_and_imports_protocol_events() {
         RpcRequestEnvelope::new(
             &catalog,
             "events-publish",
-            "babel.object.publish_text.v1",
+            "babble.object.publish_text.v1",
             binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -710,7 +710,7 @@ fn rpc_dispatch_lists_bundles_and_imports_protocol_events() {
         RpcRequestEnvelope::new(
             &catalog,
             "events-list-first",
-            "babel.events.list.v1",
+            "babble.events.list.v1",
             binding.clone(),
             json!({"limit": 1}),
         )
@@ -728,7 +728,7 @@ fn rpc_dispatch_lists_bundles_and_imports_protocol_events() {
         RpcRequestEnvelope::new(
             &catalog,
             "events-list-second",
-            "babel.events.list.v1",
+            "babble.events.list.v1",
             binding.clone(),
             json!({"after": cursor, "limit": 50}),
         )
@@ -738,14 +738,14 @@ fn rpc_dispatch_lists_bundles_and_imports_protocol_events() {
     let second_page: EventListResponse =
         serde_json::from_value(second_page.result.unwrap()).unwrap();
     assert!(second_page.events.iter().any(|event| {
-        matches!(&event.target, babel_state::EventTarget::Object(object_id) if object_id == &published.object.id)
+        matches!(&event.target, babble_state::EventTarget::Object(object_id) if object_id == &published.object.id)
     }));
 
     let object_event_id = second_page
         .events
         .iter()
         .find(|event| {
-            matches!(&event.target, babel_state::EventTarget::Object(object_id) if object_id == &published.object.id)
+            matches!(&event.target, babble_state::EventTarget::Object(object_id) if object_id == &published.object.id)
         })
         .map(|event| event.id.to_string())
         .expect("published object should have an event");
@@ -754,7 +754,7 @@ fn rpc_dispatch_lists_bundles_and_imports_protocol_events() {
         RpcRequestEnvelope::new(
             &catalog,
             "events-bundle",
-            "babel.events.bundle.v1",
+            "babble.events.bundle.v1",
             binding.clone(),
             json!({"events": [object_event_id]}),
         )
@@ -771,7 +771,7 @@ fn rpc_dispatch_lists_bundles_and_imports_protocol_events() {
         RpcRequestEnvelope::new(
             &catalog,
             "events-import-missing-key",
-            "babel.events.import.v1",
+            "babble.events.import.v1",
             binding.clone(),
             json!({"bundle": bundled.bundle.clone()}),
         )
@@ -787,7 +787,7 @@ fn rpc_dispatch_lists_bundles_and_imports_protocol_events() {
         RpcRequestEnvelope::new(
             &catalog,
             "events-import",
-            "babel.events.import.v1",
+            "babble.events.import.v1",
             binding.clone(),
             json!({"bundle": bundled.bundle}),
         )
@@ -805,7 +805,7 @@ fn rpc_dispatch_lists_bundles_and_imports_protocol_events() {
         RpcRequestEnvelope::new(
             &catalog,
             "events-import-fetch-object",
-            "babel.object.get.v1",
+            "babble.object.get.v1",
             binding,
             json!({"object_id": published.object.id}),
         )
@@ -823,15 +823,15 @@ fn rpc_dispatch_lists_bundles_and_imports_protocol_events() {
 fn rpc_dispatch_evaluates_judgment_with_orchestration_trace() {
     let root = unique_root("dispatch-judgment");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
 
     let created = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "judgment-identity",
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             binding.clone(),
             json!({"kind": "Person", "handle": "alice"}),
         )
@@ -846,7 +846,7 @@ fn rpc_dispatch_evaluates_judgment_with_orchestration_trace() {
         RpcRequestEnvelope::new(
             &catalog,
             "judgment-publish",
-            "babel.object.publish_text.v1",
+            "babble.object.publish_text.v1",
             binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -864,7 +864,7 @@ fn rpc_dispatch_evaluates_judgment_with_orchestration_trace() {
         RpcRequestEnvelope::new(
             &catalog,
             "judgment-evaluate",
-            "babel.judgment.object.evaluate.v1",
+            "babble.judgment.object.evaluate.v1",
             binding,
             json!({
                 "object_id": published.object.id,
@@ -882,7 +882,7 @@ fn rpc_dispatch_evaluates_judgment_with_orchestration_trace() {
 
     assert_eq!(orchestration.judgment, judged.judgment);
     assert_eq!(orchestration.decisions.len(), 1);
-    assert_eq!(orchestration.decisions[0].provider.provider, "babel-local");
+    assert_eq!(orchestration.decisions[0].provider.provider, "babble-local");
     assert!(orchestration.decisions[0].accepted);
     assert!(orchestration.decisions[0].privacy.include_subject);
 
@@ -893,15 +893,15 @@ fn rpc_dispatch_evaluates_judgment_with_orchestration_trace() {
 fn rpc_dispatch_handles_capability_bound_ai_judgment() {
     let root = unique_root("dispatch-ai-judge");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let host_binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let host_binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
 
     let created = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "ai-judge-identity",
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             host_binding.clone(),
             json!({"kind": "Person", "handle": "alice"}),
         )
@@ -916,7 +916,7 @@ fn rpc_dispatch_handles_capability_bound_ai_judgment() {
         RpcRequestEnvelope::new(
             &catalog,
             "ai-judge-target",
-            "babel.object.publish_text.v1",
+            "babble.object.publish_text.v1",
             host_binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -931,7 +931,7 @@ fn rpc_dispatch_handles_capability_bound_ai_judgment() {
 
     let definition = DefinitionId::evidence_quality_v1();
     let capability = json!({
-        "id": "babel.ai.judge",
+        "id": "babble.ai.judge",
         "version": 1,
         "scope": {
             "definition": definition,
@@ -947,7 +947,7 @@ fn rpc_dispatch_handles_capability_bound_ai_judgment() {
         RpcRequestEnvelope::new(
             &catalog,
             "ai-judge-source",
-            "babel.object.publish.v1",
+            "babble.object.publish.v1",
             host_binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -964,7 +964,7 @@ fn rpc_dispatch_handles_capability_bound_ai_judgment() {
         source.object.id.to_string(),
         "surface",
         "test-runtime",
-        "babel://test",
+        "babble://test",
         vec![],
     )
     .unwrap();
@@ -973,7 +973,7 @@ fn rpc_dispatch_handles_capability_bound_ai_judgment() {
         RpcRequestEnvelope::new(
             &catalog,
             "ai-judge-missing-grant",
-            "babel.ai.judge.v1",
+            "babble.ai.judge.v1",
             object_binding.clone(),
             json!({
                 "object_id": target.object.id,
@@ -1002,12 +1002,12 @@ fn rpc_dispatch_handles_capability_bound_ai_judgment() {
         RpcRequestEnvelope::new(
             &catalog,
             "ai-judge-wrong-definition",
-            "babel.ai.judge.v1",
+            "babble.ai.judge.v1",
             RpcBinding::object(
                 source.object.id.to_string(),
                 "surface",
                 "test-runtime",
-                "babel://test",
+                "babble://test",
                 vec![grant_id.clone()],
             )
             .unwrap(),
@@ -1024,7 +1024,7 @@ fn rpc_dispatch_handles_capability_bound_ai_judgment() {
     assert!(
         error
             .message
-            .contains("no active babel.ai.judge grant permits")
+            .contains("no active babble.ai.judge grant permits")
     );
 
     let judged = dispatch(
@@ -1032,12 +1032,12 @@ fn rpc_dispatch_handles_capability_bound_ai_judgment() {
         RpcRequestEnvelope::new(
             &catalog,
             "ai-judge-ok",
-            "babel.ai.judge.v1",
+            "babble.ai.judge.v1",
             RpcBinding::object(
                 source.object.id.to_string(),
                 "surface",
                 "test-runtime",
-                "babel://test",
+                "babble://test",
                 vec![grant_id],
             )
             .unwrap(),
@@ -1054,7 +1054,7 @@ fn rpc_dispatch_handles_capability_bound_ai_judgment() {
     let receipt = judged
         .receipt
         .expect("ai.judge must return a capability receipt");
-    assert_eq!(receipt.capability.as_str(), "babel.ai.judge");
+    assert_eq!(receipt.capability.as_str(), "babble.ai.judge");
     assert_eq!(
         receipt.scope["definition"],
         json!(DefinitionId::evidence_quality_v1())
@@ -1072,12 +1072,12 @@ fn rpc_dispatch_handles_capability_bound_ai_judgment() {
 fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
     let root = unique_root("dispatch-ai-host-actions");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let host_binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let host_binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
 
     let identity = create_rpc_identity(&state, &catalog, host_binding.clone(), "ai-host-author");
     let generate_capability = json!({
-        "id": "babel.ai.generate",
+        "id": "babble.ai.generate",
         "version": 1,
         "scope": {
             "tasks": ["text"],
@@ -1088,7 +1088,7 @@ fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
         }
     });
     let embed_capability = json!({
-        "id": "babel.ai.embed",
+        "id": "babble.ai.embed",
         "version": 1,
         "scope": {
             "input_modalities": ["text"],
@@ -1098,7 +1098,7 @@ fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
         }
     });
     let transcribe_capability = json!({
-        "id": "babel.ai.transcribe",
+        "id": "babble.ai.transcribe",
         "version": 1,
         "scope": {
             "media_types": ["audio/webm"],
@@ -1120,7 +1120,7 @@ fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
         RpcRequestEnvelope::new(
             &catalog,
             "ai-host-source",
-            "babel.object.publish.v1",
+            "babble.object.publish.v1",
             host_binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -1166,7 +1166,7 @@ fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
             source.object.id.to_string(),
             "surface",
             "test-runtime",
-            "babel://test",
+            "babble://test",
             grants,
         )
         .unwrap()
@@ -1177,7 +1177,7 @@ fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
         RpcRequestEnvelope::new(
             &catalog,
             "ai-generate-denied",
-            "babel.ai.generate.v1",
+            "babble.ai.generate.v1",
             object_binding(vec![generate_grant.clone()]),
             json!({
                 "purpose": "Draft a feed label",
@@ -1196,7 +1196,7 @@ fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
     assert!(
         error
             .message
-            .contains("no active babel.ai.generate grant permits")
+            .contains("no active babble.ai.generate grant permits")
     );
 
     let generated = dispatch(
@@ -1204,7 +1204,7 @@ fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
         RpcRequestEnvelope::new(
             &catalog,
             "ai-generate-ok",
-            "babel.ai.generate.v1",
+            "babble.ai.generate.v1",
             object_binding(vec![generate_grant]),
             json!({
                 "purpose": "Draft a feed label",
@@ -1221,20 +1221,20 @@ fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
     assert!(generated.error.is_none());
     let generated: AiGenerateResponse = serde_json::from_value(generated.result.unwrap()).unwrap();
     assert_eq!(generated.action.kind, "ai.generate");
-    assert_eq!(generated.action.task, babel_api::AiGenerateTask::Text);
-    assert_eq!(generated.receipt.capability.as_str(), "babel.ai.generate");
+    assert_eq!(generated.action.task, babble_api::AiGenerateTask::Text);
+    assert_eq!(generated.receipt.capability.as_str(), "babble.ai.generate");
 
     let denied_embed = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "ai-embed-denied",
-            "babel.ai.embed.v1",
+            "babble.ai.embed.v1",
             object_binding(vec![embed_grant.clone()]),
             json!({
                 "purpose": "Rank related Objects",
                 "input_modality": "image",
-                "inputs": ["babel://blobs/not-a-real-hash"],
+                "inputs": ["babble://blobs/not-a-real-hash"],
                 "model": "local/embed-v1",
                 "dimensions": 384
             }),
@@ -1246,7 +1246,7 @@ fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
     assert!(
         error
             .message
-            .contains("no active babel.ai.embed grant permits")
+            .contains("no active babble.ai.embed grant permits")
     );
 
     let embedded = dispatch(
@@ -1254,12 +1254,12 @@ fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
         RpcRequestEnvelope::new(
             &catalog,
             "ai-embed-ok",
-            "babel.ai.embed.v1",
+            "babble.ai.embed.v1",
             object_binding(vec![embed_grant]),
             json!({
                 "purpose": "Rank related Objects",
                 "input_modality": "text",
-                "inputs": ["Babel Objects are executable social media."],
+                "inputs": ["Babble Objects are executable social media."],
                 "model": "local/embed-v1",
                 "dimensions": 384
             }),
@@ -1269,18 +1269,18 @@ fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
     assert!(embedded.error.is_none());
     let embedded: AiEmbedResponse = serde_json::from_value(embedded.result.unwrap()).unwrap();
     assert_eq!(embedded.action.kind, "ai.embed");
-    assert_eq!(embedded.receipt.capability.as_str(), "babel.ai.embed");
+    assert_eq!(embedded.receipt.capability.as_str(), "babble.ai.embed");
 
     let media_uri = format!(
-        "babel://blobs/{}",
-        babel_types::Hash::from_bytes(b"caption me")
+        "babble://blobs/{}",
+        babble_types::Hash::from_bytes(b"caption me")
     );
     let denied_transcribe = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "ai-transcribe-denied",
-            "babel.ai.transcribe.v1",
+            "babble.ai.transcribe.v1",
             object_binding(vec![transcribe_grant.clone()]),
             json!({
                 "purpose": "Caption audio Object",
@@ -1298,7 +1298,7 @@ fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
     assert!(
         error
             .message
-            .contains("no active babel.ai.transcribe grant permits")
+            .contains("no active babble.ai.transcribe grant permits")
     );
 
     let transcribed = dispatch(
@@ -1306,7 +1306,7 @@ fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
         RpcRequestEnvelope::new(
             &catalog,
             "ai-transcribe-ok",
-            "babel.ai.transcribe.v1",
+            "babble.ai.transcribe.v1",
             object_binding(vec![transcribe_grant]),
             json!({
                 "purpose": "Caption audio Object",
@@ -1325,7 +1325,7 @@ fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
     assert_eq!(transcribed.action.kind, "ai.transcribe");
     assert_eq!(
         transcribed.receipt.capability.as_str(),
-        "babel.ai.transcribe"
+        "babble.ai.transcribe"
     );
 
     fs::remove_dir_all(root).unwrap();
@@ -1335,15 +1335,15 @@ fn rpc_dispatch_handles_capability_bound_ai_host_actions() {
 fn rpc_dispatch_lists_persisted_object_judgments() {
     let root = unique_root("dispatch-object-judgments");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
 
     let created = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "object-judgments-identity",
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             binding.clone(),
             json!({"kind": "Person", "handle": "alice"}),
         )
@@ -1358,7 +1358,7 @@ fn rpc_dispatch_lists_persisted_object_judgments() {
         RpcRequestEnvelope::new(
             &catalog,
             "object-judgments-publish",
-            "babel.object.publish_text.v1",
+            "babble.object.publish_text.v1",
             binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -1376,7 +1376,7 @@ fn rpc_dispatch_lists_persisted_object_judgments() {
         RpcRequestEnvelope::new(
             &catalog,
             "object-judgments-list",
-            "babel.judgment.object.list.v1",
+            "babble.judgment.object.list.v1",
             binding,
             json!({"object_id": published.object.id}),
         )
@@ -1391,10 +1391,10 @@ fn rpc_dispatch_lists_persisted_object_judgments() {
         .collect::<std::collections::BTreeSet<_>>();
 
     assert_eq!(listed.object_id, published.object.id.to_string());
-    assert!(definitions.contains("babel.judgment.spam.v1"));
-    assert!(definitions.contains("babel.judgment.evidence_quality.v1"));
-    assert!(definitions.contains("babel.judgment.content_analysis.v1"));
-    assert!(definitions.contains("babel.judgment.moderation.v1"));
+    assert!(definitions.contains("babble.judgment.spam.v1"));
+    assert!(definitions.contains("babble.judgment.evidence_quality.v1"));
+    assert!(definitions.contains("babble.judgment.content_analysis.v1"));
+    assert!(definitions.contains("babble.judgment.moderation.v1"));
 
     fs::remove_dir_all(root).unwrap();
 }
@@ -1403,15 +1403,15 @@ fn rpc_dispatch_lists_persisted_object_judgments() {
 fn rpc_dispatch_rejects_mutations_without_idempotency_keys() {
     let root = unique_root("dispatch-idempotency");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
 
     let response = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "request-missing-key",
-            "babel.identity.create.v1",
-            RpcBinding::host("test-runtime", "babel://test").unwrap(),
+            "babble.identity.create.v1",
+            RpcBinding::host("test-runtime", "babble://test").unwrap(),
             json!({"kind": "Person", "handle": "alice"}),
         )
         .unwrap(),
@@ -1428,15 +1428,15 @@ fn rpc_dispatch_rejects_mutations_without_idempotency_keys() {
 fn rpc_dispatch_publishes_fork_and_remix_provenance() {
     let root = unique_root("dispatch-provenance");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
 
     let created = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "request-identity",
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             binding.clone(),
             json!({"kind": "Person", "handle": "alice"}),
         )
@@ -1450,7 +1450,7 @@ fn rpc_dispatch_publishes_fork_and_remix_provenance() {
         RpcRequestEnvelope::new(
             &catalog,
             "request-source-a",
-            "babel.object.publish_text.v1",
+            "babble.object.publish_text.v1",
             binding.clone(),
             json!({"author_id": identity.identity.id, "text": "source one"}),
         )
@@ -1464,7 +1464,7 @@ fn rpc_dispatch_publishes_fork_and_remix_provenance() {
         RpcRequestEnvelope::new(
             &catalog,
             "request-source-b",
-            "babel.object.publish_text.v1",
+            "babble.object.publish_text.v1",
             binding.clone(),
             json!({"author_id": identity.identity.id, "text": "source two"}),
         )
@@ -1478,7 +1478,7 @@ fn rpc_dispatch_publishes_fork_and_remix_provenance() {
         RpcRequestEnvelope::new(
             &catalog,
             "request-fork",
-            "babel.object.fork.v1",
+            "babble.object.fork.v1",
             binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -1502,7 +1502,7 @@ fn rpc_dispatch_publishes_fork_and_remix_provenance() {
         RpcRequestEnvelope::new(
             &catalog,
             "request-remix",
-            "babel.object.remix.v1",
+            "babble.object.remix.v1",
             binding,
             json!({
                 "author_id": identity.identity.id,
@@ -1531,7 +1531,7 @@ fn rpc_dispatch_publishes_fork_and_remix_provenance() {
 fn rpc_dispatch_denies_required_capability_without_bound_grant() {
     let root = unique_root("dispatch-capability");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
     let object_id = "obj_0000000000000000000000000000000000000000000000000000000000000000";
 
     let response = dispatch(
@@ -1539,12 +1539,12 @@ fn rpc_dispatch_denies_required_capability_without_bound_grant() {
         RpcRequestEnvelope::new(
             &catalog,
             "request-start-session",
-            "babel.realtime.session.start.v1",
+            "babble.realtime.session.start.v1",
             RpcBinding::object(
                 object_id,
                 "surface-session",
                 "test-runtime",
-                "babel://test",
+                "babble://test",
                 Vec::new(),
             )
             .unwrap(),
@@ -1567,19 +1567,19 @@ fn rpc_dispatch_denies_required_capability_without_bound_grant() {
 fn rpc_dispatch_denies_object_bound_surface_session_mutation() {
     let root = unique_root("dispatch-runtime-session");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
 
     let response = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "surface-transition",
-            "babel.runtime.surface.session.transition.v1",
+            "babble.runtime.surface.session.transition.v1",
             RpcBinding::object(
                 "obj_0000000000000000000000000000000000000000000000000000000000000000",
                 "surf_0000000000000000000000000000000000000000000000000000000000000000",
                 "test-runtime",
-                "babel://test",
+                "babble://test",
                 Vec::new(),
             )
             .unwrap(),
@@ -1599,8 +1599,8 @@ fn rpc_dispatch_denies_object_bound_surface_session_mutation() {
 fn rpc_dispatch_schedules_host_owned_surface_sessions() {
     let root = unique_root("dispatch-runtime-schedule");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let host_binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let host_binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
 
     let identity = create_rpc_identity(&state, &catalog, host_binding.clone(), "surface-author");
     let bundle_hash = Hash::from_bytes(b"export default function mount(host) { host.ready(); }");
@@ -1625,7 +1625,7 @@ fn rpc_dispatch_schedules_host_owned_surface_sessions() {
         RpcRequestEnvelope::new(
             &catalog,
             "schedule-publish",
-            "babel.object.publish.v1",
+            "babble.object.publish.v1",
             host_binding.clone(),
             json!({"author_id": identity.identity.id, "draft": draft}),
         )
@@ -1641,7 +1641,7 @@ fn rpc_dispatch_schedules_host_owned_surface_sessions() {
         RpcRequestEnvelope::new(
             &catalog,
             "schedule-start",
-            "babel.runtime.surface.session.start.v1",
+            "babble.runtime.surface.session.start.v1",
             host_binding.clone(),
             json!({"object_id": published.object.id, "role": "Feed"}),
         )
@@ -1655,12 +1655,12 @@ fn rpc_dispatch_schedules_host_owned_surface_sessions() {
         RpcRequestEnvelope::new(
             &catalog,
             "schedule-decision",
-            "babel.runtime.surface.session.schedule.v1",
+            "babble.runtime.surface.session.schedule.v1",
             RpcBinding {
                 object_id: None,
                 surface_session_id: Some(started.session.id.to_string()),
                 runtime_id: "test-runtime".to_string(),
-                origin: "babel://test".to_string(),
+                origin: "babble://test".to_string(),
                 capability_grants: Vec::new(),
                 identity_id: None,
             },
@@ -1690,12 +1690,12 @@ fn rpc_dispatch_schedules_host_owned_surface_sessions() {
         RpcRequestEnvelope::new(
             &catalog,
             "schedule-apply",
-            "babel.runtime.surface.session.apply_schedule.v1",
+            "babble.runtime.surface.session.apply_schedule.v1",
             RpcBinding {
                 object_id: None,
                 surface_session_id: Some(started.session.id.to_string()),
                 runtime_id: "test-runtime".to_string(),
-                origin: "babel://test".to_string(),
+                origin: "babble://test".to_string(),
                 capability_grants: Vec::new(),
                 identity_id: None,
             },
@@ -1726,7 +1726,7 @@ fn rpc_dispatch_schedules_host_owned_surface_sessions() {
         RpcRequestEnvelope::new(
             &catalog,
             "schedule-health",
-            "babel.runtime.surface.health.v1",
+            "babble.runtime.surface.health.v1",
             host_binding.clone(),
             json!({}),
         )
@@ -1748,12 +1748,12 @@ fn rpc_dispatch_schedules_host_owned_surface_sessions() {
         RpcRequestEnvelope::new(
             &catalog,
             "surface-state-checkpoint",
-            "babel.runtime.surface.session.state.checkpoint.v1",
+            "babble.runtime.surface.session.state.checkpoint.v1",
             RpcBinding {
                 object_id: None,
                 surface_session_id: Some(started.session.id.to_string()),
                 runtime_id: "test-runtime".to_string(),
-                origin: "babel://test".to_string(),
+                origin: "babble://test".to_string(),
                 capability_grants: Vec::new(),
                 identity_id: None,
             },
@@ -1783,12 +1783,12 @@ fn rpc_dispatch_schedules_host_owned_surface_sessions() {
         RpcRequestEnvelope::new(
             &catalog,
             "surface-state-restore",
-            "babel.runtime.surface.session.state.get.v1",
+            "babble.runtime.surface.session.state.get.v1",
             RpcBinding::object(
                 published.object.id.to_string(),
                 started.session.id.to_string(),
                 "test-runtime",
-                "babel://test",
+                "babble://test",
                 Vec::new(),
             )
             .unwrap(),
@@ -1813,12 +1813,12 @@ fn rpc_dispatch_schedules_host_owned_surface_sessions() {
         RpcRequestEnvelope::new(
             &catalog,
             "surface-state-checkpoint-object-denied",
-            "babel.runtime.surface.session.state.checkpoint.v1",
+            "babble.runtime.surface.session.state.checkpoint.v1",
             RpcBinding::object(
                 published.object.id.to_string(),
                 started.session.id.to_string(),
                 "test-runtime",
-                "babel://test",
+                "babble://test",
                 Vec::new(),
             )
             .unwrap(),
@@ -1838,12 +1838,12 @@ fn rpc_dispatch_schedules_host_owned_surface_sessions() {
         RpcRequestEnvelope::new(
             &catalog,
             "schedule-apply-object-denied",
-            "babel.runtime.surface.session.apply_schedule.v1",
+            "babble.runtime.surface.session.apply_schedule.v1",
             RpcBinding::object(
                 published.object.id.to_string(),
                 started.session.id.to_string(),
                 "test-runtime",
-                "babel://test",
+                "babble://test",
                 Vec::new(),
             )
             .unwrap(),
@@ -1895,15 +1895,15 @@ fn rpc_dispatch_reports_observability_snapshot() {
     )
     .unwrap();
     let state = ApiState::new(node);
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
 
     let response = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "observability-snapshot",
-            "babel.observability.snapshot.v1",
-            RpcBinding::host("test-runtime", "babel://test").unwrap(),
+            "babble.observability.snapshot.v1",
+            RpcBinding::host("test-runtime", "babble://test").unwrap(),
             json!({}),
         )
         .unwrap(),
@@ -1926,10 +1926,10 @@ fn rpc_dispatch_reports_observability_snapshot() {
 fn rpc_dispatch_handles_capability_bound_object_storage() {
     let root = unique_root("dispatch-object-storage");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let host_binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let host_binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
     let capability = json!({
-        "id": "babel.storage.object",
+        "id": "babble.storage.object",
         "version": 1,
         "scope": {"namespace": "self"}
     });
@@ -1939,7 +1939,7 @@ fn rpc_dispatch_handles_capability_bound_object_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "storage-identity",
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             host_binding.clone(),
             json!({"kind": "Person", "handle": "alice"}),
         )
@@ -1954,7 +1954,7 @@ fn rpc_dispatch_handles_capability_bound_object_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "storage-source",
-            "babel.object.publish_text.v1",
+            "babble.object.publish_text.v1",
             host_binding.clone(),
             json!({"author_id": identity.identity.id, "text": "storage source"}),
         )
@@ -1972,7 +1972,7 @@ fn rpc_dispatch_handles_capability_bound_object_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "storage-object",
-            "babel.object.fork.v1",
+            "babble.object.fork.v1",
             host_binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -1992,7 +1992,7 @@ fn rpc_dispatch_handles_capability_bound_object_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "storage-other",
-            "babel.object.publish_text.v1",
+            "babble.object.publish_text.v1",
             host_binding.clone(),
             json!({"author_id": identity.identity.id, "text": "other object"}),
         )
@@ -2006,7 +2006,7 @@ fn rpc_dispatch_handles_capability_bound_object_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "storage-grant",
-            "babel.capabilities.grant.v1",
+            "babble.capabilities.grant.v1",
             host_binding,
             json!({
                 "author_id": identity.identity.id,
@@ -2026,7 +2026,7 @@ fn rpc_dispatch_handles_capability_bound_object_storage() {
         storage_object.object.id.to_string(),
         "surface-storage",
         "test-runtime",
-        "babel://test",
+        "babble://test",
         vec![grant_id.clone()],
     )
     .unwrap();
@@ -2036,7 +2036,7 @@ fn rpc_dispatch_handles_capability_bound_object_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "storage-missing-idempotency",
-            "babel.storage.object.set.v1",
+            "babble.storage.object.set.v1",
             binding.clone(),
             json!({"key": "settings/theme", "value": {"mode": "dark"}}),
         )
@@ -2052,7 +2052,7 @@ fn rpc_dispatch_handles_capability_bound_object_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "storage-set",
-            "babel.storage.object.set.v1",
+            "babble.storage.object.set.v1",
             binding.clone(),
             json!({"key": "settings/theme", "value": {"mode": "dark"}}),
         )
@@ -2062,14 +2062,14 @@ fn rpc_dispatch_handles_capability_bound_object_storage() {
     assert!(stored.error.is_none());
     let stored: ObjectStorageSetResponse = serde_json::from_value(stored.result.unwrap()).unwrap();
     assert_eq!(stored.entry.value, json!({"mode": "dark"}));
-    assert_eq!(stored.receipt.capability.as_str(), "babel.storage.object");
+    assert_eq!(stored.receipt.capability.as_str(), "babble.storage.object");
 
     let fetched = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "storage-get",
-            "babel.storage.object.get.v1",
+            "babble.storage.object.get.v1",
             binding.clone(),
             json!({"key": "settings/theme"}),
         )
@@ -2084,7 +2084,7 @@ fn rpc_dispatch_handles_capability_bound_object_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "storage-list",
-            "babel.storage.object.list.v1",
+            "babble.storage.object.list.v1",
             binding.clone(),
             json!({"prefix": "settings/", "limit": 32}),
         )
@@ -2098,7 +2098,7 @@ fn rpc_dispatch_handles_capability_bound_object_storage() {
         other.object.id.to_string(),
         "surface-other",
         "test-runtime",
-        "babel://test",
+        "babble://test",
         vec![grant_id],
     )
     .unwrap();
@@ -2107,7 +2107,7 @@ fn rpc_dispatch_handles_capability_bound_object_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "storage-cross-object",
-            "babel.storage.object.get.v1",
+            "babble.storage.object.get.v1",
             other_binding,
             json!({"key": "settings/theme"}),
         )
@@ -2123,7 +2123,7 @@ fn rpc_dispatch_handles_capability_bound_object_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "storage-delete",
-            "babel.storage.object.delete.v1",
+            "babble.storage.object.delete.v1",
             binding,
             json!({"key": "settings/theme"}),
         )
@@ -2141,10 +2141,10 @@ fn rpc_dispatch_handles_capability_bound_object_storage() {
 fn rpc_dispatch_handles_capability_bound_local_storage() {
     let root = unique_root("dispatch-local-storage");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let host_binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let host_binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
     let capability = json!({
-        "id": "babel.storage.local",
+        "id": "babble.storage.local",
         "version": 1,
         "scope": {"namespace": "prefs"}
     });
@@ -2154,7 +2154,7 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "local-storage-alice",
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             host_binding.clone(),
             json!({"kind": "Person", "handle": "alice"}),
         )
@@ -2169,7 +2169,7 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "local-storage-bob",
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             host_binding.clone(),
             json!({"kind": "Person", "handle": "bob"}),
         )
@@ -2184,7 +2184,7 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "local-storage-source",
-            "babel.object.publish_text.v1",
+            "babble.object.publish_text.v1",
             host_binding.clone(),
             json!({"author_id": alice.identity.id, "text": "local storage source"}),
         )
@@ -2202,7 +2202,7 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "local-storage-object",
-            "babel.object.fork.v1",
+            "babble.object.fork.v1",
             host_binding.clone(),
             json!({
                 "author_id": alice.identity.id,
@@ -2229,7 +2229,7 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
         local_object.object.id.to_string(),
         "surface-local-storage",
         "test-runtime",
-        "babel://test",
+        "babble://test",
         vec![grant_id.clone()],
     )
     .unwrap();
@@ -2239,7 +2239,7 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "local-storage-missing-identity",
-            "babel.storage.local.get.v1",
+            "babble.storage.local.get.v1",
             alice_binding.clone(),
             json!({"key": "settings/theme"}),
         )
@@ -2256,7 +2256,7 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "local-storage-missing-idempotency",
-            "babel.storage.local.set.v1",
+            "babble.storage.local.set.v1",
             alice_binding.clone(),
             json!({"key": "settings/theme", "value": {"mode": "dark"}}),
         )
@@ -2272,7 +2272,7 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "local-storage-set",
-            "babel.storage.local.set.v1",
+            "babble.storage.local.set.v1",
             alice_binding.clone(),
             json!({"key": "settings/theme", "value": {"mode": "dark"}}),
         )
@@ -2283,7 +2283,7 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
     let stored: LocalStorageSetResponse = serde_json::from_value(stored.result.unwrap()).unwrap();
     assert_eq!(stored.entry.key, "settings/theme");
     assert_eq!(stored.entry.value, json!({"mode": "dark"}));
-    assert_eq!(stored.receipt.capability.as_str(), "babel.storage.local");
+    assert_eq!(stored.receipt.capability.as_str(), "babble.storage.local");
 
     let mut bob_binding = alice_binding.clone();
     bob_binding.identity_id = Some(bob.identity.id.to_string());
@@ -2292,7 +2292,7 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "local-storage-bob-set",
-            "babel.storage.local.set.v1",
+            "babble.storage.local.set.v1",
             bob_binding.clone(),
             json!({"key": "settings/theme", "value": {"mode": "light"}}),
         )
@@ -2306,7 +2306,7 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "local-storage-get",
-            "babel.storage.local.get.v1",
+            "babble.storage.local.get.v1",
             alice_binding.clone(),
             json!({"key": "settings/theme"}),
         )
@@ -2320,7 +2320,7 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "local-storage-bob-get",
-            "babel.storage.local.get.v1",
+            "babble.storage.local.get.v1",
             bob_binding,
             json!({"key": "settings/theme"}),
         )
@@ -2335,7 +2335,7 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "local-storage-list",
-            "babel.storage.local.list.v1",
+            "babble.storage.local.list.v1",
             alice_binding.clone(),
             json!({"prefix": "settings/", "limit": 32}),
         )
@@ -2350,7 +2350,7 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "local-storage-delete",
-            "babel.storage.local.delete.v1",
+            "babble.storage.local.delete.v1",
             alice_binding.clone(),
             json!({"key": "settings/theme"}),
         )
@@ -2366,7 +2366,7 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
         RpcRequestEnvelope::new(
             &catalog,
             "local-storage-get-after-delete",
-            "babel.storage.local.get.v1",
+            "babble.storage.local.get.v1",
             alice_binding,
             json!({"key": "settings/theme"}),
         )
@@ -2380,15 +2380,15 @@ fn rpc_dispatch_handles_capability_bound_local_storage() {
 }
 
 #[test]
-fn rpc_invocation_social_v1_is_retired_and_v2_requires_authenticated_document() {
+fn rpc_invocation_social_versioned_methods_are_retired_and_unversioned_requires_authenticated_document() {
     let root = unique_root("dispatch-social");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
     for action in ["follow", "unfollow", "share", "reply"] {
         for version in [1, 2] {
             let response = dispatch(&state, RpcRequestEnvelope::new(
-                &catalog, format!("{action}-{version}"), format!("babel.social.{action}.v{version}"),
-                RpcBinding::host("test", "babel://test").unwrap(),
+                &catalog, format!("{action}-{version}"), format!("babble.social.{action}.v{version}"),
+                RpcBinding::host("test", "babble://test").unwrap(),
                 json!({"author_id":"untrusted","target_object_id":"untrusted","text":"untrusted"}),
             ).unwrap().with_idempotency_key(format!("{action}-{version}")));
             assert_eq!(
@@ -2418,10 +2418,10 @@ fn rpc_invocation_social_v1_is_retired_and_v2_requires_authenticated_document() 
 fn rpc_dispatch_handles_capability_bound_current_identity() {
     let root = unique_root("dispatch-identity-current");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let host_binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let host_binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
     let capability = json!({
-        "id": "babel.identity.current",
+        "id": "babble.identity.current",
         "version": 1,
         "scope": {}
     });
@@ -2431,7 +2431,7 @@ fn rpc_dispatch_handles_capability_bound_current_identity() {
         RpcRequestEnvelope::new(
             &catalog,
             "identity-current-author",
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             host_binding.clone(),
             json!({"kind": "Person", "handle": "alice"}),
         )
@@ -2446,7 +2446,7 @@ fn rpc_dispatch_handles_capability_bound_current_identity() {
         RpcRequestEnvelope::new(
             &catalog,
             "identity-current-source",
-            "babel.object.publish_text.v1",
+            "babble.object.publish_text.v1",
             host_binding.clone(),
             json!({"author_id": identity.identity.id, "text": "identity source"}),
         )
@@ -2464,7 +2464,7 @@ fn rpc_dispatch_handles_capability_bound_current_identity() {
         RpcRequestEnvelope::new(
             &catalog,
             "identity-current-object",
-            "babel.object.fork.v1",
+            "babble.object.fork.v1",
             host_binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -2491,7 +2491,7 @@ fn rpc_dispatch_handles_capability_bound_current_identity() {
         identity_object.object.id.to_string(),
         "surface-identity",
         "test-runtime",
-        "babel://test",
+        "babble://test",
         vec![grant_id],
     )
     .unwrap();
@@ -2501,7 +2501,7 @@ fn rpc_dispatch_handles_capability_bound_current_identity() {
         RpcRequestEnvelope::new(
             &catalog,
             "identity-current-missing-binding",
-            "babel.identity.current.v1",
+            "babble.identity.current.v1",
             binding.clone(),
             json!({}),
         )
@@ -2518,7 +2518,7 @@ fn rpc_dispatch_handles_capability_bound_current_identity() {
         RpcRequestEnvelope::new(
             &catalog,
             "identity-current",
-            "babel.identity.current.v1",
+            "babble.identity.current.v1",
             binding,
             json!({}),
         )
@@ -2530,7 +2530,7 @@ fn rpc_dispatch_handles_capability_bound_current_identity() {
     assert_eq!(current.identity.handle, "alice");
     assert_eq!(
         current.receipt.capability.as_str(),
-        "babel.identity.current"
+        "babble.identity.current"
     );
 
     fs::remove_dir_all(root).unwrap();
@@ -2541,11 +2541,11 @@ fn rpc_dispatch_handles_capability_bound_network_fetch() {
     let root = unique_root("dispatch-network-fetch");
     let (url, server) = spawn_http_response("hello rpc");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let host_binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let host_binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
     let origin = url.rsplit_once('/').unwrap().0.to_string();
     let capability = json!({
-        "id": "babel.network.fetch",
+        "id": "babble.network.fetch",
         "version": 1,
         "scope": {"origins": [origin]}
     });
@@ -2555,7 +2555,7 @@ fn rpc_dispatch_handles_capability_bound_network_fetch() {
         RpcRequestEnvelope::new(
             &catalog,
             "network-identity",
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             host_binding.clone(),
             json!({"kind": "Person", "handle": "alice"}),
         )
@@ -2570,7 +2570,7 @@ fn rpc_dispatch_handles_capability_bound_network_fetch() {
         RpcRequestEnvelope::new(
             &catalog,
             "network-source",
-            "babel.object.publish_text.v1",
+            "babble.object.publish_text.v1",
             host_binding.clone(),
             json!({"author_id": identity.identity.id, "text": "network source"}),
         )
@@ -2588,7 +2588,7 @@ fn rpc_dispatch_handles_capability_bound_network_fetch() {
         RpcRequestEnvelope::new(
             &catalog,
             "network-object",
-            "babel.object.fork.v1",
+            "babble.object.fork.v1",
             host_binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -2615,7 +2615,7 @@ fn rpc_dispatch_handles_capability_bound_network_fetch() {
         network_object.object.id.to_string(),
         "surface-network",
         "test-runtime",
-        "babel://test",
+        "babble://test",
         vec![grant_id],
     )
     .unwrap();
@@ -2625,7 +2625,7 @@ fn rpc_dispatch_handles_capability_bound_network_fetch() {
         RpcRequestEnvelope::new(
             &catalog,
             "network-missing-idempotency",
-            "babel.network.fetch.v1",
+            "babble.network.fetch.v1",
             binding.clone(),
             json!({"method": "GET", "url": url, "headers": {}}),
         )
@@ -2641,7 +2641,7 @@ fn rpc_dispatch_handles_capability_bound_network_fetch() {
         RpcRequestEnvelope::new(
             &catalog,
             "network-forbidden-header",
-            "babel.network.fetch.v1",
+            "babble.network.fetch.v1",
             binding.clone(),
             json!({"method": "GET", "url": url, "headers": {"Cookie": "secret=1"}}),
         )
@@ -2655,9 +2655,9 @@ fn rpc_dispatch_handles_capability_bound_network_fetch() {
         RpcRequestEnvelope::new(
             &catalog,
             "network-fetch",
-            "babel.network.fetch.v1",
+            "babble.network.fetch.v1",
             binding,
-            json!({"method": "GET", "url": url, "headers": {"X-Babel-Test": "request"}}),
+            json!({"method": "GET", "url": url, "headers": {"X-Babble-Test": "request"}}),
         )
         .unwrap()
         .with_idempotency_key("network-fetch-key"),
@@ -2666,9 +2666,9 @@ fn rpc_dispatch_handles_capability_bound_network_fetch() {
     let fetched: NetworkFetchResponse = serde_json::from_value(fetched.result.unwrap()).unwrap();
     assert_eq!(fetched.status, 200);
     assert_eq!(fetched.body_hex, hex::encode("hello rpc"));
-    assert_eq!(fetched.headers.get("x-babel-test"), Some(&"ok".to_string()));
+    assert_eq!(fetched.headers.get("x-babble-test"), Some(&"ok".to_string()));
     assert!(!fetched.headers.contains_key("set-cookie"));
-    assert_eq!(fetched.receipt.capability.as_str(), "babel.network.fetch");
+    assert_eq!(fetched.receipt.capability.as_str(), "babble.network.fetch");
     server.join().unwrap();
 
     fs::remove_dir_all(root).unwrap();
@@ -2678,19 +2678,19 @@ fn rpc_dispatch_handles_capability_bound_network_fetch() {
 fn rpc_dispatch_handles_capability_bound_payments_and_notifications() {
     let root = unique_root("dispatch-payments-notifications");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let host_binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let host_binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
     let payment = json!({
-        "id": "babel.payments.checkout",
+        "id": "babble.payments.checkout",
         "version": 1,
         "scope": {
             "currencies": ["USD"],
             "max_amount_minor": 5000,
-            "merchant_id": "merchant.babel"
+            "merchant_id": "merchant.babble"
         }
     });
     let notifications = json!({
-        "id": "babel.notifications.request",
+        "id": "babble.notifications.request",
         "version": 1,
         "scope": {
             "categories": ["game.turn", "creator.update"],
@@ -2703,7 +2703,7 @@ fn rpc_dispatch_handles_capability_bound_payments_and_notifications() {
         RpcRequestEnvelope::new(
             &catalog,
             "payments-notifications-identity",
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             host_binding.clone(),
             json!({"kind": "Person", "handle": "alice"}),
         )
@@ -2724,7 +2724,7 @@ fn rpc_dispatch_handles_capability_bound_payments_and_notifications() {
         RpcRequestEnvelope::new(
             &catalog,
             "payments-notifications-object",
-            "babel.object.publish.v1",
+            "babble.object.publish.v1",
             host_binding.clone(),
             json!({"author_id": identity.identity.id, "draft": draft}),
         )
@@ -2757,7 +2757,7 @@ fn rpc_dispatch_handles_capability_bound_payments_and_notifications() {
         published.object.id.to_string(),
         "surface-payments-notifications",
         "test-runtime",
-        "babel://test",
+        "babble://test",
         vec![payment_grant, notification_grant],
     )
     .unwrap();
@@ -2767,11 +2767,11 @@ fn rpc_dispatch_handles_capability_bound_payments_and_notifications() {
         RpcRequestEnvelope::new(
             &catalog,
             "payments-notifications-too-large",
-            "babel.payments.checkout.v1",
+            "babble.payments.checkout.v1",
             binding.clone(),
             json!({
-                "merchant_id": "merchant.babel",
-                "merchant_name": "Babel Merchant",
+                "merchant_id": "merchant.babble",
+                "merchant_name": "Babble Merchant",
                 "currency": "USD",
                 "total_amount_minor": 6000,
                 "line_items": [{"label": "Pass", "amount_minor": 6000, "quantity": 1}],
@@ -2793,11 +2793,11 @@ fn rpc_dispatch_handles_capability_bound_payments_and_notifications() {
         RpcRequestEnvelope::new(
             &catalog,
             "payments-notifications-checkout",
-            "babel.payments.checkout.v1",
+            "babble.payments.checkout.v1",
             binding.clone(),
             json!({
-                "merchant_id": "merchant.babel",
-                "merchant_name": "Babel Merchant",
+                "merchant_id": "merchant.babble",
+                "merchant_name": "Babble Merchant",
                 "currency": "USD",
                 "total_amount_minor": 2500,
                 "line_items": [{"label": "Creator pass", "amount_minor": 2500, "quantity": 1}],
@@ -2818,7 +2818,7 @@ fn rpc_dispatch_handles_capability_bound_payments_and_notifications() {
     assert!(checkout.action.requires_user_activation);
     assert_eq!(
         checkout.receipt.capability.as_str(),
-        "babel.payments.checkout"
+        "babble.payments.checkout"
     );
 
     let wrong_category = dispatch(
@@ -2826,7 +2826,7 @@ fn rpc_dispatch_handles_capability_bound_payments_and_notifications() {
         RpcRequestEnvelope::new(
             &catalog,
             "payments-notifications-wrong-category",
-            "babel.notifications.request.v1",
+            "babble.notifications.request.v1",
             binding.clone(),
             json!({
                 "purpose": "Notify players and followers about Object activity.",
@@ -2845,7 +2845,7 @@ fn rpc_dispatch_handles_capability_bound_payments_and_notifications() {
         RpcRequestEnvelope::new(
             &catalog,
             "payments-notifications-notification",
-            "babel.notifications.request.v1",
+            "babble.notifications.request.v1",
             binding,
             json!({
                 "purpose": "Notify players and followers about Object activity.",
@@ -2865,7 +2865,7 @@ fn rpc_dispatch_handles_capability_bound_payments_and_notifications() {
     assert!(notification.action.requires_user_activation);
     assert_eq!(
         notification.receipt.capability.as_str(),
-        "babel.notifications.request"
+        "babble.notifications.request"
     );
 
     fs::remove_dir_all(root).unwrap();
@@ -2875,10 +2875,10 @@ fn rpc_dispatch_handles_capability_bound_payments_and_notifications() {
 fn rpc_dispatch_handles_capability_bound_media_capture() {
     let root = unique_root("dispatch-media-capture");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let host_binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let host_binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
     let camera = json!({
-        "id": "babel.media.camera",
+        "id": "babble.media.camera",
         "version": 1,
         "scope": {
             "modes": ["photo", "video"],
@@ -2888,7 +2888,7 @@ fn rpc_dispatch_handles_capability_bound_media_capture() {
         }
     });
     let microphone = json!({
-        "id": "babel.media.microphone",
+        "id": "babble.media.microphone",
         "version": 1,
         "scope": {
             "modes": ["audio_clip"],
@@ -2902,7 +2902,7 @@ fn rpc_dispatch_handles_capability_bound_media_capture() {
         RpcRequestEnvelope::new(
             &catalog,
             "media-capture-identity",
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             host_binding.clone(),
             json!({"kind": "Person", "handle": "alice"}),
         )
@@ -2923,7 +2923,7 @@ fn rpc_dispatch_handles_capability_bound_media_capture() {
         RpcRequestEnvelope::new(
             &catalog,
             "media-capture-object",
-            "babel.object.publish.v1",
+            "babble.object.publish.v1",
             host_binding.clone(),
             json!({"author_id": identity.identity.id, "draft": draft}),
         )
@@ -2956,7 +2956,7 @@ fn rpc_dispatch_handles_capability_bound_media_capture() {
         published.object.id.to_string(),
         "surface-media-capture",
         "test-runtime",
-        "babel://test",
+        "babble://test",
         vec![camera_grant, microphone_grant],
     )
     .unwrap();
@@ -2966,7 +2966,7 @@ fn rpc_dispatch_handles_capability_bound_media_capture() {
         RpcRequestEnvelope::new(
             &catalog,
             "media-capture-wrong-facing",
-            "babel.media.camera.request.v1",
+            "babble.media.camera.request.v1",
             binding.clone(),
             json!({
                 "purpose": "Attach a profile photo to this Object.",
@@ -2990,7 +2990,7 @@ fn rpc_dispatch_handles_capability_bound_media_capture() {
         RpcRequestEnvelope::new(
             &catalog,
             "media-capture-camera",
-            "babel.media.camera.request.v1",
+            "babble.media.camera.request.v1",
             binding.clone(),
             json!({
                 "purpose": "Attach a profile photo to this Object.",
@@ -3019,7 +3019,7 @@ fn rpc_dispatch_handles_capability_bound_media_capture() {
     assert!(camera_capture.action.requires_user_activation);
     assert_eq!(
         camera_capture.receipt.capability.as_str(),
-        "babel.media.camera"
+        "babble.media.camera"
     );
 
     let wrong_audio_type = dispatch(
@@ -3027,7 +3027,7 @@ fn rpc_dispatch_handles_capability_bound_media_capture() {
         RpcRequestEnvelope::new(
             &catalog,
             "media-capture-wrong-audio",
-            "babel.media.microphone.request.v1",
+            "babble.media.microphone.request.v1",
             binding.clone(),
             json!({
                 "purpose": "Record a short spoken reply.",
@@ -3050,7 +3050,7 @@ fn rpc_dispatch_handles_capability_bound_media_capture() {
         RpcRequestEnvelope::new(
             &catalog,
             "media-capture-microphone",
-            "babel.media.microphone.request.v1",
+            "babble.media.microphone.request.v1",
             binding,
             json!({
                 "purpose": "Record a short spoken reply.",
@@ -3082,30 +3082,30 @@ fn rpc_dispatch_handles_capability_bound_media_capture() {
     assert!(microphone_capture.action.requires_user_activation);
     assert_eq!(
         microphone_capture.receipt.capability.as_str(),
-        "babel.media.microphone"
+        "babble.media.microphone"
     );
 
     fs::remove_dir_all(root).unwrap();
 }
 
 #[test]
-fn rpc_browser_v1_retired_and_v2_cannot_use_native_grants() {
+fn rpc_browser_versioned_methods_retired_and_unversioned_cannot_use_native_grants() {
     let root = unique_root("dispatch-host-actions");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
     let object = {
         let mut node = state.node.lock().unwrap();
-        let actor = node.create_identity(babel_identity::IdentityKind::Person, "browser").unwrap();
+        let actor = node.create_identity(babble_identity::IdentityKind::Person, "browser").unwrap();
         let draft = ObjectDraft::text("browser controller").unwrap()
-            .with_capability(serde_json::from_value(json!({"id":"babel.clipboard.write","version":1,"scope":{}})).unwrap()).unwrap()
-            .with_capability(serde_json::from_value(json!({"id":"babel.fullscreen.enter","version":1,"scope":{}})).unwrap()).unwrap();
+            .with_capability(serde_json::from_value(json!({"id":"babble.clipboard.write","version":1,"scope":{}})).unwrap()).unwrap()
+            .with_capability(serde_json::from_value(json!({"id":"babble.fullscreen.enter","version":1,"scope":{}})).unwrap()).unwrap();
         node.publish_draft(&actor.id, draft).unwrap()
     };
-    for capability in ["babel.clipboard.write", "babel.fullscreen.enter"] {
+    for capability in ["babble.clipboard.write", "babble.fullscreen.enter"] {
         for version in [1, 2] {
             let name = format!("{capability}.v{version}");
             let request = RpcRequestEnvelope::new(&catalog, &name, &name,
-                RpcBinding::object(object.id.to_string(), "surface", "runtime", "babel://test",
+                RpcBinding::object(object.id.to_string(), "surface", "runtime", "babble://test",
                     vec!["historical-approved-grant".into()]).unwrap(),
                 if capability.contains("clipboard") {json!({"text":"copy"})} else {json!({})})
                 .unwrap().with_idempotency_key(format!("{capability}-{version}"));
@@ -3122,18 +3122,18 @@ fn rpc_browser_v1_retired_and_v2_cannot_use_native_grants() {
 fn rpc_dispatch_handles_capability_bound_realtime_leave() {
     let root = unique_root("dispatch-realtime-leave");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let host_binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
-    let join = json!({"id": "babel.realtime.join", "version": 1, "scope": {"room": "main"}});
-    let send = json!({"id": "babel.realtime.send", "version": 1, "scope": {"room": "main"}});
-    let leave = json!({"id": "babel.realtime.leave", "version": 1, "scope": {"room": "main"}});
+    let catalog = babble_rpc_catalog().unwrap();
+    let host_binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
+    let join = json!({"id": "babble.realtime.join", "version": 1, "scope": {"room": "main"}});
+    let send = json!({"id": "babble.realtime.send", "version": 1, "scope": {"room": "main"}});
+    let leave = json!({"id": "babble.realtime.leave", "version": 1, "scope": {"room": "main"}});
 
     let created = dispatch(
         &state,
         RpcRequestEnvelope::new(
             &catalog,
             "realtime-identity",
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             host_binding.clone(),
             json!({"kind": "Person", "handle": "alice"}),
         )
@@ -3147,7 +3147,7 @@ fn rpc_dispatch_handles_capability_bound_realtime_leave() {
         RpcRequestEnvelope::new(
             &catalog,
             "realtime-source",
-            "babel.object.publish_text.v1",
+            "babble.object.publish_text.v1",
             host_binding.clone(),
             json!({"author_id": identity.identity.id, "text": "realtime source"}),
         )
@@ -3169,7 +3169,7 @@ fn rpc_dispatch_handles_capability_bound_realtime_leave() {
         RpcRequestEnvelope::new(
             &catalog,
             "realtime-object",
-            "babel.object.fork.v1",
+            "babble.object.fork.v1",
             host_binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -3188,13 +3188,13 @@ fn rpc_dispatch_handles_capability_bound_realtime_leave() {
         RpcRequestEnvelope::new(
             &catalog,
             "realtime-room",
-            "babel.realtime.room.define.v1",
+            "babble.realtime.room.define.v1",
             host_binding.clone(),
             json!({
                 "author_id": identity.identity.id,
                 "object_id": object.object.id,
                 "name": "main",
-                "schema": "babel.realtime.state.v1",
+                "schema": "babble.realtime.state.v1",
                 "membership": MembershipPolicy::Open,
                 "persistence": PersistencePolicy::DurableMessages,
                 "limits": null
@@ -3209,13 +3209,13 @@ fn rpc_dispatch_handles_capability_bound_realtime_leave() {
         RpcRequestEnvelope::new(
             &catalog,
             "realtime-side-room",
-            "babel.realtime.room.define.v1",
+            "babble.realtime.room.define.v1",
             host_binding.clone(),
             json!({
                 "author_id": identity.identity.id,
                 "object_id": object.object.id,
                 "name": "side",
-                "schema": "babel.realtime.state.v1",
+                "schema": "babble.realtime.state.v1",
                 "membership": MembershipPolicy::Open,
                 "persistence": PersistencePolicy::DurableMessages,
                 "limits": null
@@ -3259,7 +3259,7 @@ fn rpc_dispatch_handles_capability_bound_realtime_leave() {
         object.object.id.to_string(),
         "surface-realtime",
         "test-runtime",
-        "babel://test",
+        "babble://test",
         grant_ids,
     )
     .unwrap();
@@ -3269,7 +3269,7 @@ fn rpc_dispatch_handles_capability_bound_realtime_leave() {
         RpcRequestEnvelope::new(
             &catalog,
             "realtime-wrong-room",
-            "babel.realtime.session.start.v1",
+            "babble.realtime.session.start.v1",
             binding.clone(),
             json!({"author_id": identity.identity.id, "room_id": side_room.room.id}),
         )
@@ -3282,7 +3282,7 @@ fn rpc_dispatch_handles_capability_bound_realtime_leave() {
         RpcRequestEnvelope::new(
             &catalog,
             "realtime-start",
-            "babel.realtime.session.start.v1",
+            "babble.realtime.session.start.v1",
             binding.clone(),
             json!({"author_id": identity.identity.id, "room_id": room.room.id}),
         )
@@ -3291,7 +3291,7 @@ fn rpc_dispatch_handles_capability_bound_realtime_leave() {
     let session: StartRealtimeSessionResponse =
         serde_json::from_value(session.result.unwrap()).unwrap();
     let session_receipt = session.receipt.as_ref().unwrap();
-    assert_eq!(session_receipt.capability.as_str(), "babel.realtime.join");
+    assert_eq!(session_receipt.capability.as_str(), "babble.realtime.join");
     assert_eq!(session_receipt.scope, json!({"room": "main"}));
     assert_eq!(session_receipt.remaining_realtime_connections, 1);
 
@@ -3300,7 +3300,7 @@ fn rpc_dispatch_handles_capability_bound_realtime_leave() {
         RpcRequestEnvelope::new(
             &catalog,
             "realtime-send",
-            "babel.realtime.message.publish.v1",
+            "babble.realtime.message.publish.v1",
             binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -3321,7 +3321,7 @@ fn rpc_dispatch_handles_capability_bound_realtime_leave() {
         serde_json::from_value(message.result.unwrap()).unwrap();
     assert_eq!(message.message.sequence, 1);
     let message_receipt = message.receipt.as_ref().unwrap();
-    assert_eq!(message_receipt.capability.as_str(), "babel.realtime.send");
+    assert_eq!(message_receipt.capability.as_str(), "babble.realtime.send");
     assert!(message_receipt.remaining_bytes_per_minute < message_receipt.quota.bytes_per_minute);
 
     let missing_idempotency = dispatch(
@@ -3329,7 +3329,7 @@ fn rpc_dispatch_handles_capability_bound_realtime_leave() {
         RpcRequestEnvelope::new(
             &catalog,
             "realtime-leave-missing-key",
-            "babel.realtime.session.leave.v1",
+            "babble.realtime.session.leave.v1",
             binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -3349,7 +3349,7 @@ fn rpc_dispatch_handles_capability_bound_realtime_leave() {
         RpcRequestEnvelope::new(
             &catalog,
             "realtime-leave",
-            "babel.realtime.session.leave.v1",
+            "babble.realtime.session.leave.v1",
             binding.clone(),
             json!({
                 "author_id": identity.identity.id,
@@ -3366,7 +3366,7 @@ fn rpc_dispatch_handles_capability_bound_realtime_leave() {
     assert_eq!(closed.event.kind, EventKind::RealtimeSessionClosed);
     assert_eq!(
         closed.receipt.unwrap().capability.as_str(),
-        "babel.realtime.leave"
+        "babble.realtime.leave"
     );
 
     let rejected_send = dispatch(
@@ -3374,7 +3374,7 @@ fn rpc_dispatch_handles_capability_bound_realtime_leave() {
         RpcRequestEnvelope::new(
             &catalog,
             "realtime-send-after-leave",
-            "babel.realtime.message.publish.v1",
+            "babble.realtime.message.publish.v1",
             binding,
             json!({
                 "author_id": identity.identity.id,
@@ -3399,7 +3399,7 @@ fn rpc_dispatch_handles_capability_bound_realtime_leave() {
 async fn rpc_http_transport_exposes_catalog_and_dispatches_envelopes() {
     let root = unique_root("http-rpc");
     let app = router(test_state(&root));
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
 
     let catalog_response =
         request_json(app.clone(), Method::GET, "/rpc/catalog", Value::Null).await;
@@ -3410,8 +3410,8 @@ async fn rpc_http_transport_exposes_catalog_and_dispatches_envelopes() {
     let request = RpcRequestEnvelope::new(
         &catalog,
         "http-rpc-identity",
-        "babel.identity.create.v1",
-        RpcBinding::host("browser-runtime", "https://babel.local").unwrap(),
+        "babble.identity.create.v1",
+        RpcBinding::host("browser-runtime", "https://babble.local").unwrap(),
         json!({"kind": "Person", "handle": "mira"}),
     )
     .unwrap()
@@ -3440,8 +3440,8 @@ async fn rpc_http_transport_exposes_catalog_and_dispatches_envelopes() {
 fn rpc_dispatch_handles_encrypted_personalization_sync_vault() {
     let root = unique_root("personalization-sync");
     let state = test_state(&root);
-    let catalog = babel_rpc_catalog().unwrap();
-    let binding = RpcBinding::host("test-runtime", "babel://test").unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
+    let binding = RpcBinding::host("test-runtime", "babble://test").unwrap();
     let created = create_rpc_identity(&state, &catalog, binding.clone(), "syncer-rpc");
     let key = PersonalizationSyncKey::from_hex(
         "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
@@ -3469,7 +3469,7 @@ fn rpc_dispatch_handles_encrypted_personalization_sync_vault() {
         RpcRequestEnvelope::new(
             &catalog,
             "personalization-sync-put",
-            "babel.personalization.sync.put.v1",
+            "babble.personalization.sync.put.v1",
             binding.clone(),
             json!({ "envelope": envelope }),
         )
@@ -3484,7 +3484,7 @@ fn rpc_dispatch_handles_encrypted_personalization_sync_vault() {
         RpcRequestEnvelope::new(
             &catalog,
             "personalization-sync-list",
-            "babel.personalization.sync.list.v1",
+            "babble.personalization.sync.list.v1",
             binding.clone(),
             json!({
                 "identity_id": created.identity.id,
@@ -3506,7 +3506,7 @@ fn rpc_dispatch_handles_encrypted_personalization_sync_vault() {
         RpcRequestEnvelope::new(
             &catalog,
             "personalization-sync-get",
-            "babel.personalization.sync.get.v1",
+            "babble.personalization.sync.get.v1",
             binding.clone(),
             json!({
                 "identity_id": created.identity.id,
@@ -3534,7 +3534,7 @@ fn rpc_dispatch_handles_encrypted_personalization_sync_vault() {
         RpcRequestEnvelope::new(
             &catalog,
             "personalization-sync-delete",
-            "babel.personalization.sync.delete.v1",
+            "babble.personalization.sync.delete.v1",
             binding,
             json!({
                 "identity_id": created.identity.id,
@@ -3578,14 +3578,14 @@ async fn replies_rpc_pages_over_http_and_validates_inputs() {
     expected.sort_by_key(|object| (object.created_at, object.id.clone()));
     let state = ApiState::new(node);
     let app = router(state.clone());
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
     let envelope = |value| {
         serde_json::to_value(
             RpcRequestEnvelope::new(
                 &catalog,
                 "replies-test",
-                "babel.social.replies.list.v1",
-                RpcBinding::host("test-runtime", "babel://test").unwrap(),
+                "babble.social.replies.list.v1",
+                RpcBinding::host("test-runtime", "babble://test").unwrap(),
                 value,
             )
             .unwrap(),
@@ -3602,7 +3602,7 @@ async fn replies_rpc_pages_over_http_and_validates_inputs() {
     assert_eq!(first.status, StatusCode::OK);
     let response: RpcResponseEnvelope = serde_json::from_value(first.body).unwrap();
     assert!(response.error.is_none(), "{:?}", response.error);
-    let first: babel_api::RepliesListResponse =
+    let first: babble_api::RepliesListResponse =
         serde_json::from_value(response.result.unwrap()).unwrap();
     assert_eq!(first.object_id, parent.id);
     assert_eq!(
@@ -3622,7 +3622,7 @@ async fn replies_rpc_pages_over_http_and_validates_inputs() {
     )
     .await;
     let response: RpcResponseEnvelope = serde_json::from_value(last.body).unwrap();
-    let last: babel_api::RepliesListResponse =
+    let last: babble_api::RepliesListResponse =
         serde_json::from_value(response.result.unwrap()).unwrap();
     assert_eq!(last.replies[0].object, expected[2]);
     assert!(last.next_cursor.is_none());
@@ -3664,9 +3664,9 @@ async fn replies_rpc_pages_over_http_and_validates_inputs() {
 fn dispatch(
     state: &ApiState<LocalProvider>,
     request: RpcRequestEnvelope,
-) -> babel_rpc::RpcResponseEnvelope {
+) -> babble_rpc::RpcResponseEnvelope {
     let response = dispatch_rpc_request(state, request);
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
     response.validate(&catalog).unwrap();
     response
 }
@@ -3690,7 +3690,7 @@ fn grant_rpc_capability(
         RpcRequestEnvelope::new(
             catalog,
             idempotency_key,
-            "babel.capabilities.grant.v1",
+            "babble.capabilities.grant.v1",
             binding,
             json!({
                 "author_id": author_id,
@@ -3725,7 +3725,7 @@ fn create_rpc_identity(
         RpcRequestEnvelope::new(
             catalog,
             &format!("identity-{handle}"),
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             binding,
             json!({"kind": "Person", "handle": handle}),
         )
@@ -3774,7 +3774,7 @@ fn unique_root(name: &str) -> PathBuf {
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_nanos();
-    std::env::temp_dir().join(format!("babel-api-rpc-{name}-{nanos}"))
+    std::env::temp_dir().join(format!("babble-api-rpc-{name}-{nanos}"))
 }
 
 fn spawn_http_response(body: &'static str) -> (String, JoinHandle<()>) {
@@ -3786,7 +3786,7 @@ fn spawn_http_response(body: &'static str) -> (String, JoinHandle<()>) {
         let mut request = [0_u8; 1024];
         let _ = stream.read(&mut request).unwrap();
         let response = format!(
-            "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nX-Babel-Test: ok\r\nSet-Cookie: secret=1\r\nContent-Length: {}\r\n\r\n{}",
+            "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nX-Babble-Test: ok\r\nSet-Cookie: secret=1\r\nContent-Length: {}\r\n\r\n{}",
             body.len(),
             body
         );

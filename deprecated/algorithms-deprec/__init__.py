@@ -1,3 +1,0 @@
-"""
-Babel Protocol Algorithm Package
-""" 

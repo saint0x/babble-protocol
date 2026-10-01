@@ -1,13 +1,13 @@
 use super::*;
 use crate::ImportBundle;
-use babel_crypto::Keypair;
-use babel_graph::Edge;
-use babel_identity::Identity;
-use babel_judgment::{ConstantProvider, Judgment, JudgmentRequest, ProviderVersion};
-use babel_judgment_local::LocalProvider;
-use babel_object::ObjectKind;
-use babel_store::{ObjectJudgmentInput, PublicationBatch};
-use babel_types::{Canonical, IdentityId};
+use babble_crypto::Keypair;
+use babble_graph::Edge;
+use babble_identity::Identity;
+use babble_judgment::{ConstantProvider, Judgment, JudgmentRequest, ProviderVersion};
+use babble_judgment_local::LocalProvider;
+use babble_object::ObjectKind;
+use babble_store::{ObjectJudgmentInput, PublicationBatch};
+use babble_types::{Canonical, IdentityId};
 use std::{
     cell::RefCell,
     collections::BTreeSet,
@@ -31,7 +31,7 @@ impl JudgmentProvider for RecordingLocal {
     fn supported_definitions(&self) -> Vec<DefinitionId> {
         self.local.supported_definitions()
     }
-    fn privacy_policy(&self) -> babel_judgment::JudgmentPrivacyPolicy {
+    fn privacy_policy(&self) -> babble_judgment::JudgmentPrivacyPolicy {
         let mut policy = self.local.privacy_policy();
         policy
             .allowed_context_keys
@@ -68,7 +68,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-source-agreement-{}-{}",
+            "babble-source-agreement-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
@@ -479,7 +479,7 @@ fn repeated_edges_merge_roles_and_component_scores_come_from_local_provider() {
             f.node
                 .judgment_cache
                 .entry(
-                    &babel_judgment::cache_key(&f.node.judgment_provider.version(), request)
+                    &babble_judgment::cache_key(&f.node.judgment_provider.version(), request)
                         .unwrap()
                 )
                 .is_none()
@@ -912,7 +912,7 @@ fn late_supporting_result_stops_remaining_workers_and_leaves_no_cache_or_history
     ));
     let calls = f.node.judgment_provider.calls.borrow();
     assert_eq!(calls.len(), 1);
-    let key = babel_judgment::cache_key(&f.node.judgment_provider.version(), &calls[0]).unwrap();
+    let key = babble_judgment::cache_key(&f.node.judgment_provider.version(), &calls[0]).unwrap();
     assert!(f.node.judgment_cache.entry(&key).is_none());
     assert!(f.node.store.list_judgments().unwrap().is_empty());
     assert!(

@@ -2,7 +2,7 @@
 #[path = "../tests/support/mod.rs"]
 mod support;
 
-use babel_lens::{NativeRanker, RankingProvider, RankingRequest, RankingResult};
+use babble_lens::{NativeRanker, RankingProvider, RankingRequest, RankingResult};
 use serde::Serialize;
 use std::io::{self, Write};
 
@@ -30,7 +30,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 result,
             })
         })
-        .collect::<babel_types::Result<Vec<_>>>()?;
+        .collect::<babble_types::Result<Vec<_>>>()?;
     let mut stdout = io::BufWriter::new(io::stdout().lock());
     serde_json::to_writer_pretty(&mut stdout, &Fixtures { version: 1, cases })?;
     writeln!(stdout)?;

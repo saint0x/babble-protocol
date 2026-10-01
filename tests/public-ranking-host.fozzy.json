@@ -2,6 +2,6 @@
   "version": 1,
   "name": "public-ranking-integration-host",
   "steps": [
-    { "type": "proc_spawn", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-node", "-p", "babel-judgment-python", "-p", "babel-api", "--test", "ranking"], "expect_exit": 0 }
+    { "type": "proc_spawn", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babble-node", "-p", "babble-judgment-python", "-p", "babble-api", "--test", "ranking"], "expect_exit": 0 }
   ]
 }

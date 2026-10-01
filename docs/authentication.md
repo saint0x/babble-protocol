@@ -60,7 +60,7 @@ The work factor meets the current minimum from the
 read through Aegis during implementation. Password work runs outside the node
 mutex with bounded concurrency. Random 256-bit session tokens are stored only as
 hashes; sessions expire after seven days. The account database lives under
-`BABEL_STORE_ROOT/auth/`, separate from public protocol events and exports.
+`BABBLE_STORE_ROOT/auth/`, separate from public protocol events and exports.
 
 The Astro account dialog supports registration, sign-in, inspection of the full
 identity ID, active-session management, password changes, and server-backed
@@ -83,7 +83,7 @@ change failed. The UI offers an explicit sign-in check with the new password,
 then the previous password if needed, rather than automatically retrying a
 credential mutation. Late completions cannot clear a replacement account.
 
-Old browser `babel.frontend.author.v1` IDs are not login credentials and are not
+Old browser `babble.frontend.author.v1` IDs are not login credentials and are not
 silently adopted. Seeded and CLI-created identities do not automatically acquire
 password accounts. Existing posts remain readable. Account recovery must not be
 implemented by trusting a handle or public identity ID.
@@ -105,7 +105,7 @@ the SDK, since a malicious client can bypass a browser library.
 The public read path remains available without a session. The account form is
 required for publication and interactive Surface sessions. Ordinary Settings
 shows public protocol catalogs, not operator metrics or private event history.
-Administrative routes require a separate `BABEL_OPERATOR_TOKEN` configured on
+Administrative routes require a separate `BABBLE_OPERATOR_TOKEN` configured on
 the server; never put this token in the frontend build or a Surface.
 
 ## Release Work Still Open

@@ -3,7 +3,7 @@
   "name": "judgment-python-provider-host",
   "steps": [
     {"type": "trace_event", "name": "Rust Python transport faults, contract, and six real definitions"},
-    {"type": "proc_spawn", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-judgment-python", "--", "--test-threads=1"], "expect_exit": 0},
+    {"type": "proc_spawn", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babble-judgment-python", "--", "--test-threads=1"], "expect_exit": 0},
     {"type": "trace_event", "name": "Python Judgment provider suite complete"}
   ]
 }

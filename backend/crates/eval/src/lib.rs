@@ -1,8 +1,8 @@
-use babel_hashgraph::FinalityReport;
-use babel_judgment::{JudgmentProvider, JudgmentRegistry, JudgmentRequest, ProviderVersion};
-use babel_lens::{Candidate, CandidateSource, LensStack};
-use babel_realtime::RoomView;
-use babel_types::{Error, ObjectId, Result};
+use babble_hashgraph::FinalityReport;
+use babble_judgment::{JudgmentProvider, JudgmentRegistry, JudgmentRequest, ProviderVersion};
+use babble_lens::{Candidate, CandidateSource, LensStack};
+use babble_realtime::RoomView;
+use babble_types::{Error, ObjectId, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -101,7 +101,7 @@ pub fn evaluate_judgment_corpus<P>(
 where
     P: JudgmentProvider,
 {
-    let registry = JudgmentRegistry::babel_core();
+    let registry = JudgmentRegistry::babble_core();
     let version = provider.version();
     let mut failures = Vec::new();
     let mut passed = 0usize;
@@ -135,7 +135,7 @@ pub fn evaluate_judgment_provider_matrix(
     providers: &[&dyn JudgmentProvider],
     cases: &[JudgmentProviderMatrixCase],
 ) -> Result<JudgmentProviderMatrixReport> {
-    let registry = JudgmentRegistry::babel_core();
+    let registry = JudgmentRegistry::babble_core();
     let provider_names = providers
         .iter()
         .map(|provider| provider_name(&provider.version()))

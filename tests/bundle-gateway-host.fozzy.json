@@ -12,7 +12,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-api",
+        "babble-api",
         "--lib"
       ],
       "expect_exit": 0
@@ -27,11 +27,11 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-runtime",
+        "babble-runtime",
         "--test",
         "bundles",
         "-p",
-        "babel-node",
+        "babble-node",
         "--test",
         "bundles"
       ],

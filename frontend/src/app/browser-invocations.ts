@@ -1,4 +1,4 @@
-import { canonicalValueBytes, type JsonValue, type ProtocolTypes } from "@babel-protocol/sdk";
+import { canonicalValueBytes, type JsonValue, type ProtocolTypes } from "@babble-protocol/sdk";
 import type { InvocationSource } from "./invocations";
 
 type BrowserInvocationWire = ProtocolTypes["api.BrowserInvocationResponse"];
@@ -7,7 +7,7 @@ export type BrowserInvocation = Omit<BrowserInvocationWire, "result" | "executio
   readonly execution_ticket: Exclude<BrowserInvocationWire["execution_ticket"], undefined>;
 };
 export type BrowserInvocationResult = NonNullable<BrowserInvocation["result"]>;
-export type BrowserInvocationMethod = "babel.clipboard.write.v2" | "babel.fullscreen.enter.v2";
+export type BrowserInvocationMethod = "babble.clipboard.write" | "babble.fullscreen.enter";
 export interface BrowserInvocationExpectation {
   readonly actorId: string;
   readonly objectId: string;
@@ -26,11 +26,11 @@ const same = (left: unknown, right: unknown): boolean => {
   return a.length === b.length && a.every((byte, index) => byte === b[index]);
 };
 export function isBrowserInvocationMethod(method: string): method is BrowserInvocationMethod {
-  return method === "babel.clipboard.write.v2" || method === "babel.fullscreen.enter.v2";
+  return method === "babble.clipboard.write" || method === "babble.fullscreen.enter";
 }
 export function normalizedBrowserPayload(method: BrowserInvocationMethod, payload: JsonValue): JsonValue {
   if (!record(payload)) throw invalid();
-  if (method === "babel.clipboard.write.v2") {
+  if (method === "babble.clipboard.write") {
     if (typeof payload.text !== "string" || new TextEncoder().encode(payload.text).byteLength > 65_536
       || Object.keys(payload).some(key => key !== "text")) throw invalid();
     const normalized = { text: payload.text };
@@ -49,7 +49,7 @@ function validResult(value: unknown, method: BrowserInvocationMethod): value is 
   if (!record(value)) return false;
   if (value.kind === "failed") return Object.keys(value).length === 2
     && typeof value.code === "string" && ["not_allowed", "unavailable", "context_lost", "native_error"].includes(value.code);
-  return Object.keys(value).length === 2 && (method === "babel.clipboard.write.v2"
+  return Object.keys(value).length === 2 && (method === "babble.clipboard.write"
     ? value.kind === "clipboard_write" && value.written === true : value.kind === "fullscreen_enter" && value.entered === true);
 }
 
@@ -91,7 +91,7 @@ export function parseBrowserInvocation(value: unknown, expected: BrowserInvocati
   } else if (value.result !== null) throw invalid();
   if (value.execution_ticket !== null) {
     if (!allowTicket || previous?.state.kind !== "approved" || value.state.kind !== "running" || !record(value.execution_ticket)
-      || Object.keys(value.execution_ticket).length !== 2 || value.execution_ticket.executor !== "babel.browser.v1"
+      || Object.keys(value.execution_ticket).length !== 2 || value.execution_ticket.executor !== "babble.browser.v1"
       || !hash(value.execution_ticket.dispatch_id) || value.execution_ticket.dispatch_id !== value.state.dispatch_id) throw invalid();
   }
   return structuredClone(value) as unknown as BrowserInvocation;
@@ -143,7 +143,7 @@ export class BrowserInvocationApi {
     signal.throwIfAborted();
     if (!uuid(source.document_id)) throw invalid();
     const headers: Record<string, string> = { accept: "application/json",
-      [source.kind === "surface" ? "x-babel-surface-document" : "x-babel-host-document"]: source.document_id };
+      [source.kind === "surface" ? "x-babble-surface-document" : "x-babble-host-document"]: source.document_id };
     if (body !== undefined) headers["content-type"] = "application/json";
     const response = await this.fetcher(new URL(path, this.origin), {
       method, headers, ...(body === undefined ? {} : { body: JSON.stringify(body) }), signal,

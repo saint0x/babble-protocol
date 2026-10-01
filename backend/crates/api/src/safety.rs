@@ -7,9 +7,9 @@ use axum::{
     Extension, Json,
     extract::{Path, State},
 };
-use babel_judgment::JudgmentProvider;
-use babel_node::{SafetySnapshot, SafetyState};
-use babel_types::IdentityId;
+use babble_judgment::JudgmentProvider;
+use babble_node::{SafetySnapshot, SafetyState};
+use babble_types::IdentityId;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 

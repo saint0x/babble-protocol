@@ -1,5 +1,5 @@
-use babel_lens::{RankedCandidate, Reason};
-use babel_types::{IdentityId, ObjectId};
+use babble_lens::{RankedCandidate, Reason};
+use babble_types::{IdentityId, ObjectId};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -306,11 +306,11 @@ fn clamp(value: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use babel_lens::{
+    use babble_lens::{
         Candidate, CandidateSource, CandidateSourceContribution, EvidenceSignals,
         ReputationSignals, Signals,
     };
-    use babel_types::{Hash, Timestamp};
+    use babble_types::{Hash, Timestamp};
     use time::OffsetDateTime;
 
     #[test]
@@ -494,7 +494,7 @@ mod tests {
         PersonalizationObjectSummary {
             object_id,
             author,
-            kind: "babel.text.v1".to_string(),
+            kind: "babble.text.v1".to_string(),
             text: text.to_string(),
             topics: topics.iter().map(|topic| (*topic).to_string()).collect(),
         }

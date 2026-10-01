@@ -1,6 +1,6 @@
-use babel_crypto::Signature;
-use babel_identity::Identity;
-use babel_types::{Canonical, EdgeId, ObjectId, Result, Timestamp};
+use babble_crypto::Signature;
+use babble_identity::Identity;
+use babble_types::{Canonical, EdgeId, ObjectId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -59,7 +59,7 @@ pub struct Edge {
     pub target: ObjectId,
     pub relation: Relation,
     pub origin: EdgeOrigin,
-    pub author: Option<babel_types::IdentityId>,
+    pub author: Option<babble_types::IdentityId>,
     pub created_at: Timestamp,
     pub metadata: BTreeMap<String, Value>,
     pub signature: Option<Signature>,
@@ -105,7 +105,7 @@ struct EdgeCommitment {
     pub target: ObjectId,
     pub relation: Relation,
     pub origin: EdgeOrigin,
-    pub author: Option<babel_types::IdentityId>,
+    pub author: Option<babble_types::IdentityId>,
     pub created_at: Timestamp,
     pub metadata: BTreeMap<String, Value>,
 }
@@ -116,7 +116,7 @@ impl Edge {
         target: ObjectId,
         relation: Relation,
         origin: EdgeOrigin,
-        author: Option<babel_types::IdentityId>,
+        author: Option<babble_types::IdentityId>,
     ) -> Result<Self> {
         let commitment = EdgeCommitment {
             source,
@@ -141,7 +141,7 @@ impl Edge {
         })
     }
 
-    pub fn sign(mut self, author: &Identity, keypair: &babel_crypto::Keypair) -> Result<Self> {
+    pub fn sign(mut self, author: &Identity, keypair: &babble_crypto::Keypair) -> Result<Self> {
         let commitment = self.commitment();
         self.author = Some(author.id.clone());
         self.signature = Some(keypair.sign(&commitment.canonical_bytes()?));
@@ -159,12 +159,12 @@ impl Edge {
         self.id.validate()?;
         let expected_id = EdgeId::from_hash(&self.commitment().canonical_hash()?);
         if expected_id != self.id {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         let signature = self
             .signature
             .as_ref()
-            .ok_or(babel_types::Error::UnsignedEdge)?;
+            .ok_or(babble_types::Error::UnsignedEdge)?;
         author
             .public_key
             .verify(&self.commitment().canonical_bytes()?, signature)

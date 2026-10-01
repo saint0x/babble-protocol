@@ -4,12 +4,12 @@ use super::*;
 fn invocation_recovery_excludes_completed_surface_results() {
     let mut f = Fixture::new();
     let surface = f.source.surfaces[0].clone();
-    let mut plan = babel_runtime::SurfaceRuntime::babel_default()
+    let mut plan = babble_runtime::SurfaceRuntime::babble_default()
         .prepare_surface(&f.source, SurfaceRole::Expanded, &[])
         .unwrap();
-    plan.admission = babel_runtime::RuntimeAdmissionStatus::Ready;
+    plan.admission = babble_runtime::RuntimeAdmissionStatus::Ready;
     let id = SurfaceSessionId::from_material("recovery-surface");
-    let mut session = babel_runtime::SurfaceSession::start(id.clone(), plan, "test").unwrap();
+    let mut session = babble_runtime::SurfaceSession::start(id.clone(), plan, "test").unwrap();
     session.transition(SurfaceLifecycle::Warm, "warm").unwrap();
     session
         .transition(SurfaceLifecycle::Active, "active")
@@ -33,7 +33,7 @@ fn invocation_recovery_excludes_completed_surface_results() {
                 &f.context.login_id,
                 &f.source.id,
                 "surface",
-                "babel.social.reply.v2",
+                "babble.social.reply",
                 f.payload("reply")
             )
             .unwrap()
@@ -67,7 +67,7 @@ fn invocation_recovery_returns_original_media_result_after_document_loss_and_res
         .prepare_social_invocation(
             f.context.clone(),
             "recover",
-            "babel.social.reply.v2",
+            "babble.social.reply",
             payload.clone(),
             Timestamp(Timestamp::now().0 + time::Duration::seconds(60)),
         )
@@ -99,7 +99,7 @@ fn invocation_recovery_returns_original_media_result_after_document_loss_and_res
                 &f.context.login_id,
                 &f.source.id,
                 "recover",
-                "babel.social.reply.v2",
+                "babble.social.reply",
                 payload.clone()
             )
             .unwrap(),
@@ -114,7 +114,7 @@ fn invocation_recovery_returns_original_media_result_after_document_loss_and_res
                 &f.context.login_id,
                 &f.source.id,
                 "recover",
-                "babel.social.reply.v2",
+                "babble.social.reply",
                 payload
             )
             .unwrap(),
@@ -138,7 +138,7 @@ fn invocation_recovery_requires_original_actor_login_source_method_and_payload()
                 "another-login",
                 &f.source.id,
                 "recover",
-                "babel.social.reply.v2",
+                "babble.social.reply",
                 payload.clone()
             )
             .unwrap()
@@ -152,7 +152,7 @@ fn invocation_recovery_requires_original_actor_login_source_method_and_payload()
                 &f.context.login_id,
                 &f.source.id,
                 "recover",
-                "babel.social.reply.v2",
+                "babble.social.reply",
                 payload.clone()
             )
             .unwrap()
@@ -165,7 +165,7 @@ fn invocation_recovery_requires_original_actor_login_source_method_and_payload()
                 &f.context.login_id,
                 &f.source.id,
                 "missing-key",
-                "babel.social.reply.v2",
+                "babble.social.reply",
                 payload.clone()
             )
             .unwrap()
@@ -174,10 +174,10 @@ fn invocation_recovery_requires_original_actor_login_source_method_and_payload()
     for field in ["source", "method", "text", "target", "media"] {
         let mut candidate = payload.clone();
         let mut source = f.source.id.clone();
-        let mut method = "babel.social.reply.v2";
+        let mut method = "babble.social.reply";
         match field {
             "source" => source = f.target.id.clone(),
-            "method" => method = "babel.social.share.v2",
+            "method" => method = "babble.social.share",
             "text" => candidate.text = Some("changed content".into()),
             "target" => candidate.target_object_id = f.source.id.clone(),
             _ => {
@@ -245,7 +245,7 @@ fn invocation_recovery_never_returns_or_changes_unconsumed_or_denied_authority()
                     &f.context.login_id,
                     &f.source.id,
                     state,
-                    "babel.social.reply.v2",
+                    "babble.social.reply",
                     f.payload("reply")
                 )
                 .unwrap()
@@ -269,7 +269,7 @@ fn invocation_recovery_never_returns_or_changes_unconsumed_or_denied_authority()
                 &f.context.login_id,
                 &f.source.id,
                 "past-pending",
-                "babel.social.reply.v2",
+                "babble.social.reply",
                 f.payload("reply")
             )
             .unwrap()

@@ -69,7 +69,7 @@ test("client uses authenticated no-store REST, validates writes and binds receip
 test("client sends exact decision/appeal CAS and rejects mismatched or stale receipts", async () => {
   const writes = [];
   const client = new api.ModerationClient("https://node.example", async (url, init) => { writes.push(JSON.parse(init.body)); return Response.json(url.pathname.endsWith("decisions") ? decided() : appealed()); });
-  const d = { outcome: "restrict", reason: "spam", explanation: text, policy_version: "babel.integrity.v1", source_signals: [], expected_revision: 1, idempotency_key: "decision-1" };
+  const d = { outcome: "restrict", reason: "spam", explanation: text, policy_version: "babble.integrity.v1", source_signals: [], expected_revision: 1, idempotency_key: "decision-1" };
   await client.decide(reviewer, reportId, d, abort());
   await client.appeal(author, reportId, { details: text, expected_revision: 2, idempotency_key: "appeal-1" }, abort());
   assert.deepEqual(writes[0], d);

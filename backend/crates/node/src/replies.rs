@@ -1,8 +1,8 @@
 use crate::LocalNode;
-use babel_graph::{Edge, Relation, ReplyPosition};
-use babel_judgment::JudgmentProvider;
-use babel_object::Object;
-use babel_types::{Error, ObjectId, Result};
+use babble_graph::{Edge, Relation, ReplyPosition};
+use babble_judgment::JudgmentProvider;
+use babble_object::Object;
+use babble_types::{Error, ObjectId, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 

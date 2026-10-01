@@ -11,7 +11,7 @@ static NEXT_ROOT: AtomicU64 = AtomicU64::new(0);
 
 pub const HTML: &str = "<!doctype html><html><head><link rel=\"stylesheet\" href=\"./styles/site.css\"></head><body><main id=\"app\"></main><script type=\"module\" src=\"./scripts/main.js\"></script></body></html>\n";
 pub const JS: &str = "import { text } from './nested/message.js'; document.getElementById('app').textContent = text;\n";
-pub const MODULE: &str = "export const text = 'Portable Babel bundle';\n";
+pub const MODULE: &str = "export const text = 'Portable Babble bundle';\n";
 pub const CSS: &str = "@import './nested/colors.css'; body { color: var(--ink); }\n";
 pub const COLORS: &str = ":root { --ink: #123456; }\n";
 
@@ -27,7 +27,7 @@ impl Fixture {
             .unwrap()
             .as_nanos();
         let root = std::env::temp_dir().join(format!(
-            "babel-cli-bundle-{}-{nanos}-{}",
+            "babble-cli-bundle-{}-{nanos}-{}",
             std::process::id(),
             NEXT_ROOT.fetch_add(1, Ordering::Relaxed)
         ));
@@ -53,7 +53,7 @@ impl Fixture {
 
     pub fn input() -> Value {
         json!({
-            "kind": "babel.text", "schema": "babel.schema.text.v1",
+            "kind": "babble.text", "schema": "babble.schema.text.v1",
             "payload": {"text": "Bundle round trip", "metadata": {}},
             "surfaces": [{"role": "Feed", "target": "Web", "bundle": {
                 "entry_path": "app/index.html",
@@ -98,7 +98,7 @@ pub fn str_path(path: &Path) -> &str {
 }
 
 pub fn command<const N: usize>(args: [&str; N]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_babel"))
+    Command::new(env!("CARGO_BIN_EXE_babble"))
         .args(args)
         .output()
         .unwrap()

@@ -1,5 +1,5 @@
 use crate::{CliError, artifacts::CapturedArtifacts};
-use babel_object::bundle::{
+use babble_object::bundle::{
     BUNDLE_VERSION, BundleFile, BundleFileKind, BundleManifest, MAX_BUNDLE_FILES,
 };
 use serde::Deserialize;
@@ -57,7 +57,7 @@ impl LocalBundle {
                 let (integrity, size_bytes) = artifacts.capture(&base.join(input.file))?;
                 Ok(BundleFile {
                     path: input.path,
-                    source_uri: format!("babel://blobs/{integrity}"),
+                    source_uri: format!("babble://blobs/{integrity}"),
                     integrity,
                     size_bytes,
                     media_type: input.media_type,

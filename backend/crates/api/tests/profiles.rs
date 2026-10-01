@@ -3,10 +3,10 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode},
 };
-use babel_api::{ApiState, router};
-use babel_identity::IdentityKind;
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
+use babble_api::{ApiState, router};
+use babble_identity::IdentityKind;
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
 use serde_json::Value;
 use std::{
     fs,
@@ -23,7 +23,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-profile-http-{}-{}-{}",
+            "babble-profile-http-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed)
@@ -138,7 +138,7 @@ async fn profiles_http_snapshot_conflict_is_refreshable() {
     let cursor = first["next_cursor"].as_str().unwrap().replace('|', "%7C");
     let mut node = LocalNode::open(&f.root, LocalProvider::default()).unwrap();
     node.publish_text(
-        &babel_types::IdentityId::new_unchecked(&f.author),
+        &babble_types::IdentityId::new_unchecked(&f.author),
         "New Object",
     )
     .unwrap();

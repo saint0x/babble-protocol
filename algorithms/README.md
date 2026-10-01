@@ -1,4 +1,4 @@
-# Babel Algorithms
+# Babble Algorithms
 
 This package contains typed, deterministic Python primitives for content analysis, lexical
 Judgment fallback, candidate assembly, Lens ranking, feed diversity, recommendation,
@@ -11,8 +11,8 @@ all seven Judgment definitions, including on-demand
 TypeScript client reaches it through the API, not by executing Python in the
 browser. Ranking implements the eight protocol Lenses, weighted blends and soft
 source-diversity adjustments with complete traces. Its provider is
-`babel-python/lenses-v1/1`; the lexical Judgment provider remains
-`babel-python/lexical-v1/1`. Neither is a trained semantic model or calibrated
+`babble-python/lenses-v1/1`; the lexical Judgment provider remains
+`babble-python/lexical-v1/1`. Neither is a trained semantic model or calibrated
 probability estimate.
 
 See [public ranking](../docs/public-ranking.md) for the end-to-end data flow,
@@ -41,7 +41,7 @@ The contract is intentionally narrow:
 - `ranking_diversity`: source-only floor bonuses and concentration penalties.
   Floors and source shares are soft adjustments, not hard quotas.
 - `judgment`: deterministic lexical Judgment provider.
-- `worker`, `wire`, `execution`: persistent `babel.algorithms.v1` NDJSON transport,
+- `worker`, `wire`, `execution`: persistent `babble.algorithms.v1` NDJSON transport,
   strict runtime validation, health/provenance, `judge` execution and `rank`
   execution, plus batched `temporal` scoring. Rust retains record creation, signatures, commitments, cache and
   persistence.
@@ -88,6 +88,6 @@ uv run --frozen ruff check
 
 Run these commands from `algorithms/` so the tools load this package's configured
 test/type/lint scope. The installed worker starts with
-`.venv/bin/python -I -m babel_algorithms.worker`; stdout is exclusively protocol
+`.venv/bin/python -I -m babble_algorithms.worker`; stdout is exclusively protocol
 NDJSON. See [the worker contract](../docs/algorithm-worker.md) for limits,
 configuration, confidence semantics, and failure behavior.

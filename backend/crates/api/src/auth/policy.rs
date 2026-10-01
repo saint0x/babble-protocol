@@ -13,8 +13,8 @@ use axum::{
     middleware::Next,
     response::{IntoResponse, Response},
 };
-use babel_judgment::JudgmentProvider;
-use babel_rpc::RpcRequestEnvelope;
+use babble_judgment::JudgmentProvider;
+use babble_rpc::RpcRequestEnvelope;
 use serde_json::Value;
 use std::collections::BTreeMap;
 
@@ -152,86 +152,86 @@ fn rpc_access(method: &str) -> Access {
     }
     use Access::*;
     match method {
-        "babel.object.get.v1"
-        | "babel.media.blob.get.v1"
-        | "babel.graph.evidence.v1"
-        | "babel.graph.traverse.v1"
-        | "babel.social.replies.list.v1"
-        | "babel.social.quotes.list.v1"
-        | "babel.social.reactions.summary.v1"
-        | "babel.social.reactions.record.v1"
-        | "babel.judgment.definitions.list.v1"
-        | "babel.judgment.providers.list.v1"
-        | "babel.judgment.object.list.v1"
-        | "babel.search.objects.v1"
-        | "babel.lenses.list.v1"
-        | "babel.discovery.candidates.v1"
-        | "babel.capabilities.list.v1"
-        | "babel.capabilities.inspect.v1"
-        | "babel.runtime.surface.prepare.v1" => Public,
-        "babel.observability.snapshot.v1"
-        | "babel.events.list.v1"
-        | "babel.events.bundle.v1"
-        | "babel.events.import.v1"
-        | "babel.consensus.checkpoint.preview.v1"
-        | "babel.consensus.checkpoint.publish.v1"
-        | "babel.runtime.surface.health.v1" => Operator,
-        "babel.object.publish_text.v1"
-        | "babel.object.publish.v1"
-        | "babel.object.publish_media.v1"
-        | "babel.object.fork.v1"
-        | "babel.object.remix.v1"
-        | "babel.graph.edge.publish.v1"
-        | "babel.graph.relationship.infer.v1"
-        | "babel.social.follow.v1"
-        | "babel.social.unfollow.v1"
-        | "babel.social.share.v1"
-        | "babel.social.reply.v1"
-        | "babel.realtime.session.start.v1"
-        | "babel.realtime.session.leave.v1"
-        | "babel.realtime.message.publish.v1" => Author,
-        "babel.capabilities.grant.v1" => Grant,
-        "babel.capabilities.revoke.v1" => Revoke,
-        "babel.realtime.room.define.v1" => ObjectOwner,
-        "babel.identity.current.v1"
-        | "babel.social.reactions.mine.v1"
-        | "babel.social.reactions.set.v1"
-        | "babel.media.blob.put.v1"
-        | "babel.judgment.object.evaluate.v1"
-        | "babel.ai.judge.v1"
-        | "babel.ai.generate.v1"
-        | "babel.ai.embed.v1"
-        | "babel.ai.transcribe.v1"
-        | "babel.storage.local.get.v1"
-        | "babel.storage.local.set.v1"
-        | "babel.storage.local.delete.v1"
-        | "babel.storage.local.list.v1"
-        | "babel.storage.object.get.v1"
-        | "babel.storage.object.set.v1"
-        | "babel.storage.object.delete.v1"
-        | "babel.storage.object.list.v1"
-        | "babel.network.fetch.v1"
-        | "babel.payments.checkout.v1"
-        | "babel.notifications.request.v1"
-        | "babel.media.camera.request.v1"
-        | "babel.media.microphone.request.v1"
-        | "babel.clipboard.write.v1"
-        | "babel.fullscreen.enter.v1"
-        | "babel.clipboard.write.v2"
-        | "babel.fullscreen.enter.v2" => User,
-        "babel.personalization.sync.put.v1"
-        | "babel.personalization.sync.list.v1"
-        | "babel.personalization.sync.get.v1"
-        | "babel.personalization.sync.delete.v1" => Sync,
-        "babel.runtime.surface.session.start.v1" => StartSurface,
-        "babel.runtime.surface.session.get.v1"
-        | "babel.runtime.surface.session.heartbeat.v1"
-        | "babel.runtime.surface.session.transition.v1"
-        | "babel.runtime.surface.session.budget.v1"
-        | "babel.runtime.surface.session.schedule.v1"
-        | "babel.runtime.surface.session.apply_schedule.v1"
-        | "babel.runtime.surface.session.state.checkpoint.v1"
-        | "babel.runtime.surface.session.state.get.v1" => Surface,
+        "babble.object.get.v1"
+        | "babble.media.blob.get.v1"
+        | "babble.graph.evidence.v1"
+        | "babble.graph.traverse.v1"
+        | "babble.social.replies.list.v1"
+        | "babble.social.quotes.list.v1"
+        | "babble.social.reactions.summary.v1"
+        | "babble.social.reactions.record.v1"
+        | "babble.judgment.definitions.list.v1"
+        | "babble.judgment.providers.list.v1"
+        | "babble.judgment.object.list.v1"
+        | "babble.search.objects.v1"
+        | "babble.lenses.list.v1"
+        | "babble.discovery.candidates.v1"
+        | "babble.capabilities.list.v1"
+        | "babble.capabilities.inspect.v1"
+        | "babble.runtime.surface.prepare.v1" => Public,
+        "babble.observability.snapshot.v1"
+        | "babble.events.list.v1"
+        | "babble.events.bundle.v1"
+        | "babble.events.import.v1"
+        | "babble.consensus.checkpoint.preview.v1"
+        | "babble.consensus.checkpoint.publish.v1"
+        | "babble.runtime.surface.health.v1" => Operator,
+        "babble.object.publish_text.v1"
+        | "babble.object.publish.v1"
+        | "babble.object.publish_media.v1"
+        | "babble.object.fork.v1"
+        | "babble.object.remix.v1"
+        | "babble.graph.edge.publish.v1"
+        | "babble.graph.relationship.infer.v1"
+        | "babble.social.follow.v1"
+        | "babble.social.unfollow.v1"
+        | "babble.social.share.v1"
+        | "babble.social.reply.v1"
+        | "babble.realtime.session.start.v1"
+        | "babble.realtime.session.leave.v1"
+        | "babble.realtime.message.publish.v1" => Author,
+        "babble.capabilities.grant.v1" => Grant,
+        "babble.capabilities.revoke.v1" => Revoke,
+        "babble.realtime.room.define.v1" => ObjectOwner,
+        "babble.identity.current.v1"
+        | "babble.social.reactions.mine.v1"
+        | "babble.social.reactions.set.v1"
+        | "babble.media.blob.put.v1"
+        | "babble.judgment.object.evaluate.v1"
+        | "babble.ai.judge.v1"
+        | "babble.ai.generate.v1"
+        | "babble.ai.embed.v1"
+        | "babble.ai.transcribe.v1"
+        | "babble.storage.local.get.v1"
+        | "babble.storage.local.set.v1"
+        | "babble.storage.local.delete.v1"
+        | "babble.storage.local.list.v1"
+        | "babble.storage.object.get.v1"
+        | "babble.storage.object.set.v1"
+        | "babble.storage.object.delete.v1"
+        | "babble.storage.object.list.v1"
+        | "babble.network.fetch.v1"
+        | "babble.payments.checkout.v1"
+        | "babble.notifications.request.v1"
+        | "babble.media.camera.request.v1"
+        | "babble.media.microphone.request.v1"
+        | "babble.clipboard.write.v1"
+        | "babble.fullscreen.enter.v1"
+        | "babble.clipboard.write"
+        | "babble.fullscreen.enter" => User,
+        "babble.personalization.sync.put.v1"
+        | "babble.personalization.sync.list.v1"
+        | "babble.personalization.sync.get.v1"
+        | "babble.personalization.sync.delete.v1" => Sync,
+        "babble.runtime.surface.session.start.v1" => StartSurface,
+        "babble.runtime.surface.session.get.v1"
+        | "babble.runtime.surface.session.heartbeat.v1"
+        | "babble.runtime.surface.session.transition.v1"
+        | "babble.runtime.surface.session.budget.v1"
+        | "babble.runtime.surface.session.schedule.v1"
+        | "babble.runtime.surface.session.apply_schedule.v1"
+        | "babble.runtime.surface.session.state.checkpoint.v1"
+        | "babble.runtime.surface.session.state.get.v1" => Surface,
         _ => Denied,
     }
 }
@@ -242,37 +242,37 @@ fn surface_method(method: &str) -> bool {
     }
     matches!(
         method,
-        "babel.identity.current.v1"
-            | "babel.ai.judge.v1"
-            | "babel.ai.generate.v1"
-            | "babel.ai.embed.v1"
-            | "babel.ai.transcribe.v1"
-            | "babel.social.follow.v1"
-            | "babel.social.unfollow.v1"
-            | "babel.social.share.v1"
-            | "babel.social.reply.v1"
-            | "babel.storage.local.get.v1"
-            | "babel.storage.local.set.v1"
-            | "babel.storage.local.delete.v1"
-            | "babel.storage.local.list.v1"
-            | "babel.storage.object.get.v1"
-            | "babel.storage.object.set.v1"
-            | "babel.storage.object.delete.v1"
-            | "babel.storage.object.list.v1"
-            | "babel.network.fetch.v1"
-            | "babel.payments.checkout.v1"
-            | "babel.notifications.request.v1"
-            | "babel.media.camera.request.v1"
-            | "babel.media.microphone.request.v1"
-            | "babel.clipboard.write.v1"
-            | "babel.fullscreen.enter.v1"
-            | "babel.clipboard.write.v2"
-            | "babel.fullscreen.enter.v2"
-            | "babel.realtime.session.start.v1"
-            | "babel.realtime.session.leave.v1"
-            | "babel.realtime.message.publish.v1"
-            | "babel.runtime.surface.session.get.v1"
-            | "babel.runtime.surface.session.state.get.v1"
+        "babble.identity.current.v1"
+            | "babble.ai.judge.v1"
+            | "babble.ai.generate.v1"
+            | "babble.ai.embed.v1"
+            | "babble.ai.transcribe.v1"
+            | "babble.social.follow.v1"
+            | "babble.social.unfollow.v1"
+            | "babble.social.share.v1"
+            | "babble.social.reply.v1"
+            | "babble.storage.local.get.v1"
+            | "babble.storage.local.set.v1"
+            | "babble.storage.local.delete.v1"
+            | "babble.storage.local.list.v1"
+            | "babble.storage.object.get.v1"
+            | "babble.storage.object.set.v1"
+            | "babble.storage.object.delete.v1"
+            | "babble.storage.object.list.v1"
+            | "babble.network.fetch.v1"
+            | "babble.payments.checkout.v1"
+            | "babble.notifications.request.v1"
+            | "babble.media.camera.request.v1"
+            | "babble.media.microphone.request.v1"
+            | "babble.clipboard.write.v1"
+            | "babble.fullscreen.enter.v1"
+            | "babble.clipboard.write"
+            | "babble.fullscreen.enter"
+            | "babble.realtime.session.start.v1"
+            | "babble.realtime.session.leave.v1"
+            | "babble.realtime.message.publish.v1"
+            | "babble.runtime.surface.session.get.v1"
+            | "babble.runtime.surface.session.state.get.v1"
     )
 }
 
@@ -453,16 +453,16 @@ async fn checked_request<P: JudgmentProvider>(
                     document,
                     access: if rpc.binding.object_id.is_some() {
                         SurfaceAccess::Execute
-                    } else if rpc.method.as_str() == "babel.runtime.surface.session.heartbeat.v1" {
+                    } else if rpc.method.as_str() == "babble.runtime.surface.session.heartbeat.v1" {
                         SurfaceAccess::Renew
-                    } else if rpc.method.as_str() == "babel.runtime.surface.session.transition.v1"
+                    } else if rpc.method.as_str() == "babble.runtime.surface.session.transition.v1"
                         && rpc.payload.get("lifecycle").and_then(Value::as_str) == Some("evicted")
                     {
                         SurfaceAccess::Evict
                     } else if matches!(
                         rpc.method.as_str(),
-                        "babel.runtime.surface.session.get.v1"
-                            | "babel.runtime.surface.session.state.get.v1"
+                        "babble.runtime.surface.session.get.v1"
+                            | "babble.runtime.surface.session.state.get.v1"
                     ) {
                         SurfaceAccess::Inspect
                     } else {
@@ -483,7 +483,7 @@ async fn checked_request<P: JudgmentProvider>(
                 {
                     return Err(ApiError::forbidden());
                 }
-            } else if rpc.method.as_str().starts_with("babel.storage.")
+            } else if rpc.method.as_str().starts_with("babble.storage.")
                 || !rpc.binding.capability_grants.is_empty()
             {
                 return Err(ApiError::forbidden());
@@ -659,7 +659,7 @@ fn require_grants<P: JudgmentProvider>(
 ) -> Result<(), ApiError> {
     if !lock_node(state)?.grants_belong_to(
         &object_id(object.to_owned())?,
-        &babel_types::IdentityId::new_unchecked(principal.identity_id.clone()),
+        &babble_types::IdentityId::new_unchecked(principal.identity_id.clone()),
         grants,
     )? {
         return Err(ApiError::forbidden());
@@ -684,7 +684,7 @@ fn check_start_id<P: JudgmentProvider>(
     let Some(id) = payload.get("session_id").and_then(Value::as_str) else {
         return Ok(());
     };
-    let session_id = babel_runtime::SurfaceSessionId::new(id)?;
+    let session_id = babble_runtime::SurfaceSessionId::new(id)?;
     let native_exists = lock_node(state)?.surface_session(&session_id).is_ok();
     let stored = state.auth.with_store(|store| store.has_surface(id))?;
     if native_exists || stored {
@@ -704,10 +704,10 @@ mod tests {
 
     #[test]
     fn auth_catalog_policy_is_explicit_and_surface_mutations_require_capabilities() {
-        let catalog = babel_rpc::babel_rpc_catalog().unwrap();
+        let catalog = babble_rpc::babble_rpc_catalog().unwrap();
         for method in catalog.methods {
             let name = method.method.as_str();
-            if name != "babel.identity.create.v1" {
+            if name != "babble.identity.create.v1" {
                 assert!(
                     rpc_access(name) != Access::Denied,
                     "classify {name} explicitly"
@@ -722,7 +722,7 @@ mod tests {
                 );
             }
         }
-        assert!(rpc_access("babel.future.write.v1") == Access::Denied);
+        assert!(rpc_access("babble.future.write.v1") == Access::Denied);
         assert!(rest_access("POST", "/future/admin") == Access::Denied);
     }
 }

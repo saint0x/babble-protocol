@@ -1,8 +1,8 @@
-# Babel CLI
+# Babble CLI
 
-Build, sign, publish, and inspect Babel objects from local manifests. Run from the
-backend workspace with `CARGO_INCREMENTAL=0 cargo run -p babel-cli -- <command>`.
-`babel --help` lists commands.
+Build, sign, publish, and inspect Babble objects from local manifests. Run from the
+backend workspace with `CARGO_INCREMENTAL=0 cargo run -p babble-cli -- <command>`.
+`babble --help` lists commands.
 
 ## Already-Built Bundles
 
@@ -13,8 +13,8 @@ keeping its relative paths intact:
 
 ```json
 {
-  "kind": "babel.text",
-  "schema": "babel.schema.text.v1",
+  "kind": "babble.text",
+  "schema": "babble.schema.text.v1",
   "payload": {"text": "My application", "metadata": {}},
   "surfaces": [{
     "role": "Feed",
@@ -50,11 +50,11 @@ capture. Bundle logical bytes, including repeated content, are also bounded by
 the shared contract. Empty files are accepted when their metadata is valid.
 
 ```sh
-babel build manifest.json --out draft.json
-babel identity new identity.json key.json Application my-app
-babel sign identity.json key.json manifest.json --out object.json
-babel publish ./store identity.json key.json manifest.json
-babel inspect bundle ./store <object-id> Feed
+babble build manifest.json --out draft.json
+babble identity new identity.json key.json Application my-app
+babble sign identity.json key.json manifest.json --out object.json
+babble publish ./store identity.json key.json manifest.json
+babble inspect bundle ./store <object-id> Feed
 ```
 
 Each build/sign/publish invocation captures its inputs once. Publish uploads those
@@ -73,7 +73,7 @@ remain policy-blocked.
 
 ## Validation
 
-`CARGO_INCREMENTAL=0 cargo test -p babel-cli` covers the actual CLI binary and
+`CARGO_INCREMENTAL=0 cargo test -p babble-cli` covers the actual CLI binary and
 captured-input regression. From the repository root, run strict Fozzy doctor/test
 on `tests/bundle-inventory.fozzy.json`, then record the actual native suite with
 `tests/bundle-inventory-host.fozzy.json` and host backends. The former checks

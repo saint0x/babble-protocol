@@ -1,4 +1,4 @@
-use babel_types::{ObjectId, Timestamp};
+use babble_types::{ObjectId, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
@@ -300,7 +300,7 @@ pub struct WeirdLens;
 
 impl Lens for FollowingLens {
     fn id(&self) -> &'static str {
-        "babel.lens.following.v1"
+        "babble.lens.following.v1"
     }
 
     fn rank(&self, candidates: &[Candidate]) -> Vec<RankedCandidate> {
@@ -329,7 +329,7 @@ impl Lens for FollowingLens {
 
 impl Lens for FriendsLens {
     fn id(&self) -> &'static str {
-        "babel.lens.friends.v1"
+        "babble.lens.friends.v1"
     }
 
     fn rank(&self, candidates: &[Candidate]) -> Vec<RankedCandidate> {
@@ -360,7 +360,7 @@ impl Lens for FriendsLens {
 
 impl Lens for ResearchLens {
     fn id(&self) -> &'static str {
-        "babel.lens.research.v1"
+        "babble.lens.research.v1"
     }
 
     fn rank(&self, candidates: &[Candidate]) -> Vec<RankedCandidate> {
@@ -392,7 +392,7 @@ impl Lens for ResearchLens {
 
 impl Lens for IntellectualSerendipityLens {
     fn id(&self) -> &'static str {
-        "babel.lens.intellectual_serendipity.v1"
+        "babble.lens.intellectual_serendipity.v1"
     }
 
     fn rank(&self, candidates: &[Candidate]) -> Vec<RankedCandidate> {
@@ -421,7 +421,7 @@ impl Lens for IntellectualSerendipityLens {
 
 impl Lens for ContradictionsLens {
     fn id(&self) -> &'static str {
-        "babel.lens.contradictions.v1"
+        "babble.lens.contradictions.v1"
     }
 
     fn rank(&self, candidates: &[Candidate]) -> Vec<RankedCandidate> {
@@ -449,7 +449,7 @@ impl Lens for ContradictionsLens {
 
 impl Lens for EmergingLens {
     fn id(&self) -> &'static str {
-        "babel.lens.emerging.v1"
+        "babble.lens.emerging.v1"
     }
 
     fn rank(&self, candidates: &[Candidate]) -> Vec<RankedCandidate> {
@@ -474,7 +474,7 @@ impl Lens for EmergingLens {
 
 impl Lens for SlowInternetLens {
     fn id(&self) -> &'static str {
-        "babel.lens.slow_internet.v1"
+        "babble.lens.slow_internet.v1"
     }
 
     fn rank(&self, candidates: &[Candidate]) -> Vec<RankedCandidate> {
@@ -502,7 +502,7 @@ impl Lens for SlowInternetLens {
 
 impl Lens for WeirdLens {
     fn id(&self) -> &'static str {
-        "babel.lens.weird.v1"
+        "babble.lens.weird.v1"
     }
 
     fn rank(&self, candidates: &[Candidate]) -> Vec<RankedCandidate> {
@@ -548,14 +548,14 @@ impl BuiltInLens {
 
     pub fn id(&self) -> &'static str {
         match self {
-            Self::Following => "babel.lens.following.v1",
-            Self::Friends => "babel.lens.friends.v1",
-            Self::Research => "babel.lens.research.v1",
-            Self::IntellectualSerendipity => "babel.lens.intellectual_serendipity.v1",
-            Self::Contradictions => "babel.lens.contradictions.v1",
-            Self::Emerging => "babel.lens.emerging.v1",
-            Self::SlowInternet => "babel.lens.slow_internet.v1",
-            Self::Weird => "babel.lens.weird.v1",
+            Self::Following => "babble.lens.following.v1",
+            Self::Friends => "babble.lens.friends.v1",
+            Self::Research => "babble.lens.research.v1",
+            Self::IntellectualSerendipity => "babble.lens.intellectual_serendipity.v1",
+            Self::Contradictions => "babble.lens.contradictions.v1",
+            Self::Emerging => "babble.lens.emerging.v1",
+            Self::SlowInternet => "babble.lens.slow_internet.v1",
+            Self::Weird => "babble.lens.weird.v1",
         }
     }
 

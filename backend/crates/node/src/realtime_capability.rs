@@ -1,12 +1,12 @@
 use crate::{CapabilityBindingUsage, LocalNode};
-use babel_capabilities::CapabilityReceipt;
-use babel_judgment::JudgmentProvider;
-use babel_realtime::{RealtimeMessage, RealtimePayload, RealtimeSession, RealtimeSnapshot};
-use babel_types::{Canonical, IdentityId, ObjectId, RealtimeRoomId, RealtimeSessionId, Result};
+use babble_capabilities::CapabilityReceipt;
+use babble_judgment::JudgmentProvider;
+use babble_realtime::{RealtimeMessage, RealtimePayload, RealtimeSession, RealtimeSnapshot};
+use babble_types::{Canonical, IdentityId, ObjectId, RealtimeRoomId, RealtimeSessionId, Result};
 
-const REALTIME_JOIN_CAPABILITY: &str = "babel.realtime.join";
-const REALTIME_SEND_CAPABILITY: &str = "babel.realtime.send";
-const REALTIME_LEAVE_CAPABILITY: &str = "babel.realtime.leave";
+const REALTIME_JOIN_CAPABILITY: &str = "babble.realtime.join";
+const REALTIME_SEND_CAPABILITY: &str = "babble.realtime.send";
+const REALTIME_LEAVE_CAPABILITY: &str = "babble.realtime.leave";
 const REALTIME_CAPABILITY_VERSION: u32 = 1;
 
 impl<P> LocalNode<P>
@@ -23,7 +23,7 @@ where
         let room = self
             .realtime
             .room(room_id)
-            .ok_or_else(|| babel_types::Error::NotFound(room_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(room_id.to_string()))?;
         let receipt = self.authorize_realtime_capability(
             &room.spec.object_id,
             REALTIME_JOIN_CAPABILITY,
@@ -42,14 +42,14 @@ where
         session_id: &RealtimeSessionId,
         object_id: &ObjectId,
         grant_ids: &[String],
-    ) -> Result<(RealtimeSession, babel_state::Event, CapabilityReceipt)> {
+    ) -> Result<(RealtimeSession, babble_state::Event, CapabilityReceipt)> {
         self.check_ready()?;
         let session = self
             .realtime
             .session(session_id)
-            .ok_or_else(|| babel_types::Error::NotFound(session_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(session_id.to_string()))?;
         if &session.object_id != object_id {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "realtime session {} belongs to Object {}, not {}",
                 session.id, session.object_id, object_id
             )));
@@ -57,7 +57,7 @@ where
         let room = self
             .realtime
             .room(&session.room_id)
-            .ok_or_else(|| babel_types::Error::NotFound(session.room_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(session.room_id.to_string()))?;
         let receipt = self.authorize_realtime_capability(
             object_id,
             REALTIME_LEAVE_CAPABILITY,
@@ -83,9 +83,9 @@ where
         let session = self
             .realtime
             .session(session_id)
-            .ok_or_else(|| babel_types::Error::NotFound(session_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(session_id.to_string()))?;
         if &session.object_id != object_id {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "realtime session {} belongs to Object {}, not {}",
                 session.id, session.object_id, object_id
             )));
@@ -93,7 +93,7 @@ where
         let room = self
             .realtime
             .room(&session.room_id)
-            .ok_or_else(|| babel_types::Error::NotFound(session.room_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(session.room_id.to_string()))?;
         let requested_bytes = payload.canonical_bytes()?.len() as u64;
         let receipt = self.authorize_realtime_capability(
             object_id,
@@ -134,12 +134,12 @@ where
             .get("room")
             .and_then(serde_json::Value::as_str)
             .ok_or_else(|| {
-                babel_types::Error::Conflict(
+                babble_types::Error::Conflict(
                     "realtime capability grant scope must include room".to_string(),
                 )
             })?;
         if scoped_room != room_name {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "realtime capability room scope {scoped_room} does not match room {room_name}"
             )));
         }

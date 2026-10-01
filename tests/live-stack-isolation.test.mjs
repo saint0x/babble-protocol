@@ -5,7 +5,7 @@ import test from "node:test";
 import { assertLiveStackIsolation, liveStackEndpoints } from "./live-stack-isolation.mjs";
 
 test("source freeze and exact disposable endpoints precede any fixture writes", async () => {
-  const variable = "BABEL_ISOLATION_TEST_FROZEN";
+  const variable = "BABBLE_ISOLATION_TEST_FROZEN";
   const original = process.env[variable];
   try {
     delete process.env[variable];
@@ -22,7 +22,7 @@ test("source freeze and exact disposable endpoints precede any fixture writes", 
 });
 
 test("the internal observed API port is reserved without stopping an existing listener", async () => {
-  const variable = "BABEL_ISOLATION_TEST_FROZEN";
+  const variable = "BABBLE_ISOLATION_TEST_FROZEN";
   const original = process.env[variable];
   const server = createServer(socket => socket.end("existing service"));
   server.listen(18789, "127.0.0.1");

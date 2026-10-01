@@ -1,4 +1,4 @@
-import type { ProtocolTypes } from "@babel-protocol/sdk";
+import type { ProtocolTypes } from "@babble-protocol/sdk";
 
 type Identity = ProtocolTypes["api.CreateIdentityResponse"]["identity"];
 type Page = ProtocolTypes["node.AuthorObjectsPage"];

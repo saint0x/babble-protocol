@@ -1,5 +1,5 @@
 use crate::{FileStore, write_atomic};
-use babel_types::{Error, Hash, Result};
+use babble_types::{Error, Hash, Result};
 use std::{
     fs::File,
     io::{ErrorKind, Read},

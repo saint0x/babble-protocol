@@ -3,8 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
-import { createPersonalizationFilter, summarizeDiscoveryObject } from "@babel-protocol/sdk";
-import * as sdk from "@babel-protocol/sdk";
+import { createPersonalizationFilter, summarizeDiscoveryObject } from "@babble-protocol/sdk";
+import * as sdk from "@babble-protocol/sdk";
 
 function module(name, require = () => { throw new Error("Unexpected import"); }, globals = {}) {
   const context = { exports: {}, require, AbortController, AbortSignal, URL, Response, Request, Headers,
@@ -23,7 +23,7 @@ const owner = id("a"), target = id("b"), other = id("c");
 const state = (following = false, revision = 0, author_id = owner, target_id = target) => ({ author_id, target_id, following, revision });
 const identity = (author = target) => ({ id: author, handle: "Server authoritative handle", kind: "Person", created_at: "2026-09-29T12:00:00Z", public_key: {}, signature: {} });
 const object = (key = "1", date = "2026-09-29T12:00:00Z") => ({ id: `obj_${key.repeat(64)}`, author: target,
-  created_at: date, kind: "text", schema: "babel.text.v1", protocol: { name: "babel", version: 1 }, payload: { text: "Actual post" },
+  created_at: date, kind: "text", schema: "babble.text.v1", protocol: { name: "babble", version: 1 }, payload: { text: "Actual post" },
   provenance: { parent: null, forked_from: null, remixed_from: [] }, relations: [], resources: [], surfaces: [], capabilities: [] });
 const deferred = () => { let resolve, reject; const promise = new Promise((a, b) => { resolve = a; reject = b; }); return { promise, resolve, reject }; };
 const settle = () => new Promise((resolve) => setImmediate(resolve));
@@ -31,7 +31,7 @@ const settle = () => new Promise((resolve) => setImmediate(resolve));
 test("Following transport is authenticated REST GET/PUT with bounded queries, no cookies, author payload, history, discovery or ranking", async () => {
   const requests = [];
   const values = [state(), state(true, 1), { identities: [identity()], next_cursor: null }, { objects: [object()], next_cursor: "next" }];
-  const client = new FollowingClient("https://babel.test", async (url, init) => {
+  const client = new FollowingClient("https://babble.test", async (url, init) => {
     requests.push({ url, init }); return Response.json(values.shift());
   });
   const signal = new AbortController().signal;
@@ -71,14 +71,14 @@ test("boundary rejects unsafe revisions, cross-account states, oversized pages a
 test("HTTP errors preserve 409/503 classification without displaying upstream diagnostics", async () => {
   for (const status of [401, 404, 409, 503]) {
     for (const mode of ["response", "throw"]) {
-      const client = new FollowingClient("https://babel.test", async () => {
+      const client = new FollowingClient("https://babble.test", async () => {
         if (mode === "throw") throw Object.assign(new Error("private diagnostic"), { status });
         return new Response("private diagnostic", { status });
       });
       await assert.rejects(client.state(owner, target, new AbortController().signal), (e) => e.status === status && !e.message.includes("private diagnostic"));
     }
   }
-  const client = new FollowingClient("https://babel.test", async () => new Response("<html>bad response</html>"));
+  const client = new FollowingClient("https://babble.test", async () => new Response("<html>bad response</html>"));
   await assert.rejects(client.feed("", null, new AbortController().signal), /Check your connection/);
 });
 
@@ -234,16 +234,16 @@ test("production Accounts bearer transport rejects guests and responses from pre
   const session = { token: "t".repeat(64), identity: { id: owner, handle: "Reader" }, expires_at: "2099-01-01T00:00:00Z" };
   const store = { getItem: () => JSON.stringify(session), setItem() {}, removeItem() {} };
   const pending = deferred(); let received;
-  const accounts = new Accounts("https://babel.test", store, async (url, init) => {
+  const accounts = new Accounts("https://babble.test", store, async (url, init) => {
     if (url.pathname === "/auth/session") return new Response(null, { status: 204 });
     received = init; return pending.promise;
   });
-  const request = accounts.authenticatedFetch(new URL("https://babel.test/social/following"));
+  const request = accounts.authenticatedFetch(new URL("https://babble.test/social/following"));
   assert.equal(received.headers.get("authorization"), `Bearer ${session.token}`);
   assert.equal(received.credentials, "omit");
   await accounts.logout(); pending.resolve(Response.json({ identities: [identity()], next_cursor: null }));
   await assert.rejects(request, /account changed/);
-  await assert.rejects(accounts.authenticatedFetch(new URL("https://babel.test/social/following")), /Sign in/);
+  await assert.rejects(accounts.authenticatedFetch(new URL("https://babble.test/social/following")), /Sign in/);
 });
 
 const main = ts.createSourceFile("main.ts", readFileSync(new URL("../src/app/main.ts", import.meta.url), "utf8"), ts.ScriptTarget.Latest, true);
@@ -284,7 +284,7 @@ test("production discovery client explicitly rejects Following before any fallba
   const invocations = module("invocations", () => sdk);
   const protocol = module("protocol", (name) => name === "./invocations" ? invocations
     : name === "./profile-response" ? response : { HttpRpcTransport: class {}, hostBinding: () => ({}) });
-  const client = new protocol.BabelFrontendClient("https://babel.test", async () => assert.fail("unexpected fetch"));
+  const client = new protocol.BabbleFrontendClient("https://babble.test", async () => assert.fail("unexpected fetch"));
   await assert.rejects(client.loadFeed("", "following"), /authenticated chronological feed/);
 });
 
@@ -386,7 +386,7 @@ test("production account integration immediately clears private deck and invalid
     safetyControls: { account: owner => calls.push(["safety", owner]) }, conversations: { clear: () => calls.push(["conversations-clear"]) },
     moderationControls: { account: owner => calls.push(["moderation", owner]) },
     safetyUnavailable: false,
-    accounts: { current: { identity: { id: other, handle: "Other" } }, origin: new URL("https://babel.test") },
+    accounts: { current: { identity: { id: other, handle: "Other" } }, origin: new URL("https://babble.test") },
     drafts: { setOwner: () => false }, author: { identityId: owner }, followingDirty: true,
     composerView: { render() {} }, objectVisits: { clear() {} }, quotes: { clear() {}, refresh() {} },
     reactions: { select: (object) => calls.push(["reactions", object]) },

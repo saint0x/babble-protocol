@@ -4,12 +4,12 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
-import * as sdk from "@babel-protocol/sdk";
+import * as sdk from "@babble-protocol/sdk";
 import { mediaResource } from "./media-modules.mjs";
 
 function load(path, dependencies = {}) {
   const context = { exports: {}, URL, AbortController, AbortSignal, TextEncoder, TextDecoder, structuredClone, console, Error, crypto: webcrypto,
-    location: { origin: "https://frontend.babel.test" },
+    location: { origin: "https://frontend.babble.test" },
     require(name) {
       assert.ok(name in dependencies, `Unexpected runtime dependency: ${name}`);
       return dependencies[name];
@@ -21,15 +21,15 @@ function load(path, dependencies = {}) {
 }
 const transport = load("../../sdk/src/transport.ts");
 const profiles = load("../src/app/profile-response.ts");
-const { BabelFrontendClient } = load("../src/app/protocol.ts", {
-  "@babel-protocol/sdk": {
+const { BabbleFrontendClient } = load("../src/app/protocol.ts", {
+  "@babble-protocol/sdk": {
     ...transport,
     BrowserSurfaceHost: class { constructor() { assert.fail("Resolving quoted cards cannot construct a Surface host"); } },
   },
   "./profile-response": profiles,
   "./media-resource": mediaResource,
-  "./invocations": load("../src/app/invocations.ts", { "@babel-protocol/sdk": sdk }),
-  "./browser-invocations": load("../src/app/browser-invocations.ts", { "@babel-protocol/sdk": sdk }),
+  "./invocations": load("../src/app/invocations.ts", { "@babble-protocol/sdk": sdk }),
+  "./browser-invocations": load("../src/app/browser-invocations.ts", { "@babble-protocol/sdk": sdk }),
 });
 const sourceId = `obj_${"a".repeat(64)}`;
 const targetId = `obj_${"b".repeat(64)}`;
@@ -38,7 +38,7 @@ const authorId = `id_${"d".repeat(64)}`;
 const hash = "e".repeat(64);
 const signature = () => ({ algorithm: "Ed25519", bytes: "f".repeat(128) });
 const object = (id = targetId) => ({ id, author: authorId, created_at: "2026-09-30T12:00:00Z",
-  kind: "babel.text", schema: "babel.schema.text.v1", protocol: { name: "babel", version: 1 },
+  kind: "babble.text", schema: "babble.schema.text.v1", protocol: { name: "babble", version: 1 },
   payload: { text: "An original post\nIts complete content." }, signature: signature(),
   provenance: { parent: null, forked_from: null, remixed_from: [] }, relations: [],
   resources: [], surfaces: [], capabilities: [] });
@@ -49,7 +49,7 @@ const quote = (record = object()) => ({
   object: record,
 });
 const page = (quotes = [quote()], next = null) => ({ object_id: sourceId, quotes, next_cursor: next });
-const envelope = (result) => Response.json({ protocol: "babel.rpc.v1", result, error: null });
+const envelope = (result) => Response.json({ protocol: "babble.rpc.v1", result, error: null });
 const deferred = () => {
   let resolve, reject;
   const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
@@ -59,12 +59,12 @@ const settle = () => new Promise((resolve) => setImmediate(resolve));
 const abortError = (error) => error?.name === "AbortError";
 
 test("object conversion forwards the complete ordered collection and preserves its primary", async () => {
-  const client = new BabelFrontendClient("https://api.babel.test", () => assert.fail("Conversion must not fetch media"));
+  const client = new BabbleFrontendClient("https://api.babble.test", () => assert.fail("Conversion must not fetch media"));
   const image = { integrity: "a".repeat(64), media_type: "image/png", uri: "https://media.test/image.png" };
   const audio = { integrity: "b".repeat(64), media_type: "audio/mpeg", uri: "https://media.test/audio.mp3" };
   const video = { integrity: "c".repeat(64), media_type: "video/mp4", uri: "https://media.test/video.mp4" };
   const surface = { integrity: "d".repeat(64), media_type: "image/png", uri: "https://media.test/surface.png" };
-  const outer = { ...object(), kind: "babel.media", resources: [surface, video, image, audio] };
+  const outer = { ...object(), kind: "babble.media", resources: [surface, video, image, audio] };
   const card = await client.describeObject({ ...outer,
     payload: { text: "Mixed album", resources: [image, audio, video], primary_resource: video } });
   assert.equal(card.media, video.uri);
@@ -89,11 +89,11 @@ test("object conversion forwards the complete ordered collection and preserves i
 });
 function harness(result = page(), respond = null) {
   const requests = [];
-  const client = new BabelFrontendClient("https://api.babel.test", async (url, init) => {
+  const client = new BabbleFrontendClient("https://api.babble.test", async (url, init) => {
     const request = { url, init, body: JSON.parse(init.body) };
     requests.push(request);
-    assert.equal(url.href, "https://api.babel.test/rpc", "No eager media or Surface requests");
-    assert.equal(request.body.method, "babel.social.quotes.list.v1", "Only the public quote-list RPC is allowed");
+    assert.equal(url.href, "https://api.babble.test/rpc", "No eager media or Surface requests");
+    assert.equal(request.body.method, "babble.social.quotes.list.v1", "Only the public quote-list RPC is allowed");
     return respond ? respond(request) : envelope(result);
   });
   return { client, requests, controller: new AbortController() };
@@ -108,14 +108,14 @@ test("quotes maps both page cursors to a bounded public RPC request and forwards
     assert.equal(init.method, "POST");
     assert.equal(init.headers["content-type"], "application/json");
     assert.equal(init.signal, h.controller.signal);
-    assert.equal(body.protocol, "babel.rpc.v1");
+    assert.equal(body.protocol, "babble.rpc.v1");
     assert.deepEqual(body.payload, { object_id: sourceId, cursor, limit: 10 });
     assert.equal(body.idempotency_key, null);
     assert.equal(body.binding.identity_id, null);
     assert.equal(body.binding.object_id, null);
     assert.equal(body.binding.surface_session_id, null);
     assert.deepEqual(body.binding.capability_grants, []);
-    assert.equal(body.binding.origin, "https://frontend.babel.test");
+    assert.equal(body.binding.origin, "https://frontend.babble.test");
     assert.equal(result.objectId, sourceId);
     assert.equal(result.nextCursor, "server-next");
     assert.equal(result.items.length, 0);
@@ -145,17 +145,17 @@ test("available originals become unranked quote cards; missing originals remain 
 });
 
 test("media and interactive originals resolve inert descriptors without fetching blobs, preparing capabilities or executing Surfaces", async () => {
-  const original = { ...object(), kind: "babel.media", payload: { title: "Original video", description: "Caption" },
-    resources: [{ uri: `babel://blobs/${hash}`, media_type: "video/webm", integrity: hash }],
-    surfaces: [{ role: "Feed", target: "Web", entry: "https://app.babel.test/game.html", integrity: hash }],
-    capabilities: [{ id: "babel.clipboard.write", version: 1, scope: {} }] };
+  const original = { ...object(), kind: "babble.media", payload: { title: "Original video", description: "Caption" },
+    resources: [{ uri: `babble://blobs/${hash}`, media_type: "video/webm", integrity: hash }],
+    surfaces: [{ role: "Feed", target: "Web", entry: "https://app.babble.test/game.html", integrity: hash }],
+    capabilities: [{ id: "babble.clipboard.write", version: 1, scope: {} }] };
   const h = harness(page([quote(original)]));
   const { items } = await h.client.quotes(sourceId, null, h.controller.signal);
-  assert.equal(items[0].card.media, `https://api.babel.test/objects/${targetId}/media/${hash}`);
+  assert.equal(items[0].card.media, `https://api.babble.test/objects/${targetId}/media/${hash}`);
   assert.equal(items[0].card.mediaKind, "video");
   assert.equal(items[0].card.mediaType, "video/webm");
   assert.equal(items[0].card.surfaces[0].target, "Web");
-  assert.equal(items[0].card.capabilities[0].id, "babel.clipboard.write");
+  assert.equal(items[0].card.capabilities[0].id, "babble.clipboard.write");
   assert.equal(items[0].card.resourceCount, 1);
   assert.equal(h.requests.length, 1);
 });

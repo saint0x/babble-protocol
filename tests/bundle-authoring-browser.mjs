@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 // starts no services and changes no production transports or Surface policies.
 export async function verifyBundleAuthoring(execute, waitFor) {
   const marker = `Aegis bundle ${randomUUID()}`;
-  const gatewayPort = process.env.BABEL_LIVE_GATEWAY_PORT ?? "18788";
+  const gatewayPort = process.env.BABBLE_LIVE_GATEWAY_PORT ?? "18788";
   const evaluate = async (code) => {
     const response = await execute([{ type: "eval", code }]);
     assert.equal(response.results.length, 1);
@@ -51,7 +51,7 @@ export async function verifyBundleAuthoring(execute, waitFor) {
       assert.deepEqual(measurement.errors, [], `composer geometry: ${JSON.stringify(measurement)}`);
     }
     const files = [
-      { path: "index.html", type: "text/html", kind: "document", body: '<!doctype html><html><head><meta charset="utf-8"><title>Babel bundle counter</title><link rel="stylesheet" href="./theme.css"></head><body><main><h1>Babel bundle counter</h1><button id="increment" type="button">Increment</button><output id="count">0</output><p id="status">Connecting</p></main><script type="module" src="./main.js"></script></body></html>' },
+      { path: "index.html", type: "text/html", kind: "document", body: '<!doctype html><html><head><meta charset="utf-8"><title>Babble bundle counter</title><link rel="stylesheet" href="./theme.css"></head><body><main><h1>Babble bundle counter</h1><button id="increment" type="button">Increment</button><output id="count">0</output><p id="status">Connecting</p></main><script type="module" src="./main.js"></script></body></html>' },
       { path: "main.js", type: "text/javascript", kind: "script", body: `(${counterApplication.toString()})(${JSON.stringify({ marker, parentOrigin: setup.origin })});\n` },
       { path: "theme.css", type: "text/css", kind: "stylesheet", body: 'body { margin: 0; padding: 24px; color: rgb(17, 93, 121); background: white; font: 18px sans-serif; } main { display: grid; gap: 16px; } button { min-height: 44px; } output { display: block; font-size: 32px; }\n' },
     ];
@@ -125,7 +125,7 @@ export async function verifyBundleAuthoring(execute, waitFor) {
     const objects = await task(s => s.search(s.marker));
     assert.equal(objects.length, 1, "rapid duplicate submits must publish exactly one Object");
     const objectId = objects[0];
-    const object = await task(async (s, objectId) => (await s.rpc("babel.object.get.v1", { object_id: objectId })).object, objectId);
+    const object = await task(async (s, objectId) => (await s.rpc("babble.object.get.v1", { object_id: objectId })).object, objectId);
     assert.equal(object.author, setup.identityId);
     assert.equal(object.signature?.algorithm, "Ed25519");
     assert.match(object.signature?.bytes ?? "", /^[0-9a-f]{128}$/);
@@ -143,8 +143,8 @@ export async function verifyBundleAuthoring(execute, waitFor) {
       assert.equal(file.kind, expected.kind);
       assert.equal(file.size_bytes, Buffer.byteLength(expected.body));
       assert.match(file.integrity, /^[0-9a-f]{64}$/);
-      assert.equal(file.source_uri, `babel://blobs/${file.integrity}`);
-      const blob = await task((s, file) => s.rpc("babel.media.blob.get.v1", { hash: file.integrity, media_type: file.media_type }), file);
+      assert.equal(file.source_uri, `babble://blobs/${file.integrity}`);
+      const blob = await task((s, file) => s.rpc("babble.media.blob.get.v1", { hash: file.integrity, media_type: file.media_type }), file);
       assert.equal(blob.bytes_hex, Buffer.from(expected.body).toString("hex"), `${file.path}: stored bytes must match the selected File`);
     }
     const entry = surface.bundle.files.find(file => file.path === "index.html");
@@ -167,7 +167,7 @@ export async function verifyBundleAuthoring(execute, waitFor) {
         const frame = panel?.querySelector('iframe');
         const session = [...panel?.querySelectorAll('[data-surface-meta] span') ?? []]
           .find(node => node.textContent.startsWith('Session: '))?.textContent.slice(9);
-        return { active: frame?.dataset.babelLifecycle === 'active',
+        return { active: frame?.dataset.babbleLifecycle === 'active',
           controller: document.querySelector('[data-surface-host]')?.dataset.state,
           src: frame?.src, sandbox: frame ? [...frame.sandbox].sort() : [], session,
           objectId: panel?.closest('.post-card')?.dataset.objectId };
@@ -206,9 +206,9 @@ export async function verifyBundleAuthoring(execute, waitFor) {
       })()`);
       const ready = await waitFor("window.__bundleAuthoring.observation", value => value?.ready === true);
       assert.equal(ready.origin, url.origin);
-      assert.deepEqual(ready.controls, ["babel.surface.accept", "babel.surface.ready"]);
+      assert.deepEqual(ready.controls, ["babble.surface.accept", "babble.surface.ready"]);
       assert.equal(ready.count, "0");
-      assert.equal(ready.heading, "Babel bundle counter");
+      assert.equal(ready.heading, "Babble bundle counter");
       assert.equal(ready.status, "Ready");
       assert.equal(ready.visible, true);
       assert.equal(ready.color, "rgb(17, 93, 121)");
@@ -299,8 +299,8 @@ async function measureComposerGeometry(s, widths) {
           permissions.open = true;
           doc.querySelector('.bundle-permission-advanced').open = true;
           doc.querySelector('[data-bundle-capabilities]').value = JSON.stringify([
-            { id: 'babel.storage.local', version: 1, scope: { namespace: 'long-application-namespace' } },
-            { id: 'babel.clipboard.write', version: 1, scope: {} },
+            { id: 'babble.storage.local', version: 1, scope: { namespace: 'long-application-namespace' } },
+            { id: 'babble.clipboard.write', version: 1, scope: {} },
           ], null, 2);
           // Layout is synchronous. A short turn lets the open-state transition
           // finish without relying on offscreen iframe animation-frame delivery.
@@ -412,10 +412,10 @@ function initialize(marker) {
   const entry = required('[data-bundle-entry]');
   const status = required('[data-bundle-status]');
   required('[data-clear-bundle]');
-  const api = new URL(document.documentElement.dataset.babelApi).origin;
-  const session = JSON.parse(sessionStorage.getItem('babel.session.v1:' + api));
+  const api = new URL(document.documentElement.dataset.babbleApi).origin;
+  const session = JSON.parse(sessionStorage.getItem('babble.session.v1:' + api));
   if (!session?.token || !session.identity?.id) throw new Error("Bundle authoring requires a stored authenticated account");
-  const draftKey = `babel.draft.v1:${JSON.stringify([api, session.identity.id, 'publish', null])}`;
+  const draftKey = `babble.draft.v1:${JSON.stringify([api, session.identity.id, 'publish', null])}`;
   const stored = localStorage.getItem(draftKey);
   required('[data-toggle-composer]').click();
   if ([...entry.options].some(option => option.value)) {
@@ -452,7 +452,7 @@ function initialize(marker) {
   s.get = path => request(path);
   s.rpc = async (method, payload) => {
     const response = await request('/rpc', {
-      protocol: 'babel.rpc.v1', id: crypto.randomUUID(), method,
+      protocol: 'babble.rpc.v1', id: crypto.randomUUID(), method,
       binding: { object_id: null, surface_session_id: null, runtime_id: 'bundle-authoring-test',
         origin: location.origin, capability_grants: [] },
       payload, idempotency_key: null, deadline: { timeout_ms: 10000, client_started_at: new Date().toISOString() }, trace_id: null,
@@ -461,7 +461,7 @@ function initialize(marker) {
     return response.result;
   };
   s.search = async q => {
-    const result = await s.rpc('babel.search.objects.v1', { q, author: session.identity.id, kind: null, limit: 100 });
+    const result = await s.rpc('babble.search.objects.v1', { q, author: session.identity.id, kind: null, limit: 100 });
     return result.results.filter(item => item.object.payload.text === q).map(item => item.object.id);
   };
   s.assign(required('[data-compose-media]'), []);
@@ -524,20 +524,20 @@ function counterApplication(config) {
     report();
   });
   const channel = new MessageChannel();
-  const control = type => ({ type: 'babel.surface.' + type, protocol: 'babel.rpc.v1', version: 1 });
+  const control = type => ({ type: 'babble.surface.' + type, protocol: 'babble.rpc.v1', version: 1 });
   channel.port1.onmessage = event => {
     const data = event.data;
-    if (!data || data.protocol !== 'babel.rpc.v1' || data.version !== 1 || Object.keys(data).length !== 3) return;
-    if (!accepted && data.type === 'babel.surface.accept') {
+    if (!data || data.protocol !== 'babble.rpc.v1' || data.version !== 1 || Object.keys(data).length !== 3) return;
+    if (!accepted && data.type === 'babble.surface.accept') {
       accepted = true;
       controls.push(data.type);
       channel.port1.postMessage(control('confirm'));
-    } else if (accepted && !ready && data.type === 'babel.surface.ready') {
+    } else if (accepted && !ready && data.type === 'babble.surface.ready') {
       controls.push(data.type);
       ready = true;
       status.textContent = 'Ready';
       report();
-    } else if (data.type === 'babel.surface.close') {
+    } else if (data.type === 'babble.surface.close') {
       ready = false;
       channel.port1.close();
       probe?.close();

@@ -7,8 +7,8 @@ revision and authentication configuration still need to be identified.
 ## Current Runtime
 
 `JudgmentConfig` in `backend/crates/api/src/provider.rs` accepts only `python` and
-`rust-local`. The default Python worker reports `babel-python/lexical-v1/1`.
-`babel-judgment-jev` defines a custom HTTP request/response, but the serving API
+`rust-local`. The default Python worker reports `babble-python/lexical-v1/1`.
+`babble-judgment-jev` defines a custom HTTP request/response, but the serving API
 does not select it. Its scripted test transports are not a live Jev service.
 Do not assume that this custom DTO matches an actual vendor API.
 

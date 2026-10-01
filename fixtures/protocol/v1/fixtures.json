@@ -5,22 +5,22 @@
     "description": "A deterministic media request fixture.",
     "resources": [
       {
-        "uri": "babel://blobs/6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
+        "uri": "babble://blobs/8cc7c2fa6413a82d9e4da30c63c5701bf56bea79f47d9b307c536bc44234f185",
         "media_type": "text/plain",
-        "integrity": "6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
-        "size_bytes": 13
+        "integrity": "8cc7c2fa6413a82d9e4da30c63c5701bf56bea79f47d9b307c536bc44234f185",
+        "size_bytes": 14
       }
     ]
   },
   "bundle_manifest": {
-    "version": "babel.canonical.v1",
+    "version": "babble.canonical.v1",
     "sample": {
       "version": 1,
       "entry_path": "index.html",
       "files": [
         {
           "path": "assets/main.js",
-          "source_uri": "babel://blobs/e0af4f632a428e100493abae8d31c42fb15d13f5ca9dd45cd750146b8f7c1414",
+          "source_uri": "babble://blobs/e0af4f632a428e100493abae8d31c42fb15d13f5ca9dd45cd750146b8f7c1414",
           "integrity": "e0af4f632a428e100493abae8d31c42fb15d13f5ca9dd45cd750146b8f7c1414",
           "size_bytes": 25,
           "media_type": "text/javascript",
@@ -28,7 +28,7 @@
         },
         {
           "path": "index.html",
-          "source_uri": "babel://blobs/258637eb9d21942c6b18fd735e1ee4e34f472b610e3a6bb1443c067e651b9c1b",
+          "source_uri": "babble://blobs/258637eb9d21942c6b18fd735e1ee4e34f472b610e3a6bb1443c067e651b9c1b",
           "integrity": "258637eb9d21942c6b18fd735e1ee4e34f472b610e3a6bb1443c067e651b9c1b",
           "size_bytes": 63,
           "media_type": "text/html",
@@ -36,11 +36,11 @@
         }
       ]
     },
-    "bytes_hex": "626162656c2e63616e6f6e6963616c2e7631006f000000000000000373000000000000000a656e7472795f7061746873000000000000000a696e6465782e68746d6c73000000000000000566696c65736100000000000000026f0000000000000006730000000000000009696e74656772697479730000000000000040653061663466363332613432386531303034393361626165386433316334326662313564313366356361396464343563643735303134366238663763313431347300000000000000046b696e6473000000000000000673637269707473000000000000000a6d656469615f7479706573000000000000000f746578742f6a6176617363726970747300000000000000047061746873000000000000000e6173736574732f6d61696e2e6a7373000000000000000a73697a655f627974657369000000000000001973000000000000000a736f757263655f75726973000000000000004e626162656c3a2f2f626c6f62732f653061663466363332613432386531303034393361626165386433316334326662313564313366356361396464343563643735303134366238663763313431346f0000000000000006730000000000000009696e74656772697479730000000000000040323538363337656239643231393432633662313866643733356531656534653334663437326236313065336136626231343433633036376536353162396331627300000000000000046b696e64730000000000000008646f63756d656e7473000000000000000a6d656469615f74797065730000000000000009746578742f68746d6c7300000000000000047061746873000000000000000a696e6465782e68746d6c73000000000000000a73697a655f627974657369000000000000003f73000000000000000a736f757263655f75726973000000000000004e626162656c3a2f2f626c6f62732f3235383633376562396432313934326336623138666437333565316565346533346634373262363130653361366262313434336330363765363531623963316273000000000000000776657273696f6e690000000000000001",
-    "hash": "2d995f424af147baadfd8f21b26b6d300dd827dbecff92ee70cfef777f028827"
+    "bytes_hex": "626162626c652e63616e6f6e6963616c2e7631006f000000000000000373000000000000000a656e7472795f7061746873000000000000000a696e6465782e68746d6c73000000000000000566696c65736100000000000000026f0000000000000006730000000000000009696e74656772697479730000000000000040653061663466363332613432386531303034393361626165386433316334326662313564313366356361396464343563643735303134366238663763313431347300000000000000046b696e6473000000000000000673637269707473000000000000000a6d656469615f7479706573000000000000000f746578742f6a6176617363726970747300000000000000047061746873000000000000000e6173736574732f6d61696e2e6a7373000000000000000a73697a655f627974657369000000000000001973000000000000000a736f757263655f75726973000000000000004f626162626c653a2f2f626c6f62732f653061663466363332613432386531303034393361626165386433316334326662313564313366356361396464343563643735303134366238663763313431346f0000000000000006730000000000000009696e74656772697479730000000000000040323538363337656239643231393432633662313866643733356531656534653334663437326236313065336136626231343433633036376536353162396331627300000000000000046b696e64730000000000000008646f63756d656e7473000000000000000a6d656469615f74797065730000000000000009746578742f68746d6c7300000000000000047061746873000000000000000a696e6465782e68746d6c73000000000000000a73697a655f627974657369000000000000003f73000000000000000a736f757263655f75726973000000000000004f626162626c653a2f2f626c6f62732f3235383633376562396432313934326336623138666437333565316565346533346634373262363130653361366262313434336330363765363531623963316273000000000000000776657273696f6e690000000000000001",
+    "hash": "7519cd56b5161a1947811f1c05b1cbfeefb057ca8035c7b074c03a9b05bdb5a2"
   },
   "canonical_encoding": {
-    "version": "babel.canonical.v1",
+    "version": "babble.canonical.v1",
     "sample": {
       "zeta": [
         1,
@@ -52,11 +52,11 @@
         "empty": null
       }
     },
-    "bytes_hex": "626162656c2e63616e6f6e6963616c2e7631006f0000000000000002730000000000000005616c7068616f0000000000000002730000000000000005656d7074796e7300000000000000066e6573746564747300000000000000047a65746161000000000000000369000000000000000173000000000000000131643ff0000000000000",
-    "hash": "b7cfcffa9683a0cc0dd0a85daeac5cc07bdb15158de36ed04d6079be6b16845a"
+    "bytes_hex": "626162626c652e63616e6f6e6963616c2e7631006f0000000000000002730000000000000005616c7068616f0000000000000002730000000000000005656d7074796e7300000000000000066e6573746564747300000000000000047a65746161000000000000000369000000000000000173000000000000000131643ff0000000000000",
+    "hash": "4babc97da826b64c1d7a404a42deed04b6ffc1212603375aee5fc59874620567"
   },
   "capability_request": {
-    "id": "babel.realtime.join",
+    "id": "babble.realtime.join",
     "version": 1,
     "scope": {
       "room": "fixture"
@@ -65,89 +65,89 @@
   "judgment_registry": {
     "definitions": [
       {
-        "id": "babel.judgment.spam.v1",
-        "input_schema": "babel.judgment.input.object_text.v1",
-        "output_schema": "babel.judgment.output.probability.v1",
+        "id": "babble.judgment.spam.v1",
+        "input_schema": "babble.judgment.input.object_text.v1",
+        "output_schema": "babble.judgment.output.probability.v1",
         "meaning": "Estimate whether the subject text is spam or manipulation.",
         "calibration": "score is probability-like in [0, 1]; higher means more spam"
       },
       {
-        "id": "babel.judgment.relevance.v1",
-        "input_schema": "babel.judgment.input.object_text.v1",
-        "output_schema": "babel.judgment.output.bounded_score.v1",
+        "id": "babble.judgment.relevance.v1",
+        "input_schema": "babble.judgment.input.object_text.v1",
+        "output_schema": "babble.judgment.output.bounded_score.v1",
         "meaning": "Estimate relevance between subject text and a query.",
         "calibration": "score is bounded in [0, 1]; higher means more relevant"
       },
       {
-        "id": "babel.judgment.relationship.v1",
-        "input_schema": "babel.judgment.input.object_text.v1",
-        "output_schema": "babel.judgment.output.relationship.v1",
+        "id": "babble.judgment.relationship.v1",
+        "input_schema": "babble.judgment.input.object_text.v1",
+        "output_schema": "babble.judgment.output.relationship.v1",
         "meaning": "Estimate whether the subject text supports, contradicts, or relates to context.",
         "calibration": "score is bounded in [0, 1]; relation names the evaluated edge semantics"
       },
       {
-        "id": "babel.judgment.evidence_quality.v1",
-        "input_schema": "babel.judgment.input.object_text.v1",
-        "output_schema": "babel.judgment.output.bounded_score.v1",
+        "id": "babble.judgment.evidence_quality.v1",
+        "input_schema": "babble.judgment.input.object_text.v1",
+        "output_schema": "babble.judgment.output.bounded_score.v1",
         "meaning": "Estimate the quality of evidence signals in subject text.",
         "calibration": "score is bounded in [0, 1]; higher means stronger evidence quality"
       },
       {
-        "id": "babel.judgment.content_analysis.v1",
-        "input_schema": "babel.judgment.input.object_text.v1",
-        "output_schema": "babel.judgment.output.content_analysis.v1",
+        "id": "babble.judgment.content_analysis.v1",
+        "input_schema": "babble.judgment.input.object_text.v1",
+        "output_schema": "babble.judgment.output.content_analysis.v1",
         "meaning": "Extract reusable content features for discovery, provenance, and Lens inputs.",
         "calibration": "topics, evidence markers, key terms, sentiment, and summary are descriptive features, not truth claims"
       },
       {
-        "id": "babel.judgment.moderation.v1",
-        "input_schema": "babel.judgment.input.object_text.v1",
-        "output_schema": "babel.judgment.output.moderation.v1",
+        "id": "babble.judgment.moderation.v1",
+        "input_schema": "babble.judgment.input.object_text.v1",
+        "output_schema": "babble.judgment.output.moderation.v1",
         "meaning": "Evaluate network-integrity and moderation policy signals without erasing protocol history.",
         "calibration": "scores are bounded in [0, 1]; action is advisory policy output with reason flags"
       },
       {
-        "id": "babel.judgment.source_agreement.v1",
-        "input_schema": "babel.judgment.input.source_agreement.v1",
-        "output_schema": "babel.judgment.output.source_agreement.v1",
+        "id": "babble.judgment.source_agreement.v1",
+        "input_schema": "babble.judgment.input.source_agreement.v1",
+        "output_schema": "babble.judgment.output.source_agreement.v1",
         "meaning": "Describe lexical agreement among explicitly supplied sources; not truth or network consensus.",
         "calibration": "bounded heuristic scores; confidence is zero and explicitly uncalibrated"
       }
     ]
   },
   "media_blob": {
-    "uri": "babel://blobs/6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
+    "uri": "babble://blobs/8cc7c2fa6413a82d9e4da30c63c5701bf56bea79f47d9b307c536bc44234f185",
     "media_type": "text/plain",
-    "integrity": "6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
-    "size_bytes": 13
+    "integrity": "8cc7c2fa6413a82d9e4da30c63c5701bf56bea79f47d9b307c536bc44234f185",
+    "size_bytes": 14
   },
   "media_object_draft": {
-    "kind": "babel.media",
-    "schema": "babel.schema.media.v1",
+    "kind": "babble.media",
+    "schema": "babble.schema.media.v1",
     "payload": {
       "title": "Fixture media",
       "description": "A deterministic media draft fixture.",
       "primary_resource": {
-        "uri": "babel://blobs/6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
+        "uri": "babble://blobs/8cc7c2fa6413a82d9e4da30c63c5701bf56bea79f47d9b307c536bc44234f185",
         "media_type": "text/plain",
-        "integrity": "6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
-        "size_bytes": 13
+        "integrity": "8cc7c2fa6413a82d9e4da30c63c5701bf56bea79f47d9b307c536bc44234f185",
+        "size_bytes": 14
       },
       "resources": [
         {
-          "uri": "babel://blobs/6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
+          "uri": "babble://blobs/8cc7c2fa6413a82d9e4da30c63c5701bf56bea79f47d9b307c536bc44234f185",
           "media_type": "text/plain",
-          "integrity": "6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
-          "size_bytes": 13
+          "integrity": "8cc7c2fa6413a82d9e4da30c63c5701bf56bea79f47d9b307c536bc44234f185",
+          "size_bytes": 14
         }
       ]
     },
     "surfaces": [],
     "resources": [
       {
-        "uri": "babel://blobs/6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658",
+        "uri": "babble://blobs/8cc7c2fa6413a82d9e4da30c63c5701bf56bea79f47d9b307c536bc44234f185",
         "media_type": "text/plain",
-        "integrity": "6207f069162859df6dce1785ddff87976b8c2bbe274a55a59250a8d30ab56658"
+        "integrity": "8cc7c2fa6413a82d9e4da30c63c5701bf56bea79f47d9b307c536bc44234f185"
       }
     ],
     "capabilities": [],
@@ -160,7 +160,7 @@
   },
   "moderation": {
     "reporter": {
-      "id": "id_dbbe9e46e304c27aa4b3b45511a54eaffb16e801cb25d0365eead5e17e15d02b",
+      "id": "id_e7f620e50df09eddd9038343ce2bc3484ebeb3736e100cefe0188741f12932b3",
       "kind": "Person",
       "handle": "moderation-reporter",
       "public_key": {
@@ -170,11 +170,11 @@
       "created_at": "2026-09-30T00:00:00Z",
       "signature": {
         "algorithm": "Ed25519",
-        "bytes": "2bcd2d25844b067c49517b5a03176b8346da85f888ea90973d62419c775d786cf1f6e6a8aa4b327564fa491ccdc4d59f6bf4255d4a93482395ea7b84bb00ca01"
+        "bytes": "27e452ce2a19a8a8f63663fb8510ca7588df5a2f88079e41a639f852b5e3d887f27de0b6a8ef74ae2d1c29c6b7dcda0beb13422ccf4d9141a04a80f31ee8ee07"
       }
     },
     "subject": {
-      "id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
+      "id": "id_23e677c70b6399a2292ab38d2cdc88a7380ca936f64ab3029f78ba3084c7d889",
       "kind": "Person",
       "handle": "moderation-subject",
       "public_key": {
@@ -184,11 +184,11 @@
       "created_at": "2026-09-30T00:00:00Z",
       "signature": {
         "algorithm": "Ed25519",
-        "bytes": "9c709a45e6415a7c908f80d4cd3798d38dde97b30358388f2ba79a579c6184c44f0688ad5d19e5659d6ba7b7239e65b0d99a4ff8b7bdf49a755057ae0744bf02"
+        "bytes": "60673a74a2c0c153a39e5df62194e7210f722dc6eb0712dc60fd4c1906e98751368066f13854e55981b906425fe2dc5c5041a5c0e7d5af55ed5c814c4954eb05"
       }
     },
     "reviewer": {
-      "id": "id_3f278d05f9dc0c53be96cc448aa07fed1fb6ebf72ae9739d47c99d5c3dd4b10d",
+      "id": "id_6e0bc7d65cbf7e3ccd85346e2aaf09e06ee37b28dc78b171ce867b21e21e3e85",
       "kind": "Person",
       "handle": "moderation-reviewer",
       "public_key": {
@@ -198,15 +198,15 @@
       "created_at": "2026-09-30T00:00:00Z",
       "signature": {
         "algorithm": "Ed25519",
-        "bytes": "bfc166128c7fe8f14dde2ddfdd67a5c1f1997b7626306ac9f0ec26cedaf410892ae238d5bf141d06277f734feb32d829b9430f479089b54cab805a5474f5bd05"
+        "bytes": "0a1ab36c49ebc9cf8a59a45754f9a6c8c3e71cb0c400b0e956252987b3d68ae22d6efa82e210b14da267c2727645ed57d666384deb64c1a67b9ecf8cbc31cf0b"
       }
     },
     "pending": {
-      "id": "report_ee8b26ec6682056ee9044f80d2c80fe43f555e9eb558ba2e3d9af332a176885b",
+      "id": "report_77810e31bb3aa98a49fca478a6292fb6b46e79591c8c07ddc5998f9f6decbc6e",
       "sequence": 1,
-      "object_id": "obj_358b438b06848bdffb0cc053b47d5a9f25435a32e2f8f0ca7950be58e149a394",
-      "subject_author_id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
-      "reporter_id": "id_dbbe9e46e304c27aa4b3b45511a54eaffb16e801cb25d0365eead5e17e15d02b",
+      "object_id": "obj_40d95636d4273220f7e7402d5750004cd0535b6271a8c311cdf141454ca6bd6a",
+      "subject_author_id": "id_23e677c70b6399a2292ab38d2cdc88a7380ca936f64ab3029f78ba3084c7d889",
+      "reporter_id": "id_e7f620e50df09eddd9038343ce2bc3484ebeb3736e100cefe0188741f12932b3",
       "reason": "fraud",
       "details": "Private evidence for the canonical moderation fixture",
       "created_at": "2026-09-30T00:00:00Z",
@@ -218,23 +218,23 @@
     },
     "receipt": {
       "payload": {
-        "actor": "id_dbbe9e46e304c27aa4b3b45511a54eaffb16e801cb25d0365eead5e17e15d02b",
+        "actor": "id_e7f620e50df09eddd9038343ce2bc3484ebeb3736e100cefe0188741f12932b3",
         "reviewers": [
-          "id_3f278d05f9dc0c53be96cc448aa07fed1fb6ebf72ae9739d47c99d5c3dd4b10d"
+          "id_6e0bc7d65cbf7e3ccd85346e2aaf09e06ee37b28dc78b171ce867b21e21e3e85"
         ],
         "intent": {
           "kind": "report",
-          "object_id": "obj_358b438b06848bdffb0cc053b47d5a9f25435a32e2f8f0ca7950be58e149a394",
+          "object_id": "obj_40d95636d4273220f7e7402d5750004cd0535b6271a8c311cdf141454ca6bd6a",
           "reason": "fraud",
           "details": "Private evidence for the canonical moderation fixture",
           "idempotency_key": "moderation-fixture-report"
         },
         "result": {
-          "id": "report_ee8b26ec6682056ee9044f80d2c80fe43f555e9eb558ba2e3d9af332a176885b",
+          "id": "report_77810e31bb3aa98a49fca478a6292fb6b46e79591c8c07ddc5998f9f6decbc6e",
           "sequence": 1,
-          "object_id": "obj_358b438b06848bdffb0cc053b47d5a9f25435a32e2f8f0ca7950be58e149a394",
-          "subject_author_id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
-          "reporter_id": "id_dbbe9e46e304c27aa4b3b45511a54eaffb16e801cb25d0365eead5e17e15d02b",
+          "object_id": "obj_40d95636d4273220f7e7402d5750004cd0535b6271a8c311cdf141454ca6bd6a",
+          "subject_author_id": "id_23e677c70b6399a2292ab38d2cdc88a7380ca936f64ab3029f78ba3084c7d889",
+          "reporter_id": "id_e7f620e50df09eddd9038343ce2bc3484ebeb3736e100cefe0188741f12932b3",
           "reason": "fraud",
           "details": "Private evidence for the canonical moderation fixture",
           "created_at": "2026-09-30T00:00:00Z",
@@ -249,15 +249,15 @@
       },
       "signature": {
         "algorithm": "Ed25519",
-        "bytes": "e67d010864c96a1cfcbb5dfa64224a970e4e934c651852ccd51546b4c29c1756c956361a8092ad407ca26f170dbad8a00df81f4a26a2c1c08af7ac0cb5094107"
+        "bytes": "f45ae01a2ead35d80cce58af719a7488565875ea3a707cd50d24d770c2f03eb6a2e97fda2d691beef643b743ee9afcfc419302d7ce121d241a16005dc3ba0b07"
       }
     },
     "reviewer_view": {
-      "id": "report_ee8b26ec6682056ee9044f80d2c80fe43f555e9eb558ba2e3d9af332a176885b",
+      "id": "report_77810e31bb3aa98a49fca478a6292fb6b46e79591c8c07ddc5998f9f6decbc6e",
       "sequence": 1,
-      "object_id": "obj_358b438b06848bdffb0cc053b47d5a9f25435a32e2f8f0ca7950be58e149a394",
-      "subject_author_id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
-      "reporter_id": "id_dbbe9e46e304c27aa4b3b45511a54eaffb16e801cb25d0365eead5e17e15d02b",
+      "object_id": "obj_40d95636d4273220f7e7402d5750004cd0535b6271a8c311cdf141454ca6bd6a",
+      "subject_author_id": "id_23e677c70b6399a2292ab38d2cdc88a7380ca936f64ab3029f78ba3084c7d889",
+      "reporter_id": "id_e7f620e50df09eddd9038343ce2bc3484ebeb3736e100cefe0188741f12932b3",
       "reason": "fraud",
       "details": "Private evidence for the canonical moderation fixture",
       "created_at": "2026-09-30T00:00:00Z",
@@ -266,26 +266,26 @@
       "status": "appealed",
       "decisions": [
         {
-          "reviewer_id": "id_3f278d05f9dc0c53be96cc448aa07fed1fb6ebf72ae9739d47c99d5c3dd4b10d",
+          "reviewer_id": "id_6e0bc7d65cbf7e3ccd85346e2aaf09e06ee37b28dc78b171ce867b21e21e3e85",
           "outcome": "restrict",
           "reason": "fraud",
           "explanation": "Reviewed the evidence under the integrity policy",
-          "policy_version": "babel.integrity.v1",
+          "policy_version": "babble.integrity.v1",
           "source_signals": [],
           "created_at": "2026-09-30T00:00:00Z"
         }
       ],
       "appeal": {
-        "appellant_id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
+        "appellant_id": "id_23e677c70b6399a2292ab38d2cdc88a7380ca936f64ab3029f78ba3084c7d889",
         "details": "Private appeal evidence for the canonical fixture",
         "created_at": "2026-09-30T00:00:00Z"
       }
     },
     "author_view": {
-      "id": "report_ee8b26ec6682056ee9044f80d2c80fe43f555e9eb558ba2e3d9af332a176885b",
+      "id": "report_77810e31bb3aa98a49fca478a6292fb6b46e79591c8c07ddc5998f9f6decbc6e",
       "sequence": 1,
-      "object_id": "obj_358b438b06848bdffb0cc053b47d5a9f25435a32e2f8f0ca7950be58e149a394",
-      "subject_author_id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
+      "object_id": "obj_40d95636d4273220f7e7402d5750004cd0535b6271a8c311cdf141454ca6bd6a",
+      "subject_author_id": "id_23e677c70b6399a2292ab38d2cdc88a7380ca936f64ab3029f78ba3084c7d889",
       "reporter_id": null,
       "reason": null,
       "details": null,
@@ -295,27 +295,27 @@
       "status": "appealed",
       "decisions": [
         {
-          "reviewer_id": "id_3f278d05f9dc0c53be96cc448aa07fed1fb6ebf72ae9739d47c99d5c3dd4b10d",
+          "reviewer_id": "id_6e0bc7d65cbf7e3ccd85346e2aaf09e06ee37b28dc78b171ce867b21e21e3e85",
           "outcome": "restrict",
           "reason": "fraud",
           "explanation": "Reviewed the evidence under the integrity policy",
-          "policy_version": "babel.integrity.v1",
+          "policy_version": "babble.integrity.v1",
           "source_signals": [],
           "created_at": "2026-09-30T00:00:00Z"
         }
       ],
       "appeal": {
-        "appellant_id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
+        "appellant_id": "id_23e677c70b6399a2292ab38d2cdc88a7380ca936f64ab3029f78ba3084c7d889",
         "details": "Private appeal evidence for the canonical fixture",
         "created_at": "2026-09-30T00:00:00Z"
       }
     },
     "reporter_view": {
-      "id": "report_ee8b26ec6682056ee9044f80d2c80fe43f555e9eb558ba2e3d9af332a176885b",
+      "id": "report_77810e31bb3aa98a49fca478a6292fb6b46e79591c8c07ddc5998f9f6decbc6e",
       "sequence": 1,
-      "object_id": "obj_358b438b06848bdffb0cc053b47d5a9f25435a32e2f8f0ca7950be58e149a394",
-      "subject_author_id": "id_7e95c38a3550ab44fd0bbc62e693677096161d45d098503264673903f8287f85",
-      "reporter_id": "id_dbbe9e46e304c27aa4b3b45511a54eaffb16e801cb25d0365eead5e17e15d02b",
+      "object_id": "obj_40d95636d4273220f7e7402d5750004cd0535b6271a8c311cdf141454ca6bd6a",
+      "subject_author_id": "id_23e677c70b6399a2292ab38d2cdc88a7380ca936f64ab3029f78ba3084c7d889",
+      "reporter_id": "id_e7f620e50df09eddd9038343ce2bc3484ebeb3736e100cefe0188741f12932b3",
       "reason": "fraud",
       "details": "Private evidence for the canonical moderation fixture",
       "created_at": "2026-09-30T00:00:00Z",
@@ -324,11 +324,11 @@
       "status": "appealed",
       "decisions": [
         {
-          "reviewer_id": "id_3f278d05f9dc0c53be96cc448aa07fed1fb6ebf72ae9739d47c99d5c3dd4b10d",
+          "reviewer_id": "id_6e0bc7d65cbf7e3ccd85346e2aaf09e06ee37b28dc78b171ce867b21e21e3e85",
           "outcome": "restrict",
           "reason": "fraud",
           "explanation": "Reviewed the evidence under the integrity policy",
-          "policy_version": "babel.integrity.v1",
+          "policy_version": "babble.integrity.v1",
           "source_signals": [],
           "created_at": "2026-09-30T00:00:00Z"
         }
@@ -342,16 +342,16 @@
   },
   "realtime_schema_registry": {
     "schemas": [
-      "babel.realtime.state.v1",
-      "babel.realtime.chat.v1"
+      "babble.realtime.state.v1",
+      "babble.realtime.chat.v1"
     ]
   },
   "rpc_catalog": {
-    "protocol": "babel.rpc.v1",
+    "protocol": "babble.rpc.v1",
     "methods": [
       {
-        "method": "babel.observability.snapshot.v1",
-        "version": 1,
+        "method": "babble.observability.snapshot.v1",
+        "version": 2,
         "input": "api.EmptyRequest",
         "output": "api.ObservabilitySnapshotResponse",
         "capability": null,
@@ -359,8 +359,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.identity.create.v1",
-        "version": 1,
+        "method": "babble.identity.create.v1",
+        "version": 2,
         "input": "api.CreateIdentityRequest",
         "output": "api.CreateIdentityResponse",
         "capability": null,
@@ -368,12 +368,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.identity.current.v1",
-        "version": 1,
+        "method": "babble.identity.current.v1",
+        "version": 2,
         "input": "api.EmptyRequest",
         "output": "api.IdentityCurrentResponse",
         "capability": {
-          "capability": "babel.identity.current",
+          "capability": "babble.identity.current",
           "version": 1,
           "required": true
         },
@@ -381,8 +381,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.object.publish_text.v1",
-        "version": 1,
+        "method": "babble.object.publish_text.v1",
+        "version": 2,
         "input": "api.PublishTextRequest",
         "output": "api.PublishTextResponse",
         "capability": null,
@@ -390,8 +390,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.object.publish.v1",
-        "version": 1,
+        "method": "babble.object.publish.v1",
+        "version": 2,
         "input": "api.PublishObjectRequest",
         "output": "api.PublishObjectResponse",
         "capability": null,
@@ -399,8 +399,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.object.publish_media.v1",
-        "version": 1,
+        "method": "babble.object.publish_media.v1",
+        "version": 2,
         "input": "api.PublishMediaObjectRequest",
         "output": "api.PublishMediaObjectResponse",
         "capability": null,
@@ -408,8 +408,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.object.fork.v1",
-        "version": 1,
+        "method": "babble.object.fork.v1",
+        "version": 2,
         "input": "api.ForkObjectRequest",
         "output": "api.ProvenancePublicationResponse",
         "capability": null,
@@ -417,8 +417,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.object.remix.v1",
-        "version": 1,
+        "method": "babble.object.remix.v1",
+        "version": 2,
         "input": "api.RemixObjectRequest",
         "output": "api.ProvenancePublicationResponse",
         "capability": null,
@@ -426,8 +426,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.object.get.v1",
-        "version": 1,
+        "method": "babble.object.get.v1",
+        "version": 2,
         "input": "api.ObjectIdRequest",
         "output": "api.PublishTextResponse",
         "capability": null,
@@ -435,8 +435,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.media.blob.put.v1",
-        "version": 1,
+        "method": "babble.media.blob.put.v1",
+        "version": 2,
         "input": "api.PutMediaBlobRequest",
         "output": "api.MediaBlobResponse",
         "capability": null,
@@ -444,8 +444,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.media.blob.get.v1",
-        "version": 1,
+        "method": "babble.media.blob.get.v1",
+        "version": 2,
         "input": "api.GetMediaBlobRequest",
         "output": "api.MediaBlobResponse",
         "capability": null,
@@ -453,8 +453,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.graph.edge.publish.v1",
-        "version": 1,
+        "method": "babble.graph.edge.publish.v1",
+        "version": 2,
         "input": "api.PublishEdgeRequest",
         "output": "api.PublishEdgeResponse",
         "capability": null,
@@ -462,8 +462,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.graph.relationship.infer.v1",
-        "version": 1,
+        "method": "babble.graph.relationship.infer.v1",
+        "version": 2,
         "input": "api.InferRelationshipRequest",
         "output": "api.InferRelationshipResponse",
         "capability": null,
@@ -471,8 +471,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.graph.evidence.v1",
-        "version": 1,
+        "method": "babble.graph.evidence.v1",
+        "version": 2,
         "input": "api.ObjectIdRequest",
         "output": "api.ClaimEvidenceResponse",
         "capability": null,
@@ -480,8 +480,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.graph.traverse.v1",
-        "version": 1,
+        "method": "babble.graph.traverse.v1",
+        "version": 2,
         "input": "api.GraphTraverseRpcRequest",
         "output": "api.GraphTraversalResponse",
         "capability": null,
@@ -489,12 +489,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.social.follow.v1",
-        "version": 1,
+        "method": "babble.social.follow.v1",
+        "version": 2,
         "input": "api.SocialTargetRequest",
         "output": "api.SocialEdgeResponse",
         "capability": {
-          "capability": "babel.social.follow",
+          "capability": "babble.social.follow",
           "version": 1,
           "required": true
         },
@@ -502,12 +502,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.social.follow.v2",
+        "method": "babble.social.follow",
         "version": 2,
         "input": "api.SocialTargetRequest",
         "output": "api.InvocationSocialResult",
         "capability": {
-          "capability": "babel.social.follow",
+          "capability": "babble.social.follow",
           "version": 1,
           "required": true
         },
@@ -515,12 +515,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.social.unfollow.v2",
+        "method": "babble.social.unfollow",
         "version": 2,
         "input": "api.SocialTargetRequest",
         "output": "api.InvocationSocialResult",
         "capability": {
-          "capability": "babel.social.unfollow",
+          "capability": "babble.social.unfollow",
           "version": 1,
           "required": true
         },
@@ -528,12 +528,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.social.share.v2",
+        "method": "babble.social.share",
         "version": 2,
         "input": "api.SocialTextRequest",
         "output": "api.InvocationSocialResult",
         "capability": {
-          "capability": "babel.social.share",
+          "capability": "babble.social.share",
           "version": 1,
           "required": true
         },
@@ -541,12 +541,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.social.reply.v2",
+        "method": "babble.social.reply",
         "version": 2,
         "input": "api.SocialTextRequest",
         "output": "api.InvocationSocialResult",
         "capability": {
-          "capability": "babel.social.reply",
+          "capability": "babble.social.reply",
           "version": 1,
           "required": true
         },
@@ -554,12 +554,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.social.unfollow.v1",
-        "version": 1,
+        "method": "babble.social.unfollow.v1",
+        "version": 2,
         "input": "api.SocialTargetRequest",
         "output": "api.SocialEdgeResponse",
         "capability": {
-          "capability": "babel.social.unfollow",
+          "capability": "babble.social.unfollow",
           "version": 1,
           "required": true
         },
@@ -567,12 +567,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.social.share.v1",
-        "version": 1,
+        "method": "babble.social.share.v1",
+        "version": 2,
         "input": "api.SocialTextRequest",
         "output": "api.SocialTextResponse",
         "capability": {
-          "capability": "babel.social.share",
+          "capability": "babble.social.share",
           "version": 1,
           "required": true
         },
@@ -580,12 +580,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.social.reply.v1",
-        "version": 1,
+        "method": "babble.social.reply.v1",
+        "version": 2,
         "input": "api.SocialTextRequest",
         "output": "api.SocialTextResponse",
         "capability": {
-          "capability": "babel.social.reply",
+          "capability": "babble.social.reply",
           "version": 1,
           "required": true
         },
@@ -593,8 +593,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.social.replies.list.v1",
-        "version": 1,
+        "method": "babble.social.replies.list.v1",
+        "version": 2,
         "input": "api.RepliesListRequest",
         "output": "api.RepliesListResponse",
         "capability": null,
@@ -602,8 +602,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.social.quotes.list.v1",
-        "version": 1,
+        "method": "babble.social.quotes.list.v1",
+        "version": 2,
         "input": "api.QuotesListRequest",
         "output": "api.QuotesListResponse",
         "capability": null,
@@ -611,8 +611,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.social.reactions.summary.v1",
-        "version": 1,
+        "method": "babble.social.reactions.summary.v1",
+        "version": 2,
         "input": "api.ReactionObjectRequest",
         "output": "graph.ReactionSummary",
         "capability": null,
@@ -620,8 +620,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.social.reactions.record.v1",
-        "version": 1,
+        "method": "babble.social.reactions.record.v1",
+        "version": 2,
         "input": "api.ReactionRecordRequest",
         "output": "graph.ReactionRecord",
         "capability": null,
@@ -629,8 +629,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.social.reactions.mine.v1",
-        "version": 1,
+        "method": "babble.social.reactions.mine.v1",
+        "version": 2,
         "input": "api.ReactionObjectRequest",
         "output": "graph.ReactionState",
         "capability": null,
@@ -638,8 +638,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.social.reactions.set.v1",
-        "version": 1,
+        "method": "babble.social.reactions.set.v1",
+        "version": 2,
         "input": "api.SetReactionRpcRequest",
         "output": "graph.ReactionState",
         "capability": null,
@@ -647,8 +647,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.events.list.v1",
-        "version": 1,
+        "method": "babble.events.list.v1",
+        "version": 2,
         "input": "api.EventListRequest",
         "output": "api.EventListResponse",
         "capability": null,
@@ -656,8 +656,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.events.bundle.v1",
-        "version": 1,
+        "method": "babble.events.bundle.v1",
+        "version": 2,
         "input": "api.EventBundleRequest",
         "output": "api.EventBundleResponse",
         "capability": null,
@@ -665,8 +665,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.events.import.v1",
-        "version": 1,
+        "method": "babble.events.import.v1",
+        "version": 2,
         "input": "api.EventImportRequest",
         "output": "api.EventImportResponse",
         "capability": null,
@@ -674,8 +674,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.consensus.checkpoint.preview.v1",
-        "version": 1,
+        "method": "babble.consensus.checkpoint.preview.v1",
+        "version": 2,
         "input": "api.CheckpointPreviewRequest",
         "output": "api.CheckpointPreviewResponse",
         "capability": null,
@@ -683,8 +683,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.consensus.checkpoint.publish.v1",
-        "version": 1,
+        "method": "babble.consensus.checkpoint.publish.v1",
+        "version": 2,
         "input": "api.CheckpointRequest",
         "output": "api.CheckpointEventResponse",
         "capability": null,
@@ -692,12 +692,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.judgment.object.evaluate.v1",
-        "version": 1,
+        "method": "babble.judgment.object.evaluate.v1",
+        "version": 2,
         "input": "api.JudgeObjectRpcRequest",
         "output": "api.JudgeObjectResponse",
         "capability": {
-          "capability": "babel.ai.judge",
+          "capability": "babble.ai.judge",
           "version": 1,
           "required": false
         },
@@ -705,12 +705,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.ai.judge.v1",
-        "version": 1,
+        "method": "babble.ai.judge.v1",
+        "version": 2,
         "input": "api.JudgeObjectRpcRequest",
         "output": "api.JudgeObjectResponse",
         "capability": {
-          "capability": "babel.ai.judge",
+          "capability": "babble.ai.judge",
           "version": 1,
           "required": true
         },
@@ -718,12 +718,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.ai.generate.v1",
-        "version": 1,
+        "method": "babble.ai.generate.v1",
+        "version": 2,
         "input": "api.AiGenerateRequest",
         "output": "api.AiGenerateResponse",
         "capability": {
-          "capability": "babel.ai.generate",
+          "capability": "babble.ai.generate",
           "version": 1,
           "required": true
         },
@@ -731,12 +731,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.ai.embed.v1",
-        "version": 1,
+        "method": "babble.ai.embed.v1",
+        "version": 2,
         "input": "api.AiEmbedRequest",
         "output": "api.AiEmbedResponse",
         "capability": {
-          "capability": "babel.ai.embed",
+          "capability": "babble.ai.embed",
           "version": 1,
           "required": true
         },
@@ -744,12 +744,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.ai.transcribe.v1",
-        "version": 1,
+        "method": "babble.ai.transcribe.v1",
+        "version": 2,
         "input": "api.AiTranscribeRequest",
         "output": "api.AiTranscribeResponse",
         "capability": {
-          "capability": "babel.ai.transcribe",
+          "capability": "babble.ai.transcribe",
           "version": 1,
           "required": true
         },
@@ -757,8 +757,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.judgment.object.list.v1",
-        "version": 1,
+        "method": "babble.judgment.object.list.v1",
+        "version": 2,
         "input": "api.ObjectIdRequest",
         "output": "api.ObjectJudgmentsResponse",
         "capability": null,
@@ -766,8 +766,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.judgment.definitions.list.v1",
-        "version": 1,
+        "method": "babble.judgment.definitions.list.v1",
+        "version": 2,
         "input": "api.EmptyRequest",
         "output": "api.JudgmentDefinitionsResponse",
         "capability": null,
@@ -775,8 +775,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.judgment.providers.list.v1",
-        "version": 1,
+        "method": "babble.judgment.providers.list.v1",
+        "version": 2,
         "input": "api.EmptyRequest",
         "output": "api.JudgmentProvidersResponse",
         "capability": null,
@@ -784,8 +784,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.search.objects.v1",
-        "version": 1,
+        "method": "babble.search.objects.v1",
+        "version": 2,
         "input": "api.ObjectSearchRequest",
         "output": "api.ObjectSearchResponse",
         "capability": null,
@@ -793,8 +793,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.lenses.list.v1",
-        "version": 1,
+        "method": "babble.lenses.list.v1",
+        "version": 2,
         "input": "api.EmptyRequest",
         "output": "api.LensCatalogResponse",
         "capability": null,
@@ -802,8 +802,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.discovery.candidates.v1",
-        "version": 1,
+        "method": "babble.discovery.candidates.v1",
+        "version": 2,
         "input": "api.DiscoveryRequest",
         "output": "api.DiscoveryResponse",
         "capability": null,
@@ -811,8 +811,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.capabilities.list.v1",
-        "version": 1,
+        "method": "babble.capabilities.list.v1",
+        "version": 2,
         "input": "api.EmptyRequest",
         "output": "api.CapabilityCatalogResponse",
         "capability": null,
@@ -820,8 +820,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.capabilities.inspect.v1",
-        "version": 1,
+        "method": "babble.capabilities.inspect.v1",
+        "version": 2,
         "input": "api.ObjectIdRequest",
         "output": "api.CapabilitiesResponse",
         "capability": null,
@@ -829,8 +829,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.capabilities.grant.v1",
-        "version": 1,
+        "method": "babble.capabilities.grant.v1",
+        "version": 2,
         "input": "api.GrantCapabilityRequest",
         "output": "api.GrantCapabilityResponse",
         "capability": null,
@@ -838,8 +838,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.capabilities.revoke.v1",
-        "version": 1,
+        "method": "babble.capabilities.revoke.v1",
+        "version": 2,
         "input": "api.RevokeCapabilityRequest",
         "output": "api.GrantCapabilityResponse",
         "capability": null,
@@ -847,12 +847,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.storage.object.get.v1",
-        "version": 1,
+        "method": "babble.storage.object.get.v1",
+        "version": 2,
         "input": "api.ObjectStorageGetRequest",
         "output": "api.ObjectStorageGetResponse",
         "capability": {
-          "capability": "babel.storage.object",
+          "capability": "babble.storage.object",
           "version": 1,
           "required": true
         },
@@ -860,12 +860,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.storage.local.get.v1",
-        "version": 1,
+        "method": "babble.storage.local.get.v1",
+        "version": 2,
         "input": "api.LocalStorageGetRequest",
         "output": "api.LocalStorageGetResponse",
         "capability": {
-          "capability": "babel.storage.local",
+          "capability": "babble.storage.local",
           "version": 1,
           "required": true
         },
@@ -873,12 +873,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.storage.local.set.v1",
-        "version": 1,
+        "method": "babble.storage.local.set.v1",
+        "version": 2,
         "input": "api.LocalStorageSetRequest",
         "output": "api.LocalStorageSetResponse",
         "capability": {
-          "capability": "babel.storage.local",
+          "capability": "babble.storage.local",
           "version": 1,
           "required": true
         },
@@ -886,12 +886,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.storage.local.delete.v1",
-        "version": 1,
+        "method": "babble.storage.local.delete.v1",
+        "version": 2,
         "input": "api.LocalStorageDeleteRequest",
         "output": "api.LocalStorageDeleteResponse",
         "capability": {
-          "capability": "babel.storage.local",
+          "capability": "babble.storage.local",
           "version": 1,
           "required": true
         },
@@ -899,12 +899,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.storage.local.list.v1",
-        "version": 1,
+        "method": "babble.storage.local.list.v1",
+        "version": 2,
         "input": "api.LocalStorageListRequest",
         "output": "api.LocalStorageListResponse",
         "capability": {
-          "capability": "babel.storage.local",
+          "capability": "babble.storage.local",
           "version": 1,
           "required": true
         },
@@ -912,12 +912,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.storage.object.set.v1",
-        "version": 1,
+        "method": "babble.storage.object.set.v1",
+        "version": 2,
         "input": "api.ObjectStorageSetRequest",
         "output": "api.ObjectStorageSetResponse",
         "capability": {
-          "capability": "babel.storage.object",
+          "capability": "babble.storage.object",
           "version": 1,
           "required": true
         },
@@ -925,12 +925,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.storage.object.delete.v1",
-        "version": 1,
+        "method": "babble.storage.object.delete.v1",
+        "version": 2,
         "input": "api.ObjectStorageDeleteRequest",
         "output": "api.ObjectStorageDeleteResponse",
         "capability": {
-          "capability": "babel.storage.object",
+          "capability": "babble.storage.object",
           "version": 1,
           "required": true
         },
@@ -938,12 +938,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.storage.object.list.v1",
-        "version": 1,
+        "method": "babble.storage.object.list.v1",
+        "version": 2,
         "input": "api.ObjectStorageListRequest",
         "output": "api.ObjectStorageListResponse",
         "capability": {
-          "capability": "babel.storage.object",
+          "capability": "babble.storage.object",
           "version": 1,
           "required": true
         },
@@ -951,8 +951,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.personalization.sync.put.v1",
-        "version": 1,
+        "method": "babble.personalization.sync.put.v1",
+        "version": 2,
         "input": "api.PersonalizationSyncPutRequest",
         "output": "api.PersonalizationSyncPutResponse",
         "capability": null,
@@ -960,8 +960,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.personalization.sync.list.v1",
-        "version": 1,
+        "method": "babble.personalization.sync.list.v1",
+        "version": 2,
         "input": "api.PersonalizationSyncListRequest",
         "output": "api.PersonalizationSyncListResponse",
         "capability": null,
@@ -969,8 +969,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.personalization.sync.get.v1",
-        "version": 1,
+        "method": "babble.personalization.sync.get.v1",
+        "version": 2,
         "input": "api.PersonalizationSyncGetRequest",
         "output": "api.PersonalizationSyncGetResponse",
         "capability": null,
@@ -978,8 +978,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.personalization.sync.delete.v1",
-        "version": 1,
+        "method": "babble.personalization.sync.delete.v1",
+        "version": 2,
         "input": "api.PersonalizationSyncGetRequest",
         "output": "api.PersonalizationSyncDeleteResponse",
         "capability": null,
@@ -987,12 +987,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.network.fetch.v1",
-        "version": 1,
+        "method": "babble.network.fetch.v1",
+        "version": 2,
         "input": "api.NetworkFetchRequest",
         "output": "api.NetworkFetchResponse",
         "capability": {
-          "capability": "babel.network.fetch",
+          "capability": "babble.network.fetch",
           "version": 1,
           "required": true
         },
@@ -1000,12 +1000,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.payments.checkout.v1",
-        "version": 1,
+        "method": "babble.payments.checkout.v1",
+        "version": 2,
         "input": "api.PaymentsCheckoutRequest",
         "output": "api.PaymentsCheckoutResponse",
         "capability": {
-          "capability": "babel.payments.checkout",
+          "capability": "babble.payments.checkout",
           "version": 1,
           "required": true
         },
@@ -1013,12 +1013,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.notifications.request.v1",
-        "version": 1,
+        "method": "babble.notifications.request.v1",
+        "version": 2,
         "input": "api.NotificationsRequestRequest",
         "output": "api.NotificationsRequestResponse",
         "capability": {
-          "capability": "babel.notifications.request",
+          "capability": "babble.notifications.request",
           "version": 1,
           "required": true
         },
@@ -1026,12 +1026,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.media.camera.request.v1",
-        "version": 1,
+        "method": "babble.media.camera.request.v1",
+        "version": 2,
         "input": "api.CameraCaptureRequest",
         "output": "api.CameraCaptureResponse",
         "capability": {
-          "capability": "babel.media.camera",
+          "capability": "babble.media.camera",
           "version": 1,
           "required": true
         },
@@ -1039,12 +1039,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.media.microphone.request.v1",
-        "version": 1,
+        "method": "babble.media.microphone.request.v1",
+        "version": 2,
         "input": "api.MicrophoneCaptureRequest",
         "output": "api.MicrophoneCaptureResponse",
         "capability": {
-          "capability": "babel.media.microphone",
+          "capability": "babble.media.microphone",
           "version": 1,
           "required": true
         },
@@ -1052,12 +1052,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.clipboard.write.v1",
-        "version": 1,
+        "method": "babble.clipboard.write.v1",
+        "version": 2,
         "input": "api.ClipboardWriteRequest",
         "output": "api.ClipboardWriteResponse",
         "capability": {
-          "capability": "babel.clipboard.write",
+          "capability": "babble.clipboard.write",
           "version": 1,
           "required": true
         },
@@ -1065,12 +1065,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.fullscreen.enter.v1",
-        "version": 1,
+        "method": "babble.fullscreen.enter.v1",
+        "version": 2,
         "input": "api.FullscreenEnterRequest",
         "output": "api.FullscreenEnterResponse",
         "capability": {
-          "capability": "babel.fullscreen.enter",
+          "capability": "babble.fullscreen.enter",
           "version": 1,
           "required": true
         },
@@ -1078,12 +1078,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.clipboard.write.v2",
+        "method": "babble.clipboard.write",
         "version": 2,
         "input": "api.ClipboardWriteRequest",
         "output": "api.BrowserInvocationResult",
         "capability": {
-          "capability": "babel.clipboard.write",
+          "capability": "babble.clipboard.write",
           "version": 1,
           "required": true
         },
@@ -1091,12 +1091,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.fullscreen.enter.v2",
+        "method": "babble.fullscreen.enter",
         "version": 2,
         "input": "api.FullscreenEnterRequest",
         "output": "api.BrowserInvocationResult",
         "capability": {
-          "capability": "babel.fullscreen.enter",
+          "capability": "babble.fullscreen.enter",
           "version": 1,
           "required": true
         },
@@ -1104,8 +1104,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.runtime.surface.prepare.v1",
-        "version": 1,
+        "method": "babble.runtime.surface.prepare.v1",
+        "version": 2,
         "input": "api.PrepareSurfaceRequest",
         "output": "api.PrepareSurfaceResponse",
         "capability": null,
@@ -1113,8 +1113,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.runtime.surface.session.start.v1",
-        "version": 1,
+        "method": "babble.runtime.surface.session.start.v1",
+        "version": 2,
         "input": "api.StartSurfaceSessionRequest",
         "output": "api.SurfaceSessionResponse",
         "capability": null,
@@ -1122,8 +1122,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.runtime.surface.health.v1",
-        "version": 1,
+        "method": "babble.runtime.surface.health.v1",
+        "version": 2,
         "input": "api.EmptyRequest",
         "output": "api.SurfaceRuntimeHealthResponse",
         "capability": null,
@@ -1131,8 +1131,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.runtime.surface.session.get.v1",
-        "version": 1,
+        "method": "babble.runtime.surface.session.get.v1",
+        "version": 2,
         "input": "api.SurfaceSessionRequest",
         "output": "api.SurfaceSessionResponse",
         "capability": null,
@@ -1140,8 +1140,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.runtime.surface.session.transition.v1",
-        "version": 1,
+        "method": "babble.runtime.surface.session.transition.v1",
+        "version": 2,
         "input": "api.TransitionSurfaceSessionRequest",
         "output": "api.SurfaceSessionEventResponse",
         "capability": null,
@@ -1149,8 +1149,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.runtime.surface.session.heartbeat.v1",
-        "version": 1,
+        "method": "babble.runtime.surface.session.heartbeat.v1",
+        "version": 2,
         "input": "api.EmptyRequest",
         "output": "api.SurfaceLeaseResponse",
         "capability": null,
@@ -1158,8 +1158,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.runtime.surface.session.budget.v1",
-        "version": 1,
+        "method": "babble.runtime.surface.session.budget.v1",
+        "version": 2,
         "input": "api.ChangeSurfaceBudgetRequest",
         "output": "api.SurfaceSessionEventResponse",
         "capability": null,
@@ -1167,8 +1167,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.runtime.surface.session.schedule.v1",
-        "version": 1,
+        "method": "babble.runtime.surface.session.schedule.v1",
+        "version": 2,
         "input": "api.ScheduleSurfaceSessionRequest",
         "output": "api.ScheduleSurfaceSessionResponse",
         "capability": null,
@@ -1176,8 +1176,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.runtime.surface.session.apply_schedule.v1",
-        "version": 1,
+        "method": "babble.runtime.surface.session.apply_schedule.v1",
+        "version": 2,
         "input": "api.ScheduleSurfaceSessionRequest",
         "output": "api.ApplySurfaceScheduleResponse",
         "capability": null,
@@ -1185,8 +1185,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.runtime.surface.session.state.checkpoint.v1",
-        "version": 1,
+        "method": "babble.runtime.surface.session.state.checkpoint.v1",
+        "version": 2,
         "input": "api.CheckpointSurfaceStateRequest",
         "output": "api.SurfaceStateCheckpointResponse",
         "capability": null,
@@ -1194,8 +1194,8 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.runtime.surface.session.state.get.v1",
-        "version": 1,
+        "method": "babble.runtime.surface.session.state.get.v1",
+        "version": 2,
         "input": "api.SurfaceSessionRequest",
         "output": "api.SurfaceStateRestoreResponse",
         "capability": null,
@@ -1203,12 +1203,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.realtime.room.define.v1",
-        "version": 1,
+        "method": "babble.realtime.room.define.v1",
+        "version": 2,
         "input": "api.DefineRealtimeRoomRequest",
         "output": "api.DefineRealtimeRoomResponse",
         "capability": {
-          "capability": "babel.realtime.join",
+          "capability": "babble.realtime.join",
           "version": 1,
           "required": false
         },
@@ -1216,12 +1216,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.realtime.session.start.v1",
-        "version": 1,
+        "method": "babble.realtime.session.start.v1",
+        "version": 2,
         "input": "api.StartRealtimeSessionRequest",
         "output": "api.StartRealtimeSessionResponse",
         "capability": {
-          "capability": "babel.realtime.join",
+          "capability": "babble.realtime.join",
           "version": 1,
           "required": true
         },
@@ -1229,12 +1229,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.realtime.session.leave.v1",
-        "version": 1,
+        "method": "babble.realtime.session.leave.v1",
+        "version": 2,
         "input": "api.CloseRealtimeSessionRequest",
         "output": "api.CloseRealtimeSessionResponse",
         "capability": {
-          "capability": "babel.realtime.leave",
+          "capability": "babble.realtime.leave",
           "version": 1,
           "required": true
         },
@@ -1242,12 +1242,12 @@
         "timeout_ms": 30000
       },
       {
-        "method": "babel.realtime.message.publish.v1",
-        "version": 1,
+        "method": "babble.realtime.message.publish.v1",
+        "version": 2,
         "input": "api.PublishRealtimeMessageRequest",
         "output": "api.PublishRealtimeMessageResponse",
         "capability": {
-          "capability": "babel.realtime.send",
+          "capability": "babble.realtime.send",
           "version": 1,
           "required": true
         },
@@ -1257,7 +1257,7 @@
     ]
   },
   "rpc_error_response": {
-    "protocol": "babel.rpc.v1",
+    "protocol": "babble.rpc.v1",
     "id": "fixture-request-1",
     "result": null,
     "error": {
@@ -1272,14 +1272,14 @@
     "trace_id": "trace-fixture-1"
   },
   "rpc_request": {
-    "protocol": "babel.rpc.v1",
+    "protocol": "babble.rpc.v1",
     "id": "fixture-request-1",
-    "method": "babel.object.get.v1",
+    "method": "babble.object.get.v1",
     "binding": {
       "object_id": null,
       "surface_session_id": null,
       "runtime_id": "fixture-runtime",
-      "origin": "babel://fixture",
+      "origin": "babble://fixture",
       "capability_grants": [],
       "identity_id": null
     },
@@ -1295,43 +1295,43 @@
   },
   "schema_registry": {
     "protocol": {
-      "name": "babel.v2",
+      "name": "babble",
       "version": 1
     },
     "core_schemas": [
-      "babel.schema.text.v1",
-      "babel.schema.media.v1"
+      "babble.schema.text.v1",
+      "babble.schema.media.v1"
     ],
     "core_capabilities": [
-      "babel.identity.current",
-      "babel.social.follow",
-      "babel.social.unfollow",
-      "babel.social.share",
-      "babel.social.reply",
-      "babel.storage.local",
-      "babel.storage.object",
-      "babel.realtime.join",
-      "babel.realtime.send",
-      "babel.realtime.leave",
-      "babel.payments.checkout",
-      "babel.ai.judge",
-      "babel.ai.generate",
-      "babel.ai.embed",
-      "babel.ai.transcribe",
-      "babel.media.camera",
-      "babel.media.microphone",
-      "babel.graphics.webgpu",
-      "babel.notifications.request",
-      "babel.clipboard.write",
-      "babel.fullscreen.enter",
-      "babel.network.fetch",
-      "babel.location",
-      "babel.files"
+      "babble.identity.current",
+      "babble.social.follow",
+      "babble.social.unfollow",
+      "babble.social.share",
+      "babble.social.reply",
+      "babble.storage.local",
+      "babble.storage.object",
+      "babble.realtime.join",
+      "babble.realtime.send",
+      "babble.realtime.leave",
+      "babble.payments.checkout",
+      "babble.ai.judge",
+      "babble.ai.generate",
+      "babble.ai.embed",
+      "babble.ai.transcribe",
+      "babble.media.camera",
+      "babble.media.microphone",
+      "babble.graphics.webgpu",
+      "babble.notifications.request",
+      "babble.clipboard.write",
+      "babble.fullscreen.enter",
+      "babble.network.fetch",
+      "babble.location",
+      "babble.files"
     ]
   },
   "social_safety": {
     "author": {
-      "id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
+      "id": "id_a632701c501f64d2d845ddc7ad25063777ea447f7983d3a3bbd0ab15773eafe6",
       "kind": "Person",
       "handle": "safety-owner",
       "public_key": {
@@ -1341,30 +1341,30 @@
       "created_at": "2026-09-30T00:00:00Z",
       "signature": {
         "algorithm": "Ed25519",
-        "bytes": "bde58bb66643ce82dec947bfc3e86c01008f90eaf1e11c7af33b25f6ff1c0cbd8862681fec230abb2d156c002521c15b5c937204a476db40fbcba9d276594f03"
+        "bytes": "da88afcdb710fa84990723e8fc3fbb4f19c04237eba8412a7050a4cf55b45bdca22b8a624cb6d0ed5a2142238eae4cab142a59a9772bb028fd027fc8fb5e6001"
       }
     },
     "absent": {
-      "author_id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
-      "target_id": "id_cfbca8f7d2c2840cab441f6e77e14d13a5c210cdec8b2a666df8dfb0b5271dbc",
+      "author_id": "id_a632701c501f64d2d845ddc7ad25063777ea447f7983d3a3bbd0ab15773eafe6",
+      "target_id": "id_9d0477befd68d8270a59097e79a63b522600e0837664905cecd649d66352ec08",
       "blocked": false,
       "muted": false,
       "revision": 0
     },
     "state": {
-      "author_id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
-      "target_id": "id_cfbca8f7d2c2840cab441f6e77e14d13a5c210cdec8b2a666df8dfb0b5271dbc",
+      "author_id": "id_a632701c501f64d2d845ddc7ad25063777ea447f7983d3a3bbd0ab15773eafe6",
+      "target_id": "id_9d0477befd68d8270a59097e79a63b522600e0837664905cecd649d66352ec08",
       "blocked": true,
       "muted": true,
       "revision": 1
     },
     "snapshot": {
-      "author_id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
+      "author_id": "id_a632701c501f64d2d845ddc7ad25063777ea447f7983d3a3bbd0ab15773eafe6",
       "revision": 1,
       "entries": [
         {
           "identity": {
-            "id": "id_cfbca8f7d2c2840cab441f6e77e14d13a5c210cdec8b2a666df8dfb0b5271dbc",
+            "id": "id_9d0477befd68d8270a59097e79a63b522600e0837664905cecd649d66352ec08",
             "kind": "Person",
             "handle": "safety-target",
             "public_key": {
@@ -1374,12 +1374,12 @@
             "created_at": "2026-09-30T00:00:00Z",
             "signature": {
               "algorithm": "Ed25519",
-              "bytes": "9b0a86dfb4c074dd0e8dc3c11b59cc3327a8b8cb439f75372d99eccae7d3f24d2f13b9e94dae472d6ea162fe0678ff58a55b6e29ff4599d3a244e264572bb401"
+              "bytes": "46ea7405eb8569de0cbdbee68e6e627e4fd810a1e022c60858eacad22dd2de31133ad04f35c747f99ccf88132da895ababe680f18093118e5f0e6e40c2de2403"
             }
           },
           "state": {
-            "author_id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
-            "target_id": "id_cfbca8f7d2c2840cab441f6e77e14d13a5c210cdec8b2a666df8dfb0b5271dbc",
+            "author_id": "id_a632701c501f64d2d845ddc7ad25063777ea447f7983d3a3bbd0ab15773eafe6",
+            "target_id": "id_9d0477befd68d8270a59097e79a63b522600e0837664905cecd649d66352ec08",
             "blocked": true,
             "muted": true,
             "revision": 1
@@ -1394,37 +1394,37 @@
       "idempotency_key": "safety-fixture-1"
     },
     "action": {
-      "id": "8078469c8c328574af8d14b4c627def333e67d6cd57cb9f08f07d77feef9ca58",
+      "id": "a57acd20510bff6653b692b61cbf9521f56bec75712eb27e921ff792fd2a39c0",
       "payload": {
         "state": {
-          "author_id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
-          "target_id": "id_cfbca8f7d2c2840cab441f6e77e14d13a5c210cdec8b2a666df8dfb0b5271dbc",
+          "author_id": "id_a632701c501f64d2d845ddc7ad25063777ea447f7983d3a3bbd0ab15773eafe6",
+          "target_id": "id_9d0477befd68d8270a59097e79a63b522600e0837664905cecd649d66352ec08",
           "blocked": true,
           "muted": true,
           "revision": 1
         },
         "previous_id": null,
         "created_at": "2026-09-30T00:00:00Z",
-        "request_id": "ae5557544e02aa79af68a58e6a0a8fc963304788743bb70fa0b84b8b2450837e"
+        "request_id": "148d2ccab7c051ae4755e6c46412ae66a903aa2c8cb60f0569f866a32d04e278"
       },
       "signature": {
         "algorithm": "Ed25519",
-        "bytes": "2a67475274997eeee93162b2f5b9ec72a3fc07afb0ed866cc452c37ce12b64a66115ff368f8405842a2a10726b1dd55975efc731e4e413d5328c91d685490004"
+        "bytes": "9d37dc8b9da1b8ef0dd8879776eac712fb19e219e86a473a7373f5d6249bbcab23c0cc10e5433891dabfc505193294f956da51903a62a0defc62b606f93c3807"
       }
     },
     "receipt": {
       "payload": {
         "request": {
-          "author_id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
-          "target_id": "id_cfbca8f7d2c2840cab441f6e77e14d13a5c210cdec8b2a666df8dfb0b5271dbc",
+          "author_id": "id_a632701c501f64d2d845ddc7ad25063777ea447f7983d3a3bbd0ab15773eafe6",
+          "target_id": "id_9d0477befd68d8270a59097e79a63b522600e0837664905cecd649d66352ec08",
           "blocked": true,
           "muted": true,
           "expected_revision": 0,
           "idempotency_key": "safety-fixture-1"
         },
         "state": {
-          "author_id": "id_271fae6237855ae78f99bdbbe928ee6e9533e3e0943c652f911c618abbe2056c",
-          "target_id": "id_cfbca8f7d2c2840cab441f6e77e14d13a5c210cdec8b2a666df8dfb0b5271dbc",
+          "author_id": "id_a632701c501f64d2d845ddc7ad25063777ea447f7983d3a3bbd0ab15773eafe6",
+          "target_id": "id_9d0477befd68d8270a59097e79a63b522600e0837664905cecd649d66352ec08",
           "blocked": true,
           "muted": true,
           "revision": 1
@@ -1435,10 +1435,10 @@
       },
       "signature": {
         "algorithm": "Ed25519",
-        "bytes": "54b621aa4dd0d7b5ee066f24a8075805f64d66cbf8cd7916188184ae506952924f1ebbc616e6d47b1622565dd160f868d1eec963e49a05663b02159b7b469e04"
+        "bytes": "34669ce2525edd1e9aff8a85435774ca2dacdc4c699bcf1ce3e7d094f8a1128dfd4d2e83db54e736138f8b19ae2fed1e5ff5dc924f205003696a2c8f2eccc20a"
       }
     },
-    "state_hash": "f7678066022f0d6a325fac50dd1a493f1cdf9ae26211bfca4ca0b4bc5bcc465f"
+    "state_hash": "ea1d5318bed9e3b103bd2fe5faf5986053852c9c640866b546e349530ccc29df"
   },
   "temporal_scoring": {
     "model": "temporal-v1",
@@ -1452,7 +1452,7 @@
         },
         "result": {
           "provider": {
-            "provider": "babel-rust",
+            "provider": "babble-rust",
             "model": "temporal-v1",
             "version": "1"
           },
@@ -1534,7 +1534,7 @@
         },
         "result": {
           "provider": {
-            "provider": "babel-rust",
+            "provider": "babble-rust",
             "model": "temporal-v1",
             "version": "1"
           },
@@ -1610,7 +1610,7 @@
         },
         "result": {
           "provider": {
-            "provider": "babel-rust",
+            "provider": "babble-rust",
             "model": "temporal-v1",
             "version": "1"
           },
@@ -1650,7 +1650,7 @@
         },
         "result": {
           "provider": {
-            "provider": "babel-rust",
+            "provider": "babble-rust",
             "model": "temporal-v1",
             "version": "1"
           },
@@ -1690,7 +1690,7 @@
         },
         "result": {
           "provider": {
-            "provider": "babel-rust",
+            "provider": "babble-rust",
             "model": "temporal-v1",
             "version": "1"
           },
@@ -1730,7 +1730,7 @@
         },
         "result": {
           "provider": {
-            "provider": "babel-rust",
+            "provider": "babble-rust",
             "model": "temporal-v1",
             "version": "1"
           },
@@ -1770,7 +1770,7 @@
         },
         "result": {
           "provider": {
-            "provider": "babel-rust",
+            "provider": "babble-rust",
             "model": "temporal-v1",
             "version": "1"
           },
@@ -1810,7 +1810,7 @@
         },
         "result": {
           "provider": {
-            "provider": "babel-rust",
+            "provider": "babble-rust",
             "model": "temporal-v1",
             "version": "1"
           },
@@ -1850,7 +1850,7 @@
         },
         "result": {
           "provider": {
-            "provider": "babel-rust",
+            "provider": "babble-rust",
             "model": "temporal-v1",
             "version": "1"
           },
@@ -1890,7 +1890,7 @@
         },
         "result": {
           "provider": {
-            "provider": "babel-rust",
+            "provider": "babble-rust",
             "model": "temporal-v1",
             "version": "1"
           },
@@ -1930,7 +1930,7 @@
         },
         "result": {
           "provider": {
-            "provider": "babel-rust",
+            "provider": "babble-rust",
             "model": "temporal-v1",
             "version": "1"
           },
@@ -1974,7 +1974,7 @@
         },
         "result": {
           "provider": {
-            "provider": "babel-rust",
+            "provider": "babble-rust",
             "model": "temporal-v1",
             "version": "1"
           },
@@ -2014,7 +2014,7 @@
         },
         "result": {
           "provider": {
-            "provider": "babel-rust",
+            "provider": "babble-rust",
             "model": "temporal-v1",
             "version": "1"
           },

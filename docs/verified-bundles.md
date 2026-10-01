@@ -50,7 +50,7 @@ The manifest is canonical data with these fields:
 | `entry_path` | One logical path identifying the executable entry. |
 | `files[]` | Complete inventory, including declared dynamic imports and assets. |
 | `files[].path` | Unique, canonical path relative to the bundle root. |
-| `files[].source_uri` | External URL or canonical `babel://blobs/<hash>` source. |
+| `files[].source_uri` | External URL or canonical `babble://blobs/<hash>` source. |
 | `files[].integrity` | BLAKE3 digest of the exact final file bytes. |
 | `files[].size_bytes` | Exact decoded file size. |
 | `files[].media_type` | Canonical MIME fixed by the commitment. |
@@ -86,7 +86,7 @@ materialized file and the Object signature, including historical key rotation.
 
 The remaining compiler work is:
 
-`babel build` must produce portable final bytes before computing resource hashes:
+`babble build` must produce portable final bytes before computing resource hashes:
 
 1. Use established HTML/CSS/JavaScript parsers and bundlers to compile dependencies
    into a stable logical layout. Preserve module cycles and relative references.
@@ -99,7 +99,7 @@ The remaining compiler work is:
 4. Hash the emitted bytes, emit the manifest and permission/resource report, then
    sign the Object. Publish those exact artifacts, not reread mutable build inputs.
 
-Final artifacts may live externally or in Babel blob storage. Already-portable
+Final artifacts may live externally or in Babble blob storage. Already-portable
 external HTML can remain byte-for-byte unchanged. Nonportable external inputs
 must be compiled into newly hashed output; do not transform bytes at serving time
 and claim the original digest identifies the transformed executable. Gateway
@@ -138,7 +138,7 @@ from the exact mount origin. Set `default-src 'none'`, `base-uri 'none'`,
 `object-src 'none'`, `frame-src 'none'`, `worker-src 'none'`, `form-action 'none'`
 and an exact host `frame-ancestors`. Omit `unsafe-eval`, executable `blob:`/`data:`
 and `strict-dynamic`. Hash-authorize a generated inline import map when needed;
-CSP/SRI SHA hashes are separate from Babel's BLAKE3 commitments. Additional iframe
+CSP/SRI SHA hashes are separate from Babble's BLAKE3 commitments. Additional iframe
 policies must be consistent with these headers; iframe attributes are not the
 enforcement foundation. Host-mediated network results remain data.
 
@@ -217,7 +217,7 @@ deployment, remote acquisition or hard browser-resource guarantees.
 | --- | --- |
 | `spec.md` sections 15/16: immutable executable dependencies | Mutating entry or any dependency prevents readiness; undeclared computed imports cannot execute. |
 | `spec.md` external integrity resources | External entry and transitive dependencies execute from verified snapshots; browser/upstream logs prove no browser upstream refetch. |
-| `sdk-spec.md` section 40: portable supply-chain workflow | Identical signed output works through two gateway origins, with nested relative imports, cycles, dynamic imports, CSS/fonts/images and Babel blobs. |
+| `sdk-spec.md` section 40: portable supply-chain workflow | Identical signed output works through two gateway origins, with nested relative imports, cycles, dynamic imports, CSS/fonts/images and Babble blobs. |
 | `sdk-spec.md` section 41: verify before sandbox/handshake | No mount or capability dispatch before full verification; initial redirect and replacement-document port offers fail. |
 | Object-scoped dependency admission | Cross-bundle blobs, MIME overrides, unknown paths and encoded traversal fail; exact declared paths succeed. |
 | Browser execution containment | External dynamic imports, inline/eval/blob execution, workers and unsupported WASM paths are blocked by actual browser behavior. |
@@ -272,8 +272,8 @@ closed rather than silently bypass this contract.
 
 ## Local Gateway Operation
 
-Set `BABEL_BUNDLE_GATEWAY_ADDR=127.0.0.1:8788` when starting the API, choosing a
-free port. `BABEL_CORS_ORIGINS` supplies the exact allowed parent origins; wildcard,
+Set `BABBLE_BUNDLE_GATEWAY_ADDR=127.0.0.1:8788` when starting the API, choosing a
+free port. `BABBLE_CORS_ORIGINS` supplies the exact allowed parent origins; wildcard,
 credential-bearing, path-bearing and noncanonical origins are rejected. The
 gateway has a dedicated listener, not an API route or arbitrary URL proxy. Its
 current provisioner accepts only `127.0.0.1` and a nonzero port. Do not publicly

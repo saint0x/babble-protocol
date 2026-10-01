@@ -1,10 +1,10 @@
 use crate::{SandboxPolicy, SurfaceRuntime, SurfaceSessionId, SurfaceSessionPlan};
-use babel_capabilities::CapabilityGrant;
-use babel_object::{
+use babble_capabilities::CapabilityGrant;
+use babble_object::{
     Object, SchemaRegistry, Surface, SurfaceRole, SurfaceTarget, bundle::BundleFileKind,
 };
-use babel_store::VerifiedBundle;
-use babel_types::{Canonical, Error, Hash, ObjectId, Result};
+use babble_store::VerifiedBundle;
+use babble_types::{Canonical, Error, Hash, ObjectId, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -50,7 +50,7 @@ pub(super) fn validate_receipt(
     surface: &Surface,
     receipt: &VerifiedBundle,
 ) -> Result<BundleVerification> {
-    SchemaRegistry::babel_core().validate_object(object)?;
+    SchemaRegistry::babble_core().validate_object(object)?;
     if object.signature.is_none() {
         return Err(Error::UnsignedObject);
     }

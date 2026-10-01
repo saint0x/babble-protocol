@@ -1,5 +1,5 @@
 [package]
-name = "babel-api"
+name = "babble-api"
 version = "0.1.0"
 edition.workspace = true
 license.workspace = true
@@ -8,26 +8,26 @@ rust-version.workspace = true
 
 [dependencies]
 axum.workspace = true
-babel-authoring.workspace = true
-babel-capabilities.workspace = true
-babel-discovery.workspace = true
-babel-graph.workspace = true
-babel-hashgraph.workspace = true
-babel-identity.workspace = true
-babel-judgment.workspace = true
-babel-judgment-local.workspace = true
-babel-judgment-python.workspace = true
-babel-lens.workspace = true
-babel-media.workspace = true
-babel-node.workspace = true
-babel-object.workspace = true
-babel-personalization.workspace = true
-babel-realtime.workspace = true
-babel-rpc.workspace = true
-babel-runtime.workspace = true
-babel-state.workspace = true
-babel-store.workspace = true
-babel-types.workspace = true
+babble-authoring.workspace = true
+babble-capabilities.workspace = true
+babble-discovery.workspace = true
+babble-graph.workspace = true
+babble-hashgraph.workspace = true
+babble-identity.workspace = true
+babble-judgment.workspace = true
+babble-judgment-local.workspace = true
+babble-judgment-python.workspace = true
+babble-lens.workspace = true
+babble-media.workspace = true
+babble-node.workspace = true
+babble-object.workspace = true
+babble-personalization.workspace = true
+babble-realtime.workspace = true
+babble-rpc.workspace = true
+babble-runtime.workspace = true
+babble-state.workspace = true
+babble-store.workspace = true
+babble-types.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 schemars.workspace = true
@@ -44,6 +44,6 @@ zeroize.workspace = true
 url = "2.5.8"
 
 [dev-dependencies]
-babel-crypto.workspace = true
+babble-crypto.workspace = true
 reqwest.workspace = true
 tower.workspace = true

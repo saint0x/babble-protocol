@@ -1,5 +1,5 @@
 use crate::{WorkerConfig, contract::MAX_LINE_BYTES, unavailable};
-use babel_types::Result;
+use babble_types::Result;
 use std::{
     io::{self, Read, Write},
     os::{

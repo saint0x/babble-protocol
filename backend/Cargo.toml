@@ -34,38 +34,38 @@ resolver = "3"
 [workspace.package]
 edition = "2024"
 license = "Apache-2.0"
-repository = "https://github.com/saint/babel-protocol"
+repository = "https://github.com/saint/babble-protocol"
 rust-version = "1.92"
 
 [workspace.dependencies]
-babel-api = { path = "crates/api" }
-babel-authoring = { path = "crates/authoring" }
-babel-cli = { path = "crates/cli" }
-babel-capabilities = { path = "crates/capabilities" }
-babel-crypto = { path = "crates/crypto" }
-babel-discovery = { path = "crates/discovery" }
-babel-eval = { path = "crates/eval" }
-babel-graph = { path = "crates/graph" }
-babel-hashgraph = { path = "crates/hashgraph" }
-babel-identity = { path = "crates/identity" }
-babel-judgment = { path = "crates/judgment" }
-babel-judgment-jev = { path = "crates/judgment-jev" }
-babel-judgment-local = { path = "crates/judgment-local" }
-babel-judgment-python = { path = "crates/judgment-python" }
-babel-lens = { path = "crates/lens" }
-babel-media = { path = "crates/media" }
-babel-network = { path = "crates/network" }
-babel-node = { path = "crates/node" }
-babel-object = { path = "crates/object" }
-babel-personalization = { path = "crates/personalization" }
-babel-realtime = { path = "crates/realtime" }
-babel-rpc = { path = "crates/rpc" }
-babel-runtime = { path = "crates/runtime" }
-babel-schema = { path = "crates/schema" }
-babel-sim = { path = "crates/sim" }
-babel-state = { path = "crates/state" }
-babel-store = { path = "crates/store" }
-babel-types = { path = "crates/types" }
+babble-api = { path = "crates/api" }
+babble-authoring = { path = "crates/authoring" }
+babble-cli = { path = "crates/cli" }
+babble-capabilities = { path = "crates/capabilities" }
+babble-crypto = { path = "crates/crypto" }
+babble-discovery = { path = "crates/discovery" }
+babble-eval = { path = "crates/eval" }
+babble-graph = { path = "crates/graph" }
+babble-hashgraph = { path = "crates/hashgraph" }
+babble-identity = { path = "crates/identity" }
+babble-judgment = { path = "crates/judgment" }
+babble-judgment-jev = { path = "crates/judgment-jev" }
+babble-judgment-local = { path = "crates/judgment-local" }
+babble-judgment-python = { path = "crates/judgment-python" }
+babble-lens = { path = "crates/lens" }
+babble-media = { path = "crates/media" }
+babble-network = { path = "crates/network" }
+babble-node = { path = "crates/node" }
+babble-object = { path = "crates/object" }
+babble-personalization = { path = "crates/personalization" }
+babble-realtime = { path = "crates/realtime" }
+babble-rpc = { path = "crates/rpc" }
+babble-runtime = { path = "crates/runtime" }
+babble-schema = { path = "crates/schema" }
+babble-sim = { path = "crates/sim" }
+babble-state = { path = "crates/state" }
+babble-store = { path = "crates/store" }
+babble-types = { path = "crates/types" }
 
 blake3 = "1.8.2"
 axum = "0.8.4"

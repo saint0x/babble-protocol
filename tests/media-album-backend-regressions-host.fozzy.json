@@ -2,8 +2,8 @@
   "version": 1,
   "name": "media-album-backend-existing-regressions",
   "steps": [
-    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babel-api","-p","babel-node","-p","babel-authoring","-p","babel-media","--lib"],"expect_exit":0},
-    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babel-api","--test","auth","media"],"expect_exit":0},
-    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babel-node","--test","local_node","local_node_publishes"],"expect_exit":0}
+    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babble-api","-p","babble-node","-p","babble-authoring","-p","babble-media","--lib"],"expect_exit":0},
+    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babble-api","--test","auth","media"],"expect_exit":0},
+    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babble-node","--test","local_node","local_node_publishes"],"expect_exit":0}
   ]
 }

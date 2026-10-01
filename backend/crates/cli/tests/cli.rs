@@ -1,7 +1,7 @@
-use babel_graph::{EdgeOrigin, Relation};
-use babel_identity::IdentityKind;
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
+use babble_graph::{EdgeOrigin, Relation};
+use babble_identity::IdentityKind;
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
 use serde_json::Value;
 use std::{
     fs,
@@ -25,8 +25,8 @@ fn validate_and_build_resolve_manifest_resource_hashes() {
     fs::write(
         &manifest,
         r#"{
-  "kind": "babel.text",
-  "schema": "babel.schema.text.v1",
+  "kind": "babble.text",
+  "schema": "babble.schema.text.v1",
   "payload": {"text": "Manifest-backed object", "metadata": {}},
   "resources": [
     {"media_type": "application/octet-stream", "path": "image.bin"}
@@ -35,7 +35,7 @@ fn validate_and_build_resolve_manifest_resource_hashes() {
     {"role": "Feed", "target": "Web", "entry": "surface.js", "path": "surface.js"}
   ],
   "capabilities": [
-    {"id": "babel.realtime.join", "version": 1, "scope": {"room": "self"}}
+    {"id": "babble.realtime.join", "version": 1, "scope": {"room": "self"}}
   ]
 }"#,
     )
@@ -43,10 +43,10 @@ fn validate_and_build_resolve_manifest_resource_hashes() {
 
     let validate = assert_ok(command(["validate", manifest.to_str().unwrap()]));
     let report = json_output(&validate);
-    assert_eq!(report["kind"], "babel.text");
+    assert_eq!(report["kind"], "babble.text");
     assert_eq!(report["resources"].as_array().unwrap().len(), 1);
     assert_eq!(report["surfaces"].as_array().unwrap().len(), 1);
-    assert_eq!(report["capabilities"][0]["id"], "babel.realtime.join");
+    assert_eq!(report["capabilities"][0]["id"], "babble.realtime.join");
 
     let draft_path = root.join("draft.json");
     let build = assert_ok(command([
@@ -62,7 +62,7 @@ fn validate_and_build_resolve_manifest_resource_hashes() {
     assert_eq!(
         draft["resources"][0]["uri"],
         format!(
-            "babel://blobs/{}",
+            "babble://blobs/{}",
             draft["resources"][0]["integrity"].as_str().unwrap()
         )
     );
@@ -73,7 +73,7 @@ fn validate_and_build_resolve_manifest_resource_hashes() {
     assert_eq!(
         draft["surfaces"][0]["entry"],
         format!(
-            "babel://blobs/{}",
+            "babble://blobs/{}",
             draft["surfaces"][0]["integrity"].as_str().unwrap()
         )
     );
@@ -89,8 +89,8 @@ fn validate_rejects_executable_surface_without_integrity_material() {
     fs::write(
         &manifest,
         r#"{
-  "kind": "babel.text",
-  "schema": "babel.schema.text.v1",
+  "kind": "babble.text",
+  "schema": "babble.schema.text.v1",
   "payload": {"text": "Missing surface integrity", "metadata": {}},
   "surfaces": [
     {"role": "Feed", "target": "Web", "entry": "surface.js"}
@@ -121,8 +121,8 @@ fn preview_reports_runtime_sandbox_and_permission_diagnostics() {
     fs::write(
         &manifest,
         r#"{
-  "kind": "babel.text",
-  "schema": "babel.schema.text.v1",
+  "kind": "babble.text",
+  "schema": "babble.schema.text.v1",
   "payload": {"text": "Previewed Object", "metadata": {}},
   "resources": [
     {"media_type": "text/javascript", "path": "surface.js"}
@@ -131,7 +131,7 @@ fn preview_reports_runtime_sandbox_and_permission_diagnostics() {
     {"role": "Feed", "target": "Web", "entry": "surface.js", "path": "surface.js"}
   ],
   "capabilities": [
-    {"id": "babel.realtime.join", "version": 1, "scope": {"room": "self"}}
+    {"id": "babble.realtime.join", "version": 1, "scope": {"room": "self"}}
   ]
 }"#,
     )
@@ -181,8 +181,8 @@ fn preview_blocks_executable_surface_without_declared_resource() {
     fs::write(
         &manifest,
         r#"{
-  "kind": "babel.text",
-  "schema": "babel.schema.text.v1",
+  "kind": "babble.text",
+  "schema": "babble.schema.text.v1",
   "payload": {"text": "Blocked preview Object", "metadata": {}},
   "surfaces": [
     {"role": "Feed", "target": "Web", "entry": "surface.js", "path": "surface.js"}
@@ -271,8 +271,8 @@ fn identity_sign_and_publish_manifest_round_trip_through_store() {
     fs::write(
         &manifest,
         r#"{
-  "kind": "babel.text",
-  "schema": "babel.schema.text.v1",
+  "kind": "babble.text",
+  "schema": "babble.schema.text.v1",
   "payload": {"text": "CLI published Object", "metadata": {"source": "test"}},
   "resources": [
     {"media_type": "application/octet-stream", "path": "image.bin"}
@@ -316,11 +316,11 @@ fn identity_sign_and_publish_manifest_round_trip_through_store() {
     let signed_report = json_output(&signed);
     assert_eq!(signed_report["object"], object_path.to_str().unwrap());
     let signed_object: Value = serde_json::from_slice(&fs::read(&object_path).unwrap()).unwrap();
-    assert_eq!(signed_object["kind"], "babel.text");
+    assert_eq!(signed_object["kind"], "babble.text");
     assert_eq!(
         signed_object["surfaces"][0]["entry"],
         format!(
-            "babel://blobs/{}",
+            "babble://blobs/{}",
             signed_object["surfaces"][0]["integrity"].as_str().unwrap()
         )
     );
@@ -376,7 +376,7 @@ fn identity_sign_and_publish_manifest_round_trip_through_store() {
 }
 
 fn command<const N: usize>(args: [&str; N]) -> Output {
-    Command::new(env!("CARGO_BIN_EXE_babel"))
+    Command::new(env!("CARGO_BIN_EXE_babble"))
         .args(args)
         .output()
         .unwrap()
@@ -402,5 +402,5 @@ fn unique_root(name: &str) -> PathBuf {
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_nanos();
-    std::env::temp_dir().join(format!("babel-cli-{name}-{nanos}"))
+    std::env::temp_dir().join(format!("babble-cli-{name}-{nanos}"))
 }

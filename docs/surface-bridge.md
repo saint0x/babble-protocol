@@ -18,23 +18,23 @@ cannot be undone by browser cancellation.
 Control messages have exactly three fields:
 
 ```json
-{ "type": "babel.surface.connect", "protocol": "babel.rpc.v1", "version": 1 }
+{ "type": "babble.surface.connect", "protocol": "babble.rpc.v1", "version": 1 }
 ```
 
 1. The child creates a channel and transfers exactly one port with `connect`.
-2. The host admits at most one offer and sends `babel.surface.accept` on the port.
-3. The child returns `babel.surface.confirm` on its retained port.
+2. The host admits at most one offer and sends `babble.surface.accept` on the port.
+3. The child returns `babble.surface.confirm` on its retained port.
 4. The host registers its randomly generated document ID with the authenticated
    node. No RPC can dispatch while registration is pending.
 5. After the node acknowledges the exact session/document binding, the host
-   enables the scoped RPC dispatcher and sends `babel.surface.ready`.
+   enables the scoped RPC dispatcher and sends `babble.surface.ready`.
 
 All control messages use the same protocol and version fields. Neither requests
 before confirmation nor legacy window RPC calls can dispatch. The canonical RPC
 schema is unchanged; method, capability, identity, Object, and session scoping
 still apply. The transport assigns a fresh wire request ID for each attempt and
 restores the caller's ID on the response.
-Duplicate offers do not replace the admitted port. `babel.surface.close` closes
+Duplicate offers do not replace the admitted port. `babble.surface.close` closes
 the connection. A close notification is best effort, not a durable mutation.
 
 `BrowserSurfaceHost.mount()` returns `MountedSurface.ready`. The default handshake
@@ -61,7 +61,7 @@ Reopening requires a fresh session. Existing unregistered sessions cannot make
 Object-bound HTTP RPC calls until their host registers them.
 
 The SDK's scoped host dispatcher supplies `surfaceDocumentId` in its trusted
-dispatch context. `HttpRpcTransport` puts it in `x-babel-surface-document` for
+dispatch context. `HttpRpcTransport` puts it in `x-babble-surface-document` for
 requests bound to both an Object and a Surface session. The ID is never copied
 from a child request, included in child handshake messages, or used as a login
 credential. Host wrappers must preserve it when replacing the cancellation
@@ -76,8 +76,8 @@ consent. It does not make browser cancellation transactional or consume an
 ## Client Integration
 
 Use the exported `connectSurfaceBridge({ parentOrigin, signal, timeoutMs })` to
-obtain a `BabelTransport`, then supply that transport to `createSurfaceSDK` or
-`createBabelSDK`. `parentOrigin` must be the exact expected HTTP(S) origin, not
+obtain a `BabbleTransport`, then supply that transport to `createSurfaceSDK` or
+`createBabbleSDK`. `parentOrigin` must be the exact expected HTTP(S) origin, not
 `*`. Keep the normal prepared Surface plan and binding parameters; the host
 independently binds requests to its admitted Object, session, identity and grants.
 Abort or close the transport when it is no longer needed. The connector also
@@ -100,7 +100,7 @@ An aborted signal, local timeout, or transport close sends this control message
 for each request already sent:
 
 ```json
-{ "type": "babel.rpc.cancel", "protocol": "babel.rpc.v1", "id": "<wire request ID>" }
+{ "type": "babble.rpc.cancel", "protocol": "babble.rpc.v1", "id": "<wire request ID>" }
 ```
 
 The host accepts only this exact shape and the originating request's origin,
@@ -133,7 +133,7 @@ describes limited authority and deliberate delegation through ports;
 [MDN's MessageChannel reference](https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel)
 documents channel construction and transfer. Both were read with Aegis on
 September 30, 2026. These sources explain the mechanism, not a security audit of
-Babel's implementation.
+Babble's implementation.
 
 ## Verification
 

@@ -1,5 +1,5 @@
-use babel_lens::*;
-use babel_types::{Hash, ObjectId, Timestamp};
+use babble_lens::*;
+use babble_types::{Hash, ObjectId, Timestamp};
 use time::OffsetDateTime;
 
 pub fn candidate(index: usize) -> Candidate {

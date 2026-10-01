@@ -3,7 +3,7 @@
   "name": "surface-resource-uri-deterministic-orchestration",
   "steps": [
     {"type":"trace_event","name":"Deterministic process contract only; resource-uri-host.fozzy.json executes actual URI regressions"},
-    {"type":"proc_when","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--offline","--locked","--manifest-path","backend/Cargo.toml","-p","babel-object","-p","babel-authoring","-p","babel-runtime"],"exit_code":0,"times":1},
-    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--offline","--locked","--manifest-path","backend/Cargo.toml","-p","babel-object","-p","babel-authoring","-p","babel-runtime"],"expect_exit":0}
+    {"type":"proc_when","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--offline","--locked","--manifest-path","backend/Cargo.toml","-p","babble-object","-p","babble-authoring","-p","babble-runtime"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--offline","--locked","--manifest-path","backend/Cargo.toml","-p","babble-object","-p","babble-authoring","-p","babble-runtime"],"expect_exit":0}
   ]
 }

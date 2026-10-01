@@ -1,12 +1,12 @@
 use crate::config::SeedProfile;
-use babel_authoring::ObjectDraft;
-use babel_graph::{EdgeOrigin, Relation};
-use babel_identity::IdentityKind;
-use babel_judgment::JudgmentProvider;
-use babel_media::MediaBlob;
-use babel_node::{LocalNode, ObjectSearchQuery};
-use babel_object::{Object, Surface, SurfaceRole, SurfaceTarget};
-use babel_types::{IdentityId, Result};
+use babble_authoring::ObjectDraft;
+use babble_graph::{EdgeOrigin, Relation};
+use babble_identity::IdentityKind;
+use babble_judgment::JudgmentProvider;
+use babble_media::MediaBlob;
+use babble_node::{LocalNode, ObjectSearchQuery};
+use babble_object::{Object, Surface, SurfaceRole, SurfaceTarget};
+use babble_types::{IdentityId, Result};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SeedReport {
@@ -46,7 +46,7 @@ where
         });
     }
 
-    let author = node.create_identity(IdentityKind::Agent, "babel-local-seed")?;
+    let author = node.create_identity(IdentityKind::Agent, "babble-local-seed")?;
     let surface = put_surface_bundle(node, public_origin)?;
     let objects = publish_feed_objects(node, &author.id, &surface)?;
     publish_edges(node, &author.id, &objects)?;
@@ -139,7 +139,7 @@ fn blob_url(public_origin: &str, blob: &MediaBlob) -> String {
 
 fn surface_html(script_url: &str) -> String {
     format!(
-        "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Babel Surface</title></head><body><main><h1>Babel Object Surface</h1><p>This Surface is loaded from a content-addressed Object resource.</p><button type=\"button\" id=\"ping\">Ping host RPC bridge</button><pre id=\"output\">ready</pre></main><script src=\"{script_url}\"></script></body></html>"
+        "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Babble Surface</title></head><body><main><h1>Babble Object Surface</h1><p>This Surface is loaded from a content-addressed Object resource.</p><button type=\"button\" id=\"ping\">Ping host RPC bridge</button><pre id=\"output\">ready</pre></main><script src=\"{script_url}\"></script></body></html>"
     )
 }
 
@@ -151,7 +151,7 @@ let connected=false;
 let accepted=false;
 let closed=false;
 const channel=new MessageChannel();
-const control=type=>({type:`babel.surface.${type}`,protocol:'babel.rpc.v1',version:1});
+const control=type=>({type:`babble.surface.${type}`,protocol:'babble.rpc.v1',version:1});
 button.disabled=true;
 const handshake=setTimeout(()=>closeBridge('Secure bridge unavailable. Reopen this Surface.'),10000);
 function closeBridge(message){
@@ -167,12 +167,12 @@ function sendBridgeRequest(id){
   if(!connected||closed)return;
   output.textContent=`sent ${id}`;
   channel.port1.postMessage({
-    type:'babel.rpc.request',
-    protocol:'babel.rpc.v1',
+    type:'babble.rpc.request',
+    protocol:'babble.rpc.v1',
     envelope:{
-      protocol:'babel.rpc.v1',
+      protocol:'babble.rpc.v1',
       id,
-      method:'babel.search.objects.v1',
+      method:'babble.search.objects.v1',
       binding:{
         object_id:null,
         surface_session_id:null,
@@ -190,20 +190,20 @@ function sendBridgeRequest(id){
 button?.addEventListener('click',()=>sendBridgeRequest(`surface-ping-${++sequence}`));
 channel.port1.onmessage=(event)=>{
   const data=event.data;
-  if(data?.protocol!=='babel.rpc.v1')return;
+  if(data?.protocol!=='babble.rpc.v1')return;
   if(data?.version===1&&Object.keys(data).length===3){
-    if(data.type==='babel.surface.accept'&&!accepted&&!connected&&!closed){
+    if(data.type==='babble.surface.accept'&&!accepted&&!connected&&!closed){
       accepted=true;
       channel.port1.postMessage(control('confirm'));
-    }else if(data.type==='babel.surface.ready'&&accepted&&!connected&&!closed){
+    }else if(data.type==='babble.surface.ready'&&accepted&&!connected&&!closed){
       clearTimeout(handshake);
       connected=true;
       button.disabled=false;
       sendBridgeRequest('surface-auto-1');
-    }else if(data.type==='babel.surface.close')closeBridge('Surface bridge closed');
+    }else if(data.type==='babble.surface.close')closeBridge('Surface bridge closed');
     return;
   }
-  if(data?.type==='babel.rpc.response'&&data?.response?.id){
+  if(data?.type==='babble.rpc.response'&&data?.response?.id){
     if(data.response.error){output.textContent=data.response.error.message;return;}
     const count=data.response.result?.results?.length??0;
     output.textContent=`received ${data.response.id} results ${count}`;

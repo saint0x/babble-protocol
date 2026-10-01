@@ -54,7 +54,7 @@ certainty, universal veracity score, or confidence-weighted consensus.
 | `GET /objects/{id}/reactions/mine` | Authenticated host's `ReactionState`. |
 | `PUT /objects/{id}/reactions/mine` | Authenticated mutation; body `{value, expected_revision, idempotency_key}`. |
 
-Canonical RPC equivalents are `babel.social.reactions.summary.v1`, `.record.v1`,
+Canonical RPC equivalents are `babble.social.reactions.summary.v1`, `.record.v1`,
 `.mine.v1`, and `.set.v1`. Summary and mine take `{object_id}`; record takes
 `{object_id, actor_id}`. Set takes `{object_id, value, expected_revision}` and
 uses the envelope's idempotency key. REST and RPC share the same transaction

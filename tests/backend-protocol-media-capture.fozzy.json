@@ -14,7 +14,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-api",
+        "babble-api",
         "rpc_dispatch_handles_capability_bound_media_capture"
       ],
       "exit_code": 0,
@@ -42,7 +42,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-api",
+        "babble-api",
         "rpc_dispatch_handles_capability_bound_media_capture"
       ],
       "expect_exit": 0

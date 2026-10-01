@@ -1,4 +1,4 @@
-import type { BabelFrontendClient, ObjectJudgment } from "./protocol";
+import type { BabbleFrontendClient, ObjectJudgment } from "./protocol";
 
 /** Independent observations stay separate; the legacy composite is inspection data. */
 export function agreementSummary(output: ObjectJudgment["output"]): HTMLElement | null {
@@ -30,7 +30,7 @@ export function agreementSummary(output: ObjectJudgment["output"]): HTMLElement 
   return section;
 }
 
-export function judgmentInputView(client: Pick<BabelFrontendClient, "judgmentInput">, id: string): HTMLDetailsElement {
+export function judgmentInputView(client: Pick<BabbleFrontendClient, "judgmentInput">, id: string): HTMLDetailsElement {
   const details = document.createElement("details");
   details.className = "judgment-input";
   const summary = document.createElement("summary"); summary.textContent = "Evaluation inputs";

@@ -6,18 +6,18 @@ import {
   type RpcOutput,
   type RpcRequestEnvelope,
 } from "./generated/protocol.js";
-import { BabelError, type BabelTransport, type RpcBinding, type RpcRequestOptions, requestId } from "./transport.js";
+import { BabbleError, type BabbleTransport, type RpcBinding, type RpcRequestOptions, requestId } from "./transport.js";
 
-export interface BabelClientOptions {
-  readonly transport: BabelTransport;
+export interface BabbleClientOptions {
+  readonly transport: BabbleTransport;
   readonly binding: RpcBinding;
 }
 
-export class BabelClient {
-  readonly transport: BabelTransport;
+export class BabbleClient {
+  readonly transport: BabbleTransport;
   readonly binding: RpcBinding;
 
-  constructor(options: BabelClientOptions) {
+  constructor(options: BabbleClientOptions) {
     this.transport = options.transport;
     this.binding = options.binding;
   }
@@ -29,7 +29,7 @@ export class BabelClient {
   ): Promise<RpcOutput<M>> {
     const definition = rpcCatalog.methods.find((entry) => entry.method === method);
     if (!definition) {
-      throw new Error(`unsupported Babel RPC method: ${method}`);
+      throw new Error(`unsupported Babble RPC method: ${method}`);
     }
     const payload = input as JsonValue;
     const envelope: RpcRequestEnvelope = {
@@ -47,16 +47,16 @@ export class BabelClient {
     };
     const response = await this.transport.request(envelope, options);
     if (response.protocol !== rpcCatalog.protocol) {
-      throw new Error(`unsupported Babel RPC response protocol: ${response.protocol}`);
+      throw new Error(`unsupported Babble RPC response protocol: ${response.protocol}`);
     }
     if (response.id !== envelope.id) {
-      throw new Error(`Babel RPC response id mismatch: expected ${envelope.id} got ${response.id}`);
+      throw new Error(`Babble RPC response id mismatch: expected ${envelope.id} got ${response.id}`);
     }
     if (response.error) {
-      throw new BabelError(response.error);
+      throw new BabbleError(response.error);
     }
     if (response.result === null) {
-      throw new Error(`Babel RPC response for ${method} did not include a result`);
+      throw new Error(`Babble RPC response for ${method} did not include a result`);
     }
     return response.result as RpcOutput<M>;
   }
@@ -66,6 +66,6 @@ export class BabelClient {
   }
 }
 
-export function createBabelClient(options: BabelClientOptions): BabelClient {
-  return new BabelClient(options);
+export function createBabbleClient(options: BabbleClientOptions): BabbleClient {
+  return new BabbleClient(options);
 }

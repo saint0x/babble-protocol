@@ -1,9 +1,9 @@
 //! SQLite owns the private action log, materialized pairs, and durable request receipts.
 //! No connection/cache fields: each operation holds the existing root publication guard.
 use crate::FileStore;
-use babel_graph::{SafetyAction, SafetyReceipt, SafetyRequest, SafetyState};
-use babel_identity::Identity;
-use babel_types::{Canonical, Error, Hash, IdentityId, Result, Timestamp};
+use babble_graph::{SafetyAction, SafetyReceipt, SafetyRequest, SafetyState};
+use babble_identity::Identity;
+use babble_types::{Canonical, Error, Hash, IdentityId, Result, Timestamp};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, TransactionBehavior, params};
 
 fn db_error(_: rusqlite::Error) -> Error {
@@ -518,7 +518,7 @@ mod tests {
     fn safety_first_install_is_atomic_and_interrupted_staging_is_retryable() {
         for phase in ["directory", "database", "schema", "synced"] {
             let root = std::env::temp_dir().join(format!(
-                "babel-safety-install-{}-{}-{phase}",
+                "babble-safety-install-{}-{}-{phase}",
                 std::process::id(),
                 std::time::SystemTime::now()
                     .duration_since(std::time::UNIX_EPOCH)

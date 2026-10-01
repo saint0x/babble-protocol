@@ -24,8 +24,8 @@ use axum::{
     http::{HeaderMap, StatusCode, header},
     routing::post,
 };
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment::JudgmentProvider;
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment::JudgmentProvider;
 use rand_core::{OsRng, RngCore};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -81,9 +81,9 @@ impl Auth {
 
     pub(crate) fn retire_evicted_surface(
         &self,
-        session: &babel_runtime::SurfaceSession,
+        session: &babble_runtime::SurfaceSession,
     ) -> Result<(), ApiError> {
-        if session.lifecycle == babel_runtime::SurfaceLifecycle::Evicted {
+        if session.lifecycle == babble_runtime::SurfaceLifecycle::Evicted {
             self.with_store(|store| store.retire_surface(session.id.as_str()))?;
         }
         Ok(())
@@ -294,7 +294,7 @@ async fn login<P: JudgmentProvider + Send + Sync + 'static>(
         return Err(ApiError::unauthorized());
     }
     let identity = lock_node(&state)?
-        .identity(&babel_types::IdentityId::new_unchecked(input.identity_id))
+        .identity(&babble_types::IdentityId::new_unchecked(input.identity_id))
         .cloned()
         .ok_or_else(ApiError::unauthorized)?;
     issue(
@@ -327,7 +327,7 @@ async fn session<P: JudgmentProvider + Send + Sync + 'static>(
     let node = lock_node(&state)?;
     let principal = state.auth.principal(&headers)?;
     let identity = node
-        .identity(&babel_types::IdentityId::new_unchecked(
+        .identity(&babble_types::IdentityId::new_unchecked(
             principal.identity_id,
         ))
         .cloned()

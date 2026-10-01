@@ -5,8 +5,8 @@ import sys
 import time
 from dataclasses import asdict
 
-from babel_algorithms.execution import AlgorithmExecutor
-from babel_algorithms.worker import handle
+from babble_algorithms.execution import AlgorithmExecutor
+from babble_algorithms.worker import handle
 
 mode = sys.argv[1]
 executor = AlgorithmExecutor()

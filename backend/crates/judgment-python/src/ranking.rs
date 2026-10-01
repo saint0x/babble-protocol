@@ -1,6 +1,6 @@
 use crate::{PythonProvider, contract, transport, unavailable};
-use babel_lens::{RankingProvider, RankingProviderVersion, RankingRequest, RankingResult};
-use babel_types::Result;
+use babble_lens::{RankingProvider, RankingProviderVersion, RankingRequest, RankingResult};
+use babble_types::Result;
 use std::time::Instant;
 
 impl RankingProvider for PythonProvider {

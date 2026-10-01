@@ -1,4 +1,4 @@
-# Babel: Object Interaction And Deliberate Return
+# Babble: Object Interaction And Deliberate Return
 
 Research restarted on 2026-09-29 at the user's request. Sources below were
 searched and read with Aegis. This replaces the earlier general visual-reference
@@ -12,7 +12,7 @@ remains a separate integration requirement.
 
 ## Reality
 
-Babel has signed Objects, relationships, discovery Lenses, and executable
+Babble has signed Objects, relationships, discovery Lenses, and executable
 Surfaces. The active frontend renders a horizontal card deck. A text post,
 image, and interactive Surface have different reading and input requirements.
 People have finite screen space and attention, and a gesture cannot reliably
@@ -22,7 +22,7 @@ The backend already publishes replies as Objects with signed `ReplyTo` edges
 from reply to parent (`backend/crates/node/src/social.rs`). Its incoming-edge
 HTTP endpoint supports relation filtering (`backend/crates/api/src/routes.rs`).
 That endpoint returns an unpaginated edge list. The new
-`babel.social.replies.list.v1` RPC provides bounded hydrated pages of verified
+`babble.social.replies.list.v1` RPC provides bounded hydrated pages of verified
 direct replies, ordered by Object timestamp and ID. Its parent-scoped keyset
 cursors are live bookmarks, not snapshots: backdated imports require refreshing
 from the first page.
@@ -37,13 +37,13 @@ space. More padding alone would have made the problem worse.
 The useful product promise is that people can discover something, understand
 what it is, and choose how deeply to engage with it. "Premium" is a design
 judgment, not a psychological outcome. Our proposed visual expression keeps
-Babel's grayscale surfaces, spatial deck, rounded object containers, and smooth
+Babble's grayscale surfaces, spatial deck, rounded object containers, and smooth
 transitions, with stronger content hierarchy and more deliberate spacing.
 
 Self-determination theory gives a relevant starting model: autonomy, competence,
 and relatedness. The technology application of that model examines several
 levels of experience; satisfying interaction inside an app can coexist with
-frustration elsewhere in someone's life. For Babel, evaluate useful connection
+frustration elsewhere in someone's life. For Babble, evaluate useful connection
 and perceived control alongside return visits, rather than assuming time spent
 indicates benefit. [Source: Center for Self-Determination Theory](https://selfdeterminationtheory.org/topics/application-technology/)
 
@@ -141,7 +141,7 @@ NN/g's spatial-memory guidance describes location recall as approximate and
 dependent on repeated access and stable landmarks. Our inference is that
 preserving a reply's position should be paired with recognizable parent content
 and labels; position alone is insufficient. This is a navigation hypothesis,
-not evidence that Babel's two-axis design improves retention.
+not evidence that Babble's two-axis design improves retention.
 [Source: Spatial Memory: Why It Matters for UX Design](https://www.nngroup.com/articles/spatial-memory/)
 
 This follow-up source was searched and read using Aegis on 2026-09-29 local time.
@@ -158,7 +158,7 @@ horizontal navigation.
 NN/g's mobile carousel research identifies weak discoverability, sequential
 access costs, and ambiguous swipes near browser edges. It supports visible
 continuation cues, alternative controls, and gutters. This is relevant caution,
-not direct evidence that a two-axis social feed succeeds. Babel keeps its
+not direct evidence that a two-axis social feed succeeds. Babble keeps its
 user-requested horizontal deck while testing whether people can find and return
 to specific objects without swiping through everything.
 [Source: Carousels on Mobile Devices](https://www.nngroup.com/articles/mobile-carousels/)
@@ -179,7 +179,7 @@ navigation; mobile gestures are shortcuts to the same accessible actions.
 
 Progressive disclosure supports this hierarchy when common tasks remain easy to
 reach and secondary controls have informative labels. Hiding everything behind
-ambiguous icons would defeat its purpose. For Babel, technical metadata belongs
+ambiguous icons would defeat its purpose. For Babble, technical metadata belongs
 in "Inspect Object"; access to the actual Surface belongs with its content.
 [Source: Progressive Disclosure](https://www.nngroup.com/articles/progressive-disclosure/)
 
@@ -237,7 +237,7 @@ deck index. Switching posts must not transfer a draft to another parent.
 NN/g's 2016 research on the illusion of completeness warns that large images,
 strong horizontal boundaries, and excessive gaps can suggest that no content
 continues below. It also documents the need for visible horizontal-navigation
-cues. This is historical usability evidence, not a current Babel user study.
+cues. This is historical usability evidence, not a current Babble user study.
 Our application is to leave a glimpse of connected context where practical,
 retain an explicit Replies action, and keep desktop navigation visible. The
 image can fill its card without filling the entire usable viewport.
@@ -550,7 +550,7 @@ visual or physical-device evidence beyond the DOM/geometry checks above.
 
 ## Honest Thesis
 
-Babel's opportunity is a social space where each Object has room to be itself,
+Babble's opportunity is a social space where each Object has room to be itself,
 with its conversation visibly connected below it. Horizontal discovery and
 vertical context give the protocol a spatial expression. Whether that feels
 natural must be tested through orientation, successful interaction, and return.

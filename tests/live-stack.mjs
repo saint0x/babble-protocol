@@ -40,15 +40,15 @@ import { LiveStackLifecycle } from "./live-stack-lifecycle.mjs";
 import { startHttpObserver } from "./http-observer.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
-const apiPort = Number(process.env.BABEL_LIVE_API_PORT ?? 18787);
-const gatewayPort = Number(process.env.BABEL_LIVE_GATEWAY_PORT ?? 18788);
-const frontendPort = Number(process.env.BABEL_LIVE_FRONTEND_PORT ?? 14329);
+const apiPort = Number(process.env.BABBLE_LIVE_API_PORT ?? 18787);
+const gatewayPort = Number(process.env.BABBLE_LIVE_GATEWAY_PORT ?? 18788);
+const frontendPort = Number(process.env.BABBLE_LIVE_FRONTEND_PORT ?? 14329);
 const aegisAddr = process.env.AEGIS_SERVER_ADDR ?? "127.0.0.1:17878";
 const apiUrl = `http://127.0.0.1:${apiPort}`;
 const frontendOrigin = `http://127.0.0.1:${frontendPort}`;
 const frontendUrl = `${frontendOrigin}/?surface=first&lens=weird&q=Surface&run=${process.pid}-${Date.now()}`;
-const focus = process.env.BABEL_LIVE_FOCUS;
-const frontendMode = process.env.BABEL_LIVE_FRONTEND_MODE ?? "dev";
+const focus = process.env.BABBLE_LIVE_FOCUS;
+const frontendMode = process.env.BABBLE_LIVE_FRONTEND_MODE ?? "dev";
 assert.ok(["dev", "production"].includes(frontendMode), "Unsupported frontend mode");
 if (frontendMode === "production" && focus && !["browser-invocations", "moderation", "feed-diversity"].includes(focus)) {
   throw new Error(`Production acceptance is not yet validated for the ${focus} fixture`);
@@ -56,8 +56,8 @@ if (frontendMode === "production" && focus && !["browser-invocations", "moderati
 if (focus && !["preferences", "feed-diversity", "albums", "documents", "invocation-consent", "browser-invocations", "safety", "moderation"].includes(focus)) throw new Error(`Unsupported live-stack focus: ${focus}`);
 const observedApiPort = ["moderation", "feed-diversity"].includes(focus) ? 18789 : undefined;
 if (frontendMode === "production" || observedApiPort) {
-  const freezeVariable = frontendMode === "production" ? "BABEL_LIVE_SOURCE_FROZEN"
-    : focus === "moderation" ? "BABEL_MODERATION_SOURCE_FROZEN" : "BABEL_FEED_DIVERSITY_SOURCE_FROZEN";
+  const freezeVariable = frontendMode === "production" ? "BABBLE_LIVE_SOURCE_FROZEN"
+    : focus === "moderation" ? "BABBLE_MODERATION_SOURCE_FROZEN" : "BABBLE_FEED_DIVERSITY_SOURCE_FROZEN";
   await assertLiveStackIsolation({ apiPort, gatewayPort, frontendPort, aegisAddr, observedApiPort }, freezeVariable);
 }
 if (focus === "browser-invocations") {
@@ -65,7 +65,7 @@ if (focus === "browser-invocations") {
 }
 if (focus === "moderation") await assertModerationIsolation({ apiPort, gatewayPort, frontendPort, aegisAddr });
 if (focus === "feed-diversity") await assertFeedDiversityIsolation({ apiPort, gatewayPort, frontendPort, aegisAddr });
-const storeRoot = await mkdtemp(join(tmpdir(), "babel-live-stack-"));
+const storeRoot = await mkdtemp(join(tmpdir(), "babble-live-stack-"));
 let observer;
 const lifecycle = new LiveStackLifecycle(storeRoot, { beforeStop: () => observer?.close() });
 lifecycle.installSignalHandlers();
@@ -76,34 +76,34 @@ const accountPassword = "Live-stack account password 929026!";
 let moderationAccounts;
 
 function startApi() {
-  apiProcess = lifecycle.spawn("cargo", ["run", "-p", "babel-api", "--bin", "babel-api"], {
+  apiProcess = lifecycle.spawn("cargo", ["run", "-p", "babble-api", "--bin", "babble-api"], {
     cwd: join(root, "backend"),
     env: {
       ...process.env,
       CARGO_INCREMENTAL: "0",
       CARGO_BUILD_JOBS: "2",
-      BABEL_MODERATOR_IDS: moderationAccounts?.reviewerIds.join(",") ?? "",
-      ...(["moderation", "feed-diversity"].includes(focus) ? { BABEL_OPERATOR_TOKEN: "" } : {}),
-      BABEL_API_ADDR: `127.0.0.1:${observedApiPort ?? apiPort}`,
-      BABEL_STORE_ROOT: storeRoot,
-      BABEL_SEED_PROFILE: "card-feed",
-      BABEL_PUBLIC_ORIGIN: apiUrl,
-      BABEL_CORS_ORIGINS: frontendOrigin,
-      BABEL_BUNDLE_GATEWAY_ADDR: `127.0.0.1:${gatewayPort}`,
-      BABEL_JUDGMENT_PROVIDER: "python",
-      BABEL_ALGORITHMS_DIR: join(root, "algorithms"),
-      BABEL_PYTHON_EXECUTABLE: join(root, "algorithms/.venv/bin/python"),
+      BABBLE_MODERATOR_IDS: moderationAccounts?.reviewerIds.join(",") ?? "",
+      ...(["moderation", "feed-diversity"].includes(focus) ? { BABBLE_OPERATOR_TOKEN: "" } : {}),
+      BABBLE_API_ADDR: `127.0.0.1:${observedApiPort ?? apiPort}`,
+      BABBLE_STORE_ROOT: storeRoot,
+      BABBLE_SEED_PROFILE: "card-feed",
+      BABBLE_PUBLIC_ORIGIN: apiUrl,
+      BABBLE_CORS_ORIGINS: frontendOrigin,
+      BABBLE_BUNDLE_GATEWAY_ADDR: `127.0.0.1:${gatewayPort}`,
+      BABBLE_JUDGMENT_PROVIDER: "python",
+      BABBLE_ALGORITHMS_DIR: join(root, "algorithms"),
+      BABBLE_PYTHON_EXECUTABLE: join(root, "algorithms/.venv/bin/python"),
     },
     stdio: ["ignore", "pipe", "pipe"],
   });
-  apiProcess.stdout.on("data", (chunk) => process.stdout.write(`[babel-api] ${chunk}`));
-  apiProcess.stderr.on("data", (chunk) => process.stderr.write(`[babel-api] ${chunk}`));
+  apiProcess.stdout.on("data", (chunk) => process.stdout.write(`[babble-api] ${chunk}`));
+  apiProcess.stderr.on("data", (chunk) => process.stderr.write(`[babble-api] ${chunk}`));
   apiProcess.on("exit", (code, signal) => {
     if (code !== null && code !== 0) {
-      process.stderr.write(`[babel-api] exited with code ${code}\n`);
+      process.stderr.write(`[babble-api] exited with code ${code}\n`);
     }
     if (signal) {
-      process.stderr.write(`[babel-api] exited from signal ${signal}\n`);
+      process.stderr.write(`[babble-api] exited from signal ${signal}\n`);
     }
   });
 }
@@ -114,11 +114,11 @@ try {
   startApi();
   await waitForJson(`${apiUrl}/health`, (body) => body.ok === true);
   const health = await (await fetch(`${apiUrl}/health`)).json();
-  assert.deepEqual(health.judgment_provider, { provider: "babel-python", model: "lexical-v1", version: "1" });
-  assert.deepEqual(health.ranking_provider, { provider: "babel-python", model: "lenses-v1", version: "1" });
-  assert.deepEqual(health.temporal_provider, { provider: "babel-python", model: "temporal-v1", version: "1" });
+  assert.deepEqual(health.judgment_provider, { provider: "babble-python", model: "lexical-v1", version: "1" });
+  assert.deepEqual(health.ranking_provider, { provider: "babble-python", model: "lenses-v1", version: "1" });
+  assert.deepEqual(health.temporal_provider, { provider: "babble-python", model: "temporal-v1", version: "1" });
   await startAstro();
-  await waitForText(frontendUrl, "Babel Protocol");
+  await waitForText(frontendUrl, "Babble Protocol");
   if (frontendMode === "production") await verifyProductionAssets();
 
   const discovery = await postJson(`${apiUrl}/discovery/candidates`, {
@@ -153,7 +153,7 @@ try {
     author_id: author.identity.id,
     text: publishedText,
   };
-  const published = await postRpc("babel.object.publish_text.v1", publicationPayload, publicationKey);
+  const published = await postRpc("babble.object.publish_text.v1", publicationPayload, publicationKey);
   assert.equal(published.object.author, author.identity.id);
   assert.equal(published.object.payload.text, publishedText);
 
@@ -169,18 +169,18 @@ try {
   for (const definition of ["spam", "evidence_quality", "relevance", "relationship", "content_analysis", "moderation", "source_agreement"]) {
     const request = {
       object_id: published.object.id,
-      definition: `babel.judgment.${definition}.v1`,
+      definition: `babble.judgment.${definition}.v1`,
       parameters: definition === "relevance" ? { query: "Live authoring" }
         : definition === "relationship" ? { relation: "related" } : {},
     };
-    const result = await postRpc("babel.judgment.object.evaluate.v1", request);
+    const result = await postRpc("babble.judgment.object.evaluate.v1", request);
     assert.deepEqual(result.judgment.provider, health.judgment_provider);
-    const cached = await postRpc("babel.judgment.object.evaluate.v1", request);
+    const cached = await postRpc("babble.judgment.object.evaluate.v1", request);
     assert.equal(cached.judgment.id, result.judgment.id, "same definition/model/parameters reuse the Judgment");
     evaluated.push(definition);
   }
 
-  assert.deepEqual(await postRpc("babel.object.publish_text.v1", publicationPayload, publicationKey), published);
+  assert.deepEqual(await postRpc("babble.object.publish_text.v1", publicationPayload, publicationKey), published);
   const verifyReactionRestart = await prepareReactionRestart(apiUrl, authToken, published.object.id, author.identity.id);
   const verifySecurityRestart = await prepareSecurityRestart(apiUrl);
   if (focus === "moderation") moderationAccounts = await prepareModerationAccounts(apiUrl);
@@ -189,14 +189,14 @@ try {
   await waitForJson(`${apiUrl}/health`, (body) => body.ok === true);
   await verifyReactionRestart();
   await verifySecurityRestart();
-  assert.deepEqual(await postRpc("babel.object.publish_text.v1", publicationPayload, publicationKey), published,
+  assert.deepEqual(await postRpc("babble.object.publish_text.v1", publicationPayload, publicationKey), published,
     "a restarted Python-backed API must replay the committed Object instead of publishing again");
   const profileReadback = await (await fetch(`${apiUrl}/identities/${author.identity.id}/objects?limit=50`)).json();
   assert.deepEqual(profileReadback.objects.map((object) => object.id), [published.object.id],
     "author index must rebuild after restart without retry duplicates");
   process.stdout.write("[publication-retry] same key returns the original publication before and after real process restart\n");
 
-  const authoredDiscovery = await postRpc("babel.search.objects.v1", {
+  const authoredDiscovery = await postRpc("babble.search.objects.v1", {
     q: publishedText,
     author: null,
     kind: null,
@@ -218,7 +218,7 @@ try {
   const surfaceResponse = await fetch(prepared.plan.surface.entry);
   assert.equal(surfaceResponse.ok, true);
   assert.equal(surfaceResponse.headers.get("content-type"), "text/html");
-  assert.match(await surfaceResponse.text(), /Babel Object Surface/);
+  assert.match(await surfaceResponse.text(), /Babble Object Surface/);
   await verifyResourceDelivery(apiUrl, storeRoot, prepared.plan.surface);
 
   await ensureAegis();
@@ -309,9 +309,9 @@ try {
     });
     await verifyBridgeCancellation(postAegisExecute, waitForAegisEval);
     assert.match(browserText, /Local Local/);
-    const browserDiscovery = await postRpc("babel.discovery.candidates.v1", {
+    const browserDiscovery = await postRpc("babble.discovery.candidates.v1", {
       anchors: [], search: "Surface", followed_objects: [], limit: 9, exploration_slots: 2,
-      lens: { id: "babel.lens.stack.weird.v1", weights: [{ lens: "Weird", weight: 1 }] },
+      lens: { id: "babble.lens.stack.weird.v1", weights: [{ lens: "Weird", weight: 1 }] },
     });
     const diversityTrace = browserDiscovery.discovery.diversity_trace;
     const expectedDiversity = diversityTrace.policy.max_source_share === null ? "Off"
@@ -367,7 +367,7 @@ try {
 
     const surfaceFrame = await waitForAegisEval(`
       (() => {
-        const frame = document.querySelector('iframe[data-babel-surface-role="Feed"]');
+        const frame = document.querySelector('iframe[data-babble-surface-role="Feed"]');
         if (!frame) {
           return null;
         }
@@ -375,10 +375,10 @@ try {
           allow: frame.getAttribute("allow"),
           csp: frame.getAttribute("csp"),
           credentialless: frame.hasAttribute("credentialless"),
-          lifecycle: frame.getAttribute("data-babel-lifecycle"),
-          target: frame.getAttribute("data-babel-surface-target"),
-          memoryBudget: frame.getAttribute("data-babel-memory-budget"),
-          gpuExpected: frame.getAttribute("data-babel-gpu-expected"),
+          lifecycle: frame.getAttribute("data-babble-lifecycle"),
+          target: frame.getAttribute("data-babble-surface-target"),
+          memoryBudget: frame.getAttribute("data-babble-memory-budget"),
+          gpuExpected: frame.getAttribute("data-babble-gpu-expected"),
         };
       })()
     `, (value) => typeof value?.allow === "string" && typeof value?.csp === "string");
@@ -518,7 +518,7 @@ try {
     assert.match(platformOverview.judges, /^\d+$/);
     assert.match(platformOverview.text, /Protocol catalogs/);
     assert.match(platformOverview.text, /Capability Classes/);
-    assert.match(platformOverview.text, /babel\./);
+    assert.match(platformOverview.text, /babble\./);
     await postAegisExecute([
       {
         type: "eval",
@@ -541,7 +541,7 @@ try {
           .filter(metric => metric.querySelector('span')?.textContent === 'Confidence')
           .map(metric => metric.querySelector('strong').textContent) }))()
     `, value => value?.state === "ready" && value.confidence.length >= 4);
-    assert.match(judgmentPanel.text, /babel-python\/lexical-v1@1/);
+    assert.match(judgmentPanel.text, /babble-python\/lexical-v1@1/);
     assert.ok(judgmentPanel.confidence.includes("Uncalibrated"));
     assert.ok(judgmentPanel.confidence.includes("Heuristic"));
     await verifySourceAgreement(postAegisExecute, waitForAegisEval, postRpc, apiUrl, author.identity.id);
@@ -775,7 +775,7 @@ try {
         textarea.value = 'Surface live image Object';
         textarea.dispatchEvent(new Event('input', { bubbles: true }));
         fileInput.dispatchEvent(new Event('change', { bubbles: true }));
-        window.__babelMediaSubmitStarted = true;
+        window.__babbleMediaSubmitStarted = true;
         return { submitted: true, fileCount: fileInput.files?.length ?? 0 };
       })()
     `,
@@ -878,7 +878,7 @@ async function verifyPreferencesAndFollowing(target, identityId, includeFollowin
   const search = `Following verification ${process.pid}`;
   const posts = [];
   for (let index = 0; index < 21; index++) {
-    const result = await postRpc("babel.object.publish_text.v1", {
+    const result = await postRpc("babble.object.publish_text.v1", {
       author_id: target.id, text: `${search} post ${index}`,
     }, `following-verification-${process.pid}-${index}`);
     posts.push(result.object);
@@ -920,17 +920,17 @@ async function observeSeedBridge() {
     const state = window.__seedBridgeProbe = { controls: [], request: null, response: null, restore: [] };
     const listener = event => {
       const frame = document.querySelector('[data-surface-host] iframe');
-      if (event.source !== frame?.contentWindow || event.data?.type !== 'babel.surface.connect' || event.ports.length !== 1) return;
+      if (event.source !== frame?.contentWindow || event.data?.type !== 'babble.surface.connect' || event.ports.length !== 1) return;
       const port = event.ports[0], send = port.postMessage;
       state.origin = event.origin;
       const receive = message => {
-        if (message.data?.type === 'babel.rpc.request' && message.data.envelope?.id === 'surface-auto-1') state.request = message.data.envelope;
+        if (message.data?.type === 'babble.rpc.request' && message.data.envelope?.id === 'surface-auto-1') state.request = message.data.envelope;
       };
       port.addEventListener('message', receive);
       port.postMessage = function(message, ...args) {
         send.call(this, message, ...args);
-        if (message?.type?.startsWith('babel.surface.')) state.controls.push(message.type);
-        if (message?.type === 'babel.rpc.response' && message.response?.id === 'surface-auto-1') state.response = message.response;
+        if (message?.type?.startsWith('babble.surface.')) state.controls.push(message.type);
+        if (message?.type === 'babble.rpc.response' && message.response?.id === 'surface-auto-1') state.response = message.response;
       };
       state.restore.push(() => { port.postMessage = send; port.removeEventListener('message', receive); });
     };
@@ -952,8 +952,8 @@ async function verifySeedBridge() {
         active: document.querySelector('[data-surface-host]')?.dataset.state === 'active' };
     })()`, value => value.response !== null && value.active);
     assert.equal(result.origin, "null");
-    assert.deepEqual(result.controls, ["babel.surface.accept", "babel.surface.ready"]);
-    assert.equal(result.request.method, "babel.search.objects.v1");
+    assert.deepEqual(result.controls, ["babble.surface.accept", "babble.surface.ready"]);
+    assert.equal(result.request.method, "babble.search.objects.v1");
     assert.equal(result.response.error, null, JSON.stringify(result.response));
     assert.equal(result.response.result.results.length, 1);
     console.log("Bundled Surface bridge PASS: opaque-origin handshake, real RPC request and successful backend response, active lifecycle");
@@ -975,7 +975,7 @@ async function startAstro() {
     cwd: join(root, "frontend"),
     env: {
       ...process.env,
-      PUBLIC_BABEL_API_URL: apiUrl,
+      PUBLIC_BABBLE_API_URL: apiUrl,
       ASTRO_TELEMETRY_DISABLED: "1",
     },
     stdio: ["ignore", "pipe", "pipe", "ipc"],
@@ -1075,13 +1075,13 @@ async function postJson(url, body) {
 
 async function postRpc(method, payload, idempotencyKey = `live-${method}-${process.pid}-${Date.now()}`) {
   const response = await postJson(`${apiUrl}/rpc`, {
-    protocol: "babel.rpc.v1",
+    protocol: "babble.rpc.v1",
     id: `live-${method}-${process.pid}-${Date.now()}`,
     method,
     binding: {
       object_id: null,
       surface_session_id: null,
-      runtime_id: "babel-live-stack",
+      runtime_id: "babble-live-stack",
       origin: frontendOrigin,
       capability_grants: [],
     },

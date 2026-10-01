@@ -2,7 +2,7 @@
   "version": 1,
   "name": "signed-bundle-inventory-host",
   "steps": [
-    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babel-object","--test","bundle","-p","babel-store","--test","bundles","-p","babel-node","--test","bundles"],"expect_exit":0},
-    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babel-cli","--","--test-threads=1"],"expect_exit":0}
+    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babble-object","--test","bundle","-p","babble-store","--test","bundles","-p","babble-node","--test","bundles"],"expect_exit":0},
+    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babble-cli","--","--test-threads=1"],"expect_exit":0}
   ]
 }

@@ -1,10 +1,10 @@
-use babel_crypto::Keypair;
-use babel_identity::{Identity, IdentityKind};
-use babel_object::{
+use babble_crypto::Keypair;
+use babble_identity::{Identity, IdentityKind};
+use babble_object::{
     Object, ObjectKind, Surface, SurfaceRole, SurfaceTarget,
     bundle::{BundleFile, BundleFileKind, BundleManifest},
 };
-use babel_store::FileStore;
+use babble_store::FileStore;
 use serde_json::json;
 use std::{
     fs,
@@ -24,7 +24,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-bundle-store-{}-{}",
+            "babble-bundle-store-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
@@ -55,7 +55,7 @@ impl Fixture {
             let integrity = store.put_blob(bytes).unwrap();
             files.push(BundleFile {
                 path: path.into(),
-                source_uri: format!("babel://blobs/{integrity}"),
+                source_uri: format!("babble://blobs/{integrity}"),
                 integrity,
                 size_bytes: bytes.len() as u64,
                 media_type: media_type.into(),

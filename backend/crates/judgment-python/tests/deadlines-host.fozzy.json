@@ -3,6 +3,6 @@
   "name": "judgment-deadlines-native-and-real-python",
   "steps": [
     {"type": "trace_event", "name": "Both owned crates: cooperative budgets, atomic cache rollback, real Python cumulative deadlines, contention, expired no-spawn, provider ceiling and restart"},
-    {"type": "proc_spawn", "cmd": "/usr/bin/env", "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-judgment", "-p", "babel-judgment-python", "--quiet"], "expect_exit": 0}
+    {"type": "proc_spawn", "cmd": "/usr/bin/env", "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babble-judgment", "-p", "babble-judgment-python", "--quiet"], "expect_exit": 0}
   ]
 }

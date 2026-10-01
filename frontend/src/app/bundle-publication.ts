@@ -1,5 +1,5 @@
-import { canonicalValueBytes, type ProtocolTypes, type RpcInput, type RpcOutput } from "@babel-protocol/sdk";
-import type { BabelFrontendClient } from "./protocol";
+import { canonicalValueBytes, type ProtocolTypes, type RpcInput, type RpcOutput } from "@babble-protocol/sdk";
+import type { BabbleFrontendClient } from "./protocol";
 
 export interface BundleAttachment {
   readonly files: readonly File[];
@@ -9,9 +9,9 @@ export interface BundleAttachment {
 
 type Manifest = ProtocolTypes["object.BundleManifest"];
 type BundleFile = Manifest["files"][number];
-type Draft = RpcInput<"babel.object.publish.v1">["draft"];
+type Draft = RpcInput<"babble.object.publish.v1">["draft"];
 export type CapabilityRequest = Draft["capabilities"][number];
-type BlobReceipt = RpcOutput<"babel.media.blob.put.v1">["blob"];
+type BlobReceipt = RpcOutput<"babble.media.blob.put.v1">["blob"];
 type SelectedFile = Pick<BundleFile, "path" | "media_type" | "kind" | "size_bytes"> & { readonly file: File };
 
 // Keep aligned with object/src/bundle.rs and api/src/execution.rs.
@@ -20,7 +20,7 @@ const MAX_FILE_BYTES = 8 * 1024 * 1024;
 const MAX_TOTAL_BYTES = 32 * 1024 * 1024;
 const MAX_MANIFEST_BYTES = 256 * 1024;
 const MAX_REQUEST_BYTES = 16 * 1024 * 1024 + 64 * 1024;
-const BLOB_PREFIX = "babel://blobs/";
+const BLOB_PREFIX = "babble://blobs/";
 const HASH_LENGTH = 64;
 const encoder = new TextEncoder();
 const INVALID_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u;
@@ -139,11 +139,11 @@ export function bundleEntries(attachment: BundleAttachment): readonly string[] {
 }
 
 export async function publishBundle(
-  publisher: BabelFrontendClient,
+  publisher: BabbleFrontendClient,
   authorId: string,
   text: string,
   attachment: BundleAttachment,
-): Promise<RpcOutput<"babel.object.publish.v1">["object"]> {
+): Promise<RpcOutput<"babble.object.publish.v1">["object"]> {
   const capabilities = parseBundleCapabilities(attachment.capabilitiesText ?? "[]");
   const selected = inspect(attachment.files);
   const entryPath = attachment.entryPath;
@@ -274,7 +274,7 @@ function checkManifestSize(files: readonly SelectedFile[], entryPath: string): v
 function textDraft(text: string, manifest: Manifest, capabilities: readonly CapabilityRequest[]): Draft {
   const entry = manifest.files.find(({ path }) => path === manifest.entry_path)!;
   return {
-    kind: "babel.text", schema: "babel.schema.text.v1", payload: { text, metadata: {} },
+    kind: "babble.text", schema: "babble.schema.text.v1", payload: { text, metadata: {} },
     provenance: { parent: null, forked_from: null, remixed_from: [] },
     resources: [], capabilities,
     surfaces: [{ role: "Feed", target: "Web", entry: entry.source_uri, integrity: entry.integrity, bundle: manifest }],

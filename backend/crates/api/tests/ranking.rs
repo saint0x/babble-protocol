@@ -2,14 +2,14 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode},
 };
-use babel_api::{
+use babble_api::{
     ApiState,
     provider::{JudgmentConfig, ServerProvider},
     router,
 };
-use babel_identity::IdentityKind;
-use babel_judgment_python::{PythonProvider, WorkerConfig};
-use babel_node::LocalNode;
+use babble_identity::IdentityKind;
+use babble_judgment_python::{PythonProvider, WorkerConfig};
+use babble_node::LocalNode;
 use serde_json::{Value, json};
 use std::{path::PathBuf, sync::Arc, time::Duration};
 use tower::ServiceExt;
@@ -18,7 +18,7 @@ use tower::ServiceExt;
 async fn real_python_discovery_provenance_and_sanitized_outages_cross_the_http_boundary() {
     for fault in [false, true] {
         let root = std::env::temp_dir().join(format!(
-            "babel-ranking-api-{}-{}",
+            "babble-ranking-api-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos()
         ));
@@ -70,7 +70,7 @@ async fn real_python_discovery_provenance_and_sanitized_outages_cross_the_http_b
             serde_json::from_slice(&to_bytes(response.into_body(), 16_384).await.unwrap()).unwrap();
         assert_eq!(
             health["ranking_provider"],
-            json!({"provider":"babel-python", "model":"lenses-v1", "version":"1"})
+            json!({"provider":"babble-python", "model":"lenses-v1", "version":"1"})
         );
         let response = app
             .clone()

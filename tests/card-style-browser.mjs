@@ -6,7 +6,7 @@ export async function verifyCardPresentation(execute, waitFor) {
   await waitFor(`({ ready: Boolean(document.querySelector('.post-card[data-offset="0"] .post-primary')) })`, (value) => value.ready);
   await execute([{ type: "eval", code: `
     (() => {
-      window.__babelCardStyle = null;
+      window.__babbleCardStyle = null;
       const measure = (doc) => {
         const win = doc.defaultView;
         const card = doc.querySelector('.post-card[data-offset="0"]');
@@ -82,13 +82,13 @@ export async function verifyCardPresentation(execute, waitFor) {
             results.push(measure(frame.contentDocument));
           } finally { frame.remove(); }
         }
-        window.__babelCardStyle = { results };
-      })().catch((error) => { window.__babelCardStyle = { error: String(error) }; });
+        window.__babbleCardStyle = { results };
+      })().catch((error) => { window.__babbleCardStyle = { error: String(error) }; });
       return true;
     })()
   ` }]);
-  const result = await waitFor("window.__babelCardStyle", (value) => value != null);
-  await execute([{ type: "eval", code: "delete window.__babelCardStyle; true" }]);
+  const result = await waitFor("window.__babbleCardStyle", (value) => value != null);
+  await execute([{ type: "eval", code: "delete window.__babbleCardStyle; true" }]);
   assert.equal(result.error, undefined, JSON.stringify(result));
   assert.equal(result.results.length, 7);
   for (const layout of result.results) {

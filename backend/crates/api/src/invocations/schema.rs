@@ -1,8 +1,8 @@
-use babel_capabilities::invocation::{InvocationId, InvocationState};
-use babel_graph::Edge;
-use babel_object::Object;
-use babel_store::PublicationReceipt;
-use babel_types::Timestamp;
+use babble_capabilities::invocation::{InvocationId, InvocationState};
+use babble_graph::Edge;
+use babble_object::Object;
+use babble_store::PublicationReceipt;
+use babble_types::Timestamp;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -108,6 +108,6 @@ pub struct BrowserInvocationResponse {
     pub deadline: Timestamp,
     pub state: InvocationState,
     pub revision: u32,
-    pub result: Option<babel_capabilities::invocation::browser::BrowserInvocationResult>,
-    pub execution_ticket: Option<babel_capabilities::invocation::browser::BrowserExecutionTicket>,
+    pub result: Option<babble_capabilities::invocation::browser::BrowserInvocationResult>,
+    pub execution_ticket: Option<babble_capabilities::invocation::browser::BrowserExecutionTicket>,
 }

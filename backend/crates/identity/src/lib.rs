@@ -1,5 +1,5 @@
-use babel_crypto::{Keypair, PublicKey, Signature};
-use babel_types::{Canonical, IdentityId, Result, Timestamp};
+use babble_crypto::{Keypair, PublicKey, Signature};
+use babble_types::{Canonical, IdentityId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -98,7 +98,7 @@ impl Identity {
         };
         let expected_id = IdentityId::from_hash(&commitment.canonical_hash()?);
         if expected_id != self.id {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         self.public_key
             .verify(&commitment.canonical_bytes()?, &self.signature)
@@ -149,13 +149,13 @@ impl IdentityKeyTransition {
     pub fn verify(&self, expected_previous_key: &PublicKey) -> Result<()> {
         self.identity_id.validate()?;
         if &self.previous_public_key != expected_previous_key {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         if self
             .expires_at
             .is_some_and(|expires_at| expires_at <= self.effective_at)
         {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "identity key transition expires before it becomes effective".to_string(),
             ));
         }

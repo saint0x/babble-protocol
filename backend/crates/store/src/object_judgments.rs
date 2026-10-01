@@ -1,5 +1,5 @@
 use super::*;
-use babel_judgment::{
+use babble_judgment::{
     DefinitionId, JudgmentRegistry, JudgmentRequest, ProviderVersion,
     validate_source_agreement_result,
 };
@@ -24,7 +24,7 @@ impl ObjectJudgmentInput {
                 "object judgment subject mismatch".into(),
             ));
         }
-        JudgmentRegistry::babel_core().validate_request(&self.request)?;
+        JudgmentRegistry::babble_core().validate_request(&self.request)?;
         Ok(())
     }
 
@@ -43,7 +43,7 @@ impl ObjectJudgmentInput {
                 "invalid object judgment confidence".into(),
             ));
         }
-        JudgmentRegistry::babel_core().validate_output(&judgment.definition, &judgment.output)?;
+        JudgmentRegistry::babble_core().validate_output(&judgment.definition, &judgment.output)?;
         if self.request.definition == DefinitionId::source_agreement_v1() {
             if judgment.confidence != 0.0 {
                 return Err(CoreError::Conflict(

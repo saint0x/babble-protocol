@@ -1,13 +1,13 @@
 use super::*;
 use crate::{RepliesListQuery, object_provider_judgment_state};
-use babel_authoring::ObjectDraft;
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment::ProviderVersion;
-use babel_judgment_local::LocalProvider;
-use babel_media::MediaBlob;
-use babel_object::CapabilityRequest;
-use babel_state::EventKind;
-use babel_types::{Canonical, Hash, ObjectId, Timestamp};
+use babble_authoring::ObjectDraft;
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment::ProviderVersion;
+use babble_judgment_local::LocalProvider;
+use babble_media::MediaBlob;
+use babble_object::CapabilityRequest;
+use babble_state::EventKind;
+use babble_types::{Canonical, Hash, ObjectId, Timestamp};
 use serde_json::json;
 use std::{
     cell::RefCell,
@@ -64,7 +64,7 @@ impl JudgmentProvider for FaultProvider {
             Some(Fault::Output) => judgment.output = json!({"invalid": true}),
             Some(Fault::Confidence) => judgment.confidence = 1.5,
             Some(Fault::NonFiniteConfidence) => judgment.confidence = f64::NAN,
-            Some(Fault::Id) => judgment.id = babel_types::JudgmentId::new_unchecked("invalid"),
+            Some(Fault::Id) => judgment.id = babble_types::JudgmentId::new_unchecked("invalid"),
             _ => {}
         }
         Ok(judgment)
@@ -89,7 +89,7 @@ impl TestRoot {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-node-publication-{}-{}",
+            "babble-node-publication-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
@@ -135,7 +135,7 @@ fn setup(node: &mut LocalNode<FaultProvider>) -> Context {
     let target = node
         .publish_text(&owner.id, "Source evidence and methodology")
         .unwrap();
-    let capabilities = ["babel.social.reply", "babel.social.share"].map(|id| CapabilityRequest {
+    let capabilities = ["babble.social.reply", "babble.social.share"].map(|id| CapabilityRequest {
         id: id.into(),
         version: 1,
         scope: json!({"object_id": target.id}),
@@ -296,7 +296,7 @@ fn publication_failure_case(path: Publication) {
                 .unwrap()
                 .iter()
                 .any(|event| event.kind == expected_kind
-                    && event.target == babel_state::EventTarget::Object(object.id.clone()))
+                    && event.target == babble_state::EventTarget::Object(object.id.clone()))
         );
         let judgments = node.object_judgments(&object.id).unwrap();
         assert_eq!(judgments.len(), 4);
@@ -483,7 +483,7 @@ fn publication_disk_precommit_failure_preserves_all_indexes_and_cache() {
         let invocation = if matches!(path, Publication::Reply | Publication::Share) {
             let auth = crate::invocations::tests::host_context(&node, &context.author.id, &context.source);
             let action = if matches!(path, Publication::Reply) { "reply" } else { "share" };
-            let record = node.prepare_social_invocation(auth.clone(), "precommit", &format!("babel.social.{action}.v2"),
+            let record = node.prepare_social_invocation(auth.clone(), "precommit", &format!("babble.social.{action}"),
                 crate::SocialInvocationPayload { target_object_id: context.target.id.clone(), text: Some("evidence".into()), media: None },
                 Timestamp(Timestamp::now().0 + time::Duration::seconds(60))).unwrap();
             node.decide_social_invocation(&auth, "precommit", record.id(), true).unwrap();
@@ -579,7 +579,7 @@ fn publication_disk_postcommit_failure_recovers_social_and_provenance_atomically
             node.put_media_blob("text/plain", b"must not write while poisoned")
                 .is_err()
         );
-        let keypair = babel_crypto::Keypair::generate();
+        let keypair = babble_crypto::Keypair::generate();
         let later_identity =
             Identity::create(IdentityKind::Person, "must-not-apply", &keypair).unwrap();
         assert!(
@@ -626,14 +626,14 @@ fn publication_disk_postcommit_failure_recovers_social_and_provenance_atomically
             assert!(reopened.object(&edge.target).is_some());
             edge.verify(&context.author).unwrap();
             match path {
-                Publication::Reply => assert_eq!(edge.relation, babel_graph::Relation::ReplyTo),
-                Publication::Share => assert_eq!(edge.relation, babel_graph::Relation::Quotes),
+                Publication::Reply => assert_eq!(edge.relation, babble_graph::Relation::ReplyTo),
+                Publication::Share => assert_eq!(edge.relation, babble_graph::Relation::Quotes),
                 Publication::Fork => {
-                    assert_eq!(edge.relation, babel_graph::Relation::Forks);
+                    assert_eq!(edge.relation, babble_graph::Relation::Forks);
                     assert_eq!(object.provenance.forked_from, Some(edge.target.clone()));
                 }
                 Publication::Remix => {
-                    assert_eq!(edge.relation, babel_graph::Relation::Remixes);
+                    assert_eq!(edge.relation, babble_graph::Relation::Remixes);
                     assert!(object.provenance.remixed_from.contains(&edge.target));
                 }
                 _ => unreachable!(),

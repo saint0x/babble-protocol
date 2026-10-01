@@ -543,7 +543,7 @@ function cardTransform(offset: number): string {
 
 function authorDisplay(card: FeedCard): string {
   const value = card.author.replace(/^id_/, "").replace(/^identity_/, "");
-  return value.length > 10 ? value.slice(0, 6) : value || "babel";
+  return value.length > 10 ? value.slice(0, 6) : value || "babble";
 }
 
 function authorInitial(card: FeedCard): string {

@@ -1,5 +1,5 @@
-use babel_judgment::{DefinitionId, JudgmentProvider, JudgmentRequest, JudgmentState};
-use babel_judgment_local::LocalProvider;
+use babble_judgment::{DefinitionId, JudgmentProvider, JudgmentRequest, JudgmentState};
+use babble_judgment_local::LocalProvider;
 use std::collections::BTreeMap;
 
 #[test]
@@ -21,7 +21,7 @@ fn local_provider_scores_evidence_quality_without_remote_model() {
 
     let judgment = provider.judge(&request).unwrap();
 
-    assert_eq!(judgment.provider.provider, "babel-local");
+    assert_eq!(judgment.provider.provider, "babble-local");
     assert!(judgment.output["score"].as_f64().unwrap() > 0.5);
     assert!(judgment.confidence > 0.0);
 }

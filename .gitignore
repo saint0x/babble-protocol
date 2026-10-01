@@ -36,6 +36,7 @@ frontend/node_modules/
 .fozzy/
 
 # Local runtime state and credentials never belong in source snapshots.
+.babble-node/
 .babel-node/
 .env
 .env.*
@@ -56,4 +57,4 @@ node_modules/
 dist/
 
 # The archived Next.js checkout retains its own Git history locally and remotely.
-/deprecated/babel-frontend-deprec/
+/deprecated/babble-frontend-deprec/

@@ -1,7 +1,7 @@
 //! Disposable lookup data. Canonical JSON pairs are validated on rebuild and
 //! again on selection. Every caller holds the OS publication lock.
 use super::*;
-use babel_judgment::{DefinitionId, ProviderVersion};
+use babble_judgment::{DefinitionId, ProviderVersion};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, params};
 
 const INDEX: &str = "object-judgments.sqlite3";

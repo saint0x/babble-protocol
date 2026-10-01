@@ -1,14 +1,14 @@
-use babel_capabilities::GrantDecision;
-use babel_crypto::Keypair;
-use babel_graph::{Edge, EdgeOrigin, Relation};
-use babel_identity::Identity;
-use babel_media::{MediaBlob, MediaObjectPayload, normalize_media_type};
-use babel_object::resource_uri::ResourceUri;
-use babel_object::{
+use babble_capabilities::GrantDecision;
+use babble_crypto::Keypair;
+use babble_graph::{Edge, EdgeOrigin, Relation};
+use babble_identity::Identity;
+use babble_media::{MediaBlob, MediaObjectPayload, normalize_media_type};
+use babble_object::resource_uri::ResourceUri;
+use babble_object::{
     CapabilityRequest, Object, ObjectKind, Provenance, Resource, SchemaRegistry, Surface,
     SurfaceTarget, TextPayload, validate_capability_request,
 };
-use babel_types::{Hash, ObjectId, Result, Timestamp};
+use babble_types::{Hash, ObjectId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -67,18 +67,18 @@ impl ObjectDraft {
         let text = text.into();
         let text = text.trim();
         if text.is_empty() {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "text draft must not be empty".to_string(),
             ));
         }
         Self::new(
             ObjectKind::text(),
-            "babel.schema.text.v1",
+            "babble.schema.text.v1",
             serde_json::to_value(TextPayload {
                 text: text.to_string(),
                 metadata: BTreeMap::new(),
             })
-            .map_err(|err| babel_types::Error::Canonical(err.to_string()))?,
+            .map_err(|err| babble_types::Error::Canonical(err.to_string()))?,
         )
     }
 
@@ -90,10 +90,10 @@ impl ObjectDraft {
         let payload = MediaObjectPayload::new(title, description, resources)?;
         let object_resources = payload.object_resources();
         Self::new(
-            ObjectKind::new("babel.media"),
-            "babel.schema.media.v1",
+            ObjectKind::new("babble.media"),
+            "babble.schema.media.v1",
             serde_json::to_value(&payload)
-                .map_err(|err| babel_types::Error::Canonical(err.to_string()))?,
+                .map_err(|err| babble_types::Error::Canonical(err.to_string()))?,
         )?
         .with_resources(object_resources)
     }
@@ -145,13 +145,13 @@ impl ObjectDraft {
         let mut hashes = self
             .resources
             .iter()
-            .filter(|resource| resource.uri.starts_with("babel://blobs/"))
+            .filter(|resource| resource.uri.starts_with("babble://blobs/"))
             .map(|resource| resource.integrity.clone())
             .collect::<BTreeSet<_>>();
         hashes.extend(
             self.surfaces
                 .iter()
-                .filter(|surface| surface.entry.starts_with("babel://blobs/"))
+                .filter(|surface| surface.entry.starts_with("babble://blobs/"))
                 .filter_map(|surface| surface.integrity.clone()),
         );
         hashes.extend(
@@ -159,7 +159,7 @@ impl ObjectDraft {
                 .iter()
                 .filter_map(|surface| surface.bundle.as_ref())
                 .flat_map(|bundle| &bundle.files)
-                .filter(|file| file.source_uri.starts_with("babel://blobs/"))
+                .filter(|file| file.source_uri.starts_with("babble://blobs/"))
                 .map(|file| file.integrity.clone()),
         );
         hashes
@@ -167,9 +167,9 @@ impl ObjectDraft {
 
     pub fn build_unsigned(&self, author: &Identity) -> Result<Object> {
         self.validate()?;
-        if self.kind.as_str() == "babel.media" {
+        if self.kind.as_str() == "babble.media" {
             serde_json::from_value::<MediaObjectPayload>(self.payload.clone())
-                .map_err(|error| babel_types::Error::Canonical(error.to_string()))?
+                .map_err(|error| babble_types::Error::Canonical(error.to_string()))?
                 .validate_object_resources(&self.resources)?;
         }
         let mut object = Object::create(
@@ -192,27 +192,27 @@ impl ObjectDraft {
         validate_namespaced("Object kind", self.kind.as_str())?;
         validate_namespaced("Object schema", &self.schema)?;
         if self.payload.is_null() {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "Object draft payload must not be null".to_string(),
             ));
         }
-        SchemaRegistry::babel_core().validate_draft(
+        SchemaRegistry::babble_core().validate_draft(
             &self.kind,
             &self.schema,
             &self.payload,
             self.state.as_ref(),
             &self.capabilities,
         )?;
-        if self.kind.as_str() == "babel.media" {
+        if self.kind.as_str() == "babble.media" {
             serde_json::from_value::<MediaObjectPayload>(self.payload.clone())
-                .map_err(|error| babel_types::Error::Canonical(error.to_string()))?
+                .map_err(|error| babble_types::Error::Canonical(error.to_string()))?
                 .validate()?;
         }
         let mut resources = BTreeSet::new();
         for resource in &self.resources {
             validate_resource(resource)?;
             if !resources.insert(resource.integrity.clone()) {
-                return Err(babel_types::Error::Conflict(format!(
+                return Err(babble_types::Error::Conflict(format!(
                     "duplicate draft resource: {}",
                     resource.integrity
                 )));
@@ -229,10 +229,10 @@ impl ObjectDraft {
                 capability.id,
                 capability.version,
                 serde_json::to_string(&capability.scope)
-                    .map_err(|err| babel_types::Error::Canonical(err.to_string()))?
+                    .map_err(|err| babble_types::Error::Canonical(err.to_string()))?
             );
             if !capability_keys.insert(key) {
-                return Err(babel_types::Error::Conflict(format!(
+                return Err(babble_types::Error::Conflict(format!(
                     "duplicate draft capability request: {}@{}",
                     capability.id, capability.version
                 )));
@@ -263,7 +263,7 @@ impl EdgeDraft {
     pub fn with_metadata(mut self, metadata: BTreeMap<String, Value>) -> Result<Self> {
         for key in metadata.keys() {
             if key.trim().is_empty() {
-                return Err(babel_types::Error::Conflict(
+                return Err(babble_types::Error::Conflict(
                     "edge metadata keys must not be empty".to_string(),
                 ));
             }
@@ -315,7 +315,7 @@ fn validate_surface(surface: &Surface) -> Result<()> {
         uri.validate_integrity(integrity)?;
     }
     if !matches!(surface.target, SurfaceTarget::Static) && surface.integrity.is_none() {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "executable surface {} requires resource integrity",
             surface.entry
         )));
@@ -342,7 +342,7 @@ fn validate_provenance(provenance: &Provenance) -> Result<()> {
 fn validate_namespaced(label: &str, value: &str) -> Result<()> {
     let value = value.trim();
     if value.is_empty() || !value.contains('.') || value.contains(char::is_whitespace) {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "{label} must be a non-empty namespaced identifier"
         )));
     }
@@ -352,18 +352,18 @@ fn validate_namespaced(label: &str, value: &str) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use babel_identity::IdentityKind;
-    use babel_object::{SurfaceRole, SurfaceTarget};
+    use babble_identity::IdentityKind;
+    use babble_object::{SurfaceRole, SurfaceTarget};
     use serde_json::json;
 
     #[test]
     fn text_draft_builds_unsigned_canonical_object_without_signing() {
         let keypair = Keypair::generate();
         let author = Identity::create(IdentityKind::Person, "alice", &keypair).unwrap();
-        let draft = ObjectDraft::text("  hello Babel  ")
+        let draft = ObjectDraft::text("  hello Babble  ")
             .unwrap()
             .with_capability(CapabilityRequest {
-                id: "babel.realtime.join".to_string(),
+                id: "babble.realtime.join".to_string(),
                 version: 1,
                 scope: json!({"room": "self"}),
             })
@@ -371,8 +371,8 @@ mod tests {
 
         let object = draft.build_unsigned(&author).unwrap();
 
-        assert_eq!(object.kind.as_str(), "babel.text");
-        assert_eq!(object.payload["text"], "hello Babel");
+        assert_eq!(object.kind.as_str(), "babble.text");
+        assert_eq!(object.payload["text"], "hello Babble");
         assert_eq!(object.capabilities.len(), 1);
         assert!(object.signature.is_none());
     }
@@ -387,7 +387,7 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(draft.kind.as_str(), "babel.media");
+        assert_eq!(draft.kind.as_str(), "babble.media");
         assert_eq!(draft.resources, vec![blob.resource()]);
         assert_eq!(
             draft.required_blob_hashes(),
@@ -447,7 +447,7 @@ mod tests {
         let grant = CapabilityGrantDraft::new(
             source,
             CapabilityRequest {
-                id: "babel.storage.local".to_string(),
+                id: "babble.storage.local".to_string(),
                 version: 1,
                 scope: json!({"namespace": "draft-test"}),
             },
@@ -455,6 +455,6 @@ mod tests {
             None,
         )
         .unwrap();
-        assert_eq!(grant.request.id, "babel.storage.local");
+        assert_eq!(grant.request.id, "babble.storage.local");
     }
 }

@@ -1,7 +1,7 @@
 use crate::{BlobReadError, FileStore};
-use babel_identity::Identity;
-use babel_object::{Object, SurfaceRole, bundle::BundleFile};
-use babel_types::{Error, Hash, ObjectId, Result};
+use babble_identity::Identity;
+use babble_object::{Object, SurfaceRole, bundle::BundleFile};
+use babble_types::{Error, Hash, ObjectId, Result};
 use std::{collections::BTreeMap, sync::Arc};
 
 /// Immutable bytes verified against an Object and a trusted signing key. Construction is

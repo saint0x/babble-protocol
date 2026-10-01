@@ -1,7 +1,7 @@
 //! Private identity relationships. These records never enter the public Object graph.
-use babel_crypto::{Keypair, Signature};
-use babel_identity::Identity;
-use babel_types::{Canonical, Error, Hash, IdentityId, Result, Timestamp};
+use babble_crypto::{Keypair, Signature};
+use babble_identity::Identity;
+use babble_types::{Canonical, Error, Hash, IdentityId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -81,7 +81,7 @@ pub struct SafetyAction {
 
 impl SafetyAction {
     pub fn sign(payload: SafetyActionPayload, key: &Keypair) -> Result<Self> {
-        let bytes = ("babel.private.safety.action.v1", &payload).canonical_bytes()?;
+        let bytes = ("babble.private.safety.action.v1", &payload).canonical_bytes()?;
         Ok(Self {
             id: Hash::from_bytes(&bytes),
             payload,
@@ -101,7 +101,7 @@ impl SafetyAction {
         {
             return Err(Error::Signature);
         }
-        let bytes = ("babel.private.safety.action.v1", &self.payload).canonical_bytes()?;
+        let bytes = ("babble.private.safety.action.v1", &self.payload).canonical_bytes()?;
         if self.id != Hash::from_bytes(&bytes) {
             return Err(Error::Signature);
         }
@@ -129,11 +129,11 @@ pub struct SafetyReceipt {
 
 impl SafetyReceipt {
     pub fn id(&self) -> Result<Hash> {
-        ("babel.private.safety.receipt.v1", &self.payload).canonical_hash()
+        ("babble.private.safety.receipt.v1", &self.payload).canonical_hash()
     }
 
     pub fn sign(payload: SafetyReceiptPayload, key: &Keypair) -> Result<Self> {
-        let signature = key.sign(&("babel.private.safety.receipt.v1", &payload).canonical_bytes()?);
+        let signature = key.sign(&("babble.private.safety.receipt.v1", &payload).canonical_bytes()?);
         Ok(Self { payload, signature })
     }
 
@@ -156,7 +156,7 @@ impl SafetyReceipt {
             return Err(Error::Signature);
         }
         signer.public_key.verify(
-            &("babel.private.safety.receipt.v1", &self.payload).canonical_bytes()?,
+            &("babble.private.safety.receipt.v1", &self.payload).canonical_bytes()?,
             &self.signature,
         )
     }

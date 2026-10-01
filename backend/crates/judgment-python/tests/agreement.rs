@@ -1,10 +1,10 @@
-use babel_judgment::{
+use babble_judgment::{
     AgreementSource, AgreementSourceKind, DefinitionId, JudgmentProvider, JudgmentRegistry,
     JudgmentRequest, JudgmentState, SourceAgreementInput, SourceAgreementOutput,
     validate_source_agreement_result,
 };
-use babel_judgment_python::{PythonProvider, WorkerConfig, contract};
-use babel_types::{Canonical, Error};
+use babble_judgment_python::{PythonProvider, WorkerConfig, contract};
+use babble_types::{Canonical, Error};
 use serde_json::json;
 use std::{collections::BTreeMap, path::PathBuf, time::Duration};
 
@@ -53,7 +53,7 @@ fn config(mode: Option<&str>) -> WorkerConfig {
         executable: PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../../../algorithms/.venv/bin/python"),
         args: mode.map_or_else(
-            || vec!["-I".into(), "-m".into(), "babel_algorithms.worker".into()],
+            || vec!["-I".into(), "-m".into(), "babble_algorithms.worker".into()],
             |mode| vec!["-I".into(), "-c".into(), FAULT_WORKER.into(), mode.into()],
         ),
         working_directory: None,
@@ -72,12 +72,12 @@ fn real_worker_empty_full_batch_health_privacy_and_durable_commitments() {
             .contains("source_agreement")
     );
     assert!(
-        !babel_judgment::JudgmentPrivacyPolicy::local_full()
+        !babble_judgment::JudgmentPrivacyPolicy::local_full()
             .allowed_context_keys
             .contains("source_agreement")
     );
     assert!(
-        !babel_judgment::JudgmentPrivacyPolicy::remote_minimized()
+        !babble_judgment::JudgmentPrivacyPolicy::remote_minimized()
             .allowed_context_keys
             .contains("source_agreement")
     );
@@ -154,7 +154,7 @@ fn required_nullable_fields_unknown_fields_and_invalid_types_fail_before_worker(
     let valid = request(&input(1));
     let check = |req: &JudgmentRequest| {
         assert!(
-            JudgmentRegistry::babel_core()
+            JudgmentRegistry::babble_core()
                 .validate_request(req)
                 .is_err()
         );
@@ -359,8 +359,8 @@ fn schema_requires_nullable_fields_and_explicit_agreement_context() {
 const FAULT_WORKER: &str = r#"
 import json, sys
 from dataclasses import asdict
-from babel_algorithms.execution import AlgorithmExecutor
-from babel_algorithms.worker import handle
+from babble_algorithms.execution import AlgorithmExecutor
+from babble_algorithms.worker import handle
 executor = AlgorithmExecutor()
 mode = sys.argv[1]
 for line in sys.stdin.buffer:

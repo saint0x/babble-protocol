@@ -1,6 +1,6 @@
 //! Public signal preparation and versioned temporal evaluation.
 use super::*;
-use babel_discovery::{
+use babble_discovery::{
     ObjectSignals, TemporalClass, TemporalEngagement, TemporalItem, TemporalRequest, TemporalScore,
 };
 
@@ -127,7 +127,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
             result
                 .validate_for(&request, &self.temporal_provider.version())
                 .map_err(|_| {
-                    babel_types::Error::ProviderUnavailable(
+                    babble_types::Error::ProviderUnavailable(
                         "temporal provider returned invalid output".into(),
                     )
                 })?;
@@ -153,7 +153,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
             .and_then(Value::as_f64)
             .filter(|score| score.is_finite() && (0.0..=1.0).contains(score))
             .ok_or_else(|| {
-                babel_types::Error::ProviderUnavailable(
+                babble_types::Error::ProviderUnavailable(
                     "discovery Judgment has no valid score".into(),
                 )
             })
@@ -255,7 +255,7 @@ fn classify_time(object: &Object) -> (TemporalClass, Vec<String>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use babel_identity::IdentityKind;
+    use babble_identity::IdentityKind;
     use time::{Duration, OffsetDateTime};
 
     #[test]

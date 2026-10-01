@@ -15,13 +15,13 @@ than 9007199254740991. Invalid input returns a structured error, never a score.
 Health request:
 
 ```json
-{"protocol":"babel.algorithms.v1","id":1,"method":"health"}
+{"protocol":"babble.algorithms.v1","id":1,"method":"health"}
 ```
 
 Judgment request:
 
 ```json
-{"protocol":"babel.algorithms.v1","id":2,"method":"judge","request":{"definition":"babel.judgment.spam.v1","state":{"subject":"obj_example","context":{"text":"Example content"}},"parameters":{}}}
+{"protocol":"babble.algorithms.v1","id":2,"method":"judge","request":{"definition":"babble.judgment.spam.v1","state":{"subject":"obj_example","context":{"text":"Example content"}},"parameters":{}}}
 ```
 
 Response envelope always has `protocol`, `id`, `result`, and `error`. Exactly one
@@ -29,13 +29,13 @@ of result/error is non-null. Unparseable request IDs yield a null response ID.
 Health result is `{provider, ranking_provider, temporal_provider, supported_definitions}`. Judge result is
 `{provider, output, confidence}`; output follows the existing Rust registry's
 definition-specific schema. Provider is
-`{provider:"babel-python",model:"lexical-v1",version:"1"}`. These are lexical
+`{provider:"babble-python",model:"lexical-v1",version:"1"}`. These are lexical
 algorithms, not trained semantic models or calibrated probabilities.
 
 Ranking uses `method: "rank"` with the canonical `lens.RankingRequest`:
 `{candidates, lens, diversity, limit}`. Its result is
 `{ranked, trace, diversity_trace, provider}`, with provider
-`{provider:"babel-python",model:"lenses-v1",version:"1"}`. All eight public
+`{provider:"babble-python",model:"lenses-v1",version:"1"}`. All eight public
 lenses, blends, numeric reasons and soft source-diversity adjustments run in
 typed Python. Rust validates candidate identity, provenance, finite scores,
 trace consistency, lengths and order without rerunning the scoring model.
@@ -43,7 +43,7 @@ Cross-language golden fixtures establish parity separately.
 
 Temporal scoring uses `method: "temporal"` with
 `discovery.TemporalRequest`: `{reference_time, items}`. It returns
-`{provider, reference_time, scores}` under `babel-python/temporal-v1/1`.
+`{provider, reference_time, scores}` under `babble-python/temporal-v1/1`.
 The full typed scorer runs for at most 200 unique Objects per frame; the node
 feeds its output into public discovery and returns selected scores for inspection.
 See [temporal scoring](temporal-scoring.md) for time, activity, and privacy rules.
@@ -61,7 +61,7 @@ subject text, private context, or a traceback.
 
 Supported definitions are the seven existing core definitions: spam,
 evidence_quality, relevance, relationship, content_analysis, moderation and source_agreement (each
-under `babel.judgment.*.v1`). Existing library algorithms must be called, not
+under `babble.judgment.*.v1`). Existing library algorithms must be called, not
 reimplemented in a transport handler. Sentiment maps [-1,1] to [0,1]; Python
 safety risk maps to the core's safety score as `1 - risk`. The advisory `warn`
 action maps to `flag`, with its original advisory action retained in output.
@@ -95,15 +95,15 @@ privacy policy or turn the local relationship algorithm into entailment inferenc
 ## Configuration
 
 Run `uv sync --frozen --project algorithms` from the repository root before
-starting the API. `python -I -m babel_algorithms.worker` uses the installed package,
+starting the API. `python -I -m babble_algorithms.worker` uses the installed package,
 not a caller-controlled `PYTHONPATH`.
 
 | Setting | Default / Meaning |
 | --- | --- |
-| `BABEL_JUDGMENT_PROVIDER` | `python` for Judgment, public ranking, and temporal scoring; `rust-local` explicitly selects their native implementations |
-| `BABEL_ALGORITHMS_DIR` | Repository `algorithms/`; relative overrides resolve against the server's working directory |
-| `BABEL_PYTHON_EXECUTABLE` | `.venv/bin/python` in the algorithm directory; prefer an absolute path |
-| `BABEL_ALGORITHM_TIMEOUT_MS` | `5000`; allowed range 1 through 120000 milliseconds |
+| `BABBLE_JUDGMENT_PROVIDER` | `python` for Judgment, public ranking, and temporal scoring; `rust-local` explicitly selects their native implementations |
+| `BABBLE_ALGORITHMS_DIR` | Repository `algorithms/`; relative overrides resolve against the server's working directory |
+| `BABBLE_PYTHON_EXECUTABLE` | `.venv/bin/python` in the algorithm directory; prefer an absolute path |
+| `BABBLE_ALGORITHM_TIMEOUT_MS` | `5000`; allowed range 1 through 120000 milliseconds |
 
 Python-specific settings with `rust-local` are rejected, not ignored. Relocated
 deployments must supply their installed paths rather than relying on a compile-time

@@ -1,9 +1,9 @@
-use babel_crypto::Keypair;
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_node::{AuthorObjectsQuery, ImportBundle, LocalNode};
-use babel_object::Object;
-use babel_types::{Error, IdentityId, Timestamp};
+use babble_crypto::Keypair;
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_node::{AuthorObjectsQuery, ImportBundle, LocalNode};
+use babble_object::Object;
+use babble_types::{Error, IdentityId, Timestamp};
 use std::{
     fs,
     path::PathBuf,
@@ -20,7 +20,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-profiles-{}-{}-{}",
+            "babble-profiles-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed)
@@ -119,7 +119,7 @@ fn profiles_validate_limits_cursor_author_scope_and_empty_identities() {
             Err(Error::Canonical(_))
         ));
     }
-    for cursor in ["", "v2|bad", &"x".repeat(257)] {
+    for cursor in ["", "|bad", &"x".repeat(257)] {
         assert!(matches!(
             f.node.author_objects(&f.query(Some(cursor.into()), 20)),
             Err(Error::Canonical(_))

@@ -1,10 +1,10 @@
-use babel_crypto::Keypair;
-use babel_graph::{
+use babble_crypto::Keypair;
+use babble_graph::{
     SafetyAction, SafetyActionPayload, SafetyReceipt, SafetyReceiptPayload, SafetyRequest,
     SafetyState,
 };
-use babel_identity::{Identity, IdentityKind};
-use babel_types::{Hash, Timestamp};
+use babble_identity::{Identity, IdentityKind};
+use babble_types::{Hash, Timestamp};
 
 #[test]
 fn safety_signed_action_commits_every_field_and_signer() {

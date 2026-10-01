@@ -45,21 +45,21 @@ export async function verifyDocumentRegistration(execute, waitFor, { apiUrl, obj
     assert.equal(seed.bundle, null, "this fixture exercises the content-addressed seed, not the verified bundle gateway");
     assert.match(seed.integrity, /^[0-9a-f]{64}$/);
     assert.equal(seed.resourceIntegrity, seed.integrity);
-    assert.equal(seed.resourceUri, `babel://blobs/${seed.integrity}`);
+    assert.equal(seed.resourceUri, `babble://blobs/${seed.integrity}`);
     assert.equal(seed.resourceMediaType, "text/html");
     const entry = new URL(seed.entry);
     assert.equal(entry.origin, api.origin);
     assert.equal(entry.pathname, `/runtime/surfaces/blobs/${seed.integrity}`);
     assert.equal(entry.searchParams.get("media_type"), "text/html");
     assert.equal(held.dispatches.length, 0, "dispatch cannot run before registration is acknowledged");
-    assert.deepEqual(held.controls, ["babel.surface.accept"]);
+    assert.deepEqual(held.controls, ["babble.surface.accept"]);
     assert.ok(held.events.indexOf("confirm") >= 0);
     assert.ok(held.events.indexOf("confirm") < held.events.indexOf("registration-request"));
 
     await evaluate("window.__documentRegistrationTest.release(); ({ released: true })");
     const active = await until(state => state.phase === "active" && state.bridgeResponse !== null);
     assert.equal(active.offerOrigin, "null", "the seed Surface retains an opaque sandbox origin");
-    assert.deepEqual(active.controls, ["babel.surface.accept", "babel.surface.ready"]);
+    assert.deepEqual(active.controls, ["babble.surface.accept", "babble.surface.ready"]);
     assert.equal(active.controlShapeValid, true, "registration must not change the child protocol");
     assert.equal(active.bridgeResponse.id, "surface-auto-1");
     assert.equal(active.bridgeResponse.errorCode, null);
@@ -72,7 +72,7 @@ export async function verifyDocumentRegistration(execute, waitFor, { apiUrl, obj
     const boundRead = active.requests.find(request => request.id === "surface-auto-1");
     assert.ok(boundRead, "the bridge read must reach the actual HTTP transport");
     assert.equal(boundRead.documentId, active.registration.documentId);
-    assert.equal(boundRead.method, "babel.search.objects.v1");
+    assert.equal(boundRead.method, "babble.search.objects.v1");
     assert.equal(boundRead.objectId, objectId);
     assert.equal(boundRead.sessionId, active.sessionId);
     assert.equal(boundRead.authenticated, true);
@@ -82,8 +82,8 @@ export async function verifyDocumentRegistration(execute, waitFor, { apiUrl, obj
       assert.ok(active.events.indexOf(order[index - 1]) < active.events.indexOf(order[index]), `expected ${order[index - 1]} before ${order[index]}`);
     }
     const management = active.requests.filter(request => request.sessionId && !request.objectId);
-    assert.ok(management.some(request => request.method === "babel.runtime.surface.session.heartbeat.v1"));
-    assert.ok(management.some(request => request.method === "babel.runtime.surface.session.transition.v1"));
+    assert.ok(management.some(request => request.method === "babble.runtime.surface.session.heartbeat.v1"));
+    assert.ok(management.some(request => request.method === "babble.runtime.surface.session.transition.v1"));
     for (const request of management) {
       assert.equal(request.documentId, null, "host session management must not carry a document header");
       assert.equal(request.status, 200);
@@ -157,7 +157,7 @@ function install({ apiUrl, objectId }) {
     let record;
     if (rpc) {
       record = { id: body.id, method: body.method, objectId: body.binding.object_id,
-        sessionId: body.binding.surface_session_id, documentId: headers.get("x-babel-surface-document"),
+        sessionId: body.binding.surface_session_id, documentId: headers.get("x-babble-surface-document"),
         authenticated: headers.has("authorization"), status: null };
       s.requests.push(record);
       if (record.objectId && record.sessionId) s.events.push("rpc-request");
@@ -181,10 +181,10 @@ function install({ apiUrl, objectId }) {
   };
 
   opening = (async () => {
-    const [{ Accounts }, { BabelFrontendClient }, { Surfaces }] = await Promise.all([
+    const [{ Accounts }, { BabbleFrontendClient }, { Surfaces }] = await Promise.all([
       import("/src/app/accounts.ts"), import("/src/app/protocol.ts"), import("/src/app/surfaces.ts"),
     ]);
-    require(new URL(document.documentElement.dataset.babelApi).origin === new URL(apiUrl).origin, "FixtureApiMismatch");
+    require(new URL(document.documentElement.dataset.babbleApi).origin === new URL(apiUrl).origin, "FixtureApiMismatch");
     accounts = new Accounts(apiUrl, null, observedFetch);
     require(accounts.current === null, "FixtureMustNotRestoreParentLogin");
     let password = crypto.randomUUID() + crypto.randomUUID();
@@ -195,7 +195,7 @@ function install({ apiUrl, objectId }) {
     password = null;
     s.sameIdentityDifferentLogin = otherLogin.current.identity.id === accounts.current.identity.id
       && otherLogin.current.token !== accounts.current.token;
-    client = new BabelFrontendClient(apiUrl, accounts.authenticatedFetch);
+    client = new BabbleFrontendClient(apiUrl, accounts.authenticatedFetch);
     const { object: seedObject } = await client.publicObject(objectId);
     container = document.createElement("div");
     container.dataset.documentRegistrationTest = "";
@@ -203,21 +203,21 @@ function install({ apiUrl, objectId }) {
     document.body.append(container);
     observer = event => {
       if (event.source !== container.querySelector("iframe")?.contentWindow
-        || event.data?.type !== "babel.surface.connect" || event.ports.length !== 1) return;
+        || event.data?.type !== "babble.surface.connect" || event.ports.length !== 1) return;
       s.offerOrigin = event.origin;
       const port = event.ports[0], send = port.postMessage;
       const receive = message => {
-        if (message.data?.type === "babel.surface.confirm") s.events.push("confirm");
+        if (message.data?.type === "babble.surface.confirm") s.events.push("confirm");
       };
       port.addEventListener("message", receive, { capture: true });
       port.postMessage = function(message, ...args) {
-        if (message?.type?.startsWith("babel.surface.")) {
+        if (message?.type?.startsWith("babble.surface.")) {
           s.controls.push(message.type);
           s.controlShapeValid &&= Object.keys(message).sort().join(",") === "protocol,type,version"
-            && message.protocol === "babel.rpc.v1" && message.version === 1;
-          if (message.type === "babel.surface.ready") s.events.push("ready");
+            && message.protocol === "babble.rpc.v1" && message.version === 1;
+          if (message.type === "babble.surface.ready") s.events.push("ready");
         }
-        if (message?.type === "babel.rpc.response" && message.response?.id === "surface-auto-1") {
+        if (message?.type === "babble.rpc.response" && message.response?.id === "surface-auto-1") {
           s.bridgeResponse = { id: message.response.id, errorCode: message.response.error?.code ?? null,
             resultCount: message.response.result?.results?.length ?? null };
         }
@@ -272,7 +272,7 @@ function install({ apiUrl, objectId }) {
     request.binding.surface_session_id = sessionId;
     request.deadline.client_started_at = new Date().toISOString();
     const headers = { "content-type": "application/json", authorization: `Bearer ${owner.current.token}` };
-    if (documentId !== null) headers["x-babel-surface-document"] = documentId;
+    if (documentId !== null) headers["x-babble-surface-document"] = documentId;
     const response = await nativeFetch(new URL("/rpc", apiUrl), {
       method: "POST", headers, body: JSON.stringify(request), credentials: "omit", redirect: "error",
       signal: AbortSignal.timeout(15000),

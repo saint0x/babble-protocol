@@ -3,10 +3,10 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode},
 };
-use babel_api::{ApiState, router};
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
-use babel_rpc::{RpcBinding, RpcRequestEnvelope, babel_rpc_catalog};
+use babble_api::{ApiState, router};
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
+use babble_rpc::{RpcBinding, RpcRequestEnvelope, babble_rpc_catalog};
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -25,7 +25,7 @@ impl Fixture {
     fn new() -> Self {
         static SEQUENCE: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-auth-{}-{}-{}",
+            "babble-auth-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             SEQUENCE.fetch_add(1, Ordering::Relaxed)
@@ -125,7 +125,7 @@ async fn register(app: &Router, handle: &str) -> Account {
 
 fn envelope(method: &str, binding: RpcBinding, payload: Value) -> Value {
     static OPERATION: AtomicU64 = AtomicU64::new(0);
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
     serde_json::to_value(
         RpcRequestEnvelope::new(&catalog, "auth-test-request", method, binding, payload)
             .unwrap()
@@ -137,7 +137,7 @@ fn envelope(method: &str, binding: RpcBinding, payload: Value) -> Value {
     .unwrap()
 }
 fn host() -> RpcBinding {
-    RpcBinding::host("web-host", "https://babel.test").unwrap()
+    RpcBinding::host("web-host", "https://babble.test").unwrap()
 }
 async fn rpc(
     app: &Router,
@@ -147,7 +147,7 @@ async fn rpc(
     payload: Value,
 ) -> (StatusCode, Value) {
     let headers = if binding.object_id.is_some() && binding.surface_session_id.is_some() {
-        vec![("x-babel-surface-document", DOCUMENT)]
+        vec![("x-babble-surface-document", DOCUMENT)]
     } else {
         vec![]
     };
@@ -364,7 +364,7 @@ async fn auth_rejects_unowned_identity_credentials_and_direct_rest_impersonation
     let fixture = Fixture::new();
     let mut node = LocalNode::open(&fixture.root, LocalProvider::default()).unwrap();
     let seeded = node
-        .create_identity(babel_identity::IdentityKind::Person, "seeded")
+        .create_identity(babble_identity::IdentityKind::Person, "seeded")
         .unwrap();
     let app = router(ApiState::new(node));
     let alice = register(&app, "alice").await;
@@ -429,7 +429,7 @@ async fn auth_rejects_unowned_identity_credentials_and_direct_rest_impersonation
         rpc(
             &app,
             &bob,
-            "babel.object.publish_text.v1",
+            "babble.object.publish_text.v1",
             binding,
             json!({"author_id":bob.id,"text":"forged binding"})
         )
@@ -453,7 +453,7 @@ async fn auth_rejects_unowned_identity_credentials_and_direct_rest_impersonation
         rpc(
             &app,
             &alice,
-            "babel.identity.create.v1",
+            "babble.identity.create.v1",
             host(),
             json!({"handle":"legacy","kind":"Person"})
         )
@@ -470,17 +470,17 @@ async fn auth_rejects_unowned_identity_credentials_and_direct_rest_impersonation
         );
     }
     for method in [
-        "babel.observability.snapshot.v1",
-        "babel.events.import.v1",
-        "babel.consensus.checkpoint.publish.v1",
+        "babble.observability.snapshot.v1",
+        "babble.events.import.v1",
+        "babble.consensus.checkpoint.publish.v1",
     ] {
         assert_eq!(
             rpc(&app, &alice, method, host(), json!({})).await.0,
             StatusCode::FORBIDDEN
         );
     }
-    let mut unknown = envelope("babel.object.get.v1", host(), json!({}));
-    unknown["method"] = json!("babel.future.unclassified.v1");
+    let mut unknown = envelope("babble.object.get.v1", host(), json!({}));
+    unknown["method"] = json!("babble.future.unclassified.v1");
     assert_eq!(
         request(&app, "POST", "/rpc", Some(&alice.token), unknown)
             .await
@@ -533,14 +533,14 @@ async fn controller(
     surface: bool,
 ) -> (String, Vec<Value>) {
     let capabilities = vec![
-        json!({"id":"babel.social.reply","version":1,"scope":{"object_id":target}}),
-        json!({"id":"babel.social.share","version":1,"scope":{"object_id":target}}),
-        json!({"id":"babel.social.follow","version":1,"scope":{"object_id":target}}),
-        json!({"id":"babel.storage.local","version":1,"scope":{"namespace":"self"}}),
-        json!({"id":"babel.storage.object","version":1,"scope":{"namespace":"self"}}),
+        json!({"id":"babble.social.reply","version":1,"scope":{"object_id":target}}),
+        json!({"id":"babble.social.share","version":1,"scope":{"object_id":target}}),
+        json!({"id":"babble.social.follow","version":1,"scope":{"object_id":target}}),
+        json!({"id":"babble.storage.local","version":1,"scope":{"namespace":"self"}}),
+        json!({"id":"babble.storage.object","version":1,"scope":{"namespace":"self"}}),
     ];
     let mut draft = serde_json::to_value(
-        babel_authoring::ObjectDraft::text("authenticated controller").unwrap(),
+        babble_authoring::ObjectDraft::text("authenticated controller").unwrap(),
     )
     .unwrap();
     draft["capabilities"] = json!(capabilities);
@@ -548,7 +548,7 @@ async fn controller(
         let (status, uploaded) = request(app,"POST","/media/blobs",Some(&author.token),json!({"media_type":"text/html","bytes_hex":hex::encode(b"<!doctype html><p>Auth test</p>")})).await;
         assert_eq!(status, StatusCode::OK);
         let hash = uploaded["blob"]["integrity"].as_str().unwrap();
-        let uri = format!("babel://blobs/{hash}");
+        let uri = format!("babble://blobs/{hash}");
         draft["surfaces"] = json!([{"role":"Feed","target":"Web","entry":uri,"integrity":hash}]);
         draft["resources"] = json!([{"uri":uri,"integrity":hash,"media_type":"text/html"}]);
     }
@@ -575,7 +575,7 @@ async fn grants(
         let (status, body) = request(app,"POST","/capabilities/grants",Some(&account.token),json!({"author_id":account.id,"object_id":object,"capability":capability,"decision":"approved"})).await;
         if capability["id"]
             .as_str()
-            .is_some_and(|id| id.starts_with("babel.social."))
+            .is_some_and(|id| id.starts_with("babble.social."))
         {
             assert_eq!(
                 status,
@@ -600,7 +600,7 @@ fn bound(object: &str, session: &str, grants: Vec<String>) -> RpcBinding {
         object,
         session,
         "surface-host",
-        "https://babel.test",
+        "https://babble.test",
         grants,
     )
     .unwrap()
@@ -625,11 +625,11 @@ async fn auth_storage_grants_cannot_be_stolen_and_revocation_survives_restart() 
     let binding = host_object(&object, alice_grants.clone());
     for (method, payload) in [
         (
-            "babel.storage.local.set.v1",
+            "babble.storage.local.set.v1",
             json!({"key":"settings","value":{"a":1}}),
         ),
         (
-            "babel.storage.object.set.v1",
+            "babble.storage.object.set.v1",
             json!({"key":"settings","value":{"a":2}}),
         ),
     ] {
@@ -641,7 +641,7 @@ async fn auth_storage_grants_cannot_be_stolen_and_revocation_survives_restart() 
         rpc(
             &app,
             &bob,
-            "babel.social.reply.v1",
+            "babble.social.reply.v1",
             binding.clone(),
             json!({"author_id":bob.id,"target_object_id":target,"text":"stolen"})
         )
@@ -654,7 +654,7 @@ async fn auth_storage_grants_cannot_be_stolen_and_revocation_survives_restart() 
         rpc(
             &app,
             &alice,
-            "babel.storage.local.get.v1",
+            "babble.storage.local.get.v1",
             host_object(&object, bobs_grants),
             json!({"key":"settings"})
         )
@@ -691,7 +691,7 @@ async fn auth_storage_grants_cannot_be_stolen_and_revocation_survives_restart() 
     let read = rpc(
         &app,
         &alice,
-        "babel.storage.local.get.v1",
+        "babble.storage.local.get.v1",
         host_object(&object, vec![alice_grants[0].clone()]),
         json!({"key":"settings"}),
     )
@@ -705,7 +705,7 @@ async fn auth_storage_grants_cannot_be_stolen_and_revocation_survives_restart() 
     let rejected = rpc(
         &app,
         &alice,
-        "babel.storage.object.get.v1",
+        "babble.storage.object.get.v1",
         binding,
         json!({"key":"settings"}),
     )
@@ -731,7 +731,7 @@ async fn publication_retry_http_reauthenticates_after_restart_and_logout() {
     let alice = register(&app, "retry-owner").await;
     let bob = register(&app, "retry-other").await;
     let operation = envelope(
-        "babel.object.publish_text.v1",
+        "babble.object.publish_text.v1",
         host(),
         json!({"author_id":alice.id,"text":"one durable post"}),
     );
@@ -788,7 +788,7 @@ async fn publication_retry_http_reauthenticates_after_restart_and_logout() {
     assert_eq!(replay.0, StatusCode::OK);
     assert_eq!(replay.1["result"], first["result"]);
     assert_eq!(
-        babel_store::FileStore::open(&fixture.root)
+        babble_store::FileStore::open(&fixture.root)
             .unwrap()
             .list_objects()
             .unwrap()

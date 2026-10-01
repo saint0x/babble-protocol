@@ -1,10 +1,10 @@
-use babel_discovery::{
+use babble_discovery::{
     CandidateEngine, DiscoveryRequest, MAX_ANCHORS, MAX_CANDIDATES, MAX_FOLLOWED_OBJECTS,
     ObjectSignals,
 };
-use babel_graph::{Edge, EdgeOrigin, GraphIndex, Relation};
-use babel_lens::{Candidate, CandidateSource, EvidenceSignals, ReputationSignals};
-use babel_types::{EdgeId, ObjectId, Timestamp};
+use babble_graph::{Edge, EdgeOrigin, GraphIndex, Relation};
+use babble_lens::{Candidate, CandidateSource, EvidenceSignals, ReputationSignals};
+use babble_types::{EdgeId, ObjectId, Timestamp};
 use std::collections::{BTreeMap, BTreeSet};
 use time::OffsetDateTime;
 

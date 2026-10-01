@@ -1,4 +1,4 @@
-use babel_judgment_python::contract;
+use babble_judgment_python::contract;
 use serde_json::json;
 
 #[test]
@@ -44,14 +44,14 @@ fn assert_json_eq(actual: &serde_json::Value, expected: &serde_json::Value, path
 fn strict_json_and_envelopes() {
     assert!(
         serde_json::from_value::<contract::Request>(
-            json!({"protocol":"babel.algorithms.v1","id":1,"method":"future"})
+            json!({"protocol":"babble.algorithms.v1","id":1,"method":"future"})
         )
         .is_err()
     );
     for bytes in [
-        br#"{"protocol":"babel.algorithms.v1","id":1,"result":null,"error":null}"#.as_slice(),
-        br#"{"protocol":"babel.algorithms.v1","id":1,"id":2,"result":null,"error":{"code":"algorithm_failure","message":"failed"}}"#,
-        br#"{"protocol":"babel.algorithms.v1","id":1,"error":{"code":"algorithm_failure","message":"failed"}}"#,
+        br#"{"protocol":"babble.algorithms.v1","id":1,"result":null,"error":null}"#.as_slice(),
+        br#"{"protocol":"babble.algorithms.v1","id":1,"id":2,"result":null,"error":{"code":"algorithm_failure","message":"failed"}}"#,
+        br#"{"protocol":"babble.algorithms.v1","id":1,"error":{"code":"algorithm_failure","message":"failed"}}"#,
     ] { assert!(contract::decode(bytes).is_err()); }
     for id in [
         json!(0),
@@ -60,7 +60,7 @@ fn strict_json_and_envelopes() {
         json!(1.5),
         json!(true),
     ] {
-        let response = json!({"protocol":"babel.algorithms.v1","id":id,"result":null,"error":{"code":"algorithm_failure","message":"failed"}});
+        let response = json!({"protocol":"babble.algorithms.v1","id":id,"result":null,"error":{"code":"algorithm_failure","message":"failed"}});
         assert!(contract::decode(&serde_json::to_vec(&response).unwrap()).is_err());
     }
 }

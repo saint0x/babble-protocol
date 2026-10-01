@@ -1,5 +1,5 @@
 use crate::{Edge, Relation};
-use babel_types::{ObjectId, Timestamp};
+use babble_types::{ObjectId, Timestamp};
 use std::{collections::BTreeMap, ops::Bound};
 
 pub type ReplyPosition = (Timestamp, ObjectId);

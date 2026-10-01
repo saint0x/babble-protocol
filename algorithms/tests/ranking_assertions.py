@@ -2,7 +2,7 @@
 
 import pytest
 
-from babel_algorithms.wire import Json
+from babble_algorithms.wire import Json
 
 
 def assert_json_close(actual: Json, expected: Json) -> None:

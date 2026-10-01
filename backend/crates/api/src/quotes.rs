@@ -6,9 +6,9 @@ use axum::{
     Json,
     extract::{Path, Query, State},
 };
-use babel_judgment::JudgmentProvider;
-use babel_node::{QuotesListQuery, QuotesListResult};
-use babel_types::ObjectId;
+use babble_judgment::JudgmentProvider;
+use babble_node::{QuotesListQuery, QuotesListResult};
+use babble_types::ObjectId;
 use serde::Deserialize;
 
 #[derive(Deserialize)]

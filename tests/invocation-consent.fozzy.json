@@ -2,7 +2,7 @@
   "version": 1,
   "name": "invocation-consent-browser-process-contract-not-browser-evidence",
   "steps": [
-    { "type": "proc_when", "cmd": "env", "args": ["BABEL_LIVE_FOCUS=invocation-consent", "node", "tests/live-stack.mjs"], "exit_code": 0, "times": 1 },
-    { "type": "proc_spawn", "cmd": "env", "args": ["BABEL_LIVE_FOCUS=invocation-consent", "node", "tests/live-stack.mjs"], "expect_exit": 0 }
+    { "type": "proc_when", "cmd": "env", "args": ["BABBLE_LIVE_FOCUS=invocation-consent", "node", "tests/live-stack.mjs"], "exit_code": 0, "times": 1 },
+    { "type": "proc_spawn", "cmd": "env", "args": ["BABBLE_LIVE_FOCUS=invocation-consent", "node", "tests/live-stack.mjs"], "expect_exit": 0 }
   ]
 }

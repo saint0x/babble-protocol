@@ -1,9 +1,9 @@
 use super::*;
-use babel_authoring::ObjectDraft;
-use babel_graph::Relation;
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_types::Hash;
+use babble_authoring::ObjectDraft;
+use babble_graph::Relation;
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_types::Hash;
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -29,7 +29,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-social-media-{}-{}",
+            "babble-social-media-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
@@ -38,8 +38,8 @@ impl Fixture {
             .create_identity(IdentityKind::Person, "social author")
             .unwrap();
         let target = node.publish_text(&author.id, "parent").unwrap();
-        let capabilities: Vec<babel_object::CapabilityRequest> = ["reply", "share"].into_iter().map(|action| {
-            serde_json::from_value(json!({"id":format!("babel.social.{action}"),"version":1,"scope":{"object_id":target.id}})).unwrap()
+        let capabilities: Vec<babble_object::CapabilityRequest> = ["reply", "share"].into_iter().map(|action| {
+            serde_json::from_value(json!({"id":format!("babble.social.{action}"),"version":1,"scope":{"object_id":target.id}})).unwrap()
         }).collect();
         let mut draft = ObjectDraft::text("controller").unwrap();
         for cap in &capabilities {
@@ -106,7 +106,7 @@ fn social_media_reply_and_share_publish_signed_objects_and_edges_with_optional_c
     ] {
         let before = f.counts();
         let result = f.publish(action, caption, Some(&media)).unwrap();
-        assert_eq!(result.object.kind.as_str(), "babel.media");
+        assert_eq!(result.object.kind.as_str(), "babble.media");
         assert_eq!(result.object.payload["title"], "Attached media");
         assert_eq!(
             result.object.payload["description"],
@@ -145,7 +145,7 @@ fn social_media_reply_and_share_publish_signed_objects_and_edges_with_optional_c
         })
         .unwrap();
     assert_eq!(replies.replies.len(), 1);
-    assert_eq!(replies.replies[0].object.kind.as_str(), "babel.media");
+    assert_eq!(replies.replies[0].object.kind.as_str(), "babble.media");
     let reopened = LocalNode::open(&f.root, LocalProvider::default()).unwrap();
     assert_eq!(
         reopened

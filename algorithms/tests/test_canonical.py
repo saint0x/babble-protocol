@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from babel_algorithms import canonical_float, canonical_value_hex
+from babble_algorithms import canonical_float, canonical_value_hex
 
 
 def test_canonical_encoder_matches_rust_fixture_bytes() -> None:
@@ -18,7 +18,7 @@ def test_canonical_encoder_matches_rust_fixture_bytes() -> None:
         },
     }
 
-    assert fixtures["canonical_encoding"]["version"] == "babel.canonical.v1"
+    assert fixtures["canonical_encoding"]["version"] == "babble.canonical.v1"
     assert canonical_value_hex(sample) == fixtures["canonical_encoding"]["bytes_hex"]
 
 
@@ -35,7 +35,7 @@ def test_signed_bundle_inventory_matches_rust_commitment_bytes() -> None:
         (Path(__file__).parents[2] / "fixtures/protocol/v1/fixtures.json").read_text()
     )
     fixture = fixtures["bundle_manifest"]
-    assert fixture["version"] == "babel.canonical.v1"
+    assert fixture["version"] == "babble.canonical.v1"
     assert canonical_value_hex(fixture["sample"]) == fixture["bytes_hex"]
     fixture["sample"]["files"][0]["size_bytes"] += 1
     assert canonical_value_hex(fixture["sample"]) != fixture["bytes_hex"]

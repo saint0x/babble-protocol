@@ -1,10 +1,10 @@
-import { canonicalValueBytes, type RpcInput, type RpcOutput } from "@babel-protocol/sdk";
-import type { BabelFrontendClient } from "./protocol";
+import { canonicalValueBytes, type RpcInput, type RpcOutput } from "@babble-protocol/sdk";
+import type { BabbleFrontendClient } from "./protocol";
 
-export type PermissionRequest = RpcInput<"babel.capabilities.grant.v1">["capability"];
-export type PermissionReview = RpcOutput<"babel.capabilities.inspect.v1">;
+export type PermissionRequest = RpcInput<"babble.capabilities.grant.v1">["capability"];
+export type PermissionReview = RpcOutput<"babble.capabilities.inspect.v1">;
 type Decision = PermissionReview["decisions"][number];
-export type PermissionSource = Pick<BabelFrontendClient, "inspectPermissions" | "approvePermission" | "revokePermission">;
+export type PermissionSource = Pick<BabbleFrontendClient, "inspectPermissions" | "approvePermission" | "revokePermission">;
 export interface PermissionState {
   readonly objectId: string | null;
   readonly review: PermissionReview | null;
@@ -26,8 +26,8 @@ export function mayApprove(decision: Decision): boolean {
 
 export function usesInvocationConsent(decision: Decision): boolean {
   return decision.request.version === 1 && decision.definition?.permission === "ask_each_time"
-    && ["babel.social.follow", "babel.social.unfollow", "babel.social.reply", "babel.social.share",
-      "babel.clipboard.write", "babel.fullscreen.enter"].includes(decision.request.id);
+    && ["babble.social.follow", "babble.social.unfollow", "babble.social.reply", "babble.social.share",
+      "babble.clipboard.write", "babble.fullscreen.enter"].includes(decision.request.id);
 }
 
 export function permitsSurfaceStart(decision: Decision): boolean {

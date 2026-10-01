@@ -4,7 +4,7 @@ import { createHash, webcrypto } from "node:crypto";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
-import * as sdk from "@babel-protocol/sdk";
+import * as sdk from "@babble-protocol/sdk";
 
 const source = (name) => readFileSync(new URL(`../src/app/${name}.ts`, import.meta.url), "utf8");
 const transpile = (code) => ts.transpileModule(code, {
@@ -93,11 +93,11 @@ function harness(options = {}) {
   const { Drafts, draftTransport } = module("drafts");
   const mediaKinds = module("media-kind");
   const composer = module("composer", { lucide: icons, "./media-kind": mediaKinds });
-  const bundlePublication = module("bundle-publication", { "@babel-protocol/sdk": sdk });
+  const bundlePublication = module("bundle-publication", { "@babble-protocol/sdk": sdk });
   const { BundlePicker } = module("bundle-picker", { lucide: icons, "./bundle-publication": bundlePublication });
-  const { BabelFrontendClient } = module("protocol", { "@babel-protocol/sdk": sdk, "./profile-response": module("profile-response"),
-    "./invocations": module("invocations", { "@babel-protocol/sdk": sdk }),
-    "./browser-invocations": module("browser-invocations", { "@babel-protocol/sdk": sdk }),
+  const { BabbleFrontendClient } = module("protocol", { "@babble-protocol/sdk": sdk, "./profile-response": module("profile-response"),
+    "./invocations": module("invocations", { "@babble-protocol/sdk": sdk }),
+    "./browser-invocations": module("browser-invocations", { "@babble-protocol/sdk": sdk }),
     "./media-kind": mediaKinds, "./media-resource": module("media-resource", { "./media-kind": mediaKinds }) });
   const stored = new Map();
   const storage = { getItem: (key) => stored.get(key) ?? null, setItem: (key, value) => stored.set(key, value), removeItem: (key) => stored.delete(key) };
@@ -106,10 +106,10 @@ function harness(options = {}) {
     feedPreferences: { account() {} },
     safetyControls: { account() {}, ensure: async () => null }, moderationControls: { account() {} },
     safetyUnavailable: false, ensureFeedSafety: async () => {},
-    drafts: new Drafts({ origin: "https://babel.test", identityId: "alice" }, storage), draftTransport, BabelFrontendClient,
+    drafts: new Drafts({ origin: "https://babble.test", identityId: "alice" }, storage), draftTransport, BabbleFrontendClient,
     composerPanel: root, composeForm: el("compose-form"), composeText: el("compose-text"), composeMedia: el("compose-media"),
     composeSubmit: el("compose-submit"), authorHandleInput: el("author-handle"),
-    accounts: { origin: new URL("https://babel.test"), current: { identity: { id: "alice", handle: "Alice" }, token: "session-a" } },
+    accounts: { origin: new URL("https://babble.test"), current: { identity: { id: "alice", handle: "Alice" }, token: "session-a" } },
     accountPanel: { open() { h.loginOpened = true; } },
     author: { identityId: "alice", handle: "Alice" }, profileDropdown: null, toggleProfileButton: null,
     profiles: { close() {} }, objectVisits: { clear() {} }, quotes: { clear() {}, refresh() {} }, followingDirty: false, followingControls: { account() {} }, followingFeed: { clear() {} }, profileReturn: null,
@@ -158,10 +158,10 @@ function socialFixture(h, requests, httpRequests) {
     if (h.respond) await h.respond(body, route);
     if (path === "/rpc") {
       assert.equal(init.method, "POST");
-      assert.notEqual(body.method, "babel.capabilities.grant.v1", "social consent must never request a reusable grant");
-      assert.ok(!/^babel\.social\.(follow|unfollow|share|reply)\.v/.test(body.method), "host social actions use invocation routes");
-      const result = body.method === "babel.media.blob.put.v1" ? { blob: blobReceipt(body.payload) }
-        : { object: { id: body.method === "babel.object.publish.v1" ? "controller" : "published" } };
+      assert.notEqual(body.method, "babble.capabilities.grant.v1", "social consent must never request a reusable grant");
+      assert.ok(!/^babble\.social\.(follow|unfollow|share|reply)\.v/.test(body.method), "host social actions use invocation routes");
+      const result = body.method === "babble.media.blob.put.v1" ? { blob: blobReceipt(body.payload) }
+        : { object: { id: body.method === "babble.object.publish.v1" ? "controller" : "published" } };
       return response({ protocol: body.protocol, id: body.id, result, error: null });
     }
     assert.ok(session, "invocation routes require an authenticated session");
@@ -169,12 +169,12 @@ function socialFixture(h, requests, httpRequests) {
     assert.equal(init.signal.aborted, false);
     if (path === "/invocations/v1/recover") {
       assert.equal(init.method, "POST");
-      assert.equal(headers.get("x-babel-host-document"), null);
-      assert.equal(headers.get("x-babel-surface-document"), null);
+      assert.equal(headers.get("x-babble-host-document"), null);
+      assert.equal(headers.get("x-babble-surface-document"), null);
       const existing = byKey.get(`${session.token}:${body.request_key}`);
       if (existing?.value.state.kind !== "completed") return new Response(null, { status: 204 });
       const payload = { target_object_id: body.payload.target_object_id ?? body.object_id,
-        text: /\.(reply|share)\./.test(body.method) ? (body.payload.text ?? "").trim() : null,
+        text: /^babble\.social\.(reply|share)$/.test(body.method) ? (body.payload.text ?? "").trim() : null,
         media: body.payload.media == null ? null : { ...body.payload.media, title: body.payload.media.title.trim() } };
       if (existing.intent.actor_id !== session.identity.id || existing.intent.object_id !== body.object_id
         || existing.intent.method !== body.method || digest(existing.intent.payload) !== digest(payload)) return new Response(null, { status: 409 });
@@ -192,16 +192,16 @@ function socialFixture(h, requests, httpRequests) {
       documents.set(id, previous ?? { token: session.token, objectId: body.object_id, closed: false });
       return response({ document_id: id, object_id: body.object_id, expires_at: new Date(Date.now() + 60_000).toISOString(), renew_after_ms: 15_000 });
     }
-    const documentId = headers.get("x-babel-host-document"), document = documents.get(documentId);
+    const documentId = headers.get("x-babble-host-document"), document = documents.get(documentId);
     assert.ok(document && !document.closed); assert.equal(document.token, session.token);
-    assert.equal(headers.get("x-babel-surface-document"), null);
+    assert.equal(headers.get("x-babble-surface-document"), null);
     if (path === "/invocations/v1/prepare") {
       assert.equal(init.method, "POST"); assert.equal(body.origin.kind, "host_action");
       assert.equal(body.origin.document_id, documentId); assert.equal(body.object_id, document.objectId);
-      assert.match(body.method, /^babel\.social\.(follow|unfollow|share|reply)\.v2$/);
+      assert.match(body.method, /^babble\.social\.(follow|unfollow|share|reply)$/);
       assert.equal(body.payload.author_id, session.identity.id);
       assert.equal(body.timeout_ms, 30_000); assert.ok(body.request_key);
-      const textAction = /\.(reply|share)\./.test(body.method);
+      const textAction = /^babble\.social\.(reply|share)$/.test(body.method);
       const payload = { target_object_id: body.payload.target_object_id ?? body.object_id,
         text: textAction ? (body.payload.text ?? "").trim() : null,
         media: body.payload.media == null ? null : { ...body.payload.media, title: body.payload.media.title.trim() } };
@@ -227,12 +227,12 @@ function socialFixture(h, requests, httpRequests) {
     assert.equal(match[2], "execute"); assert.deepEqual(body, {}); assert.equal(value.state.kind, "approved");
     const signature = { algorithm: "Ed25519", bytes: "a".repeat(128) };
     const object = { id: "published", author: value.actor_id, created_at: value.created_at, signature,
-      kind: value.payload.media ? "babel.media" : "babel.text", schema: value.payload.media ? "babel.schema.media.v1" : "babel.schema.text.v1",
-      protocol: { name: "babel", version: 1 }, payload: { text: value.payload.text },
+      kind: value.payload.media ? "babble.media" : "babble.text", schema: value.payload.media ? "babble.schema.media.v1" : "babble.schema.text.v1",
+      protocol: { name: "babble", version: 1 }, payload: { text: value.payload.text },
       provenance: { parent: value.payload.target_object_id, forked_from: null, remixed_from: [] }, relations: [],
       resources: value.payload.media?.resources ?? [], surfaces: [], capabilities: [] };
     const edge = { id: `edge_${value.invocation_id}`, source: object.id, target: value.payload.target_object_id,
-      relation: value.method.includes(".reply.") ? "reply_to" : "quotes", author: value.actor_id,
+      relation: value.method === "babble.social.reply" ? "reply_to" : "quotes", author: value.actor_id,
       created_at: value.created_at, signature, origin: "HumanAssertion", metadata: {} };
     const receipt = { request: { id: value.invocation_id, fingerprint: digest(value.payload), author: value.actor_id },
       outcome: { object: object.id, edges: [edge.id], event: `evt_${value.invocation_id}` } };
@@ -250,7 +250,7 @@ function deferred() { let resolve; const promise = new Promise(yes => { resolve 
 function blobReceipt(payload) {
   const bytes = Buffer.from(payload.bytes_hex, "hex");
   const integrity = createHash("sha256").update(bytes).digest("hex");
-  return { integrity, uri: `babel://blobs/${integrity}`, media_type: payload.media_type, size_bytes: bytes.length };
+  return { integrity, uri: `babble://blobs/${integrity}`, media_type: payload.media_type, size_bytes: bytes.length };
 }
 const socialModes = ["reply", "share"];
 const socialMediaCases = [
@@ -347,19 +347,19 @@ test("application picker remains real and mutually exclusive with images, includ
 
 test("common permission controls preserve advanced scopes and reflect declarations after reopening", () => {
   const { h, el } = harness(); h.startPublishComposer(); h.select("compose-bundle", [app()]);
-  const scoped = { id: "babel.storage.local", version: 1, scope: { namespace: "my-app" } };
+  const scoped = { id: "babble.storage.local", version: 1, scope: { namespace: "my-app" } };
   const editor = el("bundle-capabilities"); editor.value = JSON.stringify([scoped]); editor.selectionStart = 9;
   editor.emit("input");
   assert.equal(editor.selectionStart, 9);
   el("bundle-clipboard").checked = true; el("bundle-clipboard").emit("change");
   el("bundle-fullscreen").checked = true; el("bundle-fullscreen").emit("change");
   assert.deepEqual(JSON.parse(h.drafts.current.bundle.capabilitiesText), [scoped,
-    { id: "babel.clipboard.write", version: 1, scope: {} }, { id: "babel.fullscreen.enter", version: 1, scope: {} }]);
+    { id: "babble.clipboard.write", version: 1, scope: {} }, { id: "babble.fullscreen.enter", version: 1, scope: {} }]);
   h.toggleComposer(false); h.startPublishComposer();
   assert.equal(el("bundle-permission-count").textContent, "3");
   assert.equal(el("bundle-clipboard").checked, true); assert.equal(el("bundle-fullscreen").checked, true);
   el("bundle-clipboard").checked = false; el("bundle-clipboard").emit("change");
-  assert.deepEqual(JSON.parse(editor.value), [scoped, { id: "babel.fullscreen.enter", version: 1, scope: {} }]);
+  assert.deepEqual(JSON.parse(editor.value), [scoped, { id: "babble.fullscreen.enter", version: 1, scope: {} }]);
 });
 
 test("malformed declaration edits persist across close and owner changes and block all publication", async () => {
@@ -637,14 +637,14 @@ for (const mode of socialModes) {
         assert.equal(el("compose-attachments").hidden, false);
         assert.equal(el("bundle-picker").hidden, true);
         await h.publishFromComposer();
-        assert.deepEqual(requests.map(request => request.method), ["babel.media.blob.put.v1", "babel.object.publish.v1", `babel.social.${mode}.v2`]);
+        assert.deepEqual(requests.map(request => request.method), ["babble.media.blob.put.v1", "babble.object.publish.v1", `babble.social.${mode}`]);
         const [upload, controller, publication] = requests;
         assert.equal(upload.payload.media_type, type);
         assert.equal(upload.payload.bytes_hex, Buffer.from(await file.arrayBuffer()).toString("hex"));
         assert.equal(controller.payload.author_id, "alice");
         assert.equal(controller.payload.draft.provenance.parent, "target-post");
         assert.equal(controller.payload.draft.payload.metadata.target_object_id, "target-post");
-        assert.ok(controller.payload.draft.capabilities.some(capability => capability.id === `babel.social.${mode}`
+        assert.ok(controller.payload.draft.capabilities.some(capability => capability.id === `babble.social.${mode}`
           && capability.version === 1 && capability.scope.object_id === "target-post"));
         assert.deepEqual(publication.payload, {
           author_id: "alice", target_object_id: "target-post", text: caption.trim(),
@@ -679,7 +679,7 @@ for (const mode of socialModes) {
       const { h, el, requests, navigations, refreshed } = harness();
       const file = new File(["retained media"], "private.webm", { type: "video/webm" });
       h.startSocialTextComposer(mode, "retry-target"); h.type("retry caption"); h.select("compose-media", [file]);
-      const failedMethod = failure === "upload" ? "babel.media.blob.put.v1" : `babel.social.${mode}.v2`;
+      const failedMethod = failure === "upload" ? "babble.media.blob.put.v1" : `babble.social.${mode}`;
       h.respond = async (request, route) => { if (route.action !== "recover" && request?.method === failedMethod) throw new Error("response lost"); };
       await h.publishFromComposer();
       const first = [...requests];
@@ -709,7 +709,7 @@ for (const mode of socialModes) {
     const file = new File(["audio bytes"], "voice.ogg", { type: "audio/ogg" });
     h.startSocialTextComposer(mode, "locked-target"); h.type("original caption"); h.select("compose-media", [file]);
     assert.deepEqual(Array.from(h.drafts.current.media), [file], "social attachment picker must accept the file before upload starts");
-    h.respond = async request => { if (request?.method === "babel.media.blob.put.v1") { started.resolve(); await gate.promise; } };
+    h.respond = async request => { if (request?.method === "babble.media.blob.put.v1") { started.resolve(); await gate.promise; } };
     const pending = h.publishFromComposer(); await started.promise;
     assert.equal(h.composeMedia.disabled, true); assert.equal(h.composeSubmit.disabled, true);
     assert.equal(el("remove-compose-media").disabled, true); assert.equal(el("compose-bundle").disabled, true);
@@ -729,11 +729,11 @@ for (const mode of socialModes) {
     const aliceFile = image("alice.png"), bobFile = image("bob.png");
     h.startSocialTextComposer(mode, "same-target"); h.type("Alice caption"); h.select("compose-media", [aliceFile]);
     assert.deepEqual(Array.from(h.drafts.current.media), [aliceFile], "social attachment picker must accept the file before upload starts");
-    h.respond = async request => { if (request?.method === "babel.media.blob.put.v1") { started.resolve(); await gate.promise; } };
+    h.respond = async request => { if (request?.method === "babble.media.blob.put.v1") { started.resolve(); await gate.promise; } };
     const pending = h.publishFromComposer(); await started.promise;
     h.changeAccount("bob"); h.type("Bob caption"); h.select("compose-media", [bobFile]);
     gate.resolve(); await pending;
-    assert.deepEqual(requests.map(request => request.method), ["babel.media.blob.put.v1"]);
+    assert.deepEqual(requests.map(request => request.method), ["babble.media.blob.put.v1"]);
     assert.deepEqual(Array.from(h.drafts.current.media), [bobFile]); assert.equal(h.composeText.value, "Bob caption");
     assert.equal(el("author-status").dataset.state, "ready");
     assert.equal(navigations.length + refreshed.length, 0);
@@ -748,7 +748,7 @@ for (const mode of socialModes) {
     if (mode === "reply") h.conversations.refresh = async () => { throw new Error("refresh offline"); };
     else h.loadFeed = async () => { throw new Error("refresh offline"); };
     await h.publishFromComposer();
-    assert.equal(requests.filter(request => request.method === `babel.social.${mode}.v2`).length, 1);
+    assert.equal(requests.filter(request => request.method === `babble.social.${mode}`).length, 1);
     assert.match(el("author-status").textContent, /Published published; refresh failed: refresh offline/);
     assert.deepEqual(Array.from(h.drafts.current.media), []); assert.equal(h.composerPanel.hidden, true);
     h.startSocialTextComposer(mode, "target"); await h.publishFromComposer();
@@ -768,7 +768,7 @@ for (const mode of socialModes) {
     }
     el("remove-compose-media").emit("click"); await h.publishFromComposer();
     assert.equal(requests.length, 2);
-    assert.equal(requests.at(-1).method, `babel.social.${mode}.v2`);
+    assert.equal(requests.at(-1).method, `babble.social.${mode}`);
     assert.equal(requests.at(-1).payload.media ?? null, null);
   });
 }
@@ -892,7 +892,7 @@ for (const mode of ["publish", "reply", "share"]) {
     const files = [new File(["video first"], "clip.webm", { type: "video/webm" }),
       image(), new File(["audio last"], "voice.ogg", { type: "audio/ogg" })];
     h.type("First line\nFull caption"); h.select("compose-media", files);
-    const publicationMethod = mode === "publish" ? "babel.object.publish_media.v1" : `babel.social.${mode}.v2`;
+    const publicationMethod = mode === "publish" ? "babble.object.publish_media.v1" : `babble.social.${mode}`;
     h.respond = async (request, route) => { if (route.action !== "recover" && request?.method === publicationMethod) throw new Error("acknowledgement lost"); };
     await h.publishFromComposer();
     const failed = [...requests];
@@ -923,7 +923,7 @@ for (const mode of ["publish", "reply", "share"]) {
     if (mode === "publish") h.startPublishComposer(); else h.startSocialTextComposer(mode, "duplicate-target");
     const files = [image("first.png"), image("same-content.png")];
     h.select("compose-media", files); await h.publishFromComposer();
-    assert.deepEqual(requests.map(request => request.method), ["babel.media.blob.put.v1", "babel.media.blob.put.v1"]);
+    assert.deepEqual(requests.map(request => request.method), ["babble.media.blob.put.v1", "babble.media.blob.put.v1"]);
     assert.deepEqual(Array.from(h.drafts.current.media), files); assert.equal(h.drafts.current.pending, null);
     assert.match(el("author-status").textContent, /same media.*duplicate/);
     assert.equal(h.composerPanel.hidden, false);
@@ -936,10 +936,10 @@ test("second album upload failure publishes nothing and retry starts with the en
   h.select("compose-media", files);
   h.respond = async request => { if (request.payload.media_type === "video/mp4") throw new Error("second upload failed"); };
   await h.publishFromComposer();
-  assert.deepEqual(requests.map(request => request.method), ["babel.media.blob.put.v1", "babel.media.blob.put.v1"]);
+  assert.deepEqual(requests.map(request => request.method), ["babble.media.blob.put.v1", "babble.media.blob.put.v1"]);
   assert.deepEqual(Array.from(h.drafts.current.media), files); assert.match(el("author-status").textContent, /second upload failed/);
   h.respond = null; await h.publishFromComposer();
-  assert.deepEqual(requests.slice(2).map(request => request.method), ["babel.media.blob.put.v1", "babel.media.blob.put.v1", "babel.object.publish_media.v1"]);
+  assert.deepEqual(requests.slice(2).map(request => request.method), ["babble.media.blob.put.v1", "babble.media.blob.put.v1", "babble.object.publish_media.v1"]);
   assert.deepEqual(requests[2].payload, requests[0].payload); assert.deepEqual(requests[3].payload, requests[1].payload);
 });
 

@@ -37,17 +37,17 @@ use axum::{
     response::{IntoResponse, Response},
     routing::{delete, get, post},
 };
-use babel_graph::{GraphTraversalSpec, Relation};
-use babel_hashgraph::{FinalityCheckpoint, ValidatorSet};
-use babel_judgment::{JudgmentProvider, JudgmentRegistry, ProviderVersion};
-use babel_lens::BuiltInLens;
-use babel_node::{DiscoveryQuery, EventListQuery, LocalNode, ObjectSearchQuery};
-use babel_realtime::RoomSpec;
-use babel_rpc::{RpcCatalog, RpcRequestEnvelope, RpcResponseEnvelope, babel_rpc_catalog};
-use babel_runtime::SurfaceSessionId;
-use babel_state::{Event, EventKind};
-use babel_store::PersonalizationSyncRecord;
-use babel_types::{EventId, Hash, IdentityId, JudgmentId, ObjectId};
+use babble_graph::{GraphTraversalSpec, Relation};
+use babble_hashgraph::{FinalityCheckpoint, ValidatorSet};
+use babble_judgment::{JudgmentProvider, JudgmentRegistry, ProviderVersion};
+use babble_lens::BuiltInLens;
+use babble_node::{DiscoveryQuery, EventListQuery, LocalNode, ObjectSearchQuery};
+use babble_realtime::RoomSpec;
+use babble_rpc::{RpcCatalog, RpcRequestEnvelope, RpcResponseEnvelope, babble_rpc_catalog};
+use babble_runtime::SurfaceSessionId;
+use babble_state::{Event, EventKind};
+use babble_store::PersonalizationSyncRecord;
+use babble_types::{EventId, Hash, IdentityId, JudgmentId, ObjectId};
 use serde::Serialize;
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -76,7 +76,7 @@ where
 {
     pub fn new(node: LocalNode<P>) -> Self {
         let auth = crate::auth::Auth::new(node.store().root())
-            .with_operator(std::env::var("BABEL_OPERATOR_TOKEN").ok().as_deref());
+            .with_operator(std::env::var("BABBLE_OPERATOR_TOKEN").ok().as_deref());
         Self {
             auth: Arc::new(auth),
             node: Arc::new(Mutex::new(node)),
@@ -89,8 +89,8 @@ where
         self
     }
 
-    pub fn with_moderators(self, ids: &str) -> babel_types::Result<Self> {
-        self.node.lock().map_err(|_| babel_types::Error::StorageUnavailable("node lock unavailable".into()))?.configure_moderators(ids)?;
+    pub fn with_moderators(self, ids: &str) -> babble_types::Result<Self> {
+        self.node.lock().map_err(|_| babble_types::Error::StorageUnavailable("node lock unavailable".into()))?.configure_moderators(ids)?;
         Ok(self)
     }
 }
@@ -276,7 +276,7 @@ where
 }
 
 async fn get_rpc_catalog() -> Result<Json<RpcCatalog>, ApiError> {
-    let catalog = babel_rpc_catalog()
+    let catalog = babble_rpc_catalog()
         .map_err(|err| ApiError::internal(format!("invalid RPC catalog: {err}")))?;
     Ok(Json(catalog))
 }
@@ -881,7 +881,7 @@ where
 
 async fn list_judgment_definitions() -> Result<Json<JudgmentDefinitionsResponse>, ApiError> {
     Ok(Json(JudgmentDefinitionsResponse {
-        definitions: JudgmentRegistry::babel_core().definitions,
+        definitions: JudgmentRegistry::babble_core().definitions,
     }))
 }
 
@@ -1254,7 +1254,7 @@ where
     P: JudgmentProvider + Send + Sync + 'static,
 {
     let hash = hash_value(hash)?;
-    let media_type = babel_media::normalize_media_type(query.media_type)
+    let media_type = babble_media::normalize_media_type(query.media_type)
         .map_err(|error| ApiError::bad_request(error.to_string()))?;
     if !matches!(
         media_type.as_str(),
@@ -1348,7 +1348,7 @@ where
         .realtime_room(&id)
         .ok_or_else(|| ApiError::not_found(format!("realtime room not found: {id}")))?;
     if let Some(axum::Extension(principal)) = principal
-        && let babel_realtime::MembershipPolicy::AllowList(members) = &room.spec.membership
+        && let babble_realtime::MembershipPolicy::AllowList(members) = &room.spec.membership
         && !members.contains(&IdentityId::new_unchecked(principal.identity_id))
     {
         return Err(ApiError::forbidden());
@@ -1451,8 +1451,8 @@ pub(crate) fn object_id(value: String) -> Result<ObjectId, ApiError> {
     Ok(id)
 }
 
-fn edge_id(value: String) -> Result<babel_types::EdgeId, ApiError> {
-    let id = babel_types::EdgeId::new_unchecked(value);
+fn edge_id(value: String) -> Result<babble_types::EdgeId, ApiError> {
+    let id = babble_types::EdgeId::new_unchecked(value);
     id.validate()?;
     Ok(id)
 }
@@ -1463,22 +1463,22 @@ fn judgment_id(value: String) -> Result<JudgmentId, ApiError> {
     Ok(id)
 }
 
-pub(crate) fn grant_id(value: String) -> Result<babel_types::CapabilityGrantId, ApiError> {
-    let id = babel_types::CapabilityGrantId::new_unchecked(value);
+pub(crate) fn grant_id(value: String) -> Result<babble_types::CapabilityGrantId, ApiError> {
+    let id = babble_types::CapabilityGrantId::new_unchecked(value);
     id.validate()?;
     Ok(id)
 }
 
-pub(crate) fn realtime_room_id(value: String) -> Result<babel_types::RealtimeRoomId, ApiError> {
-    let id = babel_types::RealtimeRoomId::new_unchecked(value);
+pub(crate) fn realtime_room_id(value: String) -> Result<babble_types::RealtimeRoomId, ApiError> {
+    let id = babble_types::RealtimeRoomId::new_unchecked(value);
     id.validate()?;
     Ok(id)
 }
 
 pub(crate) fn realtime_session_id(
     value: String,
-) -> Result<babel_types::RealtimeSessionId, ApiError> {
-    let id = babel_types::RealtimeSessionId::new_unchecked(value);
+) -> Result<babble_types::RealtimeSessionId, ApiError> {
+    let id = babble_types::RealtimeSessionId::new_unchecked(value);
     id.validate()?;
     Ok(id)
 }
@@ -1516,7 +1516,7 @@ pub(crate) fn validator_set(values: BTreeMap<String, u64>) -> Result<ValidatorSe
                 id.validate()?;
                 Ok((id, weight))
             })
-            .collect::<Result<BTreeMap<_, _>, babel_types::Error>>()?,
+            .collect::<Result<BTreeMap<_, _>, babble_types::Error>>()?,
     )
     .map_err(ApiError::from)
 }
@@ -1581,8 +1581,8 @@ fn relation_from_param(value: String) -> Result<Relation, ApiError> {
 struct HealthResponse {
     ok: bool,
     judgment_provider: ProviderVersion,
-    ranking_provider: babel_lens::RankingProviderVersion,
-    temporal_provider: babel_discovery::TemporalProviderVersion,
+    ranking_provider: babble_lens::RankingProviderVersion,
+    temporal_provider: babble_discovery::TemporalProviderVersion,
 }
 
 #[derive(serde::Deserialize)]

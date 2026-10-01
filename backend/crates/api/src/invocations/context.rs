@@ -5,11 +5,11 @@ use crate::auth::surface::{
     DOCUMENT_HEADER, SurfaceAccess, SurfaceAuthorization, require_owner, validate_document,
 };
 use axum::http::HeaderMap;
-use babel_judgment::JudgmentProvider;
-use babel_runtime::{SurfaceLifecycle, SurfaceSessionId};
-use babel_types::{Canonical, IdentityId};
+use babble_judgment::JudgmentProvider;
+use babble_runtime::{SurfaceLifecycle, SurfaceSessionId};
+use babble_types::{Canonical, IdentityId};
 
-const HOST_DOCUMENT_HEADER: &str = "x-babel-host-document";
+const HOST_DOCUMENT_HEADER: &str = "x-babble-host-document";
 
 pub(super) fn require_header(
     headers: &HeaderMap,
@@ -82,7 +82,7 @@ pub(super) fn current<P: JudgmentProvider>(
             )?;
             let session = node.surface_session(&SurfaceSessionId::new(session_id)?)?;
             if session.lifecycle != SurfaceLifecycle::Active
-                || session.plan.surface.role == babel_object::SurfaceRole::Background
+                || session.plan.surface.role == babble_object::SurfaceRole::Background
             {
                 return Err(ApiError::forbidden());
             }

@@ -11,7 +11,7 @@ use axum::{
     http::{HeaderMap, Method, StatusCode, header},
     response::Response,
 };
-use babel_judgment::JudgmentProvider;
+use babble_judgment::JudgmentProvider;
 use std::ops::RangeInclusive;
 
 pub(crate) async fn get<P: JudgmentProvider>(
@@ -27,7 +27,7 @@ pub(crate) async fn get<P: JudgmentProvider>(
         let object = node
             .object(&id)
             .ok_or_else(|| ApiError::not_found("object"))?;
-        let uri = format!("babel://blobs/{hash}");
+        let uri = format!("babble://blobs/{hash}");
         let mut resources = object
             .resources
             .iter()

@@ -9,14 +9,14 @@
 //! 2 MiB per connection. The durable action/receipt history grows with writes
 //! and is intentionally not pruned: pruning would break indefinite retry safety.
 use crate::LocalNode;
-pub use babel_graph::FollowState;
-use babel_graph::{
+pub use babble_graph::FollowState;
+use babble_graph::{
     FollowAction, FollowActionPayload, FollowReceipt, FollowReceiptPayload, FollowRequest,
 };
-use babel_identity::Identity;
-use babel_judgment::JudgmentProvider;
-use babel_object::Object;
-use babel_types::{Canonical, Error, Hash, IdentityId, ObjectId, Result, Timestamp};
+use babble_identity::Identity;
+use babble_judgment::JudgmentProvider;
+use babble_object::Object;
+use babble_types::{Canonical, Error, Hash, IdentityId, ObjectId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -38,13 +38,13 @@ pub struct FollowingQuery {
 mod tests {
     use super::*;
     use crate::AuthorObjectsQuery;
-    use babel_identity::IdentityKind;
-    use babel_judgment_local::LocalProvider;
+    use babble_identity::IdentityKind;
+    use babble_judgment_local::LocalProvider;
 
     #[test]
     fn following_expiry_at_transaction_timestamp_rejects_without_persisting() {
         let root = std::env::temp_dir().join(format!(
-            "babel-following-expiry-{}-{}",
+            "babble-following-expiry-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos()
         ));
@@ -58,7 +58,7 @@ mod tests {
         let expires = Timestamp(Timestamp::now().0 + std::time::Duration::from_secs(60));
         node.rotate_identity_key(
             &viewer.id,
-            babel_identity::IdentityKeyScope::Session,
+            babble_identity::IdentityKeyScope::Session,
             Some(expires),
             "temporary",
         )
@@ -97,7 +97,7 @@ mod tests {
     #[test]
     fn following_budgets_continue_empty_filtered_pages_and_never_skip_large_matches() {
         let root = std::env::temp_dir().join(format!(
-            "babel-following-budgets-{}-{}",
+            "babble-following-budgets-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos()
         ));

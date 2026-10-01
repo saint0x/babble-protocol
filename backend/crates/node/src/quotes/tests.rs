@@ -1,10 +1,10 @@
 use super::*;
 use crate::ImportBundle;
-use babel_crypto::Keypair;
-use babel_graph::EdgeOrigin;
-use babel_identity::{Identity, IdentityKeyScope, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_types::Hash;
+use babble_crypto::Keypair;
+use babble_graph::EdgeOrigin;
+use babble_identity::{Identity, IdentityKeyScope, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_types::Hash;
 use std::{
     fs,
     path::PathBuf,
@@ -22,7 +22,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-quotes-{}-{}-{}",
+            "babble-quotes-{}-{}-{}",
             std::process::id(),
             Timestamp::now().0.unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed)
@@ -295,7 +295,7 @@ fn quotes_validate_source_ids_limits_and_source_bound_existing_edge_cursors() {
     for cursor in [
         String::new(),
         "x".repeat(100_000),
-        format!("v2|{}|{}", source.id, edge.id),
+        format!("|{}|{}", source.id, edge.id),
         format!("v1|{}|{}", other.id, edge.id),
         format!("v1|{}|edge_{}", source.id, "0".repeat(64)),
         format!("v1|{}|edge_{}", source.id, "G".repeat(64)),
@@ -473,15 +473,15 @@ fn quotes_historical_keys_and_late_rotation_import_rebuild_verified_context() {
 
 #[test]
 fn quotes_text_and_media_social_shares_project_their_atomically_published_edge() {
-    use babel_authoring::ObjectDraft;
+    use babble_authoring::ObjectDraft;
     let mut f = Fixture::new();
     let target_author = f
         .node
         .create_identity(IdentityKind::Person, "original-author")
         .unwrap();
     let target = f.node.publish_text(&target_author.id, "original").unwrap();
-    let capability: babel_object::CapabilityRequest = serde_json::from_value(serde_json::json!({
-        "id": "babel.social.share", "version": 1, "scope": {"object_id": target.id}
+    let capability: babble_object::CapabilityRequest = serde_json::from_value(serde_json::json!({
+        "id": "babble.social.share", "version": 1, "scope": {"object_id": target.id}
     }))
     .unwrap();
     let controller = f

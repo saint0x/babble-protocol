@@ -50,14 +50,14 @@ function exerciseDraftControls(identityId) {
     const button = required('.action-popover[data-kind="social"] > button', card);
     return { button, expanded: button.getAttribute("aria-expanded") === "true" };
   });
-  const origin = new URL(document.documentElement.dataset.babelApi).origin;
+  const origin = new URL(document.documentElement.dataset.babbleApi).origin;
   const targets = [
     { mode: "reply", parent: cardA.dataset.objectId, card: cardA, label: "Reply" },
     { mode: "reply", parent: cardB.dataset.objectId, card: cardB, label: "Reply" },
     { mode: "share", parent: cardA.dataset.objectId, card: cardA, label: "Share" },
     { mode: "publish", parent: null, card: null, label: "Post" },
   ].map((target) => {
-    const key = `babel.draft.v1:${JSON.stringify([origin, identityId, target.mode, target.parent])}`;
+    const key = `babble.draft.v1:${JSON.stringify([origin, identityId, target.mode, target.parent])}`;
     return { ...target, key, stored: localStorage.getItem(key), original: null };
   });
   let navigationCount = 0;

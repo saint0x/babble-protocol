@@ -16,7 +16,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
         if path.exists() {
             let existing = fs::read_to_string(&path).map_err(key_error)?;
             if existing != key.ed25519_secret_hex() {
-                return Err(babel_types::Error::Signature);
+                return Err(babble_types::Error::Signature);
             }
             return Ok(());
         }
@@ -60,6 +60,6 @@ impl<P: JudgmentProvider> LocalNode<P> {
     }
 }
 
-fn key_error(error: std::io::Error) -> babel_types::Error {
-    babel_types::Error::Conflict(format!("signing key storage: {error}"))
+fn key_error(error: std::io::Error) -> babble_types::Error {
+    babble_types::Error::Conflict(format!("signing key storage: {error}"))
 }

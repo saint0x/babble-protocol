@@ -9,7 +9,7 @@ const code = ts.transpileModule(readFileSync(new URL("../src/app/invocation-prom
 }).outputText;
 
 function summary(method = "reply") {
-  return { method: `babel.social.${method}.v2`, actor: { id: "actor-1", label: "Alice" },
+  return { method: `babble.social.${method}`, actor: { id: "actor-1", label: "Alice" },
     requester: { id: "requester-1", title: "Notebook" }, recipient: { id: "recipient-1", title: "A conversation" },
     text: "Exact text\n  with whitespace", media: [{ id: "media-1", title: "A photo", mimeType: "image/png", sizeBytes: 4096, digest: "sha256:abc" }],
     deadlineEpochMs: 31_000 };
@@ -168,9 +168,9 @@ test("immutable deadline survives wall-clock rollback and cancels before late al
 
 test("expired or malformed summaries fail closed before mounting", async () => {
   for (const change of [s => { s.deadlineEpochMs = 1000; }, s => { s.deadlineEpochMs = NaN; }, s => { s.deadlineEpochMs = Infinity; },
-    s => { s.method = "babel.clipboard.write.v1"; }, s => { s.method = "babel.social.follow.v1"; },
-    s => { s.method = "babel.social.unfollow.v1"; }, s => { s.method = "babel.social.share.v1"; },
-    s => { s.method = "babel.social.reply.v1"; }, s => { s.method = "toString"; }, s => { s.actor.id = ""; },
+    s => { s.method = "babble.clipboard.write.v1"; }, s => { s.method = "babble.social.follow.v1"; },
+    s => { s.method = "babble.social.unfollow.v1"; }, s => { s.method = "babble.social.share.v1"; },
+    s => { s.method = "babble.social.reply.v1"; }, s => { s.method = "toString"; }, s => { s.actor.id = ""; },
     s => { s.text = 7; }, s => { s.requester.title = null; }, s => { s.media[0].sizeBytes = -1; }, s => { s.media[0].digest = {}; }]) {
     const h = harness(), input = summary(); change(input);
     assert.equal(await h.prompt(input), "cancel"); assert.equal(h.dialog(), undefined); h.assertClean();

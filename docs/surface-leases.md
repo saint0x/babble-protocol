@@ -2,7 +2,7 @@
 
 Authenticated HTTP Surface sessions require an explicit host lease. Creation
 reserves 60 seconds, capped by the originating login's expiry. The host renews
-through `babel.runtime.surface.session.heartbeat.v1` with an empty payload and a
+through `babble.runtime.surface.session.heartbeat.v1` with an empty payload and a
 host binding containing `surface_session_id`, or through
 `POST /runtime/surfaces/sessions/{id}/heartbeat`.
 

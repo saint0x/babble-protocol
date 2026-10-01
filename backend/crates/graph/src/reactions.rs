@@ -1,7 +1,7 @@
 //! Public, attributed reaction registers. Axes remain independent; absence is withdrawal.
-use babel_crypto::{Keypair, Signature};
-use babel_identity::Identity;
-use babel_types::{Canonical, Error, Hash, IdentityId, ObjectId, Result, Timestamp};
+use babble_crypto::{Keypair, Signature};
+use babble_identity::Identity;
+use babble_types::{Canonical, Error, Hash, IdentityId, ObjectId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -232,7 +232,7 @@ pub struct ReactionAction {
 impl ReactionAction {
     pub fn sign(payload: ReactionActionPayload, key: &Keypair) -> Result<Self> {
         payload.state.validate()?;
-        let bytes = ("babel.public.reaction.action.v1", &payload).canonical_bytes()?;
+        let bytes = ("babble.public.reaction.action.v1", &payload).canonical_bytes()?;
         Ok(Self {
             id: Hash::from_bytes(&bytes),
             payload,
@@ -252,7 +252,7 @@ impl ReactionAction {
         {
             return Err(Error::Signature);
         }
-        let bytes = ("babel.public.reaction.action.v1", &self.payload).canonical_bytes()?;
+        let bytes = ("babble.public.reaction.action.v1", &self.payload).canonical_bytes()?;
         if self.id != Hash::from_bytes(&bytes) {
             return Err(Error::Signature);
         }
@@ -280,11 +280,11 @@ pub struct ReactionReceipt {
 
 impl ReactionReceipt {
     pub fn id(&self) -> Result<Hash> {
-        ("babel.public.reaction.receipt.v1", &self.payload).canonical_hash()
+        ("babble.public.reaction.receipt.v1", &self.payload).canonical_hash()
     }
     pub fn sign(payload: ReactionReceiptPayload, key: &Keypair) -> Result<Self> {
         let signature =
-            key.sign(&("babel.public.reaction.receipt.v1", &payload).canonical_bytes()?);
+            key.sign(&("babble.public.reaction.receipt.v1", &payload).canonical_bytes()?);
         Ok(Self { payload, signature })
     }
     pub fn verify(&self, signer: &Identity) -> Result<()> {
@@ -308,7 +308,7 @@ impl ReactionReceipt {
             return Err(Error::Signature);
         }
         signer.public_key.verify(
-            &("babel.public.reaction.receipt.v1", &self.payload).canonical_bytes()?,
+            &("babble.public.reaction.receipt.v1", &self.payload).canonical_bytes()?,
             &self.signature,
         )
     }

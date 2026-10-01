@@ -1,4 +1,4 @@
-import type { ProtocolTypes } from "@babel-protocol/sdk";
+import type { ProtocolTypes } from "@babble-protocol/sdk";
 import { identity } from "./profile-response";
 
 export type SafetyIdentity = ProtocolTypes["identity.Identity"];

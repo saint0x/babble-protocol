@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 export async function verifyTemporalPresentation(execute, waitFor, provider) {
   await execute([{ type: "eval", code: `
     (() => {
-      window.__babelTemporalLayout = null;
+      window.__babbleTemporalLayout = null;
       const inspect = async (doc) => {
         const win = doc.defaultView;
         const card = doc.querySelector('.post-card[data-offset="0"]');
@@ -62,13 +62,13 @@ export async function verifyTemporalPresentation(execute, waitFor, provider) {
             results.push(await inspect(frame.contentDocument));
           } finally { frame.remove(); }
         }
-        window.__babelTemporalLayout = { results };
-      })().catch(error => { window.__babelTemporalLayout = { error: String(error) }; });
+        window.__babbleTemporalLayout = { results };
+      })().catch(error => { window.__babbleTemporalLayout = { error: String(error) }; });
       return { started: true };
     })()
   ` }]);
-  const result = await waitFor("window.__babelTemporalLayout", value => value != null);
-  await execute([{ type: "eval", code: "delete window.__babelTemporalLayout; ({cleared:true})" }]);
+  const result = await waitFor("window.__babbleTemporalLayout", value => value != null);
+  await execute([{ type: "eval", code: "delete window.__babbleTemporalLayout; ({cleared:true})" }]);
   assert.equal(result.error, undefined, JSON.stringify(result));
   assert.equal(result.results.length, 3);
   for (const layout of result.results) {

@@ -27,7 +27,7 @@ import { HostActions } from "./host-actions";
 import { SurfaceInvocations } from "./surface-invocations";
 import { ChevronLeft, ChevronRight, createElement, Maximize2, Minimize2, Plus, RotateCw, ShieldCheck, Undo2, X } from "lucide";
 import {
-  BabelFrontendClient,
+  BabbleFrontendClient,
   judgmentDefinitions,
   type FeedCard,
   type FeedDiversity,
@@ -38,7 +38,7 @@ import {
   type PlatformOverview,
   type SocialTextKind,
 } from "./protocol";
-import { createPersonalizationFilter, summarizeDiscoveryObject, type LocalUserModelInput } from "@babel-protocol/sdk";
+import { createPersonalizationFilter, summarizeDiscoveryObject, type LocalUserModelInput } from "@babble-protocol/sdk";
 
 const deck = required(document.querySelector<HTMLElement>("[data-deck]"), "deck");
 const empty = required(document.querySelector<HTMLElement>("[data-empty]"), "empty state");
@@ -125,9 +125,9 @@ const platformLenses = document.querySelector<HTMLElement>("[data-platform-lense
 const platformJudges = document.querySelector<HTMLElement>("[data-platform-judges]");
 const platformCapabilityList = document.querySelector<HTMLElement>("[data-platform-capability-list]");
 
-const apiUrl = document.documentElement.dataset.babelApi;
+const apiUrl = document.documentElement.dataset.babbleApi;
 if (!apiUrl) {
-  throw new Error("Babel frontend requires data-babel-api on the document element");
+  throw new Error("Babble frontend requires data-babble-api on the document element");
 }
 
 const PANEL_ANIMATION_MS = 220;
@@ -144,7 +144,7 @@ const composerView = new ComposerView(required(composerPanel, "composer panel"),
   drafts.edit(composeText.value, files);
   renderComposerDraft();
 });
-const client = new BabelFrontendClient(apiUrl, accounts.fetch);
+const client = new BabbleFrontendClient(apiUrl, accounts.fetch);
 const followingClient = new FollowingClient(apiUrl, accounts.authenticatedFetch);
 let safetyRevision: { owner: string; revision: number } | null = null;
 let safetyUnavailable = false;
@@ -786,10 +786,10 @@ async function publishFromComposer(): Promise<void> {
   const submission = drafts.begin();
   if (!submission) return;
   const authorized = () => accounts.current?.token === session.token && drafts.owns(submission);
-  const publisher = new BabelFrontendClient(accounts.origin.href, draftTransport(accounts.fetch, authorized, submission.operationId), submission.operationId);
+  const publisher = new BabbleFrontendClient(accounts.origin.href, draftTransport(accounts.fetch, authorized, submission.operationId), submission.operationId);
   const { target } = submission;
   renderComposerDraft();
-  let published: Awaited<ReturnType<BabelFrontendClient["publishText"]>>;
+  let published: Awaited<ReturnType<BabbleFrontendClient["publishText"]>>;
   try {
     published = submission.media.length
       ? await publishMediaWithAuthor(publisher, session.identity.id, text, submission.media, target)
@@ -985,17 +985,17 @@ function syncAccount(): void {
 }
 
 async function publishMediaWithAuthor(
-  publisher: BabelFrontendClient,
+  publisher: BabbleFrontendClient,
   identityId: string,
   text: string,
   media: readonly File[],
   target?: DraftTarget,
-): Promise<Awaited<ReturnType<BabelFrontendClient["publishMedia"]>>> {
+): Promise<Awaited<ReturnType<BabbleFrontendClient["publishMedia"]>>> {
   const invalid = composerAlbumError(media);
   if (invalid) throw new Error(invalid);
   const first = media[0];
   if (!first) throw new Error("Choose media before publishing");
-  const resources: Awaited<ReturnType<BabelFrontendClient["putMediaBlob"]>>[] = [];
+  const resources: Awaited<ReturnType<BabbleFrontendClient["putMediaBlob"]>>[] = [];
   const hashes = new Set<string>();
   // Upload sequentially to bound memory; publish only when the whole album is ready.
   for (const file of media) {
@@ -1472,7 +1472,7 @@ async function openSurface(objectId: string): Promise<void> {
   closeSurface();
   const sequence = ++surfaceOpenSequence;
   const authorized = () => accounts.current?.token === session.token;
-  const source = new BabelFrontendClient(accounts.origin.href, async (input, init) => {
+  const source = new BabbleFrontendClient(accounts.origin.href, async (input, init) => {
     if (!authorized()) throw new Error("The signed-in account changed. Reopen this Object.");
     return accounts.authenticatedFetch(input, init);
   });
@@ -1695,13 +1695,13 @@ function setJudgmentStatus(message: string, state: "busy" | "error" | "ready"): 
 }
 
 function errorMessage(cause: unknown): string {
-  return cause instanceof Error ? cause.message : "Babel frontend encountered an unknown failure";
+  return cause instanceof Error ? cause.message : "Babble frontend encountered an unknown failure";
 }
 
 function feedErrorMessage(cause: unknown, apiUrl: URL): string {
   const message = errorMessage(cause);
   if (message === "Failed to fetch") {
-    return `Babel API is unavailable at ${apiUrl.origin}`;
+    return `Babble API is unavailable at ${apiUrl.origin}`;
   }
   return message;
 }
@@ -1854,16 +1854,16 @@ function selectedJudgmentDefinition(): JudgmentDefinition | null {
 
 function syncJudgmentParameterInputs(): void {
   const definition = selectedJudgmentDefinition();
-  judgmentQueryLabel.hidden = definition !== "babel.judgment.relevance.v1";
-  judgmentRelationLabel.hidden = definition !== "babel.judgment.relationship.v1";
+  judgmentQueryLabel.hidden = definition !== "babble.judgment.relevance.v1";
+  judgmentRelationLabel.hidden = definition !== "babble.judgment.relationship.v1";
 }
 
 function judgmentParameters(definition: JudgmentDefinition): Record<string, string> {
-  if (definition === "babel.judgment.relevance.v1") {
+  if (definition === "babble.judgment.relevance.v1") {
     const query = judgmentQueryInput.value.trim();
     return query.length === 0 ? {} : { query };
   }
-  if (definition === "babel.judgment.relationship.v1") {
+  if (definition === "babble.judgment.relationship.v1") {
     return { relation: judgmentRelationInput.value };
   }
   return {};
@@ -1921,8 +1921,8 @@ function judgmentConfidence(judgment: ObjectJudgment): string {
   const output = judgment.output;
   const status = output && typeof output === "object" && !Array.isArray(output)
     ? output.confidence_status : null;
-  if (status === "uncalibrated" || judgment.provider.provider === "babel-constant") return "Uncalibrated";
-  if (status === "legacy_heuristic" || judgment.provider.provider === "babel-local") return "Heuristic";
+  if (status === "uncalibrated" || judgment.provider.provider === "babble-constant") return "Uncalibrated";
+  if (status === "legacy_heuristic" || judgment.provider.provider === "babble-local") return "Heuristic";
   return percent(judgment.confidence);
 }
 
@@ -1954,7 +1954,7 @@ async function copyJudgmentId(judgmentId: string): Promise<void> {
 }
 
 function definitionLabel(definition: string): string {
-  return definition.replace(/^babel\.judgment\./, "").replace(/\.v\d+$/, "").replaceAll("_", " ");
+  return definition.replace(/^babble\.judgment\./, "").replace(/\.v\d+$/, "").replaceAll("_", " ");
 }
 
 function formatTimestamp(value: string): string {
@@ -2139,7 +2139,7 @@ function compactId(value: string): string {
   return value.length <= 18 ? value : `${value.slice(0, 12)}...${value.slice(-6)}`;
 }
 
-function renderSurfacePlan(plan: Awaited<ReturnType<BabelFrontendClient["prepareSurface"]>>): void {
+function renderSurfacePlan(plan: Awaited<ReturnType<BabbleFrontendClient["prepareSurface"]>>): void {
   surfaceMeta.replaceChildren(
     metaPill("Admission", plan.admission),
     metaPill("Target", plan.surface.target),
@@ -2177,7 +2177,7 @@ function bytes(value: number): string {
 
 function required<T extends Element>(node: T | null, label: string): T {
   if (!node) {
-    throw new Error(`Babel frontend failed to find required DOM node: ${label}`);
+    throw new Error(`Babble frontend failed to find required DOM node: ${label}`);
   }
   return node;
 }

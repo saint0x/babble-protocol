@@ -48,12 +48,12 @@ test("defaults have the exact legacy contract and independent mutable containers
 
 test("legacy saved JSON reloads without migration, writes, or key changes", () => {
   const saved = JSON.stringify(legacy());
-  const store = storage([["babel.preferences.legacy", saved]]);
-  const result = readPreferences(store, "babel.preferences.legacy");
+  const store = storage([["babble.preferences.legacy", saved]]);
+  const result = readPreferences(store, "babble.preferences.legacy");
   assert.equal(result.warning, null);
   assert.deepEqual(plain(result.preferences), legacy());
-  assert.equal(store.entries.get("babel.preferences.legacy"), saved);
-  assert.deepEqual(store.calls, [["get", "babel.preferences.legacy"]]);
+  assert.equal(store.entries.get("babble.preferences.legacy"), saved);
+  assert.deepEqual(store.calls, [["get", "babble.preferences.legacy"]]);
 });
 
 test("missing data is a normal default; unavailable reads report warnings", () => {

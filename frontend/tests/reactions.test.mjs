@@ -183,7 +183,7 @@ test("dispose invalidates everything, unsubscribes account changes and never rel
 function transportHarness(request, publicFetch, timeout = 100) {
   const saved = session();
   const storage = { getItem: () => JSON.stringify(saved), setItem() {}, removeItem() {} };
-  const accounts = new Accounts("https://babel.test", storage, request);
+  const accounts = new Accounts("https://babble.test", storage, request);
   const client = new ReactionClient(accounts, publicFetch ?? request, timeout);
   return { accounts, client, source: client.capture(() => true) };
 }

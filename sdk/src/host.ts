@@ -4,7 +4,7 @@ import { SurfaceChannelHost, type SurfaceMessagePort } from "./channel.js";
 import { rpcCatalog, type RpcOutput, type RpcRequestEnvelope } from "./generated/protocol.js";
 import { createSurfaceLifecycle, type SurfaceLifecycleController } from "./lifecycle.js";
 
-type SurfacePlan = RpcOutput<"babel.runtime.surface.prepare.v1">["plan"];
+type SurfacePlan = RpcOutput<"babble.runtime.surface.prepare.v1">["plan"];
 type BrowserSurfaceTarget = "Static" | "Web" | "WebGpu";
 
 export interface SurfaceHostWindow {
@@ -100,14 +100,14 @@ export class BrowserSurfaceHost {
     assertBrowserTarget(options.plan.surface.target);
     const registerDocument = options.registerDocument;
     if (options.plan.surface.target !== "Static" && typeof registerDocument !== "function") {
-      throw new Error("executable Babel Surfaces require a document registration callback");
+      throw new Error("executable Babble Surfaces require a document registration callback");
     }
 
     const hostWindow = options.window ?? globalWindow();
     const document = options.document ?? globalDocument();
     const hostOrigin = options.hostOrigin ?? hostWindow.location?.origin;
     if (!hostOrigin) {
-      throw new Error("Babel Surface host requires an explicit host origin outside a browser window");
+      throw new Error("Babble Surface host requires an explicit host origin outside a browser window");
     }
 
     const bundleEntry = verifiedBundleEntry(
@@ -205,7 +205,7 @@ class MountedBrowserSurface implements MountedSurface {
 
   activate(): void {
     if (!this.#mounted) {
-      throw new Error("Babel Surface execution stopped; restore a checkpoint through a fresh mount");
+      throw new Error("Babble Surface execution stopped; restore a checkpoint through a fresh mount");
     }
     if (this.lifecycle.state === "prefetched") {
       this.lifecycle.transition("warm", "surface resources warmed");
@@ -289,9 +289,9 @@ function configureFrame(
     }
   }
   frame.setAttribute("allow", iframePermissionsPolicy(plan));
-  frame.setAttribute("data-babel-object", plan.object_id);
-  frame.setAttribute("data-babel-surface-role", plan.surface.role);
-  frame.setAttribute("data-babel-surface-target", plan.surface.target);
+  frame.setAttribute("data-babble-object", plan.object_id);
+  frame.setAttribute("data-babble-surface-role", plan.surface.role);
+  frame.setAttribute("data-babble-surface-target", plan.surface.target);
   if (!plan.sandbox.host_cookies) {
     frame.setAttribute("credentialless", "");
   }
@@ -304,8 +304,8 @@ function configureFrame(
 }
 
 function syncFrameLifecycle(frame: SurfaceFrame, lifecycle: SurfaceLifecycleController): void {
-  frame.setAttribute("data-babel-lifecycle", lifecycle.state);
-  frame.setAttribute("data-babel-suspended", lifecycle.state === "suspended" ? "true" : "false");
+  frame.setAttribute("data-babble-lifecycle", lifecycle.state);
+  frame.setAttribute("data-babble-suspended", lifecycle.state === "suspended" ? "true" : "false");
 }
 
 function syncFrameBudget(frame: SurfaceFrame, lifecycle: SurfaceLifecycleController): void {
@@ -313,12 +313,12 @@ function syncFrameBudget(frame: SurfaceFrame, lifecycle: SurfaceLifecycleControl
   if (!budget) {
     return;
   }
-  frame.setAttribute("data-babel-memory-budget", String(budget.memory_bytes));
-  frame.setAttribute("data-babel-cpu-budget", String(budget.cpu_ms_per_minute));
-  frame.setAttribute("data-babel-network-budget", String(budget.network_bytes_per_minute));
-  frame.setAttribute("data-babel-realtime-budget", String(budget.realtime_connections));
-  frame.setAttribute("data-babel-storage-budget", String(budget.persistent_storage_bytes));
-  frame.setAttribute("data-babel-gpu-expected", budget.gpu_expected ? "true" : "false");
+  frame.setAttribute("data-babble-memory-budget", String(budget.memory_bytes));
+  frame.setAttribute("data-babble-cpu-budget", String(budget.cpu_ms_per_minute));
+  frame.setAttribute("data-babble-network-budget", String(budget.network_bytes_per_minute));
+  frame.setAttribute("data-babble-realtime-budget", String(budget.realtime_connections));
+  frame.setAttribute("data-babble-storage-budget", String(budget.persistent_storage_bytes));
+  frame.setAttribute("data-babble-gpu-expected", budget.gpu_expected ? "true" : "false");
 }
 
 function iframeCsp(csp: string): string {
@@ -406,29 +406,29 @@ function reducedInteger(current: number, requested: number | undefined, field: s
     return current;
   }
   if (!Number.isSafeInteger(requested) || requested < 0) {
-    throw new Error(`invalid Babel Surface pressure budget ${field}: ${requested}`);
+    throw new Error(`invalid Babble Surface pressure budget ${field}: ${requested}`);
   }
   if (requested > current) {
-    throw new Error(`Babel Surface pressure budget cannot increase ${field}: ${current} -> ${requested}`);
+    throw new Error(`Babble Surface pressure budget cannot increase ${field}: ${current} -> ${requested}`);
   }
   return requested;
 }
 
 function assertReadyPlan(plan: SurfacePlan): void {
   if (plan.admission !== "ready") {
-    throw new Error(`cannot mount Babel Surface with admission status: ${plan.admission}`);
+    throw new Error(`cannot mount Babble Surface with admission status: ${plan.admission}`);
   }
   if (!plan.sandbox.capability_bridge && plan.surface.target !== "Static") {
-    throw new Error("executable Babel Surfaces require a capability bridge");
+    throw new Error("executable Babble Surfaces require a capability bridge");
   }
   if (plan.lifecycle === "suspended" || plan.lifecycle === "evicted") {
-    throw new Error(`cannot mount Babel Surface with stopped lifecycle: ${plan.lifecycle}`);
+    throw new Error(`cannot mount Babble Surface with stopped lifecycle: ${plan.lifecycle}`);
   }
 }
 
 function assertBrowserTarget(target: string): asserts target is BrowserSurfaceTarget {
   if (target !== "Static" && target !== "Web" && target !== "WebGpu") {
-    throw new Error(`Babel browser host cannot mount Surface target: ${target}`);
+    throw new Error(`Babble browser host cannot mount Surface target: ${target}`);
   }
 }
 
@@ -476,14 +476,14 @@ function scopedSurfaceDispatch(options: SurfaceMountOptions, surfaceOrigin: stri
 }
 
 const surfaceReadMethods: ReadonlySet<string> = new Set([
-  "babel.object.get.v1", "babel.media.blob.get.v1", "babel.graph.evidence.v1",
-  "babel.graph.traverse.v1", "babel.social.replies.list.v1",
-  "babel.social.reactions.summary.v1", "babel.social.reactions.record.v1",
-  "babel.judgment.object.list.v1", "babel.judgment.definitions.list.v1",
-  "babel.judgment.providers.list.v1", "babel.search.objects.v1", "babel.lenses.list.v1",
-  "babel.discovery.candidates.v1", "babel.capabilities.list.v1", "babel.capabilities.inspect.v1",
-  "babel.runtime.surface.prepare.v1", "babel.runtime.surface.session.get.v1",
-  "babel.runtime.surface.session.state.get.v1",
+  "babble.object.get.v1", "babble.media.blob.get.v1", "babble.graph.evidence.v1",
+  "babble.graph.traverse.v1", "babble.social.replies.list.v1",
+  "babble.social.reactions.summary.v1", "babble.social.reactions.record.v1",
+  "babble.judgment.object.list.v1", "babble.judgment.definitions.list.v1",
+  "babble.judgment.providers.list.v1", "babble.search.objects.v1", "babble.lenses.list.v1",
+  "babble.discovery.candidates.v1", "babble.capabilities.list.v1", "babble.capabilities.inspect.v1",
+  "babble.runtime.surface.prepare.v1", "babble.runtime.surface.session.get.v1",
+  "babble.runtime.surface.session.state.get.v1",
 ]);
 
 function bindSurfaceRequest(
@@ -499,7 +499,7 @@ function bindSurfaceRequest(
     binding: {
       object_id: objectId,
       surface_session_id: surfaceSessionId,
-      runtime_id: request.binding.runtime_id || "babel-browser-surface-host",
+      runtime_id: request.binding.runtime_id || "babble-browser-surface-host",
       origin: surfaceOrigin,
       capability_grants: [...grantedCapabilityIds],
       identity_id: currentIdentityId,
@@ -510,21 +510,21 @@ function bindSurfaceRequest(
 function surfaceEntry(entry: string, hostOrigin: string): URL {
   const url = new URL(entry, hostOrigin);
   if (url.protocol !== "https:" && url.protocol !== "http:") {
-    throw new Error(`Babel browser host requires an HTTP(S) Surface entry: ${entry}`);
+    throw new Error(`Babble browser host requires an HTTP(S) Surface entry: ${entry}`);
   }
   return url;
 }
 
 function globalWindow(): SurfaceHostWindow {
   if (typeof window === "undefined") {
-    throw new Error("Babel Surface host requires a browser window or explicit window adapter");
+    throw new Error("Babble Surface host requires a browser window or explicit window adapter");
   }
   return window;
 }
 
 function globalDocument(): SurfaceDocument {
   if (typeof document === "undefined") {
-    throw new Error("Babel Surface host requires a browser document or explicit document adapter");
+    throw new Error("Babble Surface host requires a browser document or explicit document adapter");
   }
   return document;
 }

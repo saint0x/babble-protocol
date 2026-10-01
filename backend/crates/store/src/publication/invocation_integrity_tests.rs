@@ -1,7 +1,7 @@
 use super::invocation_tests::{approve, at, bare_intent, completion};
 use super::tests::{Root, fixture};
 use super::*;
-use babel_capabilities::invocation::*;
+use babble_capabilities::invocation::*;
 use serde_json::json;
 use std::sync::{Arc, Barrier};
 

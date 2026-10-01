@@ -2,6 +2,6 @@
   "version": 1,
   "name": "following-api-host",
   "steps": [
-    { "type": "proc_spawn", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-api", "--test", "following", "--test", "server"], "expect_exit": 0 }
+    { "type": "proc_spawn", "cmd": "cargo", "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babble-api", "--test", "following", "--test", "server"], "expect_exit": 0 }
   ]
 }

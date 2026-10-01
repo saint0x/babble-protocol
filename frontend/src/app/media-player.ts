@@ -15,8 +15,8 @@ function available(player: HTMLMediaElement): boolean {
 
 function visit(node: Node, action: (player: HTMLMediaElement) => void): void {
   if (!(node instanceof Element)) return;
-  if (node.matches("[data-babel-playback]")) action(node as HTMLMediaElement);
-  node.querySelectorAll<HTMLMediaElement>("[data-babel-playback]").forEach(action);
+  if (node.matches("[data-babble-playback]")) action(node as HTMLMediaElement);
+  node.querySelectorAll<HTMLMediaElement>("[data-babble-playback]").forEach(action);
 }
 
 function attach(player: HTMLMediaElement): void {
@@ -53,7 +53,7 @@ function observePlayback(): void {
       });
       for (const added of record.addedNodes) visit(added, (player) => { if (player.isConnected) attach(player); });
     }
-    for (const player of document.querySelectorAll<HTMLMediaElement>("[data-babel-playback]")) {
+    for (const player of document.querySelectorAll<HTMLMediaElement>("[data-babble-playback]")) {
       if (!available(player)) player.pause();
     }
   }).observe(document.documentElement, {
@@ -73,7 +73,7 @@ export function createMediaPlayer(media: CardMedia & { readonly title: string })
   player.controls = true;
   player.preload = "metadata";
   player.autoplay = false;
-  player.dataset.babelPlayback = "true";
+  player.dataset.babblePlayback = "true";
   player.setAttribute("aria-label", media.title);
   if (player instanceof HTMLVideoElement) player.playsInline = true;
   if (media.mediaKind === "audio") {

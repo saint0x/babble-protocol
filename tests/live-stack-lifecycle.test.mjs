@@ -47,7 +47,7 @@ async function absent(pids) {
 
 for (const signal of ["SIGINT", "SIGTERM"]) test(`${signal} stops descendants after their group leader exits and preserves an unrelated service`,
   { timeout: 10_000 }, async () => {
-    const directory = await mkdtemp(join(tmpdir(), "babel-lifecycle-tests-"));
+    const directory = await mkdtemp(join(tmpdir(), "babble-lifecycle-tests-"));
     const storeRoot = await mkdtemp(join(directory, "store-"));
     const userFile = join(directory, "preview-user-data");
     await writeFile(userFile, "keep this data");
@@ -80,7 +80,7 @@ for (const signal of ["SIGINT", "SIGTERM"]) test(`${signal} stops descendants af
   });
 
 test("interrupt before readiness removes the owned child and disposable store", { timeout: 10_000 }, async () => {
-  const storeRoot = await mkdtemp(join(tmpdir(), "babel-lifecycle-startup-"));
+  const storeRoot = await mkdtemp(join(tmpdir(), "babble-lifecycle-startup-"));
   const owner = launch("owner", storeRoot, "before-ready");
   let owned;
   try {
@@ -98,7 +98,7 @@ test("interrupt before readiness removes the owned child and disposable store", 
 });
 
 test("parent IPC disconnect cleans running descendants even when no signal was forwarded", { timeout: 10_000 }, async () => {
-  const storeRoot = await mkdtemp(join(tmpdir(), "babel-lifecycle-disconnect-"));
+  const storeRoot = await mkdtemp(join(tmpdir(), "babble-lifecycle-disconnect-"));
   const owner = launch("owner", storeRoot, "normal");
   let owned;
   try {
@@ -118,7 +118,7 @@ test("parent IPC disconnect cleans running descendants even when no signal was f
 });
 
 test("killed evidence wrapper closes IPC and log pipes without interrupting descendant cleanup", { timeout: 10_000 }, async () => {
-  const storeRoot = await mkdtemp(join(tmpdir(), "babel-lifecycle-wrapper-"));
+  const storeRoot = await mkdtemp(join(tmpdir(), "babble-lifecycle-wrapper-"));
   const wrapper = launch("wrapper", storeRoot, "normal");
   let owned;
   try {
@@ -136,7 +136,7 @@ test("killed evidence wrapper closes IPC and log pipes without interrupting desc
 });
 
 test("failure before readiness still cleans the other owned process and store", { timeout: 10_000 }, async () => {
-  const storeRoot = await mkdtemp(join(tmpdir(), "babel-lifecycle-failure-"));
+  const storeRoot = await mkdtemp(join(tmpdir(), "babble-lifecycle-failure-"));
   const owner = launch("owner", storeRoot, "startup-failure");
   try {
     const owned = await owner.message;
@@ -152,7 +152,7 @@ test("failure before readiness still cleans the other owned process and store", 
 });
 
 test("concurrent shutdown is idempotent, rejects restart admission, and removes storage only after child exit", { timeout: 10_000 }, async () => {
-  const storeRoot = await mkdtemp(join(tmpdir(), "babel-lifecycle-restart-"));
+  const storeRoot = await mkdtemp(join(tmpdir(), "babble-lifecycle-restart-"));
   const lifecycle = new LiveStackLifecycle(storeRoot, { graceMs: 150, killMs: 1500 });
   const child = lifecycle.spawn(process.execPath, [fixture, "service", storeRoot, "stubborn"], {
     stdio: ["ignore", "ignore", "inherit", "ipc"],
@@ -176,7 +176,7 @@ test("concurrent shutdown is idempotent, rejects restart admission, and removes 
 });
 
 test("spawn failure is cleanable and an unowned process is never stopped", { timeout: 10_000 }, async () => {
-  const storeRoot = await mkdtemp(join(tmpdir(), "babel-lifecycle-spawn-"));
+  const storeRoot = await mkdtemp(join(tmpdir(), "babble-lifecycle-spawn-"));
   const lifecycle = new LiveStackLifecycle(storeRoot, { graceMs: 150, killMs: 1500 });
   const unrelated = launch("service", storeRoot, "unrelated");
   try {
@@ -196,7 +196,7 @@ test("spawn failure is cleanable and an unowned process is never stopped", { tim
 
 for (const failure of ["throw", "timeout"]) test(`owned service cleanup ${failure} still stops children and preserves the store`,
   { timeout: 10_000 }, async () => {
-    const storeRoot = await mkdtemp(join(tmpdir(), "babel-lifecycle-hook-"));
+    const storeRoot = await mkdtemp(join(tmpdir(), "babble-lifecycle-hook-"));
     let calls = 0;
     const lifecycle = new LiveStackLifecycle(storeRoot, { graceMs: 100, killMs: 1500, beforeStop: async () => {
       calls++;
@@ -223,7 +223,7 @@ for (const failure of ["throw", "timeout"]) test(`owned service cleanup ${failur
   });
 
 test("owned in-process HTTP observer closes once before child shutdown and store removal", { timeout: 10_000 }, async () => {
-  const storeRoot = await mkdtemp(join(tmpdir(), "babel-lifecycle-observer-"));
+  const storeRoot = await mkdtemp(join(tmpdir(), "babble-lifecycle-observer-"));
   const observer = createServer((_request, response) => response.end("observed"));
   observer.listen(0, "127.0.0.1");
   await once(observer, "listening");

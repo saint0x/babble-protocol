@@ -9,7 +9,7 @@ use crate::{
     Candidate, DiversityPolicy, DiversityTrace, LensStack, RankedCandidate, RankingTrace, Reason,
     diversify_ranked, normalized_weights,
 };
-use babel_types::{Error, Result};
+use babble_types::{Error, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -51,7 +51,7 @@ pub struct NativeRanker;
 impl RankingProvider for NativeRanker {
     fn version(&self) -> RankingProviderVersion {
         RankingProviderVersion {
-            provider: "babel-rust".into(),
+            provider: "babble-rust".into(),
             model: "lenses-v1".into(),
             version: "1".into(),
         }

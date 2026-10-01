@@ -45,7 +45,7 @@ fn social_media_rpc_reply_share_retry_survive_restart_and_reject_changed_intent(
     assert_eq!(after.0, before.0 + 6);
     assert_eq!(after.1, before.1 + 6);
     for (i, result) in results.iter().enumerate() {
-        assert_eq!(result["object"]["kind"], "babel.media");
+        assert_eq!(result["object"]["kind"], "babble.media");
         assert_eq!(
             result["object"]["payload"]["resources"],
             requests[i].payload["media"]["resources"]
@@ -119,7 +119,7 @@ fn social_media_rpc_invalid_media_leaves_key_reusable_and_no_orphan_records() {
             0
         );
     }
-    assert_eq!(dispatch(&state, &req)["object"]["kind"], "babel.media");
+    assert_eq!(dispatch(&state, &req)["object"]["kind"], "babble.media");
     assert_eq!(counts(&state).0, before.0 + 1);
     assert_eq!(counts(&state).1, before.1 + 1);
 }
@@ -152,7 +152,7 @@ fn social_media_rpc_receipt_install_failure_recovers_object_edge_and_retry_toget
         let state = ApiState::new(root.node());
         let before = counts(&state);
         let result = dispatch(&state, &req);
-        assert_eq!(result["object"]["kind"], "babel.media");
+        assert_eq!(result["object"]["kind"], "babble.media");
         assert_eq!(result["edge"]["source"], result["object"]["id"]);
         assert_eq!(dispatch(&state, &req), result);
         assert_eq!(counts(&state), before);

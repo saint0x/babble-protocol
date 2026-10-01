@@ -2,7 +2,7 @@ use super::*;
 use rusqlite::{Connection, params};
 use std::time::Duration;
 
-const HEARTBEAT: &str = "babel.runtime.surface.session.heartbeat.v1";
+const HEARTBEAT: &str = "babble.runtime.surface.session.heartbeat.v1";
 const TTL_MS: i64 = 60_000;
 
 fn now_ms() -> i64 {
@@ -94,7 +94,7 @@ async fn transition(
     rpc(
         app,
         account,
-        "babel.runtime.surface.session.transition.v1",
+        "babble.runtime.surface.session.transition.v1",
         host_session(id),
         json!({"lifecycle":lifecycle,"reason":"lease regression"}),
     )
@@ -103,28 +103,28 @@ async fn transition(
 
 fn native_lifecycle(state: &ApiState<LocalProvider>, id: &str) -> Value {
     let request = serde_json::from_value(envelope(
-        "babel.runtime.surface.session.get.v1",
+        "babble.runtime.surface.session.get.v1",
         host(),
         json!({"session_id":id}),
     ))
     .unwrap();
-    let response = babel_api::dispatch_rpc_request(state, request);
+    let response = babble_api::dispatch_rpc_request(state, request);
     assert!(response.error.is_none(), "{:?}", response.error);
     response.result.unwrap()["session"]["lifecycle"].clone()
 }
 
 fn assert_native_released_after_restart(state: &ApiState<LocalProvider>, id: &str) {
     let request = serde_json::from_value(envelope(
-        "babel.runtime.surface.session.get.v1",
+        "babble.runtime.surface.session.get.v1",
         host(),
         json!({"session_id":id}),
     ))
     .unwrap();
-    let response = babel_api::dispatch_rpc_request(state, request);
+    let response = babble_api::dispatch_rpc_request(state, request);
     // A cold runtime need not recreate an expired session just to evict it.
     if let Some(error) = response.error {
         assert!(
-            matches!(error.code, babel_rpc::RpcErrorCode::NotFound),
+            matches!(error.code, babble_rpc::RpcErrorCode::NotFound),
             "{error:?}"
         );
     } else {
@@ -132,14 +132,14 @@ fn assert_native_released_after_restart(state: &ApiState<LocalProvider>, id: &st
     }
 }
 
-fn native_health(state: &ApiState<LocalProvider>) -> babel_runtime::SurfaceRuntimeHealthSnapshot {
+fn native_health(state: &ApiState<LocalProvider>) -> babble_runtime::SurfaceRuntimeHealthSnapshot {
     let request = serde_json::from_value(envelope(
-        "babel.runtime.surface.health.v1",
+        "babble.runtime.surface.health.v1",
         host(),
         json!({}),
     ))
     .unwrap();
-    let response = babel_api::dispatch_rpc_request(state, request);
+    let response = babble_api::dispatch_rpc_request(state, request);
     assert!(response.error.is_none(), "{:?}", response.error);
     serde_json::from_value(response.result.unwrap()["health"].clone()).unwrap()
 }
@@ -245,22 +245,22 @@ async fn auth_lease_renewal_is_explicit_persisted_and_reads_do_not_extend_it() {
     }
     for (method, binding, payload) in [
         (
-            "babel.runtime.surface.session.get.v1",
+            "babble.runtime.surface.session.get.v1",
             host_session(&id),
             json!({"session_id":id}),
         ),
         (
-            "babel.runtime.surface.session.state.get.v1",
+            "babble.runtime.surface.session.state.get.v1",
             host_session(&id),
             json!({"session_id":id}),
         ),
         (
-            "babel.object.get.v1",
+            "babble.object.get.v1",
             bound(&object, &id, ids.clone()),
             json!({"object_id":object}),
         ),
         (
-            "babel.storage.local.get.v1",
+            "babble.storage.local.get.v1",
             bound(&object, &id, ids),
             json!({"key":"absent"}),
         ),
@@ -407,7 +407,7 @@ async fn auth_lease_expiry_denies_execution_management_and_restart_before_cleanu
     let write = rpc(
         &app,
         &account,
-        "babel.storage.local.set.v1",
+        "babble.storage.local.set.v1",
         bound(&object, &id, ids.clone()),
         json!({"key":"expired-write","value":true}),
     )
@@ -463,7 +463,7 @@ async fn auth_lease_expiry_denies_execution_management_and_restart_before_cleanu
     let stored = rpc(
         &app,
         &account,
-        "babel.storage.local.get.v1",
+        "babble.storage.local.get.v1",
         bound(&object, &fresh, ids),
         json!({"key":"expired-write"}),
     )
@@ -560,7 +560,7 @@ async fn auth_lease_restart_preserves_deadline_and_expired_tombstone() {
     let restarted = rpc(
         &app,
         &account,
-        "babel.runtime.surface.session.start.v1",
+        "babble.runtime.surface.session.start.v1",
         host(),
         json!({"object_id":object,"role":"Feed","session_id":id}),
     )

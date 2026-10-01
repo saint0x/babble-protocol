@@ -1,16 +1,16 @@
 use super::*;
 use crate::router;
-use babel_crypto::Keypair;
-use babel_graph::{Edge, EdgeOrigin, Relation};
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_node::{ImportBundle, LocalNode, QuotedObject};
-use babel_object::Object;
-use babel_rpc::{
+use babble_crypto::Keypair;
+use babble_graph::{Edge, EdgeOrigin, Relation};
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_node::{ImportBundle, LocalNode, QuotedObject};
+use babble_object::Object;
+use babble_rpc::{
     RpcBinding, RpcErrorCode, RpcIdempotency, RpcRequestEnvelope, RpcResponseEnvelope,
-    babel_rpc_catalog,
+    babble_rpc_catalog,
 };
-use babel_types::Timestamp;
+use babble_types::Timestamp;
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -31,7 +31,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-quotes-http-{}-{}-{}",
+            "babble-quotes-http-{}-{}-{}",
             std::process::id(),
             Timestamp::now().0.unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed)
@@ -145,10 +145,10 @@ impl Drop for Fixture {
 
 fn envelope(payload: Value) -> RpcRequestEnvelope {
     RpcRequestEnvelope::new(
-        &babel_rpc_catalog().unwrap(),
+        &babble_rpc_catalog().unwrap(),
         "public-quotes",
-        "babel.social.quotes.list.v1",
-        RpcBinding::host("quotes-test", "babel://test").unwrap(),
+        "babble.social.quotes.list.v1",
+        RpcBinding::host("quotes-test", "babble://test").unwrap(),
         payload,
     )
     .unwrap()
@@ -201,7 +201,7 @@ async fn quotes_public_http_and_rpc_verify_page_context_without_sessions_or_auth
         .unwrap();
     assert_eq!(response.status(), 200);
     let response: RpcResponseEnvelope = response.json().await.unwrap();
-    response.validate(&babel_rpc_catalog().unwrap()).unwrap();
+    response.validate(&babble_rpc_catalog().unwrap()).unwrap();
     assert!(response.error.is_none(), "{:?}", response.error);
     let last: QuotesListResult = serde_json::from_value(response.result.unwrap()).unwrap();
     assert_eq!(last.quotes, f.expected[2..]);
@@ -299,7 +299,7 @@ async fn quotes_public_http_and_rpc_verify_page_context_without_sessions_or_auth
             .status(),
         400
     );
-    let catalog: babel_rpc::RpcCatalog = client
+    let catalog: babble_rpc::RpcCatalog = client
         .get(format!("{origin}/rpc/catalog"))
         .send()
         .await
@@ -310,7 +310,7 @@ async fn quotes_public_http_and_rpc_verify_page_context_without_sessions_or_auth
     let method = catalog
         .methods
         .iter()
-        .find(|method| method.method.as_str() == "babel.social.quotes.list.v1")
+        .find(|method| method.method.as_str() == "babble.social.quotes.list.v1")
         .unwrap();
     assert_eq!(method.idempotency, RpcIdempotency::ReadOnly);
     stop.send(()).unwrap();

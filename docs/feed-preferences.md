@@ -34,7 +34,7 @@ deletions, reports, or moderation Judgments. An author is not notified.
 
 ## Storage and Concurrency
 
-Preferences use `babel.local.v2:` followed by the JSON tuple
+Preferences use `babble.local:` followed by the JSON tuple
 `[API origin, identity ID or null, "preferences"]` in localStorage. Reading
 history uses the same tuple with `"seen"`. Guest, account, and node-origin data
 are separate; signing out does not delete either account's preferences.
@@ -78,6 +78,6 @@ account/Settings journey within the isolated API/Astro/Aegis stack. See
 
 For a focused live check, use `tests/feed-preferences-browser-host.fozzy.json`
 with Fozzy's host process/filesystem/HTTP backends. It selects
-`BABEL_LIVE_FOCUS=preferences` in the same live-stack runner; the default runner
+`BABBLE_LIVE_FOCUS=preferences` in the same live-stack runner; the default runner
 still exercises the full platform. Build the SDK before running browser tests,
 and do not rebuild shared dependencies while a live browser suite is active.

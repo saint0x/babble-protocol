@@ -15,7 +15,7 @@ const activeChildren = new Set();
 
 function launch(port, cache, mode) {
   const child = spawn(process.execPath, [script, String(port), cache, mode], {
-    env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1", PUBLIC_BABEL_API_URL: "http://127.0.0.1:18787" },
+    env: { ...process.env, ASTRO_TELEMETRY_DISABLED: "1", PUBLIC_BABBLE_API_URL: "http://127.0.0.1:18787" },
     stdio: ["ignore", "pipe", "pipe", "ipc"],
   });
   activeChildren.add(child);
@@ -73,7 +73,7 @@ async function sharedFiles() {
 }
 
 for (const mode of ["dev", "production"]) test(`isolated Astro ${mode} owns its port, output, cache, and lifetime`, async () => {
-  const cache = await mkdtemp(join(tmpdir(), "babel-astro-isolation-"));
+  const cache = await mkdtemp(join(tmpdir(), "babble-astro-isolation-"));
   const sharedBefore = await sharedFiles();
   const existing = createServer((_request, response) => response.end("existing preview"));
   existing.listen(0, "127.0.0.1");
@@ -95,9 +95,9 @@ for (const mode of ["dev", "production"]) test(`isolated Astro ${mode} owns its 
     const page = await response.text();
     assert.equal(response.status, 200, page.slice(0, 2_000));
     assert.match(response.headers.get("content-type"), /text\/html/);
-    assert.match(page, /Babel Protocol/);
+    assert.match(page, /Babble Protocol/);
     assert.match(page, /data-feed-root/);
-    assert.match(page, /data-babel-api="http:\/\/127\.0\.0\.1:18787"/);
+    assert.match(page, /data-babble-api="http:\/\/127\.0\.0\.1:18787"/);
     assert.doesNotMatch(page, /FailedToLoadModuleSSR|<astro-error-overlay/);
     if (mode === "production") {
       assert.equal(await readFile(join(cache, "owned/dist/index.html"), "utf8"), page);

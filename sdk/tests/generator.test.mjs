@@ -6,7 +6,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 async function fixture(t, schemas) {
-  const root = await mkdtemp(join(tmpdir(), "babel-generator-"));
+  const root = await mkdtemp(join(tmpdir(), "babble-generator-"));
   t.after(() => rm(root, { recursive: true, force: true }));
   for (const path of ["sdk/scripts", "sdk/src/generated", "fixtures/protocol/v1"]) {
     await mkdir(join(root, path), { recursive: true });
@@ -14,9 +14,9 @@ async function fixture(t, schemas) {
   const script = join(root, "sdk/scripts/generate-protocol.mjs");
   await copyFile(new URL("../scripts/generate-protocol.mjs", import.meta.url), script);
   await writeFile(join(root, "fixtures/protocol/v1/schema-bundle.json"), JSON.stringify({
-    version: 1, protocol: "babel.v2", schemas: {
+    version: 1, protocol: "babble", schemas: {
       "rpc.RpcError": true, "rpc.RpcRequestEnvelope": true, "rpc.RpcResponseEnvelope": true, ...schemas,
-    }, fixtures: { rpc_catalog: { protocol: "babel.rpc.v1", methods: [] } },
+    }, fixtures: { rpc_catalog: { protocol: "babble.rpc.v1", methods: [] } },
   }));
   const generate = spawnSync(process.execPath, [script], { encoding: "utf8" });
   assert.equal(generate.status, 0, generate.stderr);

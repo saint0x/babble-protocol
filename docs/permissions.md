@@ -29,8 +29,8 @@ still rechecks the current server policy; a UI snapshot does not confer authorit
 
 ## Durable Consent Retries
 
-Authenticated `babel.capabilities.grant.v1` and
-`babel.capabilities.revoke.v1` require an envelope `idempotency_key`. REST
+Authenticated `babble.capabilities.grant.v1` and
+`babble.capabilities.revoke.v1` require an envelope `idempotency_key`. REST
 `POST /capabilities/grants` and `POST /capabilities/revocations` opt in with one
 `Idempotency-Key` header; requests without it retain their existing behavior.
 Keys must be nonblank and at most 256 bytes. Configured CORS origins may send
@@ -85,8 +85,8 @@ snapshots and account ownership records are reclaimed by background cleanup.
 
 ## Browser Action Confirmation
 
-The Astro Surface host executes `babel.clipboard.write.v2` and
-`babel.fullscreen.enter.v2` through durable one-use invocation consent. V1 calls
+The Astro Surface host executes `babble.clipboard.write` and
+`babble.fullscreen.enter` through durable one-use invocation consent. V1 calls
 are rejected. Allow once obtains approval and the sole dispatch ticket, then a
 separate Copy once or Enter fullscreen gesture invokes the native operation.
 Clipboard confirmation shows the exact text as text, not markup.

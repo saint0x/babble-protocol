@@ -71,7 +71,7 @@ export async function verifyAccountSecurity({ execute, waitFor, api, identityId,
     const dialog = document.querySelector('[data-account-dialog]');
     return { signedOut: !dialog.querySelector('[data-account-form]').hidden,
       passwordsCleared: [...dialog.querySelectorAll('input[type="password"]')].every(input => input.value === ''),
-      tokenRemoved: sessionStorage.getItem('babel.session.v1:' + new URL(document.documentElement.dataset.babelApi).origin) === null };
+      tokenRemoved: sessionStorage.getItem('babble.session.v1:' + new URL(document.documentElement.dataset.babbleApi).origin) === null };
   })()`, value => value.signedOut && value.tokenRemoved);
   assert.equal(changed.passwordsCleared, true);
   assert.equal((await request("GET", "/auth/session", witness.token)).status, 401);
@@ -145,7 +145,7 @@ export async function verifyAccountSecurity({ execute, waitFor, api, identityId,
   await revoke(current.id);
   await click("[data-security-confirm]");
   await waitFor(`({ signedOut: !document.querySelector('[data-account-form]').hidden,
-    tokenRemoved: sessionStorage.getItem('babel.session.v1:' + new URL(document.documentElement.dataset.babelApi).origin) === null })`, value => value.signedOut && value.tokenRemoved);
+    tokenRemoved: sessionStorage.getItem('babble.session.v1:' + new URL(document.documentElement.dataset.babbleApi).origin) === null })`, value => value.signedOut && value.tokenRemoved);
   console.log("Account security UI PASS", JSON.stringify({ individualRevoke: true, cancelPreservesSession: true,
     revokeOthers: true, currentPasswordRequired: true, passwordChangeSignsOutAll: true,
     newPasswordLogin: true, currentRevoke: true, layouts: layout.results }));

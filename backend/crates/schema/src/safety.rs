@@ -1,18 +1,18 @@
-use babel_crypto::Keypair;
-use babel_graph::{
+use babble_crypto::Keypair;
+use babble_graph::{
     SafetyAction, SafetyActionPayload, SafetyEntry, SafetyReceipt, SafetyReceiptPayload,
     SafetyRequest, SafetySnapshot, SafetyState,
 };
-use babel_identity::{Identity, IdentityKind};
-use babel_types::{Canonical, IdentityId, Timestamp};
+use babble_identity::{Identity, IdentityKind};
+use babble_types::{Canonical, IdentityId, Timestamp};
 use serde_json::{Value, json};
 
-pub(crate) fn fixtures() -> babel_types::Result<Value> {
+pub(crate) fn fixtures() -> babble_types::Result<Value> {
     // Fixed public test identities keep schema exports byte-for-byte reproducible.
     let key = Keypair::from_ed25519_secret_hex(&"31".repeat(32))?;
     let created_at: Timestamp = serde_json::from_value(json!("2026-09-30T00:00:00Z"))
-        .map_err(|e| babel_types::Error::Canonical(e.to_string()))?;
-    let identity = |handle: &str| -> babel_types::Result<Identity> {
+        .map_err(|e| babble_types::Error::Canonical(e.to_string()))?;
+    let identity = |handle: &str| -> babble_types::Result<Identity> {
         let commitment = json!({"kind":"Person","handle":handle,"public_key":key.public_key(),"created_at":created_at});
         let result = Identity {
             id: IdentityId::from_hash(&commitment.canonical_hash()?),

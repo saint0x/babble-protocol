@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
-  BabelError,
+  BabbleError,
   BrowserBridgeHost,
   BrowserBridgeTransport,
-  createBabelClient,
+  createBabbleClient,
   createSurfaceSDK,
   hostBinding,
   isRpcBridgeRequest,
@@ -19,7 +19,7 @@ test("BrowserBridgeTransport exchanges canonical RPC envelopes", async () => {
     assert.equal(isRpcBridgeRequest(event.data), true);
     hostEndpoint.postMessage(
       rpcBridgeResponse({
-        protocol: "babel.rpc.v1",
+        protocol: "babble.rpc.v1",
         id: event.data.envelope.id,
         result: { results: [] },
         error: null,
@@ -29,7 +29,7 @@ test("BrowserBridgeTransport exchanges canonical RPC envelopes", async () => {
     );
   });
 
-  const client = createBabelClient({
+  const client = createBabbleClient({
     transport: new BrowserBridgeTransport(objectEndpoint, {
       targetOrigin: "https://host.test",
       allowedOrigins: ["https://host.test"],
@@ -38,7 +38,7 @@ test("BrowserBridgeTransport exchanges canonical RPC envelopes", async () => {
   });
 
   const result = await client.request(
-    "babel.search.objects.v1",
+    "babble.search.objects.v1",
     { q: "lenses", author: null, kind: null, limit: 3 },
     { id: "bridge-1" },
   );
@@ -53,12 +53,12 @@ test("BrowserBridgeHost serves Surface SDK calls over the bridge", async () => {
   const host = new BrowserBridgeHost(
     hostEndpoint,
     (request) => {
-      assert.equal(request.method, "babel.realtime.session.start.v1");
+      assert.equal(request.method, "babble.realtime.session.start.v1");
       assert.equal(request.binding.object_id, "obj_surface");
       assert.equal(request.binding.surface_session_id, "surface_1");
       assert.deepEqual(request.binding.capability_grants, ["grant_join"]);
       return {
-        protocol: "babel.rpc.v1",
+        protocol: "babble.rpc.v1",
         id: request.id,
         result: {
           session: {
@@ -103,15 +103,15 @@ test("BrowserBridgeHost translates dispatch failures into structured RPC errors"
   const host = new BrowserBridgeHost(hostEndpoint, () => {
     throw new Error("host dispatcher unavailable");
   });
-  const client = createBabelClient({
+  const client = createBabbleClient({
     transport: new BrowserBridgeTransport(objectEndpoint),
     binding: hostBinding("runtime", "https://object.test"),
   });
 
   await assert.rejects(
-    client.request("babel.search.objects.v1", { q: "babel", author: null, kind: null, limit: 3 }, { id: "failure-1" }),
+    client.request("babble.search.objects.v1", { q: "babble", author: null, kind: null, limit: 3 }, { id: "failure-1" }),
     (error) => {
-      assert.ok(error instanceof BabelError);
+      assert.ok(error instanceof BabbleError);
       assert.equal(error.code, "INTERNAL");
       assert.equal(error.message, "host dispatcher unavailable");
       return true;
@@ -129,7 +129,7 @@ test("BrowserBridgeHost enforces inbound size and in-flight request limits", asy
   const firstDispatch = new Promise((resolve) => {
     releaseFirst = () =>
       resolve({
-        protocol: "babel.rpc.v1",
+        protocol: "babble.rpc.v1",
         id: firstWireId,
         result: { results: [] },
         error: null,
@@ -144,7 +144,7 @@ test("BrowserBridgeHost enforces inbound size and in-flight request limits", asy
         return firstDispatch;
       }
       return {
-        protocol: "babel.rpc.v1",
+        protocol: "babble.rpc.v1",
         id: request.id,
         result: { results: [] },
         error: null,
@@ -158,7 +158,7 @@ test("BrowserBridgeHost enforces inbound size and in-flight request limits", asy
       maxInFlightRequests: 1,
     },
   );
-  const client = createBabelClient({
+  const client = createBabbleClient({
     transport: new BrowserBridgeTransport(objectEndpoint, {
       targetOrigin: "https://host.test",
       allowedOrigins: ["https://host.test"],
@@ -167,14 +167,14 @@ test("BrowserBridgeHost enforces inbound size and in-flight request limits", asy
   });
 
   const first = client.request(
-    "babel.search.objects.v1",
+    "babble.search.objects.v1",
     { q: "first", author: null, kind: null, limit: 3 },
     { id: "first" },
   );
   await assert.rejects(
-    client.request("babel.search.objects.v1", { q: "second", author: null, kind: null, limit: 3 }, { id: "second" }),
+    client.request("babble.search.objects.v1", { q: "second", author: null, kind: null, limit: 3 }, { id: "second" }),
     (error) => {
-      assert.ok(error instanceof BabelError);
+      assert.ok(error instanceof BabbleError);
       assert.equal(error.code, "RATE_LIMITED");
       assert.equal(error.retryable, true);
       return true;
@@ -185,12 +185,12 @@ test("BrowserBridgeHost enforces inbound size and in-flight request limits", asy
 
   await assert.rejects(
     client.request(
-      "babel.search.objects.v1",
+      "babble.search.objects.v1",
       { q: "x".repeat(1000), author: null, kind: null, limit: 3 },
       { id: "oversized" },
     ),
     (error) => {
-      assert.ok(error instanceof BabelError);
+      assert.ok(error instanceof BabbleError);
       assert.equal(error.code, "QUOTA_EXCEEDED");
       assert.match(error.message, /inbound byte limit/);
       return true;
@@ -207,7 +207,7 @@ test("BrowserBridgeHost times out hung dispatches without sending late duplicate
   const hungDispatch = new Promise((resolve) => {
     releaseHung = () =>
       resolve({
-        protocol: "babel.rpc.v1",
+        protocol: "babble.rpc.v1",
         id: "hung",
         result: { results: [] },
         error: null,
@@ -219,7 +219,7 @@ test("BrowserBridgeHost times out hung dispatches without sending late duplicate
     allowedOrigins: ["https://object.test"],
     maxDispatchMs: 10,
   });
-  const client = createBabelClient({
+  const client = createBabbleClient({
     transport: new BrowserBridgeTransport(objectEndpoint, {
       targetOrigin: "https://host.test",
       allowedOrigins: ["https://host.test"],
@@ -228,9 +228,9 @@ test("BrowserBridgeHost times out hung dispatches without sending late duplicate
   });
 
   await assert.rejects(
-    client.request("babel.search.objects.v1", { q: "timeout", author: null, kind: null, limit: 3 }, { id: "hung" }),
+    client.request("babble.search.objects.v1", { q: "timeout", author: null, kind: null, limit: 3 }, { id: "hung" }),
     (error) => {
-      assert.ok(error instanceof BabelError);
+      assert.ok(error instanceof BabbleError);
       assert.equal(error.code, "TIMEOUT");
       assert.equal(error.retryable, true);
       return true;
@@ -252,7 +252,7 @@ test("BrowserBridgeHost drops malformed protocol-shaped bridge requests before d
     (request) => {
       dispatches.push(request);
       return {
-        protocol: "babel.rpc.v1",
+        protocol: "babble.rpc.v1",
         id: request.id,
         result: { results: [] },
         error: null,
@@ -267,9 +267,9 @@ test("BrowserBridgeHost drops malformed protocol-shaped bridge requests before d
   const valid = bridgeRequest("valid-shape");
   const malformedMessages = [
     null,
-    { type: "babel.rpc.request", protocol: "babel.rpc.v1", envelope: {} },
+    { type: "babble.rpc.request", protocol: "babble.rpc.v1", envelope: {} },
     bridgeRequest("missing-payload", { payload: undefined }),
-    bridgeRequest("unknown-method", { method: "babel.unknown.method.v1" }),
+    bridgeRequest("unknown-method", { method: "babble.unknown.method.v1" }),
     bridgeRequest("bad-binding", { binding: { ...requestEnvelope("x").binding, capability_grants: ["grant", 7] } }),
     bridgeRequest("bad-deadline", { deadline: { timeout_ms: 0, client_started_at: null } }),
     bridgeRequest("bad-id", { id: "" }),
@@ -317,7 +317,7 @@ test("BrowserBridgeTransport ignores responses from untrusted origins", async ()
   });
   const wireId = endpoint.messages[0].data.envelope.id;
   const reply = marker => rpcBridgeResponse({
-    protocol: "babel.rpc.v1", id: wireId, result: { marker }, error: null, trace_id: null,
+    protocol: "babble.rpc.v1", id: wireId, result: { marker }, error: null, trace_id: null,
   });
   endpoint.dispatch({ origin: "https://attacker.test", data: reply("forged") });
   await Promise.resolve();
@@ -355,7 +355,7 @@ for (const outcome of ["resolve", "reject", "timeout"]) {
       calls += 1;
       signal = context.signal;
       return new Promise((resolve, reject) => {
-        settle = () => outcome === "reject" ? reject(new Error("late failure")) : resolve({ protocol: "babel.rpc.v1", id: request.id, result: null, error: null });
+        settle = () => outcome === "reject" ? reject(new Error("late failure")) : resolve({ protocol: "babble.rpc.v1", id: request.id, result: null, error: null });
       });
     }, { maxDispatchMs: 10 });
     const queued = [...endpoint.listeners][0];
@@ -381,7 +381,7 @@ test("duplicate request IDs cannot dispatch twice or release occupied capacity",
   const calls = [];
   const host = new BrowserBridgeHost(endpoint, (request) => {
     calls.push(request.id);
-    return new Promise((resolve) => releases.set(request.id, () => resolve({ protocol: "babel.rpc.v1", id: request.id, result: null, error: null })));
+    return new Promise((resolve) => releases.set(request.id, () => resolve({ protocol: "babble.rpc.v1", id: request.id, result: null, error: null })));
   }, { maxInFlightRequests: 2 });
   const send = (id) => endpoint.dispatch({ data: bridgeRequest(id) });
   send("a");
@@ -410,7 +410,7 @@ test("timeouts signal cancellation without freeing capacity before dispatch sett
   const host = new BrowserBridgeHost(endpoint, (request, context) => {
     calls += 1;
     signal = context.signal;
-    return new Promise((resolve) => { release = () => resolve({ protocol: "babel.rpc.v1", id: request.id, result: null, error: null }); });
+    return new Promise((resolve) => { release = () => resolve({ protocol: "babble.rpc.v1", id: request.id, result: null, error: null }); });
   }, { maxInFlightRequests: 1, maxDispatchMs: 10 });
   const send = (id) => endpoint.dispatch({ data: bridgeRequest(id) });
   send("a");
@@ -435,7 +435,7 @@ test("reentrant close from dispatch suppresses even synchronous responses", asyn
   const host = new BrowserBridgeHost(endpoint, (request, context) => {
     host.close();
     assert.equal(context.signal.aborted, true);
-    return { protocol: "babel.rpc.v1", id: request.id, result: null, error: null };
+    return { protocol: "babble.rpc.v1", id: request.id, result: null, error: null };
   });
   endpoint.dispatch({ data: bridgeRequest("close-during-dispatch") });
   await Promise.resolve();
@@ -453,7 +453,7 @@ test("close clears every deadline before invoking reentrant cancellation observe
       t.mock.timers.tick(100);
       endpoint.dispatch({ data: bridgeRequest("reentrant") });
     });
-    return new Promise((resolve) => releases.push(() => resolve({ protocol: "babel.rpc.v1", id: request.id, result: null, error: null })));
+    return new Promise((resolve) => releases.push(() => resolve({ protocol: "babble.rpc.v1", id: request.id, result: null, error: null })));
   }, { maxDispatchMs: 10 });
   endpoint.dispatch({ data: bridgeRequest("a") });
   endpoint.dispatch({ data: bridgeRequest("b") });
@@ -478,7 +478,7 @@ test("close, dispatch settlement and deadline permutations never emit after clos
       let settle;
       const host = new BrowserBridgeHost(endpoint, (request) => new Promise((resolve, reject) => {
         settle = () => outcome === "resolve"
-          ? resolve({ protocol: "babel.rpc.v1", id: request.id, result: null, error: null })
+          ? resolve({ protocol: "babble.rpc.v1", id: request.id, result: null, error: null })
           : reject(new Error("dispatch rejected"));
       }), { maxDispatchMs: 10 });
       endpoint.dispatch({ data: bridgeRequest("permutation") });
@@ -503,7 +503,7 @@ test("caller abort cancels only its host dispatch and keeps capacity until settl
   const host = new BrowserBridgeHost(hostEndpoint, (request, { signal }) => {
     signals.set(request.payload.q, signal);
     return new Promise(resolve => releases.set(request.payload.q, () => resolve({
-      protocol: "babel.rpc.v1", id: request.id, result: { results: [] }, error: null, trace_id: null,
+      protocol: "babble.rpc.v1", id: request.id, result: { results: [] }, error: null, trace_id: null,
     })));
   }, { maxInFlightRequests: 2 });
   const transport = new BrowserBridgeTransport(clientEndpoint);
@@ -540,7 +540,7 @@ for (const cause of ["timeout", "close"]) {
     let signal, release;
     const host = new BrowserBridgeHost(hostEndpoint, (request, context) => {
       signal = context.signal;
-      return new Promise(resolve => { release = () => resolve({ protocol: "babel.rpc.v1", id: request.id, result: null, error: null }); });
+      return new Promise(resolve => { release = () => resolve({ protocol: "babble.rpc.v1", id: request.id, result: null, error: null }); });
     });
     const transport = new BrowserBridgeTransport(clientEndpoint);
     const rejected = assert.rejects(transport.request(requestEnvelope("pending"), { timeoutMs: 10 }), /timed out|closed/);
@@ -572,7 +572,7 @@ test("late legacy-host replies cannot resolve a reused caller ID", async () => {
   const secondWireId = endpoint.messages.at(-1).data.envelope.id;
   assert.notEqual(firstWireId, secondWireId);
   const reply = (id, result) => endpoint.dispatch({ origin: "https://host.test", data: rpcBridgeResponse({
-    protocol: "babel.rpc.v1", id, result, error: null, trace_id: null,
+    protocol: "babble.rpc.v1", id, result, error: null, trace_id: null,
   }) });
   reply(firstWireId, { obsolete: true });
   await Promise.resolve();
@@ -590,14 +590,14 @@ test("cancellation requires valid shape and the dispatch origin, and cannot pre-
   const host = new BrowserBridgeHost(endpoint, (request, context) => {
     signal = context.signal;
     signal.addEventListener("abort", () => { aborts++; t.mock.timers.tick(30_000); });
-    return new Promise(resolve => { release = () => resolve({ protocol: "babel.rpc.v1", id: request.id, result: null, error: null }); });
+    return new Promise(resolve => { release = () => resolve({ protocol: "babble.rpc.v1", id: request.id, result: null, error: null }); });
   }, { allowedOrigins: ["https://object.test", "https://other.test"] });
-  const cancel = { type: "babel.rpc.cancel", protocol: "babel.rpc.v1", id: "same" };
+  const cancel = { type: "babble.rpc.cancel", protocol: "babble.rpc.v1", id: "same" };
   const send = (data, origin = "https://object.test") => endpoint.dispatch({ data, origin });
   send(cancel);
   send(bridgeRequest("same"));
   for (const invalid of [
-    { ...cancel, protocol: "babel.rpc.v2" }, { ...cancel, id: "" },
+    { ...cancel, protocol: "babble.rpc" }, { ...cancel, id: "" },
     { ...cancel, id: "x".repeat(129) }, { ...cancel, reason: "extra data" },
     { ...cancel, id: "missing" },
   ]) send(invalid);
@@ -616,7 +616,7 @@ test("cancellation requires valid shape and the dispatch origin, and cannot pre-
 
 test("pre-aborted calls send nothing and completed calls do not send cancellation", async () => {
   const [clientEndpoint, hostEndpoint] = bridgePair("https://object.test", "https://host.test");
-  const host = new BrowserBridgeHost(hostEndpoint, request => ({ protocol: "babel.rpc.v1", id: request.id, result: {}, error: null }));
+  const host = new BrowserBridgeHost(hostEndpoint, request => ({ protocol: "babble.rpc.v1", id: request.id, result: {}, error: null }));
   const transport = new BrowserBridgeTransport(clientEndpoint);
   await assert.rejects(transport.request(requestEnvelope("never-sent"), { signal: AbortSignal.abort(new Error("cancelled first")) }), /cancelled first/);
   assert.equal(clientEndpoint.messages.length, 0);
@@ -630,11 +630,11 @@ test("pre-aborted calls send nothing and completed calls do not send cancellatio
 
 function requestEnvelope(id) {
   return {
-    protocol: "babel.rpc.v1",
+    protocol: "babble.rpc.v1",
     id,
-    method: "babel.search.objects.v1",
+    method: "babble.search.objects.v1",
     binding: hostBinding("runtime", "https://object.test"),
-    payload: { q: "babel", author: null, kind: null, limit: 3 },
+    payload: { q: "babble", author: null, kind: null, limit: 3 },
     idempotency_key: null,
     deadline: {
       timeout_ms: 30000,
@@ -646,8 +646,8 @@ function requestEnvelope(id) {
 
 function bridgeRequest(id, envelopeOverrides = {}) {
   return {
-    type: "babel.rpc.request",
-    protocol: "babel.rpc.v1",
+    type: "babble.rpc.request",
+    protocol: "babble.rpc.v1",
     envelope: {
       ...requestEnvelope(id),
       ...envelopeOverrides,
@@ -686,11 +686,11 @@ function readySurfacePlan() {
     },
     capability_decisions: [
       {
-        request: { id: "babel.realtime.join", version: 1, scope: { room: "room_1" } },
+        request: { id: "babble.realtime.join", version: 1, scope: { room: "room_1" } },
         status: "granted",
         reason: "grant is active",
         definition: {
-          id: "babel.realtime.join",
+          id: "babble.realtime.join",
           version: 1,
           permission: "ask_once",
           quota: {
@@ -707,7 +707,7 @@ function readySurfacePlan() {
         grant: {
           id: "grant_join",
           object_id: "obj_surface",
-          capability: "babel.realtime.join",
+          capability: "babble.realtime.join",
           version: 1,
           scope: { room: "room_1" },
           decision: "approved",
@@ -725,7 +725,7 @@ function readySurfacePlan() {
         },
       },
       {
-        request: { id: "babel.realtime.send", version: 1, scope: { room: "room_1" } },
+        request: { id: "babble.realtime.send", version: 1, scope: { room: "room_1" } },
         status: "requires_user",
         reason: "user approval required",
         definition: null,

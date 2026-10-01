@@ -1,6 +1,6 @@
 //! Host-only browser invocation transport over the canonical journal/context.
 use super::*;
-use babel_capabilities::invocation::{InvocationAction, InvocationOutcome, browser::*};
+use babble_capabilities::invocation::{InvocationAction, InvocationOutcome, browser::*};
 
 pub(super) fn router<P: JudgmentProvider + Send + Sync + 'static>() -> Router<ApiState<P>> {
     Router::new()
@@ -15,7 +15,7 @@ pub(super) fn router<P: JudgmentProvider + Send + Sync + 'static>() -> Router<Ap
 pub(crate) fn browser_method(method: &str) -> bool {
     matches!(
         method,
-        "babel.clipboard.write.v2" | "babel.fullscreen.enter.v2"
+        "babble.clipboard.write" | "babble.fullscreen.enter"
     )
 }
 

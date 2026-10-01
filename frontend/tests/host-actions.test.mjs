@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
-import { canonicalValueBytes } from "@babel-protocol/sdk";
+import { canonicalValueBytes } from "@babble-protocol/sdk";
 
 const sources = Object.fromEntries(["host-actions", "browser-invocations", "browser-action-prompt"].map(name => [name,
   ts.transpileModule(readFileSync(new URL(`../src/app/${name}.ts`, import.meta.url), "utf8"), {
@@ -15,7 +15,7 @@ const plain = value => JSON.parse(JSON.stringify(value));
 const actor = `id_${"a".repeat(64)}`, object = `obj_${"b".repeat(64)}`;
 const documentId = "da9bab5c-3a90-4dc2-a9c9-ade1e1f8588c", dispatchId = "e".repeat(64);
 function request(kind = "clipboard", payload) {
-  return { protocol: "babel.rpc.v1", id: "request-1", trace_id: "trace-1", method: `babel.${kind}.${kind === "clipboard" ? "write" : "enter"}.v2`,
+  return { protocol: "babble.rpc.v1", id: "request-1", trace_id: "trace-1", method: `babble.${kind}.${kind === "clipboard" ? "write" : "enter"}`,
     payload: payload ?? (kind === "clipboard" ? { text: "<script>literal text</script>" } : {}), idempotency_key: "one-browser-operation",
     binding: { capability_grants: [], identity_id: actor, object_id: object, surface_session_id: "surface-one" }, deadline: { timeout_ms: 30_000 } };
 }
@@ -73,7 +73,7 @@ function harness(options = {}) {
   for (const name of ["browser-invocations", "browser-action-prompt", "host-actions"]) {
     const context = { ...globals, exports: {}, require: dependency => {
       if (dependency === "lucide") return { createElement: () => new Element("svg") };
-      if (dependency === "@babel-protocol/sdk") return { canonicalValueBytes };
+      if (dependency === "@babble-protocol/sdk") return { canonicalValueBytes };
       const loaded = modules[dependency.replace(/^\.\//, "")]; assert.ok(loaded, `Unexpected dependency ${dependency}`); return loaded;
     } };
     vm.runInNewContext(sources[name], context); modules[name] = context.exports;
@@ -81,14 +81,14 @@ function harness(options = {}) {
   const fetcher = async (url, init) => {
     const action = url.pathname.split("/").at(-1), body = init.body ? JSON.parse(init.body) : undefined;
     const call = { action: action === "decision" ? body.decision : action, body, signal: init.signal, path: url.pathname }; calls.push(call);
-    assert.equal(init.headers["x-babel-surface-document"], documentId); assert.equal(init.headers["x-babel-host-document"], undefined);
+    assert.equal(init.headers["x-babble-surface-document"], documentId); assert.equal(init.headers["x-babble-host-document"], undefined);
     assert.equal(init.method, action === "status" ? "GET" : "POST");
     assert.equal(url.pathname, `/invocations/v1/browser/${state.invocation_id}/${action}`);
     if (options.fetch) { const response = await options.fetch(call, h); if (response !== undefined) return response; }
     if (call.action === "allow_once") { assert.equal(state.state.kind, "pending"); state = { ...state, revision: 1, state: { kind: "approved" } }; }
     else if (action === "dispatch" && state.state.kind === "approved") {
       state = { ...state, revision: 2, state: { kind: "running", dispatch_id: dispatchId } };
-      return Response.json({ ...state, execution_ticket: { dispatch_id: dispatchId, executor: "babel.browser.v1" } });
+      return Response.json({ ...state, execution_ticket: { dispatch_id: dispatchId, executor: "babble.browser.v1" } });
     } else if (action === "ack") {
       assert.equal(body.dispatch_id, dispatchId); assert.ok(["running", "unknown", "completed", "failed"].includes(state.state.kind));
       if (state.result) assert.deepEqual(body.result, state.result, "Ack retries must retain the native result");
@@ -126,10 +126,10 @@ async function ready(h) {
 }
 
 test("unrelated requests preserve dispatch/context; v1 explicitly rejects without RPC or native", async () => {
-  const h = harness(), req = { ...request(), method: "babel.object.get.v1" }, context = { signal: new AbortController().signal }, result = {};
+  const h = harness(), req = { ...request(), method: "babble.object.get.v1" }, context = { signal: new AbortController().signal }, result = {};
   assert.equal(h.host.wrap((r, c) => { assert.equal(r, req); assert.equal(c, context); return result; })(req, context), result);
   for (const kind of ["clipboard", "fullscreen"]) {
-    const old = request(kind); old.method = old.method.replace("v2", "v1"); assert.equal((await h.start(old)).error.code, "UNSUPPORTED_VERSION");
+    const old = request(kind); old.method = `${old.method}.v1`; assert.equal((await h.start(old)).error.code, "UNSUPPORTED_VERSION");
   }
   assert.equal(h.rpcCalls.length, 0); assert.equal(h.clipboard.length + h.fullscreen.length, 0); h.host.dispose();
 });
@@ -206,7 +206,7 @@ test("absent/wrong dispatch ticket and lost dispatch response never invoke nativ
       if (call.action !== "dispatch") return;
       if (mode === "lost-response") throw Error("connection lost");
       return Response.json({ ...fixture.state, revision: 2, state: { kind: "running", dispatch_id: dispatchId },
-        execution_ticket: mode === "missing-ticket" ? null : { executor: "babel.browser.v1", dispatch_id: "f".repeat(64) } });
+        execution_ticket: mode === "missing-ticket" ? null : { executor: "babble.browser.v1", dispatch_id: "f".repeat(64) } });
     } });
     const work = h.start(); await tick(); h.allow(); await tick(); assert.ok((await work).error); h.allow();
     assert.equal(h.clipboard.length, 0); assert.equal(h.calls.filter(c => c.action === "dispatch").length, 1); h.host.dispose();
@@ -320,7 +320,7 @@ test("deadline timeout removes prompt and stale focus while retaining native cap
 test("caller mutations cannot substitute request binding, payload, method or RPC correlation during authorization", async () => {
   const auth = deferred(), req = request(), original = structuredClone(req), h = harness({ rpc: () => auth.promise });
   const work = h.start(req); req.payload.text = "substituted"; req.binding.identity_id = "other"; req.binding.object_id = "other";
-  req.method = "babel.fullscreen.enter.v2"; req.id = "other"; req.idempotency_key = "other";
+  req.method = "babble.fullscreen.enter"; req.id = "other"; req.idempotency_key = "other";
   assert.deepEqual(h.rpcCalls[0].request, original); auth.resolve(envelope(original, structuredClone(h.state)));
   await ready(h); h.allow(); const result = await work; assert.equal(result.error, null); assert.equal(result.id, original.id);
   assert.deepEqual(h.clipboard, [original.payload.text]); h.host.dispose();

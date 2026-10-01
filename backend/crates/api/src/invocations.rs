@@ -18,14 +18,14 @@ use axum::{
     response::{IntoResponse, Response},
     routing::{get, post, put},
 };
-use babel_capabilities::invocation::{
+use babble_capabilities::invocation::{
     InvocationContext, InvocationId, InvocationInvalidation, InvocationOrigin, InvocationRecord,
     InvocationState,
 };
-use babel_judgment::JudgmentProvider;
-use babel_node::{LocalNode, SocialInvocationPayload, SocialInvocationResult};
-use babel_rpc::{RpcError, RpcErrorCode, RpcRequestEnvelope};
-use babel_types::Timestamp;
+use babble_judgment::JudgmentProvider;
+use babble_node::{LocalNode, SocialInvocationPayload, SocialInvocationResult};
+use babble_rpc::{RpcError, RpcErrorCode, RpcRequestEnvelope};
+use babble_types::Timestamp;
 use schema::*;
 use serde_json::Value;
 
@@ -180,7 +180,7 @@ async fn recover<P: JudgmentProvider>(
 ) -> Result<Response, ApiError> {
     let node = lock_node(&state)?;
     let principal = state.auth.principal(&headers)?;
-    if headers.contains_key("x-babel-host-document")
+    if headers.contains_key("x-babble-host-document")
         || headers.contains_key(crate::auth::surface::DOCUMENT_HEADER)
     {
         return Err(ApiError::forbidden());
@@ -201,7 +201,7 @@ async fn recover<P: JudgmentProvider>(
         &input.method,
         input.payload,
     )?;
-    let actor = babel_types::IdentityId::new_unchecked(principal.identity_id);
+    let actor = babble_types::IdentityId::new_unchecked(principal.identity_id);
     // Hydration only: no document rebinding, policy refresh, or state transition.
     match node.recover_social_invocation(
         &actor,
@@ -249,7 +249,7 @@ fn prepare_locked<P: JudgmentProvider>(
 
 fn normalize_payload(
     actor: &str,
-    object: &babel_types::ObjectId,
+    object: &babble_types::ObjectId,
     method: &str,
     value: Value,
 ) -> Result<SocialInvocationPayload, ApiError> {
@@ -260,7 +260,7 @@ fn normalize_payload(
     if author != actor {
         return Err(ApiError::forbidden());
     }
-    let text_method = matches!(method, "babel.social.share.v2" | "babel.social.reply.v2");
+    let text_method = matches!(method, "babble.social.share" | "babble.social.reply");
     let fields = value
         .as_object()
         .ok_or_else(|| ApiError::bad_request("payload must be an object"))?;
@@ -437,10 +437,10 @@ fn view(record: InvocationRecord) -> InvocationResponse {
 pub(crate) fn social_method(method: &str) -> bool {
     matches!(
         method,
-        "babel.social.follow.v2"
-            | "babel.social.unfollow.v2"
-            | "babel.social.share.v2"
-            | "babel.social.reply.v2"
+        "babble.social.follow"
+            | "babble.social.unfollow"
+            | "babble.social.share"
+            | "babble.social.reply"
     )
 }
 

@@ -5,24 +5,24 @@ use axum::{
     middleware::Next,
     response::Response,
 };
-use babel_authoring::ObjectDraft;
-use babel_capabilities::GrantDecision;
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
-use babel_object::{CapabilityRequest, Resource, Surface, SurfaceRole, SurfaceTarget};
-use babel_rpc::{RpcBinding, RpcRequestEnvelope, babel_rpc_catalog};
+use babble_authoring::ObjectDraft;
+use babble_capabilities::GrantDecision;
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
+use babble_object::{CapabilityRequest, Resource, Surface, SurfaceRole, SurfaceTarget};
+use babble_rpc::{RpcBinding, RpcRequestEnvelope, babble_rpc_catalog};
 use serde_json::{Value, json};
 use tower::ServiceExt;
 
 #[tokio::test]
 async fn auth_surface_eviction_admission_does_not_retire_and_terminal_cleanup_retries() {
     let root =
-        std::env::temp_dir().join(format!("babel-eviction-order-{}", random_token().unwrap()));
+        std::env::temp_dir().join(format!("babble-eviction-order-{}", random_token().unwrap()));
     let mut node = LocalNode::open(&root, LocalProvider::default()).unwrap();
     let identity = node
         .create_identity(IdentityKind::Person, "eviction-order")
         .unwrap();
-    let hash = babel_types::Hash::from_bytes(b"surface");
+    let hash = babble_types::Hash::from_bytes(b"surface");
     let object = node
         .publish_draft(
             &identity.id,
@@ -96,7 +96,7 @@ async fn auth_surface_eviction_admission_does_not_retire_and_terminal_cleanup_re
     );
     node.transition_surface_session(
         &session.id,
-        babel_runtime::SurfaceLifecycle::Evicted,
+        babble_runtime::SurfaceLifecycle::Evicted,
         "close",
     )
     .unwrap();
@@ -129,7 +129,7 @@ async fn auth_surface_eviction_admission_does_not_retire_and_terminal_cleanup_re
 #[test]
 fn auth_surface_cleanup_batches_advance_past_live_rows_and_drain_revoked_origin() {
     let root =
-        std::env::temp_dir().join(format!("babel-surface-batches-{}", random_token().unwrap()));
+        std::env::temp_dir().join(format!("babble-surface-batches-{}", random_token().unwrap()));
     let mut node = LocalNode::open(&root, LocalProvider::default()).unwrap();
     let auth = Auth::new(&root);
     let (live_token, stale_token) = auth
@@ -235,7 +235,7 @@ async fn http(
         && body["binding"]["surface_session_id"].is_string()
     {
         builder = builder.header(
-            "x-babel-surface-document",
+            "x-babble-surface-document",
             "550e8400-e29b-41d4-a716-446655440000",
         );
     }
@@ -258,7 +258,7 @@ async fn http(
 fn rpc(method: &str, binding: RpcBinding, payload: Value) -> Value {
     serde_json::to_value(
         RpcRequestEnvelope::new(
-            &babel_rpc_catalog().unwrap(),
+            &babble_rpc_catalog().unwrap(),
             "queued-call",
             method,
             binding,
@@ -293,14 +293,14 @@ async fn queued_surface_invalidation(registration: bool) {
             continue;
         }
         let root =
-            std::env::temp_dir().join(format!("babel-surface-queue-{}", random_token().unwrap()));
+            std::env::temp_dir().join(format!("babble-surface-queue-{}", random_token().unwrap()));
         let mut node = LocalNode::open(&root, LocalProvider::default()).unwrap();
         let identity = node
             .create_identity(IdentityKind::Person, "queued-author")
             .unwrap();
-        let hash = babel_types::Hash::from_bytes(b"queued surface");
+        let hash = babble_types::Hash::from_bytes(b"queued surface");
         let capability = CapabilityRequest {
-            id: "babel.storage.local".into(),
+            id: "babble.storage.local".into(),
             version: 1,
             scope: json!({"namespace":"self"}),
         };
@@ -381,12 +381,12 @@ async fn queued_surface_invalidation(registration: bool) {
             object.id.to_string(),
             &id,
             "queued",
-            "https://babel.test",
+            "https://babble.test",
             vec![grant_id.clone()],
         )
         .unwrap();
         let operation = rpc(
-            "babel.storage.local.set.v1",
+            "babble.storage.local.set.v1",
             binding,
             json!({"key":"queued","value":"must not commit"}),
         );
@@ -480,14 +480,14 @@ async fn queued_surface_invalidation(registration: bool) {
 #[tokio::test]
 async fn auth_surface_start_admitted_before_logout_cannot_create_orphan() {
     let root = std::env::temp_dir().join(format!(
-        "babel-surface-start-queue-{}",
+        "babble-surface-start-queue-{}",
         random_token().unwrap()
     ));
     let mut node = LocalNode::open(&root, LocalProvider::default()).unwrap();
     let identity = node
         .create_identity(IdentityKind::Person, "queued-start")
         .unwrap();
-    let hash = babel_types::Hash::from_bytes(b"surface start");
+    let hash = babble_types::Hash::from_bytes(b"surface start");
     let object = node
         .publish_draft(
             &identity.id,

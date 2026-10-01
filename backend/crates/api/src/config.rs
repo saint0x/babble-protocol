@@ -25,33 +25,33 @@ impl ServerConfig {
     pub fn from_env() -> Result<Self, ConfigError> {
         moderator_ids_from_env()?;
         let bind_addr = env_socket(
-            "BABEL_API_ADDR",
+            "BABBLE_API_ADDR",
             SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 8787),
         )?;
-        let public_origin = env::var("BABEL_PUBLIC_ORIGIN")
+        let public_origin = env::var("BABBLE_PUBLIC_ORIGIN")
             .ok()
             .filter(|value| !value.trim().is_empty())
             .unwrap_or_else(|| format!("http://{bind_addr}"));
-        let store_root = env::var_os("BABEL_STORE_ROOT")
+        let store_root = env::var_os("BABBLE_STORE_ROOT")
             .map(PathBuf::from)
-            .unwrap_or_else(|| PathBuf::from(".babel-node"));
-        let seed_profile = match env::var("BABEL_SEED_PROFILE").ok().as_deref() {
+            .unwrap_or_else(|| PathBuf::from(".babble-node"));
+        let seed_profile = match env::var("BABBLE_SEED_PROFILE").ok().as_deref() {
             None | Some("") => None,
             Some("card-feed") => Some(SeedProfile::CardFeed),
             Some(value) => return Err(ConfigError::InvalidSeedProfile(value.to_string())),
         };
-        let cors_origins = env::var("BABEL_CORS_ORIGINS")
+        let cors_origins = env::var("BABBLE_CORS_ORIGINS")
             .ok()
             .map(|value| parse_origins(&value))
             .transpose()?
             .unwrap_or_else(default_cors_origins);
 
-        let bundle_gateway = env::var("BABEL_BUNDLE_GATEWAY_ADDR")
+        let bundle_gateway = env::var("BABBLE_BUNDLE_GATEWAY_ADDR")
             .ok()
             .filter(|value| !value.trim().is_empty())
             .map(|value| {
                 let address = value.parse().map_err(|_| ConfigError::InvalidAddress {
-                    name: "BABEL_BUNDLE_GATEWAY_ADDR",
+                    name: "BABBLE_BUNDLE_GATEWAY_ADDR",
                     value,
                 })?;
                 let parents = cors_origins
@@ -77,7 +77,7 @@ impl ServerConfig {
 
 #[derive(Debug, thiserror::Error)]
 pub enum ConfigError {
-    #[error("invalid BABEL_MODERATOR_IDS: expected unique comma-separated canonical identity IDs")]
+    #[error("invalid BABBLE_MODERATOR_IDS: expected unique comma-separated canonical identity IDs")]
     InvalidModerators,
     #[error("invalid bundle gateway configuration: {0}")]
     InvalidGateway(String),
@@ -87,17 +87,17 @@ pub enum ConfigError {
     InvalidAddress { name: &'static str, value: String },
     #[error("invalid CORS origin: {0}")]
     InvalidCorsOrigin(String),
-    #[error("invalid BABEL_SEED_PROFILE: {0}")]
+    #[error("invalid BABBLE_SEED_PROFILE: {0}")]
     InvalidSeedProfile(String),
 }
 
 pub(crate) fn moderator_ids_from_env() -> Result<String, ConfigError> {
-    let value = match env::var("BABEL_MODERATOR_IDS") {
+    let value = match env::var("BABBLE_MODERATOR_IDS") {
         Ok(value) => value,
         Err(env::VarError::NotPresent) => String::new(),
         Err(_) => return Err(ConfigError::InvalidModerators),
     };
-    babel_graph::moderation::parse_reviewers(&value).map_err(|_| ConfigError::InvalidModerators)?;
+    babble_graph::moderation::parse_reviewers(&value).map_err(|_| ConfigError::InvalidModerators)?;
     Ok(value)
 }
 

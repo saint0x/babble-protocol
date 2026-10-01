@@ -1,14 +1,14 @@
-use babel_authoring::ObjectDraft;
-use babel_capabilities::{CapabilityGrant, GrantDecision};
-use babel_identity::{Identity, IdentityKeyScope, IdentityKeyTransition, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_node::{ImportBundle, LocalNode};
-use babel_object::{
+use babble_authoring::ObjectDraft;
+use babble_capabilities::{CapabilityGrant, GrantDecision};
+use babble_identity::{Identity, IdentityKeyScope, IdentityKeyTransition, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_node::{ImportBundle, LocalNode};
+use babble_object::{
     CapabilityRequest, Surface, SurfaceRole, SurfaceTarget,
     bundle::{BundleFile, BundleFileKind, BundleManifest},
 };
-use babel_runtime::{RuntimeAdmissionStatus, SurfaceLifecycle, SurfaceSessionId};
-use babel_types::{Canonical, Hash};
+use babble_runtime::{RuntimeAdmissionStatus, SurfaceLifecycle, SurfaceSessionId};
+use babble_types::{Canonical, Hash};
 use std::{
     fs,
     path::PathBuf,
@@ -20,7 +20,7 @@ impl Root {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         Self(std::env::temp_dir().join(format!(
-            "babel-node-bundle-{}-{}",
+            "babble-node-bundle-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         )))
@@ -51,7 +51,7 @@ fn draft(node: &LocalNode<LocalProvider>) -> ObjectDraft {
         let integrity = node.store().put_blob(bytes).unwrap();
         files.push(BundleFile {
             path: path.into(),
-            source_uri: format!("babel://blobs/{integrity}"),
+            source_uri: format!("babble://blobs/{integrity}"),
             integrity,
             size_bytes: bytes.len() as u64,
             media_type: media_type.into(),
@@ -211,7 +211,7 @@ fn verified_start_rechecks_identity_grants_and_revocation_after_preparation() {
         .create_identity(IdentityKind::Person, "bundle-bob")
         .unwrap();
     let request = CapabilityRequest {
-        id: "babel.network.fetch".into(),
+        id: "babble.network.fetch".into(),
         version: 1,
         scope: serde_json::json!({"origins":["https://example.com"]}),
     };
@@ -316,7 +316,7 @@ fn verified_sessions_reject_cross_object_role_unknown_identity_and_bad_signature
             .is_err()
         );
     }
-    let unknown = babel_types::IdentityId::from_hash(&Hash::from_bytes(b"unknown"));
+    let unknown = babble_types::IdentityId::from_hash(&Hash::from_bytes(b"unknown"));
     assert!(
         node.prepare_verified_surface_for_identity(
             &object.id,
@@ -327,7 +327,7 @@ fn verified_sessions_reject_cross_object_role_unknown_identity_and_bad_signature
         .is_err()
     );
     let mut forged = object.clone();
-    forged.signature = Some(babel_crypto::Keypair::generate().sign(b"untrusted"));
+    forged.signature = Some(babble_crypto::Keypair::generate().sign(b"untrusted"));
     assert!(
         node.import_bundle(ImportBundle {
             objects: vec![forged],
@@ -393,7 +393,7 @@ fn verified_admission_consumes_the_immutable_receipt_without_reopening_blobs() {
 fn verified_start_rechecks_signing_history_after_receipt_creation() {
     let root = Root::new();
     let mut node = LocalNode::open(&root.0, LocalProvider::default()).unwrap();
-    let key = babel_crypto::Keypair::generate();
+    let key = babble_crypto::Keypair::generate();
     let author = Identity::create(IdentityKind::Application, "historical-authority", &key).unwrap();
     node.import_signing_identity(author.clone(), key.clone())
         .unwrap();
@@ -415,7 +415,7 @@ fn verified_start_rechecks_signing_history_after_receipt_creation() {
 
     // A subsequently imported, valid transition changes the authoritative key
     // at this Object's timestamp. Its previous receipt must not authorize start.
-    let next = babel_crypto::Keypair::generate();
+    let next = babble_crypto::Keypair::generate();
     let mut transition = IdentityKeyTransition::create(
         author.id.clone(),
         1,
@@ -436,10 +436,10 @@ fn verified_start_rechecks_signing_history_after_receipt_creation() {
     let bytes = commitment.canonical_bytes().unwrap();
     transition.previous_signature = key.sign(&bytes);
     transition.next_signature = next.sign(&bytes);
-    let event = babel_state::Event::new(
+    let event = babble_state::Event::new(
         &author,
-        babel_state::EventKind::IdentityKeyTransition,
-        babel_state::EventTarget::Identity(author.id.clone()),
+        babble_state::EventKind::IdentityKeyTransition,
+        babble_state::EventTarget::Identity(author.id.clone()),
         serde_json::to_value(transition).unwrap(),
         vec![],
     )

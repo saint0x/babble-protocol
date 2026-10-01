@@ -1,8 +1,8 @@
-use babel_judgment::{
+use babble_judgment::{
     DefinitionId, JudgmentProvider, JudgmentRegistry, JudgmentRequest, JudgmentState,
 };
-use babel_judgment_python::{PythonProvider, WorkerConfig};
-use babel_types::Canonical;
+use babble_judgment_python::{PythonProvider, WorkerConfig};
+use babble_types::Canonical;
 use serde_json::json;
 use std::{
     collections::BTreeMap,
@@ -14,7 +14,7 @@ fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..")
 }
 fn python() -> PathBuf {
-    std::env::var_os("BABEL_TEST_PYTHON")
+    std::env::var_os("BABBLE_TEST_PYTHON")
         .map(PathBuf::from)
         .unwrap_or_else(|| root().join("algorithms/.venv/bin/python"))
 }
@@ -46,7 +46,7 @@ fn request() -> JudgmentRequest {
         parameters: BTreeMap::new(),
     }
 }
-fn pid(judgment: &babel_judgment::Judgment) -> i32 {
+fn pid(judgment: &babble_judgment::Judgment) -> i32 {
     judgment.output["pid"].as_i64().unwrap() as i32
 }
 fn gone(pid: i32) -> bool {
@@ -166,7 +166,7 @@ fn environment_is_explicit_and_parameters_are_strict() {
         .insert("future_parameter".into(), json!(true));
     assert!(matches!(
         provider.judge(&req),
-        Err(babel_types::Error::Conflict(_))
+        Err(babble_types::Error::Conflict(_))
     ));
     req.definition = DefinitionId::moderation_v1();
     for parameter in [
@@ -178,7 +178,7 @@ fn environment_is_explicit_and_parameters_are_strict() {
         req.parameters = serde_json::from_value(parameter).unwrap();
         assert!(matches!(
             provider.judge(&req),
-            Err(babel_types::Error::Conflict(_))
+            Err(babble_types::Error::Conflict(_))
         ));
     }
 }
@@ -228,11 +228,11 @@ fn real_python_seven_definitions_and_parameter_commitments() {
     // Required integration: a missing installation fails with actionable setup guidance.
     let cfg = WorkerConfig {
         executable: python(),
-        args: vec!["-I".into(), "-m".into(), "babel_algorithms.worker".into()],
+        args: vec!["-I".into(), "-m".into(), "babble_algorithms.worker".into()],
         working_directory: Some(root().join("algorithms")),
         timeout: Duration::from_secs(5),
     };
-    let provider = PythonProvider::new(cfg).expect("real worker required: run uv sync --directory algorithms, or set BABEL_TEST_PYTHON to its installed interpreter");
+    let provider = PythonProvider::new(cfg).expect("real worker required: run uv sync --directory algorithms, or set BABBLE_TEST_PYTHON to its installed interpreter");
     for definition in provider.supported_definitions() {
         let mut req = request();
         req.definition = definition;
@@ -253,7 +253,7 @@ fn real_python_seven_definitions_and_parameter_commitments() {
         }
         let judgment = provider.judge(&req).unwrap();
         assert_eq!(judgment.provider, provider.version());
-        JudgmentRegistry::babel_core()
+        JudgmentRegistry::babble_core()
             .validate_output(&req.definition, &judgment.output)
             .unwrap();
         assert_eq!(judgment.input_hash, req.state.canonical_hash().unwrap());
@@ -293,11 +293,11 @@ fn real_python_seven_definitions_and_parameter_commitments() {
 
 #[test]
 fn local_orchestration_preserves_public_pair_scope_and_commits_both_texts() {
-    use babel_judgment::{JudgmentCache, JudgmentOrchestrator, JudgmentPrivacyPolicy};
+    use babble_judgment::{JudgmentCache, JudgmentOrchestrator, JudgmentPrivacyPolicy};
 
     let provider = PythonProvider::new(WorkerConfig {
         executable: python(),
-        args: vec!["-I".into(), "-m".into(), "babel_algorithms.worker".into()],
+        args: vec!["-I".into(), "-m".into(), "babble_algorithms.worker".into()],
         working_directory: Some(root().join("algorithms")),
         timeout: Duration::from_secs(5),
     })

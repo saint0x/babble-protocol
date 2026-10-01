@@ -89,32 +89,32 @@ dependencies = [
 ]
 
 [[package]]
-name = "babel-api"
+name = "babble-api"
 version = "0.1.0"
 dependencies = [
  "argon2",
  "axum",
- "babel-authoring",
- "babel-capabilities",
- "babel-crypto",
- "babel-discovery",
- "babel-graph",
- "babel-hashgraph",
- "babel-identity",
- "babel-judgment",
- "babel-judgment-local",
- "babel-judgment-python",
- "babel-lens",
- "babel-media",
- "babel-node",
- "babel-object",
- "babel-personalization",
- "babel-realtime",
- "babel-rpc",
- "babel-runtime",
- "babel-state",
- "babel-store",
- "babel-types",
+ "babble-authoring",
+ "babble-capabilities",
+ "babble-crypto",
+ "babble-discovery",
+ "babble-graph",
+ "babble-hashgraph",
+ "babble-identity",
+ "babble-judgment",
+ "babble-judgment-local",
+ "babble-judgment-python",
+ "babble-lens",
+ "babble-media",
+ "babble-node",
+ "babble-object",
+ "babble-personalization",
+ "babble-realtime",
+ "babble-rpc",
+ "babble-runtime",
+ "babble-state",
+ "babble-store",
+ "babble-types",
  "blake3",
  "hex",
  "rand_core 0.6.4",
@@ -133,29 +133,29 @@ dependencies = [
 ]
 
 [[package]]
-name = "babel-authoring"
+name = "babble-authoring"
 version = "0.1.0"
 dependencies = [
- "babel-capabilities",
- "babel-crypto",
- "babel-graph",
- "babel-identity",
- "babel-media",
- "babel-object",
- "babel-types",
+ "babble-capabilities",
+ "babble-crypto",
+ "babble-graph",
+ "babble-identity",
+ "babble-media",
+ "babble-object",
+ "babble-types",
  "schemars",
  "serde",
  "serde_json",
 ]
 
 [[package]]
-name = "babel-capabilities"
+name = "babble-capabilities"
 version = "0.1.0"
 dependencies = [
- "babel-crypto",
- "babel-identity",
- "babel-object",
- "babel-types",
+ "babble-crypto",
+ "babble-identity",
+ "babble-object",
+ "babble-types",
  "rand_core 0.6.4",
  "schemars",
  "serde",
@@ -164,30 +164,30 @@ dependencies = [
 ]
 
 [[package]]
-name = "babel-cli"
+name = "babble-cli"
 version = "0.1.0"
 dependencies = [
- "babel-authoring",
- "babel-capabilities",
- "babel-crypto",
- "babel-graph",
- "babel-identity",
- "babel-judgment-local",
- "babel-node",
- "babel-object",
- "babel-runtime",
- "babel-store",
- "babel-types",
+ "babble-authoring",
+ "babble-capabilities",
+ "babble-crypto",
+ "babble-graph",
+ "babble-identity",
+ "babble-judgment-local",
+ "babble-node",
+ "babble-object",
+ "babble-runtime",
+ "babble-store",
+ "babble-types",
  "serde",
  "serde_json",
  "thiserror",
 ]
 
 [[package]]
-name = "babel-crypto"
+name = "babble-crypto"
 version = "0.1.0"
 dependencies = [
- "babel-types",
+ "babble-types",
  "ed25519-dalek",
  "hex",
  "rand_core 0.6.4",
@@ -196,82 +196,82 @@ dependencies = [
 ]
 
 [[package]]
-name = "babel-discovery"
+name = "babble-discovery"
 version = "0.1.0"
 dependencies = [
- "babel-crypto",
- "babel-graph",
- "babel-identity",
- "babel-lens",
- "babel-object",
- "babel-types",
+ "babble-crypto",
+ "babble-graph",
+ "babble-identity",
+ "babble-lens",
+ "babble-object",
+ "babble-types",
  "schemars",
  "serde",
  "time",
 ]
 
 [[package]]
-name = "babel-eval"
+name = "babble-eval"
 version = "0.1.0"
 dependencies = [
- "babel-crypto",
- "babel-discovery",
- "babel-graph",
- "babel-hashgraph",
- "babel-identity",
- "babel-judgment",
- "babel-judgment-jev",
- "babel-judgment-local",
- "babel-lens",
- "babel-realtime",
- "babel-state",
- "babel-types",
+ "babble-crypto",
+ "babble-discovery",
+ "babble-graph",
+ "babble-hashgraph",
+ "babble-identity",
+ "babble-judgment",
+ "babble-judgment-jev",
+ "babble-judgment-local",
+ "babble-lens",
+ "babble-realtime",
+ "babble-state",
+ "babble-types",
  "schemars",
  "serde",
  "serde_json",
 ]
 
 [[package]]
-name = "babel-graph"
+name = "babble-graph"
 version = "0.1.0"
 dependencies = [
- "babel-crypto",
- "babel-identity",
- "babel-object",
- "babel-types",
+ "babble-crypto",
+ "babble-identity",
+ "babble-object",
+ "babble-types",
  "schemars",
  "serde",
  "serde_json",
 ]
 
 [[package]]
-name = "babel-hashgraph"
+name = "babble-hashgraph"
 version = "0.1.0"
 dependencies = [
- "babel-crypto",
- "babel-identity",
- "babel-state",
- "babel-types",
+ "babble-crypto",
+ "babble-identity",
+ "babble-state",
+ "babble-types",
  "schemars",
  "serde",
  "serde_json",
 ]
 
 [[package]]
-name = "babel-identity"
+name = "babble-identity"
 version = "0.1.0"
 dependencies = [
- "babel-crypto",
- "babel-types",
+ "babble-crypto",
+ "babble-types",
  "schemars",
  "serde",
 ]
 
 [[package]]
-name = "babel-judgment"
+name = "babble-judgment"
 version = "0.1.0"
 dependencies = [
- "babel-types",
+ "babble-types",
  "schemars",
  "serde",
  "serde_json",
@@ -279,33 +279,33 @@ dependencies = [
 ]
 
 [[package]]
-name = "babel-judgment-jev"
+name = "babble-judgment-jev"
 version = "0.1.0"
 dependencies = [
- "babel-judgment",
- "babel-types",
+ "babble-judgment",
+ "babble-types",
  "reqwest",
  "serde",
  "serde_json",
 ]
 
 [[package]]
-name = "babel-judgment-local"
+name = "babble-judgment-local"
 version = "0.1.0"
 dependencies = [
- "babel-judgment",
- "babel-types",
+ "babble-judgment",
+ "babble-types",
  "serde_json",
 ]
 
 [[package]]
-name = "babel-judgment-python"
+name = "babble-judgment-python"
 version = "0.1.0"
 dependencies = [
- "babel-discovery",
- "babel-judgment",
- "babel-lens",
- "babel-types",
+ "babble-discovery",
+ "babble-judgment",
+ "babble-lens",
+ "babble-types",
  "libc",
  "schemars",
  "serde",
@@ -314,10 +314,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "babel-lens"
+name = "babble-lens"
 version = "0.1.0"
 dependencies = [
- "babel-types",
+ "babble-types",
  "schemars",
  "serde",
  "serde_json",
@@ -325,29 +325,29 @@ dependencies = [
 ]
 
 [[package]]
-name = "babel-media"
+name = "babble-media"
 version = "0.1.0"
 dependencies = [
- "babel-object",
- "babel-types",
+ "babble-object",
+ "babble-types",
  "schemars",
  "serde",
  "serde_json",
 ]
 
 [[package]]
-name = "babel-network"
+name = "babble-network"
 version = "0.1.0"
 dependencies = [
- "babel-crypto",
- "babel-graph",
- "babel-hashgraph",
- "babel-identity",
- "babel-judgment",
- "babel-judgment-local",
- "babel-node",
- "babel-state",
- "babel-types",
+ "babble-crypto",
+ "babble-graph",
+ "babble-hashgraph",
+ "babble-identity",
+ "babble-judgment",
+ "babble-judgment-local",
+ "babble-node",
+ "babble-state",
+ "babble-types",
  "schemars",
  "serde",
  "serde_json",
@@ -355,27 +355,27 @@ dependencies = [
 ]
 
 [[package]]
-name = "babel-node"
+name = "babble-node"
 version = "0.1.0"
 dependencies = [
- "babel-authoring",
- "babel-capabilities",
- "babel-crypto",
- "babel-discovery",
- "babel-graph",
- "babel-hashgraph",
- "babel-identity",
- "babel-judgment",
- "babel-judgment-local",
- "babel-lens",
- "babel-media",
- "babel-object",
- "babel-personalization",
- "babel-realtime",
- "babel-runtime",
- "babel-state",
- "babel-store",
- "babel-types",
+ "babble-authoring",
+ "babble-capabilities",
+ "babble-crypto",
+ "babble-discovery",
+ "babble-graph",
+ "babble-hashgraph",
+ "babble-identity",
+ "babble-judgment",
+ "babble-judgment-local",
+ "babble-lens",
+ "babble-media",
+ "babble-object",
+ "babble-personalization",
+ "babble-realtime",
+ "babble-runtime",
+ "babble-state",
+ "babble-store",
+ "babble-types",
  "blake3",
  "reqwest",
  "rusqlite",
@@ -386,13 +386,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "babel-object"
+name = "babble-object"
 version = "0.1.0"
 dependencies = [
- "babel-crypto",
- "babel-graph",
- "babel-identity",
- "babel-types",
+ "babble-crypto",
+ "babble-graph",
+ "babble-identity",
+ "babble-types",
  "schemars",
  "serde",
  "serde_json",
@@ -400,11 +400,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "babel-personalization"
+name = "babble-personalization"
 version = "0.1.0"
 dependencies = [
- "babel-lens",
- "babel-types",
+ "babble-lens",
+ "babble-types",
  "chacha20poly1305",
  "hex",
  "rand_core 0.6.4",
@@ -416,17 +416,17 @@ dependencies = [
 ]
 
 [[package]]
-name = "babel-realtime"
+name = "babble-realtime"
 version = "0.1.0"
 dependencies = [
- "babel-types",
+ "babble-types",
  "schemars",
  "serde",
  "serde_json",
 ]
 
 [[package]]
-name = "babel-rpc"
+name = "babble-rpc"
 version = "0.1.0"
 dependencies = [
  "schemars",
@@ -436,44 +436,44 @@ dependencies = [
 ]
 
 [[package]]
-name = "babel-runtime"
+name = "babble-runtime"
 version = "0.1.0"
 dependencies = [
- "babel-capabilities",
- "babel-crypto",
- "babel-identity",
- "babel-object",
- "babel-store",
- "babel-types",
+ "babble-capabilities",
+ "babble-crypto",
+ "babble-identity",
+ "babble-object",
+ "babble-store",
+ "babble-types",
  "schemars",
  "serde",
  "serde_json",
 ]
 
 [[package]]
-name = "babel-schema"
+name = "babble-schema"
 version = "0.1.0"
 dependencies = [
- "babel-api",
- "babel-authoring",
- "babel-capabilities",
- "babel-crypto",
- "babel-discovery",
- "babel-graph",
- "babel-hashgraph",
- "babel-identity",
- "babel-judgment",
- "babel-lens",
- "babel-media",
- "babel-network",
- "babel-node",
- "babel-object",
- "babel-personalization",
- "babel-realtime",
- "babel-rpc",
- "babel-runtime",
- "babel-state",
- "babel-types",
+ "babble-api",
+ "babble-authoring",
+ "babble-capabilities",
+ "babble-crypto",
+ "babble-discovery",
+ "babble-graph",
+ "babble-hashgraph",
+ "babble-identity",
+ "babble-judgment",
+ "babble-lens",
+ "babble-media",
+ "babble-network",
+ "babble-node",
+ "babble-object",
+ "babble-personalization",
+ "babble-realtime",
+ "babble-rpc",
+ "babble-runtime",
+ "babble-state",
+ "babble-types",
  "hex",
  "schemars",
  "serde",
@@ -482,46 +482,46 @@ dependencies = [
 ]
 
 [[package]]
-name = "babel-sim"
+name = "babble-sim"
 version = "0.1.0"
 dependencies = [
- "babel-crypto",
- "babel-identity",
- "babel-judgment-local",
- "babel-network",
- "babel-node",
- "babel-object",
- "babel-types",
+ "babble-crypto",
+ "babble-identity",
+ "babble-judgment-local",
+ "babble-network",
+ "babble-node",
+ "babble-object",
+ "babble-types",
  "tempfile",
 ]
 
 [[package]]
-name = "babel-state"
+name = "babble-state"
 version = "0.1.0"
 dependencies = [
- "babel-crypto",
- "babel-graph",
- "babel-identity",
- "babel-object",
- "babel-types",
+ "babble-crypto",
+ "babble-graph",
+ "babble-identity",
+ "babble-object",
+ "babble-types",
  "schemars",
  "serde",
  "serde_json",
 ]
 
 [[package]]
-name = "babel-store"
+name = "babble-store"
 version = "0.1.0"
 dependencies = [
- "babel-capabilities",
- "babel-crypto",
- "babel-graph",
- "babel-identity",
- "babel-judgment",
- "babel-object",
- "babel-personalization",
- "babel-state",
- "babel-types",
+ "babble-capabilities",
+ "babble-crypto",
+ "babble-graph",
+ "babble-identity",
+ "babble-judgment",
+ "babble-object",
+ "babble-personalization",
+ "babble-state",
+ "babble-types",
  "rusqlite",
  "schemars",
  "serde",
@@ -530,7 +530,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "babel-types"
+name = "babble-types"
 version = "0.1.0"
 dependencies = [
  "blake3",

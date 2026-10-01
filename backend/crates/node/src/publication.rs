@@ -1,15 +1,15 @@
 //! Publication preparation has no live index/cache writes. Only the bounded
 //! store batch crosses the durable boundary; providers run before that boundary.
 use crate::{LocalNode, ProvenancePublication};
-use babel_authoring::ObjectDraft;
-use babel_crypto::Keypair;
-use babel_graph::{Edge, EdgeOrigin, Relation};
-use babel_judgment::JudgmentProvider;
-use babel_media::MediaObjectPayload;
-use babel_object::Object;
-use babel_state::{Event, EventKind, EventTarget};
-use babel_store::{PublicationBatch, PublicationOutcome};
-use babel_types::{Error, IdentityId, ObjectId, Result};
+use babble_authoring::ObjectDraft;
+use babble_crypto::Keypair;
+use babble_graph::{Edge, EdgeOrigin, Relation};
+use babble_judgment::JudgmentProvider;
+use babble_media::MediaObjectPayload;
+use babble_object::Object;
+use babble_state::{Event, EventKind, EventTarget};
+use babble_store::{PublicationBatch, PublicationOutcome};
+use babble_types::{Error, IdentityId, ObjectId, Result};
 
 impl<P: JudgmentProvider> LocalNode<P> {
     /// API dispatchers must call this before using infallible snapshot getters.
@@ -217,7 +217,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
     }
 
     fn validate_media_publication(&self, object: &Object) -> Result<()> {
-        if object.kind.as_str() != "babel.media" {
+        if object.kind.as_str() != "babble.media" {
             return Ok(());
         }
         let payload: MediaObjectPayload = serde_json::from_value(object.payload.clone())
@@ -259,7 +259,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
     }
 }
 
-pub(crate) fn publication_error(error: babel_store::PublicationError) -> Error {
+pub(crate) fn publication_error(error: babble_store::PublicationError) -> Error {
     Error::Conflict(error.to_string())
 }
 

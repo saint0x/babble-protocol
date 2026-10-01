@@ -5,7 +5,7 @@ import { verifyConversationReading } from "./conversation-browser.mjs";
 import { verifyCardPresentation } from "./card-style-browser.mjs";
 
 const addr = process.env.AEGIS_SERVER_ADDR ?? "127.0.0.1:7879";
-const url = new URL(process.env.BABEL_READING_URL ?? "http://127.0.0.1:4321/");
+const url = new URL(process.env.BABBLE_READING_URL ?? "http://127.0.0.1:4321/");
 execFileSync(process.execPath, ["--test", "frontend/tests/conversations.test.mjs", "frontend/tests/reading.test.mjs"], {
   stdio: "inherit", timeout: 30_000,
 });

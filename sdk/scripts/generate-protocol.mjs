@@ -11,8 +11,8 @@ const bundle = JSON.parse(readFileSync(bundlePath, "utf8"));
 const schemas = bundle.schemas;
 const catalog = bundle.fixtures.rpc_catalog;
 
-if (!catalog || catalog.protocol !== "babel.rpc.v1") {
-  throw new Error("schema bundle is missing the babel.rpc.v1 catalog fixture");
+if (!catalog || catalog.protocol !== "babble.rpc.v1") {
+  throw new Error("schema bundle is missing the babble.rpc.v1 catalog fixture");
 }
 
 const schemaNames = Object.keys(schemas).sort();

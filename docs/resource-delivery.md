@@ -8,7 +8,7 @@ that separate, still-unimplemented boundary.
 ## Declared Locations
 
 Authoring and runtime admission share a structured URL parser. Accepted locations
-are canonical `babel://blobs/<hash>`, safe relative references, HTTPS, and HTTP
+are canonical `babble://blobs/<hash>`, safe relative references, HTTPS, and HTTP
 whose parsed host is loopback. Credentials, control characters, backslashes,
 traversal, ambiguous path escapes, and malformed hashes fail admission. Blob
 URIs must contain the exact declared lowercase BLAKE3 digest.
@@ -18,7 +18,7 @@ one declared resource. It checks all matching candidates, not only the first
 same-hash resource. Authoring retains its existing duplicate-resource-hash
 rejection; runtime also validates signed/imported Objects with aliases.
 
-An entry matches its signed resource URI exactly. A Babel blob may also use a
+An entry matches its signed resource URI exactly. A Babble blob may also use a
 recognized gateway route with the exact hash and one matching `media_type`
 selector. Gateway URL shape does not authenticate that server or verify its
 response. External URLs and safe relative references remain declarations, not
@@ -31,7 +31,7 @@ All three public reads use the same bounded, digest-verifying store operation:
 
 - `GET /runtime/surfaces/blobs/{hash}` returns raw executable resource bytes.
 - `GET /media/blobs/{hash}` returns the media descriptor and hex-encoded bytes.
-- `babel.media.blob.get.v1` returns the equivalent RPC result.
+- `babble.media.blob.get.v1` returns the equivalent RPC result.
 
 The maximum buffered blob is **8 MiB**. JSON requests have a **16 MiB plus 64 KiB**
 body ceiling, including their envelope and hex-encoded payload. This admits an

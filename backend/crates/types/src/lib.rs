@@ -4,9 +4,9 @@ use serde_json::{Map, Number, Value};
 use std::fmt::{Display, Formatter};
 use time::OffsetDateTime;
 
-pub const PROTOCOL_VERSION: &str = "babel.v2";
-pub const CANONICAL_ENCODING_VERSION: &str = "babel.canonical.v1";
-const CANONICAL_PREAMBLE: &[u8] = b"babel.canonical.v1\0";
+pub const PROTOCOL_VERSION: &str = "babble";
+pub const CANONICAL_ENCODING_VERSION: &str = "babble.canonical.v1";
+const CANONICAL_PREAMBLE: &[u8] = b"babble.canonical.v1\0";
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -320,6 +320,6 @@ mod tests {
         let bytes = json!({"a": 1}).canonical_bytes().unwrap();
 
         assert!(bytes.starts_with(CANONICAL_PREAMBLE));
-        assert_eq!(CANONICAL_ENCODING_VERSION, "babel.canonical.v1");
+        assert_eq!(CANONICAL_ENCODING_VERSION, "babble.canonical.v1");
     }
 }

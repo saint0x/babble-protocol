@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from babel_algorithms import (
+from babble_algorithms import (
     ContentProfile,
     RecommendationEngine,
     RecommendationFeedback,

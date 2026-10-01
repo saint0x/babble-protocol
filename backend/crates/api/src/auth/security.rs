@@ -7,7 +7,7 @@ use axum::{
     extract::{Path, State},
     http::{HeaderMap, StatusCode},
 };
-use babel_judgment::JudgmentProvider;
+use babble_judgment::JudgmentProvider;
 use rand_core::OsRng;
 use schemars::JsonSchema;
 use serde::{Deserialize, Deserializer, Serialize};
@@ -154,7 +154,7 @@ pub(super) async fn change_password<P: JudgmentProvider + Send + Sync + 'static>
 // imply the credential still works; durable orphan scanning retries runtime cleanup.
 pub(super) fn cleanup_committed<P: JudgmentProvider>(
     auth: &Auth,
-    node: &mut babel_node::LocalNode<P>,
+    node: &mut babble_node::LocalNode<P>,
     origins: &[String],
 ) {
     for origin in origins {

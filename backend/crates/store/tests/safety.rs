@@ -1,11 +1,11 @@
-use babel_crypto::Keypair;
-use babel_graph::{
+use babble_crypto::Keypair;
+use babble_graph::{
     SafetyAction, SafetyActionPayload, SafetyReceipt, SafetyReceiptPayload, SafetyRequest,
     SafetyState,
 };
-use babel_identity::{Identity, IdentityKind};
-use babel_store::FileStore;
-use babel_types::{Canonical, Error, Timestamp};
+use babble_identity::{Identity, IdentityKind};
+use babble_store::FileStore;
+use babble_types::{Canonical, Error, Timestamp};
 use rusqlite::Connection;
 use std::{
     path::PathBuf,
@@ -26,7 +26,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-safety-store-{}-{}-{}",
+            "babble-safety-store-{}-{}-{}",
             std::process::id(),
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
@@ -59,7 +59,7 @@ impl Fixture {
             idempotency_key: key.into(),
         }
     }
-    fn verify(&self) -> babel_types::Result<()> {
+    fn verify(&self) -> babble_types::Result<()> {
         self.store.verify_safety_records(|id, _| {
             if id == &self.author.id {
                 Ok(self.author.clone())
@@ -84,7 +84,7 @@ fn commit(
     store: &FileStore,
     request: &SafetyRequest,
     key: &Keypair,
-) -> babel_types::Result<SafetyState> {
+) -> babble_types::Result<SafetyState> {
     commit_at(store, request, key, Timestamp::now())
 }
 
@@ -93,7 +93,7 @@ fn commit_at(
     request: &SafetyRequest,
     key: &Keypair,
     created_at: Timestamp,
-) -> babel_types::Result<SafetyState> {
+) -> babble_types::Result<SafetyState> {
     let identities = [
         store
             .get_identity(&request.author_id)?

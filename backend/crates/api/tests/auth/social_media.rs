@@ -21,7 +21,7 @@ fn prepare(
     blobs: &[Value],
 ) -> Value {
     json!({"origin":{"kind":"host_action","document_id":DOCUMENT},"object_id":object,
-        "method":format!("babel.social.{action}.v2"),"request_key":key,
+        "method":format!("babble.social.{action}"),"request_key":key,
         "payload":{"author_id":account.id,"target_object_id":target,"text":"",
             "media":{"title":"Album","resources":blobs}}})
 }
@@ -39,7 +39,7 @@ async fn host_call(
         path,
         account.map(|a| a.token.as_str()),
         body,
-        &[("x-babel-host-document", DOCUMENT)],
+        &[("x-babble-host-document", DOCUMENT)],
     )
     .await
 }
@@ -86,7 +86,7 @@ async fn media_album_authenticated_upload_publication_social_delivery_and_restar
         let bytes = format!("authenticated-album-{index}").into_bytes();
         let mime = ["image/png", "audio/wav", "video/webm"][index % 3];
         let operation = envelope(
-            "babel.media.blob.put.v1",
+            "babble.media.blob.put.v1",
             host(),
             json!({"media_type":mime,"bytes_hex":hex::encode(&bytes)}),
         );
@@ -101,7 +101,7 @@ async fn media_album_authenticated_upload_publication_social_delivery_and_restar
     uploaded.rotate_left(5);
     let blobs: Vec<_> = uploaded.iter().map(|(blob, _)| blob.clone()).collect();
     let direct = envelope(
-        "babel.object.publish_media.v1",
+        "babble.object.publish_media.v1",
         host(),
         json!({"author_id":alice.id,"title":"Album","resources":blobs}),
     );
@@ -196,7 +196,7 @@ async fn media_album_authenticated_upload_publication_social_delivery_and_restar
         .list_objects()
         .unwrap()
         .into_iter()
-        .filter(|object| object.kind.as_str() == "babel.media")
+        .filter(|object| object.kind.as_str() == "babble.media")
         .map(|object| object.id)
         .collect();
     assert_eq!(albums.len(), 3);
@@ -232,7 +232,7 @@ async fn social_media_authenticated_invocations_reject_forgery_and_retire_docume
         let (_, upload) = rpc(
             &app,
             &alice,
-            "babel.media.blob.put.v1",
+            "babble.media.blob.put.v1",
             host(),
             json!({"media_type":mime,"bytes_hex":hex::encode(bytes)}),
         )

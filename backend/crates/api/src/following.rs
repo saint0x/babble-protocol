@@ -7,9 +7,9 @@ use axum::{
     Extension, Json,
     extract::{Path, Query, State},
 };
-use babel_judgment::JudgmentProvider;
-use babel_node::{FollowListPage, FollowState, FollowingPage, FollowingQuery};
-use babel_types::IdentityId;
+use babble_judgment::JudgmentProvider;
+use babble_node::{FollowListPage, FollowState, FollowingPage, FollowingQuery};
+use babble_types::IdentityId;
 use schemars::JsonSchema;
 use serde::Deserialize;
 

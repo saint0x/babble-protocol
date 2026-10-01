@@ -74,7 +74,7 @@ fozzy run tests/admission-host.fozzy.json --det --seed 41 --proc-backend host --
 fozzy trace verify artifacts/admission-final.fozzy --strict --json
 fozzy replay artifacts/admission-final.fozzy --json
 fozzy ci artifacts/admission-final.fozzy --json
-CARGO_INCREMENTAL=0 cargo clippy --manifest-path ../../Cargo.toml -p babel-discovery --all-targets --no-deps -- -D warnings
+CARGO_INCREMENTAL=0 cargo clippy --manifest-path ../../Cargo.toml -p babble-discovery --all-targets --no-deps -- -D warnings
 ```
 
 The scenario executes the real Rust tests, including graph retrieval, all-source

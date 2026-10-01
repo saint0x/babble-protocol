@@ -1,5 +1,5 @@
 //! Canonical temporal scoring contract. Providers are selected explicitly.
-use babel_types::{Error, ObjectId, Result, Timestamp};
+use babble_types::{Error, ObjectId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -202,7 +202,7 @@ pub struct NativeTemporalScorer;
 impl TemporalProvider for NativeTemporalScorer {
     fn version(&self) -> TemporalProviderVersion {
         TemporalProviderVersion {
-            provider: "babel-rust".into(),
+            provider: "babble-rust".into(),
             model: "temporal-v1".into(),
             version: "1".into(),
         }

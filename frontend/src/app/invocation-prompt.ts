@@ -1,6 +1,6 @@
 import { X, createElement } from "lucide";
 
-export type InvocationMethod = `babel.social.${"follow" | "unfollow" | "share" | "reply"}.v2`;
+export type InvocationMethod = `babble.social.${"follow" | "unfollow" | "share" | "reply"}`;
 export type InvocationDecision = "allow" | "deny" | "cancel";
 
 export interface InvocationMedia {
@@ -35,10 +35,10 @@ export interface InvocationPromptContext {
 
 const activeDocuments = new WeakSet<Document>();
 const actions: Record<InvocationMethod, { heading: string; allow: string; effect: string }> = {
-  "babel.social.follow.v2": { heading: "Follow Object?", allow: "Follow once", effect: "Add a follow from this identity to the recipient Object." },
-  "babel.social.unfollow.v2": { heading: "Unfollow Object?", allow: "Unfollow once", effect: "Remove this identity's follow of the recipient Object." },
-  "babel.social.share.v2": { heading: "Share Object?", allow: "Share once", effect: "Publish a share of the recipient Object as this identity." },
-  "babel.social.reply.v2": { heading: "Reply to Object?", allow: "Reply once", effect: "Publish a reply to the recipient Object as this identity." },
+  "babble.social.follow": { heading: "Follow Object?", allow: "Follow once", effect: "Add a follow from this identity to the recipient Object." },
+  "babble.social.unfollow": { heading: "Unfollow Object?", allow: "Unfollow once", effect: "Remove this identity's follow of the recipient Object." },
+  "babble.social.share": { heading: "Share Object?", allow: "Share once", effect: "Publish a share of the recipient Object as this identity." },
+  "babble.social.reply": { heading: "Reply to Object?", allow: "Reply once", effect: "Publish a reply to the recipient Object as this identity." },
 };
 
 /** A host-owned consent view. It neither authorizes nor sends an API decision. */
@@ -88,7 +88,7 @@ export class InvocationPrompt {
     close.title = "Cancel request";
     close.append(createElement(X, { "aria-hidden": "true" }));
     const header = doc.createElement("header");
-    header.append(text(doc, "p", "Babel permission", "invocation-prompt-eyebrow"), text(doc, "h2", action.heading),
+    header.append(text(doc, "p", "Babble permission", "invocation-prompt-eyebrow"), text(doc, "h2", action.heading),
       text(doc, "p", action.effect, "invocation-prompt-effect"));
     const body = doc.createElement("div");
     body.className = "invocation-prompt-body";

@@ -1,7 +1,7 @@
-use babel_judgment::{
+use babble_judgment::{
     DefinitionId, Judgment, JudgmentProvider, JudgmentRegistry, JudgmentRequest, ProviderVersion,
 };
-use babel_types::{Canonical, JudgmentId, Result, Timestamp};
+use babble_types::{Canonical, JudgmentId, Result, Timestamp};
 use serde_json::Value;
 
 #[derive(Clone, Debug)]
@@ -13,7 +13,7 @@ impl Default for LocalProvider {
     fn default() -> Self {
         Self {
             version: ProviderVersion {
-                provider: "babel-local".to_string(),
+                provider: "babble-local".to_string(),
                 model: "rules-v1".to_string(),
                 version: "1".to_string(),
             },
@@ -23,7 +23,7 @@ impl Default for LocalProvider {
 
 impl JudgmentProvider for LocalProvider {
     fn supported_definitions(&self) -> Vec<DefinitionId> {
-        JudgmentRegistry::babel_core()
+        JudgmentRegistry::babble_core()
             .definitions
             .into_iter()
             .map(|definition| definition.id)
@@ -37,11 +37,11 @@ impl JudgmentProvider for LocalProvider {
 
     fn judge(&self, request: &JudgmentRequest) -> Result<Judgment> {
         if request.definition == DefinitionId::source_agreement_v1() {
-            return Err(babel_types::Error::ProviderUnavailable(
+            return Err(babble_types::Error::ProviderUnavailable(
                 "Rust local provider does not support source agreement".into(),
             ));
         }
-        JudgmentRegistry::babel_core().validate_request(request)?;
+        JudgmentRegistry::babble_core().validate_request(request)?;
         let input_hash = request.state.canonical_hash()?;
         let output = evaluate(request);
         let confidence = output
@@ -64,7 +64,7 @@ impl JudgmentProvider for LocalProvider {
             confidence,
             created_at: Timestamp::now(),
         };
-        JudgmentRegistry::babel_core().validate_output(&judgment.definition, &judgment.output)?;
+        JudgmentRegistry::babble_core().validate_output(&judgment.definition, &judgment.output)?;
         Ok(judgment)
     }
 }

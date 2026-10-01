@@ -49,7 +49,7 @@ export class BundlePicker {
         changed({ ...this.value, capabilitiesText: this.declarations.value });
       }
     });
-    for (const [input, id] of [[this.clipboard, "babel.clipboard.write"], [this.fullscreen, "babel.fullscreen.enter"]] as const) {
+    for (const [input, id] of [[this.clipboard, "babble.clipboard.write"], [this.fullscreen, "babble.fullscreen.enter"]] as const) {
       input.addEventListener("change", () => {
         if (input.disabled || !this.value) return;
         try {
@@ -113,8 +113,8 @@ export class BundlePicker {
     try {
       const requests = parseBundleCapabilities(text);
       this.permissionCount.textContent = String(requests.length);
-      this.clipboard.checked = requests.some(request => request.id === "babel.clipboard.write" && request.version === 1);
-      this.fullscreen.checked = requests.some(request => request.id === "babel.fullscreen.enter" && request.version === 1);
+      this.clipboard.checked = requests.some(request => request.id === "babble.clipboard.write" && request.version === 1);
+      this.fullscreen.checked = requests.some(request => request.id === "babble.fullscreen.enter" && request.version === 1);
     } catch (cause) { this.showPermissionError(cause); }
   }
 

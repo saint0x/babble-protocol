@@ -1,41 +1,41 @@
-use babel_authoring::{CapabilityGrantDraft, EdgeDraft, ObjectDraft};
-use babel_capabilities::{
+use babble_authoring::{CapabilityGrantDraft, EdgeDraft, ObjectDraft};
+use babble_capabilities::{
     CapabilityBroker, CapabilityCall, CapabilityDecision, CapabilityDefinition, CapabilityGrant,
     CapabilityId, CapabilityManifest, CapabilityReceipt, CapabilityUsageWindow, GrantDecision,
 };
-use babel_crypto::Keypair;
-use babel_discovery::{
+use babble_crypto::Keypair;
+use babble_discovery::{
     NativeTemporalScorer, TemporalProvider, TemporalProviderVersion,
     TemporalResult,
 };
-use babel_graph::{Edge, EdgeOrigin, GraphTraversal, GraphTraversalSpec, Relation};
-use babel_hashgraph::{EventDag, FinalityCheckpoint, ValidatorSet};
-use babel_identity::{Identity, IdentityKeyScope, IdentityKeyTransition, IdentityKind};
-use babel_judgment::{
+use babble_graph::{Edge, EdgeOrigin, GraphTraversal, GraphTraversalSpec, Relation};
+use babble_hashgraph::{EventDag, FinalityCheckpoint, ValidatorSet};
+use babble_identity::{Identity, IdentityKeyScope, IdentityKeyTransition, IdentityKind};
+use babble_judgment::{
     DefinitionId, Judgment, JudgmentCache, JudgmentOrchestrator, JudgmentProvider,
     JudgmentProviderDescriptor, JudgmentRequest, OrchestratedJudgment, ProviderVersion,
 };
-use babel_lens::{
+use babble_lens::{
     BuiltInLens, DiversityPolicy, DiversityTrace, EvidenceSignals, LensStack, LensWeight,
     NativeRanker, RankedCandidate, RankingProvider, RankingProviderVersion, RankingRequest,
     RankingTrace, ReputationSignals,
 };
-use babel_media::{MediaBlob, MediaObjectPayload};
-use babel_object::{CapabilityRequest, Object, ObjectKind, Provenance, SurfaceRole};
-use babel_personalization::EncryptedLocalUserModel;
-use babel_realtime::{
+use babble_media::{MediaBlob, MediaObjectPayload};
+use babble_object::{CapabilityRequest, Object, ObjectKind, Provenance, SurfaceRole};
+use babble_personalization::EncryptedLocalUserModel;
+use babble_realtime::{
     RealtimeHub, RealtimeMessage, RealtimePayload, RealtimeSession, RealtimeSnapshot, RoomSpec,
     RoomView,
 };
-use babel_runtime::{
+use babble_runtime::{
     ResourceBudget, SurfaceLifecycle, SurfaceRuntime, SurfaceRuntimeEvent,
     SurfaceRuntimeHealthSnapshot, SurfaceScheduleDecision, SurfaceScheduler,
     SurfaceSchedulingInput, SurfaceSession, SurfaceSessionId, SurfaceSessionPlan,
     SurfaceStateCheckpoint,
 };
-use babel_state::{Event, EventKind, EventTarget, MemoryState};
-use babel_store::{FileStore, PersonalizationSyncRecord};
-use babel_types::{
+use babble_state::{Event, EventKind, EventTarget, MemoryState};
+use babble_store::{FileStore, PersonalizationSyncRecord};
+use babble_types::{
     Canonical, CapabilityGrantId, EdgeId, EventId, Hash, IdentityId, JudgmentId, ObjectId, Result,
     Timestamp,
 };
@@ -53,7 +53,7 @@ mod safety;
 pub mod moderation;
 pub use safety::{SafetyState, SafetySnapshot, SafetyEntry};
 mod reactions;
-pub use babel_graph::{
+pub use babble_graph::{
     Appreciation, Engagement, ReactionAction, ReactionActionPayload, ReactionReceipt,
     ReactionReceiptPayload, ReactionRecord, ReactionRequest, ReactionState, ReactionSummary,
     ReactionValue, Stance,
@@ -270,7 +270,7 @@ impl Default for DiscoveryQuery {
             limit: 50,
             exploration_slots: 5,
             lens: LensStack::new(
-                "babel.lens.stack.balanced.v1",
+                "babble.lens.stack.balanced.v1",
                 vec![
                     LensWeight {
                         lens: BuiltInLens::Research,
@@ -320,11 +320,11 @@ pub struct LocalNode<P> {
     realtime: RealtimeHub,
     surface_sessions: BTreeMap<SurfaceSessionId, SurfaceSession>,
     keyring: BTreeMap<IdentityId, Keypair>,
-    replies: babel_graph::RepliesIndex,
+    replies: babble_graph::RepliesIndex,
     quotes: quotes::QuotesIndex,
-    publication_request: Option<babel_store::PublicationRequest>,
+    publication_request: Option<babble_store::PublicationRequest>,
     invocation_epoch: Hash,
-    executing_invocation: Option<babel_capabilities::invocation::InvocationRecord>,
+    executing_invocation: Option<babble_capabilities::invocation::InvocationRecord>,
     author_objects: profiles::AuthorObjectsIndex,
     discovery_index: retrieval::DiscoveryIndex,
     moderators: BTreeSet<IdentityId>,
@@ -396,14 +396,14 @@ where
             judgment_provider,
             ranking_provider,
             temporal_provider,
-            capability_broker: CapabilityBroker::babel_default(),
+            capability_broker: CapabilityBroker::babble_default(),
             realtime,
             surface_sessions: BTreeMap::new(),
             keyring: BTreeMap::new(),
-            replies: babel_graph::RepliesIndex::default(),
+            replies: babble_graph::RepliesIndex::default(),
             quotes: quotes::QuotesIndex::default(),
             publication_request: None,
-            invocation_epoch: babel_capabilities::invocation::new_context_epoch()?,
+            invocation_epoch: babble_capabilities::invocation::new_context_epoch()?,
             executing_invocation: None,
             author_objects: profiles::AuthorObjectsIndex::default(),
             discovery_index: retrieval::DiscoveryIndex::default(),
@@ -429,7 +429,7 @@ where
         let event = self
             .state
             .event(&event_id)
-            .ok_or_else(|| babel_types::Error::NotFound(event_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(event_id.to_string()))?;
 
         self.store.put_identity(&identity)?;
         self.persist_signing_key(&keypair)?;
@@ -449,7 +449,7 @@ where
         let event = self
             .state
             .event(&event_id)
-            .ok_or_else(|| babel_types::Error::NotFound(event_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(event_id.to_string()))?;
 
         self.store.put_identity(&identity)?;
         self.persist_signing_key(&keypair)?;
@@ -466,7 +466,7 @@ where
         self.check_ready()?;
         let identity = self.state.signing_identity(identity_id)?;
         if keypair.public_key() != identity.public_key {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         self.keyring.insert(identity_id.clone(), keypair);
         Ok(())
@@ -476,14 +476,14 @@ where
         &mut self,
         identity_id: &IdentityId,
         scope: IdentityKeyScope,
-        expires_at: Option<babel_types::Timestamp>,
+        expires_at: Option<babble_types::Timestamp>,
         reason: &str,
     ) -> Result<(IdentityKeyTransition, Event)> {
         self.check_ready()?;
         let actor_before = self.state.signing_identity(identity_id)?;
         let previous_keypair = self.local_keypair(identity_id)?.clone();
         if previous_keypair.public_key() != actor_before.public_key {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         let next_keypair = Keypair::generate();
         let transition = IdentityKeyTransition::create(
@@ -500,7 +500,7 @@ where
             EventKind::IdentityKeyTransition,
             EventTarget::Identity(identity_id.clone()),
             serde_json::to_value(&transition)
-                .map_err(|err| babel_types::Error::Canonical(err.to_string()))?,
+                .map_err(|err| babble_types::Error::Canonical(err.to_string()))?,
             self.latest_event_ids(2)?,
         )?
         .sign(&actor_before, &previous_keypair)?;
@@ -562,7 +562,7 @@ where
                 .object(&object.id)
                 .is_some_and(|existing| existing != &object)
             {
-                return Err(babel_types::Error::Conflict(format!(
+                return Err(babble_types::Error::Conflict(format!(
                     "object id conflict: {}", object.id
                 )));
             }
@@ -577,12 +577,12 @@ where
         for edge in bundle.edges {
             edge.author
                 .as_ref()
-                .ok_or(babel_types::Error::UnsignedEdge)?;
+                .ok_or(babble_types::Error::UnsignedEdge)?;
             let is_new = self.edge(&edge.id).is_none();
             self.require_object(&edge.source)?;
             self.require_object(&edge.target)?;
             if self.edge(&edge.id).is_some_and(|existing| existing != &edge) {
-                return Err(babel_types::Error::Conflict(format!(
+                return Err(babble_types::Error::Conflict(format!(
                     "edge id conflict: {}", edge.id
                 )));
             }
@@ -635,7 +635,7 @@ where
     ) -> Result<Object> {
         self.check_ready()?;
         if &object.author != author_id {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         let keypair = {
             let author = self
@@ -655,7 +655,7 @@ where
         draft.validate()?;
         for hash in draft.required_blob_hashes() {
             if !self.store.contains_blob(&hash)? {
-                return Err(babel_types::Error::NotFound(format!("media blob {}", hash)));
+                return Err(babble_types::Error::NotFound(format!("media blob {}", hash)));
             }
         }
         let (keypair, object) = {
@@ -732,7 +732,7 @@ where
             || draft.provenance.forked_from.is_some()
             || !draft.provenance.remixed_from.is_empty()
         {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "fork and remix requests must not predeclare provenance".to_string(),
             ));
         }
@@ -742,14 +742,14 @@ where
     pub fn put_media_blob(&self, media_type: &str, bytes: &[u8]) -> Result<MediaBlob> {
         self.check_ready()?;
         if bytes.is_empty() {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "media blob must not be empty".to_string(),
             ));
         }
         let blob = MediaBlob::from_bytes(media_type, bytes)?;
         let stored = self.store.put_blob(bytes)?;
         if stored != blob.integrity {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "stored blob hash mismatch: expected {} got {}",
                 blob.integrity, stored
             )));
@@ -768,7 +768,7 @@ where
         };
         let blob = MediaBlob::from_bytes(media_type, &bytes)?;
         if &blob.integrity != hash {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "media blob integrity mismatch: {}",
                 hash
             )));
@@ -781,9 +781,9 @@ where
         hash: &Hash,
         media_type: &str,
         max_bytes: usize,
-    ) -> std::result::Result<Option<(MediaBlob, Vec<u8>)>, babel_store::BlobReadError> {
+    ) -> std::result::Result<Option<(MediaBlob, Vec<u8>)>, babble_store::BlobReadError> {
         self.check_ready()?;
-        let media_type = babel_media::normalize_media_type(media_type.to_owned())?;
+        let media_type = babble_media::normalize_media_type(media_type.to_owned())?;
         let Some(bytes) = self.store.get_blob_bounded(hash, max_bytes)? else {
             return Ok(None);
         };
@@ -802,7 +802,7 @@ where
         self.check_ready()?;
         for resource in &resources {
             if !self.store.contains_blob(&resource.integrity)? {
-                return Err(babel_types::Error::NotFound(format!(
+                return Err(babble_types::Error::NotFound(format!(
                     "media blob {}",
                     resource.integrity
                 )));
@@ -815,10 +815,10 @@ where
             let keypair = self.local_keypair(author_id)?;
             let object = Object::create(
                 author,
-                ObjectKind::new("babel.media"),
-                "babel.schema.media.v1",
+                ObjectKind::new("babble.media"),
+                "babble.schema.media.v1",
                 serde_json::to_value(&payload)
-                    .map_err(|err| babel_types::Error::Canonical(err.to_string()))?,
+                    .map_err(|err| babble_types::Error::Canonical(err.to_string()))?,
             )?
             .with_resources(object_resources)?
             .sign(author, keypair)?;
@@ -900,7 +900,7 @@ where
             .clamp(0.0, 1.0);
         let min_score = min_score.clamp(0.0, 1.0);
         if score < min_score {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "relationship Judgment score {score:.3} below required threshold {min_score:.3}"
             )));
         }
@@ -956,7 +956,7 @@ where
         let event = self
             .state
             .event(&event_id)
-            .ok_or_else(|| babel_types::Error::NotFound(event_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(event_id.to_string()))?;
 
         self.put_edge_record(&edge)?;
         self.put_event_record(event)?;
@@ -1022,8 +1022,8 @@ where
         self.require_object(source_object_id)?;
         self.require_object(target_object_id)?;
         if grant_ids.is_empty() {
-            return Err(babel_types::Error::Conflict(
-                "missing capability grant binding for babel.ai.judge@1".to_string(),
+            return Err(babble_types::Error::Conflict(
+                "missing capability grant binding for babble.ai.judge@1".to_string(),
             ));
         }
         let bound_grants = grant_ids
@@ -1034,9 +1034,9 @@ where
                 Ok(id)
             })
             .collect::<Result<BTreeSet<_>>>()?;
-        let capability = CapabilityId::new("babel.ai.judge")?;
+        let capability = CapabilityId::new("babble.ai.judge")?;
         let grants = self.capability_grants(source_object_id)?;
-        let now = babel_types::Timestamp::now();
+        let now = babble_types::Timestamp::now();
         for grant in &grants {
             if bound_grants.contains(&grant.id)
                 && &grant.object_id == source_object_id
@@ -1066,8 +1066,8 @@ where
                 );
             }
         }
-        Err(babel_types::Error::Conflict(format!(
-            "no active babel.ai.judge grant permits {} for {}",
+        Err(babble_types::Error::Conflict(format!(
+            "no active babble.ai.judge grant permits {} for {}",
             definition.as_str(),
             target_object_id
         )))
@@ -1101,7 +1101,7 @@ where
                 EventKind::ConsensusCheckpoint,
                 EventTarget::Network,
                 serde_json::to_value(&checkpoint)
-                    .map_err(|err| babel_types::Error::Canonical(err.to_string()))?,
+                    .map_err(|err| babble_types::Error::Canonical(err.to_string()))?,
                 vec![parent],
             )?
             .sign(author, keypair)?
@@ -1139,7 +1139,7 @@ where
         self.check_ready()?;
         envelope.validate()?;
         if self.identity(&envelope.recipient.identity_id).is_none() {
-            return Err(babel_types::Error::NotFound(
+            return Err(babble_types::Error::NotFound(
                 envelope.recipient.identity_id.to_string(),
             ));
         }
@@ -1154,7 +1154,7 @@ where
     ) -> Result<Vec<PersonalizationSyncRecord>> {
         self.check_ready()?;
         if self.identity(identity_id).is_none() {
-            return Err(babel_types::Error::NotFound(identity_id.to_string()));
+            return Err(babble_types::Error::NotFound(identity_id.to_string()));
         }
         self.store
             .list_personalization_sync_envelopes(identity_id, device_id, limit.min(500))
@@ -1168,11 +1168,11 @@ where
     ) -> Result<PersonalizationSyncRecord> {
         self.check_ready()?;
         if self.identity(identity_id).is_none() {
-            return Err(babel_types::Error::NotFound(identity_id.to_string()));
+            return Err(babble_types::Error::NotFound(identity_id.to_string()));
         }
         self.store
             .get_personalization_sync_envelope(identity_id, device_id, envelope_hash)?
-            .ok_or_else(|| babel_types::Error::NotFound(envelope_hash.to_string()))
+            .ok_or_else(|| babble_types::Error::NotFound(envelope_hash.to_string()))
     }
 
     pub fn delete_personalization_sync_envelope(
@@ -1183,7 +1183,7 @@ where
     ) -> Result<Option<PersonalizationSyncRecord>> {
         self.check_ready()?;
         if self.identity(identity_id).is_none() {
-            return Err(babel_types::Error::NotFound(identity_id.to_string()));
+            return Err(babble_types::Error::NotFound(identity_id.to_string()));
         }
         self.store
             .delete_personalization_sync_envelope(identity_id, device_id, envelope_hash)
@@ -1220,7 +1220,7 @@ where
         reference_time: Timestamp,
     ) -> Result<DiscoveryResult> {
         self.check_ready()?;
-        babel_discovery::TemporalRequest {
+        babble_discovery::TemporalRequest {
             reference_time,
             items: Vec::new(),
         }
@@ -1232,7 +1232,7 @@ where
                 .as_ref()
                 .is_some_and(|q| q.len() > 256 || q.chars().any(char::is_control))
         {
-            return Err(babel_types::Error::Canonical(
+            return Err(babble_types::Error::Canonical(
                 "discovery query exceeds limits".into(),
             ));
         }
@@ -1293,7 +1293,7 @@ where
             self.discovery_signals(&objects, &query, &search_relevance, reference_time, &population)?;
 
         let mut candidates = admission.candidates(&summaries);
-        babel_discovery::CandidateEngine.annotate_admitted(
+        babble_discovery::CandidateEngine.annotate_admitted(
             &mut candidates, &summaries, query.exploration_slots.min(limit),
         );
         let ranking_request = RankingRequest {
@@ -1307,11 +1307,11 @@ where
         result
             .validate_for(&ranking_request, &self.ranking_provider.version())
             .map_err(|_| {
-                babel_types::Error::ProviderUnavailable(
+                babble_types::Error::ProviderUnavailable(
                     "ranking provider returned invalid output".into(),
                 )
             })?;
-        let babel_lens::RankingResult {
+        let babble_lens::RankingResult {
             ranked,
             trace,
             diversity_trace,
@@ -1398,7 +1398,7 @@ where
         self.check_ready()?;
         self.require_moderation_execution(object_id)?;
         if grant_ids.is_empty() {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "missing capability grant binding for {capability}@{version}"
             )));
         }
@@ -1412,7 +1412,7 @@ where
             })
             .collect::<Result<BTreeSet<_>>>()?;
         let grants = self.capability_grants(object_id)?;
-        let now = babel_types::Timestamp::now();
+        let now = babble_types::Timestamp::now();
         for grant in &grants {
             if grant_ids.contains(&grant.id)
                 && &grant.object_id == object_id
@@ -1437,7 +1437,7 @@ where
                 );
             }
         }
-        Err(babel_types::Error::Conflict(format!(
+        Err(babble_types::Error::Conflict(format!(
             "no active grant binding satisfies {}@{version}",
             capability.as_str()
         )))
@@ -1456,7 +1456,7 @@ where
     ) -> Result<CapabilityReceipt> {
         self.require_moderation_execution(object_id)?;
         if grant_ids.is_empty() {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "missing capability grant binding for {capability}@{version}"
             )));
         }
@@ -1470,7 +1470,7 @@ where
             })
             .collect::<Result<BTreeSet<_>>>()?;
         let grants = self.capability_grants(object_id)?;
-        let now = babel_types::Timestamp::now();
+        let now = babble_types::Timestamp::now();
         for grant in &grants {
             if grant_ids.contains(&grant.id)
                 && &grant.object_id == object_id
@@ -1496,7 +1496,7 @@ where
                 );
             }
         }
-        Err(babel_types::Error::Conflict(denied_message))
+        Err(babble_types::Error::Conflict(denied_message))
     }
 
     pub fn clipboard_write(
@@ -1506,7 +1506,7 @@ where
         _grant_ids: &[String],
     ) -> Result<CapabilityReceipt> {
         self.check_ready()?;
-        Err(babel_types::Error::Conflict("clipboard requires a one-use browser invocation".into()))
+        Err(babble_types::Error::Conflict("clipboard requires a one-use browser invocation".into()))
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -1537,7 +1537,7 @@ where
         )?;
         self.authorize_sensitive_capability(
             object_id,
-            "babel.payments.checkout",
+            "babble.payments.checkout",
             1,
             grant_ids,
             |scope| payment_scope_allows(scope, merchant_id, currency, total_amount_minor),
@@ -1553,7 +1553,7 @@ where
             )?,
             0,
             format!(
-                "no active babel.payments.checkout grant permits {currency} {total_amount_minor}"
+                "no active babble.payments.checkout grant permits {currency} {total_amount_minor}"
             ),
         )
     }
@@ -1570,13 +1570,13 @@ where
         validate_notifications_request(purpose, categories)?;
         self.authorize_sensitive_capability(
             object_id,
-            "babel.notifications.request",
+            "babble.notifications.request",
             1,
             grant_ids,
             |scope| notification_scope_allows(scope, purpose, categories),
             notification_request_bytes(purpose, categories),
             0,
-            "no active babel.notifications.request grant permits requested categories".to_string(),
+            "no active babble.notifications.request grant permits requested categories".to_string(),
         )
     }
 
@@ -1606,13 +1606,13 @@ where
         )?;
         self.authorize_sensitive_capability(
             object_id,
-            "babel.media.camera",
+            "babble.media.camera",
             1,
             grant_ids,
             |scope| camera_scope_allows(scope, mode, media_types, max_duration_ms, facing_mode),
             media_capture_request_bytes(purpose, mode, media_types, max_duration_ms, facing_mode),
             0,
-            "no active babel.media.camera grant permits requested capture".to_string(),
+            "no active babble.media.camera grant permits requested capture".to_string(),
         )
     }
 
@@ -1630,13 +1630,13 @@ where
         validate_microphone_request(purpose, mode, media_types, max_duration_ms)?;
         self.authorize_sensitive_capability(
             object_id,
-            "babel.media.microphone",
+            "babble.media.microphone",
             1,
             grant_ids,
             |scope| microphone_scope_allows(scope, mode, media_types, max_duration_ms),
             media_capture_request_bytes(purpose, mode, media_types, max_duration_ms, None),
             0,
-            "no active babel.media.microphone grant permits requested capture".to_string(),
+            "no active babble.media.microphone grant permits requested capture".to_string(),
         )
     }
 
@@ -1666,7 +1666,7 @@ where
         )?;
         self.authorize_sensitive_capability(
             object_id,
-            "babel.ai.generate",
+            "babble.ai.generate",
             1,
             grant_ids,
             |scope| {
@@ -1689,7 +1689,7 @@ where
                 temperature_millis,
             ),
             0,
-            "no active babel.ai.generate grant permits requested generation".to_string(),
+            "no active babble.ai.generate grant permits requested generation".to_string(),
         )
     }
 
@@ -1708,13 +1708,13 @@ where
         validate_ai_embed_request(purpose, input_modality, inputs, model, dimensions)?;
         self.authorize_sensitive_capability(
             object_id,
-            "babel.ai.embed",
+            "babble.ai.embed",
             1,
             grant_ids,
             |scope| ai_embed_scope_allows(scope, input_modality, inputs, model, dimensions),
             ai_embed_request_bytes(purpose, input_modality, inputs, model, dimensions),
             0,
-            "no active babel.ai.embed grant permits requested embedding".to_string(),
+            "no active babble.ai.embed grant permits requested embedding".to_string(),
         )
     }
 
@@ -1741,7 +1741,7 @@ where
         )?;
         self.authorize_sensitive_capability(
             object_id,
-            "babel.ai.transcribe",
+            "babble.ai.transcribe",
             1,
             grant_ids,
             |scope| ai_transcribe_scope_allows(scope, media_type, model, language, max_duration_ms),
@@ -1754,7 +1754,7 @@ where
                 max_duration_ms,
             ),
             0,
-            "no active babel.ai.transcribe grant permits requested transcription".to_string(),
+            "no active babble.ai.transcribe grant permits requested transcription".to_string(),
         )
     }
 
@@ -1765,7 +1765,7 @@ where
         _grant_ids: &[String],
     ) -> Result<CapabilityReceipt> {
         self.check_ready()?;
-        Err(babel_types::Error::Conflict("fullscreen requires a one-use browser invocation".into()))
+        Err(babble_types::Error::Conflict("fullscreen requires a one-use browser invocation".into()))
     }
 
     pub fn grant_capability(
@@ -1793,7 +1793,7 @@ where
                 .iter()
                 .any(|declared| declared == &draft.request)
             {
-                return Err(babel_types::Error::Conflict(format!(
+                return Err(babble_types::Error::Conflict(format!(
                     "object {} did not declare capability {}@{} with requested scope",
                     object.id, draft.request.id, draft.request.version
                 )));
@@ -1808,7 +1808,7 @@ where
                 || grant.version != draft.request.version || grant.scope != draft.request.scope
                 || grant.decision != draft.decision || grant.expires_at != draft.expires_at
             {
-                return Err(babel_types::Error::Conflict("consent retry intent mismatch".into()));
+                return Err(babble_types::Error::Conflict("consent retry intent mismatch".into()));
             }
             return Ok(event);
         }
@@ -1842,14 +1842,14 @@ where
     ) -> Result<Event> {
         self.check_ready()?;
         if !self.grants_belong_to(object_id, author_id, &[grant_id.to_string()])? {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         self.require_object(object_id)?;
         self.local_identity(author_id)?;
         self.local_keypair(author_id)?;
         if let Some(event) = self.retried_consent(author_id, object_id, EventKind::CapabilityRevoked)? {
             if event_grant_id(&event)? != *grant_id {
-                return Err(babel_types::Error::Conflict("revocation retry intent mismatch".into()));
+                return Err(babble_types::Error::Conflict("revocation retry intent mismatch".into()));
             }
             self.reconcile_surface_permissions()?;
             return Ok(event);
@@ -1858,7 +1858,7 @@ where
         let grant = grants
             .iter()
             .find(|grant| &grant.id == grant_id && grant.revoked_at.is_none())
-            .ok_or_else(|| babel_types::Error::NotFound(grant_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(grant_id.to_string()))?;
         let event = {
             let author = self.local_identity(author_id)?;
             let keypair = self.local_keypair(author_id)?;
@@ -1902,7 +1902,7 @@ where
         let session = SurfaceRuntime::new(self.capability_broker.clone())
             .start_session(plan, requested_id)?;
         if self.surface_sessions.contains_key(&session.id) {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "Surface session already exists: {}",
                 session.id
             )));
@@ -1917,7 +1917,7 @@ where
         self.surface_sessions
             .get(session_id)
             .cloned()
-            .ok_or_else(|| babel_types::Error::NotFound(session_id.to_string()))
+            .ok_or_else(|| babble_types::Error::NotFound(session_id.to_string()))
     }
 
     pub fn surface_runtime_health(&self) -> SurfaceRuntimeHealthSnapshot {
@@ -1940,7 +1940,7 @@ where
                         None,
                         usize::MAX,
                     )?);
-                    Ok::<_, babel_types::Error>(records)
+                    Ok::<_, babble_types::Error>(records)
                 })?;
         let recipient_devices = personalization_sync_records
             .iter()
@@ -1952,7 +1952,7 @@ where
                 .iter()
                 .try_fold(0_u64, |total, record| {
                     total.checked_add(record.size_bytes).ok_or_else(|| {
-                        babel_types::Error::Conflict(
+                        babble_types::Error::Conflict(
                             "personalization sync byte accounting overflow".to_string(),
                         )
                     })
@@ -2016,11 +2016,11 @@ where
                 indexed_edges: edges.len() as u64,
                 searchable_text_objects: objects
                     .iter()
-                    .filter(|object| object.kind.as_str() == "babel.text")
+                    .filter(|object| object.kind.as_str() == "babble.text")
                     .count() as u64,
                 claim_objects: objects
                     .iter()
-                    .filter(|object| object.kind.as_str() == "babel.claim")
+                    .filter(|object| object.kind.as_str() == "babble.claim")
                     .count() as u64,
                 evidence_edges: edges
                     .iter()
@@ -2071,11 +2071,11 @@ where
         let session = self
             .surface_sessions
             .get_mut(session_id)
-            .ok_or_else(|| babel_types::Error::NotFound(session_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(session_id.to_string()))?;
         let event = session.transition(lifecycle, reason)?;
         let session = session.clone();
         if session.lifecycle != SurfaceLifecycle::Active {
-            self.invalidate_social_session(session_id.as_str(), babel_capabilities::invocation::InvocationInvalidation::ContextLost)?;
+            self.invalidate_social_session(session_id.as_str(), babble_capabilities::invocation::InvocationInvalidation::ContextLost)?;
         }
         Ok((session, event))
     }
@@ -2090,7 +2090,7 @@ where
         let session = self
             .surface_sessions
             .get_mut(session_id)
-            .ok_or_else(|| babel_types::Error::NotFound(session_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(session_id.to_string()))?;
         let event = session.reduce_budget(budget, reason)?;
         Ok((session.clone(), event))
     }
@@ -2122,7 +2122,7 @@ where
         let session = self
             .surface_sessions
             .get_mut(session_id)
-            .ok_or_else(|| babel_types::Error::NotFound(session_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(session_id.to_string()))?;
         let mut events = Vec::new();
         if decision.budget != session.budget {
             events.push(session.reduce_budget(
@@ -2138,7 +2138,7 @@ where
         }
         let session = session.clone();
         if session.lifecycle != SurfaceLifecycle::Active {
-            self.invalidate_social_session(session_id.as_str(), babel_capabilities::invocation::InvocationInvalidation::ContextLost)?;
+            self.invalidate_social_session(session_id.as_str(), babble_capabilities::invocation::InvocationInvalidation::ContextLost)?;
         }
         Ok((session, decision, events))
     }
@@ -2153,9 +2153,9 @@ where
         let session = self
             .surface_sessions
             .get_mut(session_id)
-            .ok_or_else(|| babel_types::Error::NotFound(session_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(session_id.to_string()))?;
         if session.lifecycle == SurfaceLifecycle::Evicted {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "cannot checkpoint evicted Surface session {}",
                 session.id
             )));
@@ -2168,13 +2168,13 @@ where
             state,
         )?;
         if checkpoint.size_bytes > session.budget.persistent_storage_bytes {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "Surface state checkpoint exceeds session persistent storage budget: {} > {}",
                 checkpoint.size_bytes, session.budget.persistent_storage_bytes
             )));
         }
         let checkpoint_value = serde_json::to_value(&checkpoint).map_err(|err| {
-            babel_types::Error::Canonical(format!("encode Surface state checkpoint: {err}"))
+            babble_types::Error::Canonical(format!("encode Surface state checkpoint: {err}"))
         })?;
         self.store.put_object_storage(
             &checkpoint.object_id,
@@ -2197,13 +2197,13 @@ where
                 &session.plan.object_id,
                 &surface_state_checkpoint_key(session_id),
             )?
-            .ok_or_else(|| babel_types::Error::NotFound(session_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(session_id.to_string()))?;
         let checkpoint: SurfaceStateCheckpoint =
             serde_json::from_value(record.value).map_err(|err| {
-                babel_types::Error::Canonical(format!("decode Surface state checkpoint: {err}"))
+                babble_types::Error::Canonical(format!("decode Surface state checkpoint: {err}"))
             })?;
         if checkpoint.session_id != *session_id || checkpoint.object_id != session.plan.object_id {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "Surface state checkpoint is not bound to session {}",
                 session_id
             )));
@@ -2240,7 +2240,7 @@ where
     pub fn start_realtime_session(
         &mut self,
         author_id: &IdentityId,
-        room_id: &babel_types::RealtimeRoomId,
+        room_id: &babble_types::RealtimeRoomId,
     ) -> Result<RealtimeSession> {
         self.check_ready()?;
         let session = self.realtime.start_session(room_id, author_id.clone())?;
@@ -2264,19 +2264,19 @@ where
     pub fn close_realtime_session(
         &mut self,
         author_id: &IdentityId,
-        session_id: &babel_types::RealtimeSessionId,
+        session_id: &babble_types::RealtimeSessionId,
         object_id: &ObjectId,
     ) -> Result<(RealtimeSession, Event)> {
         self.check_ready()?;
         let session = self
             .realtime
             .session(session_id)
-            .ok_or_else(|| babel_types::Error::NotFound(session_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(session_id.to_string()))?;
         if &session.participant != author_id {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         if &session.object_id != object_id {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "realtime session {} belongs to Object {}, not {}",
                 session.id, session.object_id, object_id
             )));
@@ -2302,7 +2302,7 @@ where
     pub fn publish_realtime_message(
         &mut self,
         author_id: &IdentityId,
-        session_id: &babel_types::RealtimeSessionId,
+        session_id: &babble_types::RealtimeSessionId,
         object_id: &ObjectId,
         payload: RealtimePayload,
         durable: bool,
@@ -2311,12 +2311,12 @@ where
         let session = self
             .realtime
             .session(session_id)
-            .ok_or_else(|| babel_types::Error::NotFound(session_id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(session_id.to_string()))?;
         if &session.participant != author_id {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         if &session.object_id != object_id {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "realtime session {} belongs to Object {}, not {}",
                 session.id, session.object_id, object_id
             )));
@@ -2327,7 +2327,7 @@ where
                 .realtime
                 .room(&publication.message.room_id)
                 .ok_or_else(|| {
-                    babel_types::Error::NotFound(publication.message.room_id.to_string())
+                    babble_types::Error::NotFound(publication.message.room_id.to_string())
                 })?
                 .spec
                 .object_id;
@@ -2365,7 +2365,7 @@ where
         Ok((publication.message, publication.snapshot))
     }
 
-    pub fn realtime_room(&self, room_id: &babel_types::RealtimeRoomId) -> Option<RoomView> {
+    pub fn realtime_room(&self, room_id: &babble_types::RealtimeRoomId) -> Option<RoomView> {
         self.realtime.room(room_id)
     }
 
@@ -2577,7 +2577,7 @@ where
         .bounded()
     }
 
-    pub fn judgment(&self, id: &babel_types::JudgmentId) -> Result<Option<Judgment>> {
+    pub fn judgment(&self, id: &babble_types::JudgmentId) -> Result<Option<Judgment>> {
         self.check_ready()?;
         self.store.get_judgment(id)
     }
@@ -2585,7 +2585,7 @@ where
     pub fn object_judgment_input(
         &self,
         id: &JudgmentId,
-    ) -> Result<Option<babel_store::ObjectJudgmentInput>> {
+    ) -> Result<Option<babble_store::ObjectJudgmentInput>> {
         self.check_ready()?;
         self.store.get_object_judgment_input(id)
     }
@@ -2613,7 +2613,7 @@ where
             let judgment = self
                 .store
                 .get_judgment(&input.judgment_id)?
-                .ok_or_else(|| babel_types::Error::NotFound(input.judgment_id.to_string()))?;
+                .ok_or_else(|| babble_types::Error::NotFound(input.judgment_id.to_string()))?;
             judgments.push(judgment);
         }
         judgments.sort_by(|left, right| {
@@ -2857,23 +2857,23 @@ where
         &self.store
     }
 
-    fn event_cursor_timestamp(&self, id: &EventId) -> Result<babel_types::Timestamp> {
+    fn event_cursor_timestamp(&self, id: &EventId) -> Result<babble_types::Timestamp> {
         self.store
             .get_event(id)?
             .map(|event| event.created_at)
-            .ok_or_else(|| babel_types::Error::NotFound(format!("event cursor {id}")))
+            .ok_or_else(|| babble_types::Error::NotFound(format!("event cursor {id}")))
     }
 
     fn local_identity(&self, id: &IdentityId) -> Result<&Identity> {
         self.state
             .identity(id)
-            .ok_or_else(|| babel_types::Error::NotFound(id.to_string()))
+            .ok_or_else(|| babble_types::Error::NotFound(id.to_string()))
     }
 
     fn local_keypair(&self, id: &IdentityId) -> Result<&Keypair> {
         self.keyring
             .get(id)
-            .ok_or_else(|| babel_types::Error::NotFound(format!("local keypair for {id}")))
+            .ok_or_else(|| babble_types::Error::NotFound(format!("local keypair for {id}")))
     }
 
     fn put_object_record(&self, object: &Object) -> Result<()> {
@@ -2887,7 +2887,7 @@ where
         let author_id = edge
             .author
             .as_ref()
-            .ok_or(babel_types::Error::UnsignedEdge)?;
+            .ok_or(babble_types::Error::UnsignedEdge)?;
         let author = self.state.signing_identity_at(author_id, edge.created_at)?;
         self.store.put_edge(edge, &author)
     }
@@ -2896,11 +2896,11 @@ where
         let actor = if event.kind == EventKind::IdentityKeyTransition {
             let transition: IdentityKeyTransition =
                 serde_json::from_value(event.payload.clone())
-                    .map_err(|err| babel_types::Error::Canonical(err.to_string()))?;
+                    .map_err(|err| babble_types::Error::Canonical(err.to_string()))?;
             let identity = self
                 .state
                 .identity(&event.actor)
-                .ok_or_else(|| babel_types::Error::NotFound(event.actor.to_string()))?;
+                .ok_or_else(|| babble_types::Error::NotFound(event.actor.to_string()))?;
             identity.with_signing_key(transition.previous_public_key)
         } else {
             self.state
@@ -2912,7 +2912,7 @@ where
     fn require_object(&self, id: &ObjectId) -> Result<&Object> {
         self.state
             .object(id)
-            .ok_or_else(|| babel_types::Error::NotFound(id.to_string()))
+            .ok_or_else(|| babble_types::Error::NotFound(id.to_string()))
     }
 
     fn validate_import_event(
@@ -2924,11 +2924,11 @@ where
         let actor = if event.kind == EventKind::IdentityKeyTransition {
             let transition: IdentityKeyTransition =
                 serde_json::from_value(event.payload.clone())
-                    .map_err(|err| babel_types::Error::Canonical(err.to_string()))?;
+                    .map_err(|err| babble_types::Error::Canonical(err.to_string()))?;
             let identity = self
                 .state
                 .identity(&event.actor)
-                .ok_or_else(|| babel_types::Error::NotFound(event.actor.to_string()))?;
+                .ok_or_else(|| babble_types::Error::NotFound(event.actor.to_string()))?;
             identity.with_signing_key(transition.previous_public_key)
         } else {
             self.state
@@ -2938,7 +2938,7 @@ where
 
         for parent in &event.parents {
             if !existing_events.contains(parent) && !incoming_events.contains(parent) {
-                return Err(babel_types::Error::NotFound(format!(
+                return Err(babble_types::Error::NotFound(format!(
                     "event parent {parent}"
                 )));
             }
@@ -2951,11 +2951,11 @@ where
                 {
                     Ok(())
                 }
-                EventTarget::Identity(identity_id) => Err(babel_types::Error::Conflict(format!(
+                EventTarget::Identity(identity_id) => Err(babble_types::Error::Conflict(format!(
                     "identity event target mismatch: actor={} target={identity_id}",
                     event.actor
                 ))),
-                target => Err(babel_types::Error::Conflict(format!(
+                target => Err(babble_types::Error::Conflict(format!(
                     "identity event has invalid target: {target:?}"
                 ))),
             },
@@ -2963,39 +2963,39 @@ where
                 EventTarget::Identity(identity_id) if identity_id == &event.actor => {
                     let transition: IdentityKeyTransition =
                         serde_json::from_value(event.payload.clone())
-                            .map_err(|err| babel_types::Error::Canonical(err.to_string()))?;
+                            .map_err(|err| babble_types::Error::Canonical(err.to_string()))?;
                     if &transition.identity_id == identity_id {
                         Ok(())
                     } else {
-                        Err(babel_types::Error::Conflict(format!(
+                        Err(babble_types::Error::Conflict(format!(
                             "identity key transition target mismatch: target={identity_id} transition={}",
                             transition.identity_id
                         )))
                     }
                 }
-                EventTarget::Identity(identity_id) => Err(babel_types::Error::Conflict(format!(
+                EventTarget::Identity(identity_id) => Err(babble_types::Error::Conflict(format!(
                     "identity key transition actor mismatch: actor={} target={identity_id}",
                     event.actor
                 ))),
-                target => Err(babel_types::Error::Conflict(format!(
+                target => Err(babble_types::Error::Conflict(format!(
                     "identity key transition has invalid target: {target:?}"
                 ))),
             },
             EventKind::ObjectPublished => match &event.target {
                 EventTarget::Object(object_id) if self.object(object_id).is_some() => Ok(()),
                 EventTarget::Object(object_id) => {
-                    Err(babel_types::Error::NotFound(object_id.to_string()))
+                    Err(babble_types::Error::NotFound(object_id.to_string()))
                 }
-                target => Err(babel_types::Error::Conflict(format!(
+                target => Err(babble_types::Error::Conflict(format!(
                     "object event has invalid target: {target:?}"
                 ))),
             },
             EventKind::EdgePublished => match &event.target {
                 EventTarget::Edge(edge_id) if self.edge(edge_id).is_some() => Ok(()),
                 EventTarget::Edge(edge_id) => {
-                    Err(babel_types::Error::NotFound(edge_id.to_string()))
+                    Err(babble_types::Error::NotFound(edge_id.to_string()))
                 }
-                target => Err(babel_types::Error::Conflict(format!(
+                target => Err(babble_types::Error::Conflict(format!(
                     "edge event has invalid target: {target:?}"
                 ))),
             },
@@ -3010,15 +3010,15 @@ where
             | EventKind::RealtimeSnapshotCommitted => match &event.target {
                 EventTarget::Object(object_id) if self.object(object_id).is_some() => Ok(()),
                 EventTarget::Object(object_id) => {
-                    Err(babel_types::Error::NotFound(object_id.to_string()))
+                    Err(babble_types::Error::NotFound(object_id.to_string()))
                 }
-                target => Err(babel_types::Error::Conflict(format!(
+                target => Err(babble_types::Error::Conflict(format!(
                     "object-scoped event has invalid target: {target:?}"
                 ))),
             },
             EventKind::ConsensusCheckpoint => match &event.target {
                 EventTarget::Network => Ok(()),
-                target => Err(babel_types::Error::Conflict(format!(
+                target => Err(babble_types::Error::Conflict(format!(
                     "checkpoint event has invalid target: {target:?}"
                 ))),
             },
@@ -3047,9 +3047,9 @@ fn event_grant(event: &Event) -> Result<CapabilityGrant> {
             .payload
             .get("grant")
             .cloned()
-            .ok_or_else(|| babel_types::Error::Conflict("missing grant payload".to_string()))?,
+            .ok_or_else(|| babble_types::Error::Conflict("missing grant payload".to_string()))?,
     )
-    .map_err(|err| babel_types::Error::Canonical(format!("decode capability grant: {err}")))
+    .map_err(|err| babble_types::Error::Canonical(format!("decode capability grant: {err}")))
 }
 
 fn event_grant_id(event: &Event) -> Result<CapabilityGrantId> {
@@ -3057,7 +3057,7 @@ fn event_grant_id(event: &Event) -> Result<CapabilityGrantId> {
         .payload
         .get("grant_id")
         .and_then(Value::as_str)
-        .ok_or_else(|| babel_types::Error::Conflict("missing grant_id payload".to_string()))?;
+        .ok_or_else(|| babble_types::Error::Conflict("missing grant_id payload".to_string()))?;
     let id = CapabilityGrantId::new_unchecked(value);
     id.validate()?;
     Ok(id)
@@ -3130,53 +3130,53 @@ fn validate_payment_checkout(
     if let Some(merchant_id) = merchant_id
         && !valid_external_token(merchant_id, 128)
     {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "payment merchant_id must be a non-empty token at most 128 bytes".to_string(),
         ));
     }
     if merchant_name.trim().is_empty() || merchant_name.len() > 120 {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "payment merchant_name must be non-empty and at most 120 bytes".to_string(),
         ));
     }
     if !valid_currency(currency) {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "payment currency must be a three-letter uppercase code".to_string(),
         ));
     }
     if total_amount_minor == 0 {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "payment total_amount_minor must be positive".to_string(),
         ));
     }
     if line_items.is_empty() || line_items.len() > 64 {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "payment line_items must contain 1 to 64 entries".to_string(),
         ));
     }
     let mut computed_total = 0_u64;
     for (label, amount_minor, quantity) in line_items {
         if label.trim().is_empty() || label.len() > 160 {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "payment line item label must be non-empty and at most 160 bytes".to_string(),
             ));
         }
         if *amount_minor == 0 || *quantity == 0 {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "payment line item amount and quantity must be positive".to_string(),
             ));
         }
         let line_total = amount_minor
             .checked_mul(u64::from(*quantity))
             .ok_or_else(|| {
-                babel_types::Error::Conflict("payment line item total overflow".to_string())
+                babble_types::Error::Conflict("payment line item total overflow".to_string())
             })?;
         computed_total = computed_total
             .checked_add(line_total)
-            .ok_or_else(|| babel_types::Error::Conflict("payment total overflow".to_string()))?;
+            .ok_or_else(|| babble_types::Error::Conflict("payment total overflow".to_string()))?;
     }
     if computed_total != total_amount_minor {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "payment line item total must equal total_amount_minor".to_string(),
         ));
     }
@@ -3185,7 +3185,7 @@ fn validate_payment_checkout(
     if let Some(reference) = reference
         && !valid_reference(reference, 128)
     {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "payment reference must be a non-empty printable token at most 128 bytes".to_string(),
         ));
     }
@@ -3244,7 +3244,7 @@ fn payment_request_bytes(
         + reference.map(str::len).unwrap_or(0);
     for (label, _, _) in line_items {
         bytes = bytes.checked_add(label.len() + 16).ok_or_else(|| {
-            babel_types::Error::Conflict("payment request byte accounting overflow".to_string())
+            babble_types::Error::Conflict("payment request byte accounting overflow".to_string())
         })?;
     }
     Ok(bytes as u64)
@@ -3252,19 +3252,19 @@ fn payment_request_bytes(
 
 fn validate_notifications_request(purpose: &str, categories: &[String]) -> Result<()> {
     if purpose.trim().is_empty() || purpose.len() > 200 {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "notification purpose must be non-empty and at most 200 bytes".to_string(),
         ));
     }
     if categories.is_empty() || categories.len() > 16 {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "notification categories must contain 1 to 16 entries".to_string(),
         ));
     }
     let mut seen = BTreeSet::new();
     for category in categories {
         if !valid_category(category) || !seen.insert(category.as_str()) {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "invalid or duplicate notification category: {category}"
             )));
         }
@@ -3308,7 +3308,7 @@ fn validate_camera_request(
 ) -> Result<()> {
     validate_capture_purpose(purpose)?;
     if !valid_camera_mode(mode) {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "camera mode must be photo, video, or stream".to_string(),
         ));
     }
@@ -3320,7 +3320,7 @@ fn validate_camera_request(
             .iter()
             .any(|media_type| !media_type.starts_with("image/"))
     {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "photo camera capture must request image media types".to_string(),
         ));
     }
@@ -3329,7 +3329,7 @@ fn validate_camera_request(
             .iter()
             .any(|media_type| !media_type.starts_with("video/"))
     {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "video or stream camera capture must request video media types".to_string(),
         ));
     }
@@ -3337,21 +3337,21 @@ fn validate_camera_request(
     if let Some(facing_mode) = facing_mode
         && !valid_camera_facing_mode(facing_mode)
     {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "camera facing_mode must be any, user, or environment".to_string(),
         ));
     }
     if let Some(width) = width
         && !(1..=7680).contains(&width)
     {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "camera width must be between 1 and 7680".to_string(),
         ));
     }
     if let Some(height) = height
         && !(1..=4320).contains(&height)
     {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "camera height must be between 1 and 4320".to_string(),
         ));
     }
@@ -3366,7 +3366,7 @@ fn validate_microphone_request(
 ) -> Result<()> {
     validate_capture_purpose(purpose)?;
     if !valid_microphone_mode(mode) {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "microphone mode must be audio_clip or stream".to_string(),
         ));
     }
@@ -3377,7 +3377,7 @@ fn validate_microphone_request(
 
 fn validate_capture_purpose(purpose: &str) -> Result<()> {
     if purpose.trim().is_empty() || purpose.len() > 200 {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "media capture purpose must be non-empty and at most 200 bytes".to_string(),
         ));
     }
@@ -3389,7 +3389,7 @@ fn validate_capture_media_types(
     allowed: impl Fn(&str) -> bool,
 ) -> Result<()> {
     if media_types.is_empty() || media_types.len() > 8 {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "media capture media_types must contain 1 to 8 entries".to_string(),
         ));
     }
@@ -3399,7 +3399,7 @@ fn validate_capture_media_types(
             || !seen.insert(media_type.as_str())
             || !valid_media_type(media_type)
         {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "invalid or duplicate media capture media_type: {media_type}"
             )));
         }
@@ -3411,7 +3411,7 @@ fn validate_capture_duration(max_duration_ms: Option<u64>) -> Result<()> {
     if let Some(duration) = max_duration_ms
         && !(1..=3_600_000).contains(&duration)
     {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "media capture max_duration_ms must be between 1 and 3600000".to_string(),
         ));
     }
@@ -3515,12 +3515,12 @@ fn validate_ai_generate_request(
 ) -> Result<()> {
     validate_ai_purpose(purpose)?;
     if !valid_ai_generate_task(task) {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "AI generate task must be text, image, audio, code, or json".to_string(),
         ));
     }
     if prompt.trim().is_empty() || prompt.len() > 64 * 1024 {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "AI generate prompt must be non-empty and at most 65536 bytes".to_string(),
         ));
     }
@@ -3536,14 +3536,14 @@ fn validate_ai_generate_request(
     if let Some(tokens) = max_output_tokens
         && !(1..=262_144).contains(&tokens)
     {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "AI generate max_output_tokens must be between 1 and 262144".to_string(),
         ));
     }
     if let Some(temperature) = temperature_millis
         && temperature > 2_000
     {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "AI generate temperature_millis must be at most 2000".to_string(),
         ));
     }
@@ -3559,23 +3559,23 @@ fn validate_ai_embed_request(
 ) -> Result<()> {
     validate_ai_purpose(purpose)?;
     if !valid_ai_embed_modality(input_modality) {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "AI embed input_modality must be text, image, or audio".to_string(),
         ));
     }
     if inputs.is_empty() || inputs.len() > 128 {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "AI embed inputs must contain 1 to 128 entries".to_string(),
         ));
     }
     let total_bytes = inputs.iter().map(String::len).sum::<usize>();
     if total_bytes == 0 || total_bytes > 256 * 1024 {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "AI embed inputs must contain 1 to 262144 total bytes".to_string(),
         ));
     }
     if inputs.iter().any(|input| input.trim().is_empty()) {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "AI embed inputs must not contain empty entries".to_string(),
         ));
     }
@@ -3585,7 +3585,7 @@ fn validate_ai_embed_request(
     if let Some(dimensions) = dimensions
         && !(1..=65_536).contains(&dimensions)
     {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "AI embed dimensions must be between 1 and 65536".to_string(),
         ));
     }
@@ -3605,7 +3605,7 @@ fn validate_ai_transcribe_request(
     if !(media_type.starts_with("audio/") || media_type.starts_with("video/"))
         || !valid_media_type(media_type)
     {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "AI transcribe media_type must be valid audio/* or video/*".to_string(),
         ));
     }
@@ -3615,7 +3615,7 @@ fn validate_ai_transcribe_request(
     if let Some(language) = language
         && !valid_language(language)
     {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "AI transcribe language must be a valid BCP-47-like token".to_string(),
         ));
     }
@@ -3625,7 +3625,7 @@ fn validate_ai_transcribe_request(
 
 fn validate_ai_purpose(purpose: &str) -> Result<()> {
     if purpose.trim().is_empty() || purpose.len() > 200 {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "AI capability purpose must be non-empty and at most 200 bytes".to_string(),
         ));
     }
@@ -3639,14 +3639,14 @@ fn validate_ai_string_set(
     max_len: usize,
 ) -> Result<()> {
     if values.is_empty() || values.len() > max_len {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "{label} must contain 1 to {max_len} entries"
         )));
     }
     let mut seen = BTreeSet::new();
     for value in values {
         if !valid(value) || !seen.insert(value.as_str()) {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "invalid or duplicate {label} entry: {value}"
             )));
         }
@@ -3658,14 +3658,14 @@ fn validate_ai_model(model: &str) -> Result<()> {
     if valid_ai_model(model) {
         Ok(())
     } else {
-        Err(babel_types::Error::Conflict(format!(
+        Err(babble_types::Error::Conflict(format!(
             "invalid AI model identifier: {model}"
         )))
     }
 }
 
 fn validate_ai_media_uri(media_uri: &str) -> Result<()> {
-    if let Some(hash) = media_uri.strip_prefix("babel://blobs/") {
+    if let Some(hash) = media_uri.strip_prefix("babble://blobs/") {
         Hash::new_unchecked(hash.to_string()).validate()?;
         return Ok(());
     }
@@ -3861,7 +3861,7 @@ fn validate_optional_return_url(value: Option<&str>, label: &str) -> Result<()> 
         return Ok(());
     };
     let url = reqwest::Url::parse(value)
-        .map_err(|err| babel_types::Error::Conflict(format!("invalid {label}: {err}")))?;
+        .map_err(|err| babble_types::Error::Conflict(format!("invalid {label}: {err}")))?;
     let allowed = url.scheme() == "https"
         || (url.scheme() == "http"
             && matches!(
@@ -3871,7 +3871,7 @@ fn validate_optional_return_url(value: Option<&str>, label: &str) -> Result<()> 
     if allowed {
         Ok(())
     } else {
-        Err(babel_types::Error::Conflict(format!(
+        Err(babble_types::Error::Conflict(format!(
             "{label} must use https or localhost http"
         )))
     }
@@ -3981,7 +3981,7 @@ fn ai_judge_request_bytes(
     parameters: &BTreeMap<String, Value>,
 ) -> Result<u64> {
     let parameters = serde_json::to_vec(parameters).map_err(|err| {
-        babel_types::Error::Canonical(format!("encode Judgment parameters: {err}"))
+        babble_types::Error::Canonical(format!("encode Judgment parameters: {err}"))
     })?;
     Ok((target.as_str().len() + definition.as_str().len() + parameters.len()) as u64)
 }
@@ -3991,45 +3991,45 @@ fn apply_realtime_event(realtime: &mut RealtimeHub, event: &Event) -> Result<()>
         EventKind::RealtimeRoomDefined => {
             let spec: RoomSpec =
                 serde_json::from_value(event.payload.get("room").cloned().ok_or_else(|| {
-                    babel_types::Error::Conflict("missing room payload".to_string())
+                    babble_types::Error::Conflict("missing room payload".to_string())
                 })?)
-                .map_err(|err| babel_types::Error::Canonical(format!("decode room: {err}")))?;
+                .map_err(|err| babble_types::Error::Canonical(format!("decode room: {err}")))?;
             realtime.create_room(spec)?;
         }
         EventKind::RealtimeSessionStarted => {
             let session: RealtimeSession =
                 serde_json::from_value(event.payload.get("session").cloned().ok_or_else(|| {
-                    babel_types::Error::Conflict("missing session payload".to_string())
+                    babble_types::Error::Conflict("missing session payload".to_string())
                 })?)
-                .map_err(|err| babel_types::Error::Canonical(format!("decode session: {err}")))?;
+                .map_err(|err| babble_types::Error::Canonical(format!("decode session: {err}")))?;
             realtime.apply_session(session)?;
         }
         EventKind::RealtimeSessionClosed => {
             let session: RealtimeSession =
                 serde_json::from_value(event.payload.get("session").cloned().ok_or_else(|| {
-                    babel_types::Error::Conflict("missing session payload".to_string())
+                    babble_types::Error::Conflict("missing session payload".to_string())
                 })?)
-                .map_err(|err| babel_types::Error::Canonical(format!("decode session: {err}")))?;
+                .map_err(|err| babble_types::Error::Canonical(format!("decode session: {err}")))?;
             realtime.apply_session(session)?;
         }
         EventKind::RealtimeMessageCommitted => {
             let message: RealtimeMessage =
                 serde_json::from_value(event.payload.get("message").cloned().ok_or_else(|| {
-                    babel_types::Error::Conflict("missing realtime message payload".to_string())
+                    babble_types::Error::Conflict("missing realtime message payload".to_string())
                 })?)
                 .map_err(|err| {
-                    babel_types::Error::Canonical(format!("decode realtime message: {err}"))
+                    babble_types::Error::Canonical(format!("decode realtime message: {err}"))
                 })?;
             realtime.apply_message(message)?;
         }
         EventKind::RealtimeSnapshotCommitted => {
             let snapshot: RealtimeSnapshot = serde_json::from_value(
                 event.payload.get("snapshot").cloned().ok_or_else(|| {
-                    babel_types::Error::Conflict("missing realtime snapshot payload".to_string())
+                    babble_types::Error::Conflict("missing realtime snapshot payload".to_string())
                 })?,
             )
             .map_err(|err| {
-                babel_types::Error::Canonical(format!("decode realtime snapshot: {err}"))
+                babble_types::Error::Canonical(format!("decode realtime snapshot: {err}"))
             })?;
             realtime.apply_snapshot(snapshot)?;
         }
@@ -4057,7 +4057,7 @@ fn insert_events_by_parent(mut dag: EventDag, events: Vec<Event>) -> Result<Even
                 .filter(|parent| !dag.contains(parent) && !pending.contains_key(*parent))
                 .map(ToString::to_string)
                 .collect::<Vec<_>>();
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "event log has unresolved parent closure: {}",
                 missing.join(", ")
             )));
@@ -4066,7 +4066,7 @@ fn insert_events_by_parent(mut dag: EventDag, events: Vec<Event>) -> Result<Even
         for id in ready {
             let event = pending
                 .remove(&id)
-                .ok_or_else(|| babel_types::Error::NotFound(id.to_string()))?;
+                .ok_or_else(|| babble_types::Error::NotFound(id.to_string()))?;
             dag.insert(event)?;
         }
     }
@@ -4083,7 +4083,7 @@ fn ingestion_definitions() -> Vec<DefinitionId> {
     ]
 }
 
-fn object_judgment_state(object: &Object) -> babel_judgment::JudgmentState {
+fn object_judgment_state(object: &Object) -> babble_judgment::JudgmentState {
     let mut context = BTreeMap::new();
     context.insert("object".to_string(), object.payload.clone());
     context.insert(
@@ -4096,23 +4096,23 @@ fn object_judgment_state(object: &Object) -> babel_judgment::JudgmentState {
         Value::String(object.author.to_string()),
     );
     context.insert("text".to_string(), Value::String(object_text(object)));
-    babel_judgment::JudgmentState {
+    babble_judgment::JudgmentState {
         subject: object.id.to_string(),
         context,
     }
 }
 
-fn object_provider_judgment_state(object: &Object) -> babel_judgment::JudgmentState {
+fn object_provider_judgment_state(object: &Object) -> babble_judgment::JudgmentState {
     let mut context = BTreeMap::new();
     context.insert("object".to_string(), object.payload.clone());
     context.insert("text".to_string(), Value::String(object_text(object)));
-    babel_judgment::JudgmentState {
+    babble_judgment::JudgmentState {
         subject: object.id.to_string(),
         context,
     }
 }
 
-fn relationship_judgment_state(source: &Object, target: &Object) -> babel_judgment::JudgmentState {
+fn relationship_judgment_state(source: &Object, target: &Object) -> babble_judgment::JudgmentState {
     let source_text = object_text(source);
     let target_text = object_text(target);
     let mut context = BTreeMap::new();
@@ -4130,7 +4130,7 @@ fn relationship_judgment_state(source: &Object, target: &Object) -> babel_judgme
         "text".to_string(),
         Value::String(format!("source: {source_text}\ntarget: {target_text}")),
     );
-    babel_judgment::JudgmentState {
+    babble_judgment::JudgmentState {
         subject: format!("{}->{}", source.id, target.id),
         context,
     }
@@ -4141,7 +4141,7 @@ fn normalize_relationship_relation(value: &str) -> Result<Relation> {
         "supports" => Ok(Relation::Supports),
         "contradicts" => Ok(Relation::Contradicts),
         "related" => Ok(Relation::References),
-        other => Err(babel_types::Error::Conflict(format!(
+        other => Err(babble_types::Error::Conflict(format!(
             "unsupported inferred relationship: {other}"
         ))),
     }
@@ -4340,7 +4340,7 @@ fn surface_state_checkpoint_key(session_id: &SurfaceSessionId) -> String {
 
 fn unique_sources(sources: Vec<ObjectId>) -> Result<Vec<ObjectId>> {
     if sources.is_empty() {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "remix must reference at least one source object".to_string(),
         ));
     }
@@ -4349,7 +4349,7 @@ fn unique_sources(sources: Vec<ObjectId>) -> Result<Vec<ObjectId>> {
     for source in sources {
         source.validate()?;
         if !seen.insert(source.clone()) {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "duplicate remix source object: {source}"
             )));
         }

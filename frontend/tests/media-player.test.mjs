@@ -54,7 +54,7 @@ function harness() {
     set hidden(value) { value ? this.setAttribute("hidden", "") : this.removeAttribute("hidden"); }
     matches(selector) {
       if (selector === "audio, video") return this.tag === "audio" || this.tag === "video";
-      if (selector === "[data-babel-playback]") return Object.hasOwn(this.dataset, "babelPlayback");
+      if (selector === "[data-babble-playback]") return Object.hasOwn(this.dataset, "babblePlayback");
       if (selector === '[hidden], [inert], details:not([open])') {
         return this.hidden || this.hasAttribute("inert") || this.tag === "details" && !this.hasAttribute("open");
       }

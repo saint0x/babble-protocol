@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
-import * as sdk from "@babel-protocol/sdk";
+import * as sdk from "@babble-protocol/sdk";
 import { mediaResource } from "./media-modules.mjs";
 
 function load(name, require = () => ({}), globals = {}) {
@@ -16,14 +16,14 @@ function load(name, require = () => ({}), globals = {}) {
 }
 const profiles = load("profile-response");
 const invocations = load("invocations", () => sdk);
-const { BabelFrontendClient } = load("protocol", name => name === "./invocations" ? invocations
-  : name === "@babel-protocol/sdk" ? sdk : name === "./media-resource" ? mediaResource : profiles);
+const { BabbleFrontendClient } = load("protocol", name => name === "./invocations" ? invocations
+  : name === "@babble-protocol/sdk" ? sdk : name === "./media-resource" ? mediaResource : profiles);
 const object = id => ({ id, author: "id_author", created_at: "2026-09-29T12:00:00Z",
-  kind: "text", schema: "babel.text.v1", protocol: { name: "babel", version: 1 }, payload: { text: "Public content" },
+  kind: "text", schema: "babble.text.v1", protocol: { name: "babble", version: 1 }, payload: { text: "Public content" },
   provenance: { parent: null, forked_from: null, remixed_from: [] }, relations: [], resources: [], surfaces: [], capabilities: [] });
 const score = (id, survival = 0.456789) => ({ object_id: id, age_hours: 12.25, recency: 0.82, decay_rate: 0.1,
   time_sensitivity: 0.68, engagement_velocity: 0.12, survival_score: survival });
-const evaluation = (provider = "babel-python") => ({ provider: { provider, model: "temporal-v1", version: "1" },
+const evaluation = (provider = "babble-python") => ({ provider: { provider, model: "temporal-v1", version: "1" },
   reference_time: "2026-09-30T00:15:00.123456+00:00", scores: [score("b", 0.25), score("outside"), score("a")] });
 const signals = { relevance: 0.6, novelty: 0.4, evidence_quality: 0.2, contradiction: 0.1, temporal: 0.456789,
   reputation: { evidence_quality: 0, domain_expertise: 0, epistemic_accuracy: 0, social_constructiveness: 0, creative_contribution: 0 } };
@@ -34,17 +34,17 @@ function discovery(temporal = evaluation()) {
     trace: { candidates: [] }, diversity_trace: { candidates: [], filtered: [], policy: { source_floors: [], max_source_share: 1 } } };
 }
 function clientFor(response) {
-  const client = new BabelFrontendClient("https://babel.example");
+  const client = new BabbleFrontendClient("https://babble.example");
   client.catalog = async () => ({ methods: [] });
   client.rpc = async method => {
-    assert.equal(method, "babel.discovery.candidates.v1");
+    assert.equal(method, "babble.discovery.candidates.v1");
     return { discovery: response };
   };
   return client;
 }
 
 test("discovery matches temporal scores by ranked Object ID, retaining exact provenance and all subcomponents", async () => {
-  for (const provider of ["babel-python", "babel-rust"]) {
+  for (const provider of ["babble-python", "babble-rust"]) {
     const response = discovery(evaluation(provider));
     response.objects.push(object("unranked"));
     response.temporal.scores.push(score("unranked"));
@@ -129,7 +129,7 @@ test("empty discovery stays empty without raw-search fallback and retains policy
         const calls = [];
         client.rpc = async (method, input) => {
           calls.push({ method, input });
-          assert.equal(method, "babel.discovery.candidates.v1", "empty admission must not bypass discovery");
+          assert.equal(method, "babble.discovery.candidates.v1", "empty admission must not bypass discovery");
           return { discovery: response };
         };
         const result = await client.loadFeed(query, lens, localModel);
@@ -150,7 +150,7 @@ test("empty discovery stays empty without raw-search fallback and retains policy
 test("discovery failure remains an error rather than falling back to raw search", async () => {
   const client = clientFor(discovery());
   client.rpc = async method => {
-    assert.equal(method, "babel.discovery.candidates.v1");
+    assert.equal(method, "babble.discovery.candidates.v1");
     throw new Error("provider unavailable");
   };
   await assert.rejects(client.loadFeed("needle"), /provider unavailable/);
@@ -233,7 +233,7 @@ test("production analytics and inspector render heuristic values, exact time, pr
   const inspector = article.querySelector(".post-inspection");
   assert.deepEqual(metricValues(inspector.querySelector(".temporal-metrics")), {
     "Temporal heuristic": "0.457", "Public activity": "0.120", Recency: "0.820", "Age (hours)": "12.25",
-    "Decay rate": "0.100", "Time sensitivity": "0.680", "Temporal provider": "babel-python",
+    "Decay rate": "0.100", "Time sensitivity": "0.680", "Temporal provider": "babble-python",
     "Temporal model": "temporal-v1", "Model version": "1", Evaluated: card.temporal.reference_time,
   });
   assert.equal(inspector.querySelector("time").dateTime, card.temporal.reference_time);
@@ -256,7 +256,7 @@ test("reused cards replace stale scores, time and provider while preserving open
   details.open = true;
   trigger.emit("click");
   trigger.focus();
-  const temporal = { provider: { provider: "babel-rust", model: "temporal-v1", version: "2" },
+  const temporal = { provider: { provider: "babble-rust", model: "temporal-v1", version: "2" },
     reference_time: "2026-10-01T00:00:00Z", score: { ...score(card.id, 0), recency: 0, age_hours: 0, engagement_velocity: 0 } };
   h.render([{ ...card, temporal }]);
   assert.equal(h.deck.querySelector("article"), article);
@@ -267,16 +267,16 @@ test("reused cards replace stale scores, time and provider while preserving open
   assert.equal(h.views, 1);
   assert.equal(metricValues(panel)["Temporal heuristic"], "0.000");
   assert.equal(metricValues(panel)["Public activity"], "0.000");
-  assert.equal(metricValues(details)["Temporal provider"], "babel-rust");
+  assert.equal(metricValues(details)["Temporal provider"], "babble-rust");
   assert.equal(metricValues(details).Evaluated, temporal.reference_time);
   assert.deepEqual(JSON.parse(article.querySelector("pre").textContent).temporal, temporal);
   const plain = await clientFor(discovery()).objectToCard({ object: card.object, score: null, source: "profile", signals: null, reasons: [] });
   h.render([plain]);
   assert.equal(article.querySelector(".temporal-metrics"), null);
   assert.equal(JSON.parse(article.querySelector("pre").textContent).temporal, undefined);
-  assert.doesNotMatch(panel.textContent, /temporal|babel-rust|2026-10-01/i);
+  assert.doesNotMatch(panel.textContent, /temporal|babble-rust|2026-10-01/i);
   h.render([card]);
-  assert.equal(metricValues(details)["Temporal provider"], "babel-python");
+  assert.equal(metricValues(details)["Temporal provider"], "babble-python");
   assert.equal(h.views, 1);
 });
 

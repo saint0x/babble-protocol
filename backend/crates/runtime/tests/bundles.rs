@@ -1,13 +1,13 @@
-use babel_capabilities::{CapabilityBroker, GrantDecision};
-use babel_crypto::Keypair;
-use babel_identity::{Identity, IdentityKind};
-use babel_object::{
+use babble_capabilities::{CapabilityBroker, GrantDecision};
+use babble_crypto::Keypair;
+use babble_identity::{Identity, IdentityKind};
+use babble_object::{
     CapabilityRequest, Object, Surface, SurfaceRole, SurfaceTarget,
     bundle::{BundleFile, BundleFileKind, BundleManifest},
 };
-use babel_runtime::{RuntimeAdmissionStatus, SurfaceRuntime, SurfaceSessionPlan};
-use babel_store::{FileStore, VerifiedBundle};
-use babel_types::{Hash, Timestamp};
+use babble_runtime::{RuntimeAdmissionStatus, SurfaceRuntime, SurfaceSessionPlan};
+use babble_store::{FileStore, VerifiedBundle};
+use babble_types::{Hash, Timestamp};
 use serde_json::json;
 use std::{
     fs,
@@ -26,7 +26,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-runtime-bundles-{}-{}",
+            "babble-runtime-bundles-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
@@ -44,7 +44,7 @@ impl Fixture {
     fn object(&self, target: SurfaceTarget, capabilities: Vec<CapabilityRequest>) -> Object {
         let bytes = b"<!doctype html><p>Verified</p>";
         let integrity = self.store.put_blob(bytes).unwrap();
-        let source_uri = format!("babel://blobs/{integrity}");
+        let source_uri = format!("babble://blobs/{integrity}");
         Object::text(&self.identity, "bundle policy")
             .unwrap()
             .with_surfaces(vec![Surface {
@@ -87,7 +87,7 @@ impl Drop for Fixture {
 
 fn request() -> CapabilityRequest {
     CapabilityRequest {
-        id: "babel.network.fetch".into(),
+        id: "babble.network.fetch".into(),
         version: 1,
         scope: json!({"origins":["https://example.com"]}),
     }
@@ -98,7 +98,7 @@ fn verified_policy_requires_a_receipt_and_retains_the_legacy_blocker() {
     let fixture = Fixture::new();
     let object = fixture.object(SurfaceTarget::Web, vec![]);
     let receipt = fixture.receipt(&object);
-    let runtime = SurfaceRuntime::babel_default();
+    let runtime = SurfaceRuntime::babble_default();
     let legacy = runtime
         .prepare_surface(&object, SurfaceRole::Feed, &[])
         .unwrap();
@@ -148,7 +148,7 @@ fn byte_readiness_does_not_grant_permissions_or_override_host_policy() {
     let fixture = Fixture::new();
     let object = fixture.object(SurfaceTarget::Web, vec![request()]);
     let receipt = fixture.receipt(&object);
-    let broker = CapabilityBroker::babel_default();
+    let broker = CapabilityBroker::babble_default();
     let runtime = SurfaceRuntime::new(broker.clone());
     let legacy = runtime
         .prepare_surface(&object, SurfaceRole::Feed, &[])
@@ -175,7 +175,7 @@ fn byte_readiness_does_not_grant_permissions_or_override_host_policy() {
     let mut expired = grant.clone();
     expired.expires_at = Some(Timestamp::now());
     let mut unrelated = grant;
-    unrelated.object_id = babel_types::ObjectId::from_hash(&Hash::from_bytes(b"other"));
+    unrelated.object_id = babble_types::ObjectId::from_hash(&Hash::from_bytes(b"other"));
     for grant in [revoked, expired, unrelated] {
         assert_ne!(
             runtime
@@ -222,7 +222,7 @@ fn receipt_binding_covers_object_commitment_role_and_manifest() {
         .sign(&fixture.identity, &fixture.key)
         .unwrap();
     let receipt = fixture.receipt(&object);
-    let runtime = SurfaceRuntime::babel_default();
+    let runtime = SurfaceRuntime::babble_default();
     assert!(
         runtime
             .prepare_verified_surface(&object, SurfaceRole::Expanded, &[], &receipt)
@@ -274,7 +274,7 @@ fn receipt_binding_covers_object_commitment_role_and_manifest() {
 #[test]
 fn verified_policy_keeps_webgpu_and_background_capability_requirements() {
     let fixture = Fixture::new();
-    let runtime = SurfaceRuntime::babel_default();
+    let runtime = SurfaceRuntime::babble_default();
     let object = fixture.object(SurfaceTarget::WebGpu, vec![]);
     let receipt = fixture.receipt(&object);
     let plan = runtime
@@ -284,7 +284,7 @@ fn verified_policy_keeps_webgpu_and_background_capability_requirements() {
     assert!(
         plan.blocked_reasons
             .iter()
-            .any(|reason| reason.contains("babel.graphics.webgpu"))
+            .any(|reason| reason.contains("babble.graphics.webgpu"))
     );
     let object = fixture.object(SurfaceTarget::Web, vec![]);
     let mut surfaces = object.surfaces.clone();
@@ -314,7 +314,7 @@ fn wasm_inventory_and_unsupported_targets_cannot_use_verified_web_policy() {
     let fixture = Fixture::new();
     let object = fixture.object(SurfaceTarget::Web, vec![]);
     let receipt = fixture.receipt(&object);
-    let runtime = SurfaceRuntime::babel_default();
+    let runtime = SurfaceRuntime::babble_default();
     for target in [
         SurfaceTarget::Wasm,
         SurfaceTarget::Static,
@@ -333,7 +333,7 @@ fn wasm_inventory_and_unsupported_targets_cannot_use_verified_web_policy() {
     let mut surfaces = object.surfaces.clone();
     surfaces[0].bundle.as_mut().unwrap().files.push(BundleFile {
         path: "module.wasm".into(),
-        source_uri: format!("babel://blobs/{integrity}"),
+        source_uri: format!("babble://blobs/{integrity}"),
         integrity,
         size_bytes: bytes.len() as u64,
         media_type: "application/wasm".into(),
@@ -358,7 +358,7 @@ fn wasm_inventory_and_unsupported_targets_cannot_use_verified_web_policy() {
 fn serialized_metadata_does_not_enable_the_legacy_path_and_old_plans_roundtrip() {
     let fixture = Fixture::new();
     let object = fixture.object(SurfaceTarget::Web, vec![]);
-    let runtime = SurfaceRuntime::babel_default();
+    let runtime = SurfaceRuntime::babble_default();
     let legacy = runtime
         .prepare_surface(&object, SurfaceRole::Feed, &[])
         .unwrap();

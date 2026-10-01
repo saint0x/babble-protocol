@@ -11,7 +11,7 @@ export async function verifyReactions(execute, waitFor, actorId) {
   const read = async () => {
     await execute([{ type: "eval", code: `(() => {
       window.__reactionRead = null;
-      fetch(document.documentElement.dataset.babelApi + '/objects/${objectId}/reactions/actors/${actorId}')
+      fetch(document.documentElement.dataset.babbleApi + '/objects/${objectId}/reactions/actors/${actorId}')
         .then(async r => { if (!r.ok) throw Error('read ' + r.status); return r.json(); })
         .then(record => { window.__reactionRead = { record }; })
         .catch(error => { window.__reactionRead = { error: String(error) }; });
@@ -58,8 +58,8 @@ export async function verifyReactions(execute, waitFor, actorId) {
   // Another host tab commits while this card still holds the preceding revision.
   await execute([{ type: "eval", code: `(() => {
     window.__reactionConflict = null;
-    const api = document.documentElement.dataset.babelApi;
-    const session = JSON.parse(sessionStorage.getItem('babel.session.v1:' + new URL(api).origin));
+    const api = document.documentElement.dataset.babbleApi;
+    const session = JSON.parse(sessionStorage.getItem('babble.session.v1:' + new URL(api).origin));
     fetch(api + '/objects/${objectId}/reactions/mine', {
       method: 'PUT', headers: { authorization: 'Bearer ' + session.token, 'content-type': 'application/json' },
       body: JSON.stringify({ value: { appreciation: null, engagement: 'not_engaging', stance: 'uncertain', certainty: null }, expected_revision: 2, idempotency_key: 'reaction-other-tab' })

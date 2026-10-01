@@ -1,11 +1,11 @@
 use crate::{CapabilityBindingUsage, LocalNode};
-use babel_capabilities::CapabilityReceipt;
-use babel_judgment::JudgmentProvider;
-use babel_store::LocalStorageRecord;
-use babel_types::{IdentityId, ObjectId, Result};
+use babble_capabilities::CapabilityReceipt;
+use babble_judgment::JudgmentProvider;
+use babble_store::LocalStorageRecord;
+use babble_types::{IdentityId, ObjectId, Result};
 use serde_json::Value;
 
-const LOCAL_STORAGE_CAPABILITY: &str = "babel.storage.local";
+const LOCAL_STORAGE_CAPABILITY: &str = "babble.storage.local";
 const LOCAL_STORAGE_CAPABILITY_VERSION: u32 = 1;
 const LOCAL_STORAGE_LIST_LIMIT: usize = 256;
 
@@ -56,10 +56,10 @@ where
             .checked_sub(current_size)
             .and_then(|remaining| remaining.checked_add(requested_bytes))
             .ok_or_else(|| {
-                babel_types::Error::Conflict("local storage byte accounting overflow".to_string())
+                babble_types::Error::Conflict("local storage byte accounting overflow".to_string())
             })?;
         if next_used > receipt.quota.persistent_bytes {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "local storage quota exceeded: {next_used} > {}",
                 receipt.quota.persistent_bytes
             )));
@@ -117,7 +117,7 @@ where
 
     fn require_identity(&self, identity_id: &IdentityId) -> Result<()> {
         self.identity(identity_id)
-            .ok_or_else(|| babel_types::Error::NotFound(format!("identity {identity_id}")))?;
+            .ok_or_else(|| babble_types::Error::NotFound(format!("identity {identity_id}")))?;
         Ok(())
     }
 
@@ -131,7 +131,7 @@ where
         let requested_bytes = (key.len() as u64)
             .checked_add(requested_value_bytes)
             .ok_or_else(|| {
-                babel_types::Error::Conflict("local storage call size overflow".to_string())
+                babble_types::Error::Conflict("local storage call size overflow".to_string())
             })?;
         self.authorize_capability_binding_with_usage(
             object_id,
@@ -157,7 +157,7 @@ where
             .into_iter()
             .try_fold(0_u64, |total, record| {
                 total.checked_add(record.size_bytes).ok_or_else(|| {
-                    babel_types::Error::Conflict("local storage usage overflow".to_string())
+                    babble_types::Error::Conflict("local storage usage overflow".to_string())
                 })
             })
     }
@@ -169,7 +169,7 @@ fn local_storage_namespace(receipt: &CapabilityReceipt) -> Result<String> {
         .get("namespace")
         .and_then(Value::as_str)
         .ok_or_else(|| {
-            babel_types::Error::Conflict(
+            babble_types::Error::Conflict(
                 "storage.local grant scope must include namespace".to_string(),
             )
         })?;
@@ -179,5 +179,5 @@ fn local_storage_namespace(receipt: &CapabilityReceipt) -> Result<String> {
 fn storage_value_size(value: &Value) -> Result<u64> {
     serde_json::to_vec(value)
         .map(|bytes| bytes.len() as u64)
-        .map_err(|err| babel_types::Error::Canonical(format!("encode local storage value: {err}")))
+        .map_err(|err| babble_types::Error::Canonical(format!("encode local storage value: {err}")))
 }

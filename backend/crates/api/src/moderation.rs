@@ -8,9 +8,9 @@ use axum::{
     extract::{Path, Query, State},
     routing::{get, post},
 };
-use babel_graph::moderation::*;
-use babel_judgment::JudgmentProvider;
-use babel_types::IdentityId;
+use babble_graph::moderation::*;
+use babble_judgment::JudgmentProvider;
+use babble_types::IdentityId;
 use serde::Deserialize;
 
 pub(crate) fn router<P: JudgmentProvider + Send + Sync + 'static>() -> Router<ApiState<P>> {
@@ -80,7 +80,7 @@ async fn report<P: JudgmentProvider + Send + Sync + 'static>(
     Json(request): Json<ReportRequest>,
 ) -> Result<Json<ModerationCase>, ApiError> {
     let result = lock_node(&state)?.moderation_report(&actor(principal),request).map_err(|error| {
-        if matches!(&error,babel_types::Error::Conflict(message) if message == REPORT_INTAKE_LIMIT) { ApiError::report_intake_limit() } else { error.into() }
+        if matches!(&error,babble_types::Error::Conflict(message) if message == REPORT_INTAKE_LIMIT) { ApiError::report_intake_limit() } else { error.into() }
     })?;
     Ok(Json(result))
 }

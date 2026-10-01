@@ -1,7 +1,7 @@
-use babel_crypto::Signature;
-use babel_graph::Edge;
-use babel_identity::Identity;
-use babel_types::{Canonical, Hash, ObjectId, Protocol, Result, Timestamp};
+use babble_crypto::Signature;
+use babble_graph::Edge;
+use babble_identity::Identity;
+use babble_types::{Canonical, Hash, ObjectId, Protocol, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
@@ -21,11 +21,11 @@ impl ObjectKind {
     }
 
     pub fn text() -> Self {
-        Self::new("babel.text")
+        Self::new("babble.text")
     }
 
     pub fn claim() -> Self {
-        Self::new("babel.claim")
+        Self::new("babble.claim")
     }
 
     pub fn as_str(&self) -> &str {
@@ -86,7 +86,7 @@ pub struct Provenance {
 pub struct Object {
     pub protocol: Protocol,
     pub id: ObjectId,
-    pub author: babel_types::IdentityId,
+    pub author: babble_types::IdentityId,
     pub created_at: Timestamp,
     pub kind: ObjectKind,
     pub schema: String,
@@ -103,7 +103,7 @@ pub struct Object {
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, JsonSchema)]
 struct ObjectCommitment {
     pub protocol: Protocol,
-    pub author: babel_types::IdentityId,
+    pub author: babble_types::IdentityId,
     pub created_at: Timestamp,
     pub kind: ObjectKind,
     pub schema: String,
@@ -130,12 +130,12 @@ pub struct SchemaRegistry {
 }
 
 impl SchemaRegistry {
-    pub fn babel_core() -> Self {
+    pub fn babble_core() -> Self {
         Self {
             protocol: Protocol::default(),
             core_schemas: vec![
-                "babel.schema.text.v1".to_string(),
-                "babel.schema.media.v1".to_string(),
+                "babble.schema.text.v1".to_string(),
+                "babble.schema.media.v1".to_string(),
             ],
             core_capabilities: CORE_CAPABILITIES
                 .iter()
@@ -193,15 +193,15 @@ pub fn validate_object_contract(
 pub fn validate_capability_request(request: &CapabilityRequest) -> Result<()> {
     validate_capability_id(&request.id)?;
     if request.version == 0 {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "capability version must be positive: {}",
             request.id
         )));
     }
-    if request.id.starts_with("babel.") {
+    if request.id.starts_with("babble.") {
         validate_core_capability_scope(request)?;
     } else if !request.scope.is_object() {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "capability {} scope must be a JSON object",
             request.id
         )));
@@ -259,12 +259,12 @@ impl Object {
         Self::create(
             author,
             ObjectKind::text(),
-            "babel.schema.text.v1",
+            "babble.schema.text.v1",
             serde_json::to_value(TextPayload {
                 text: text.into(),
                 metadata: BTreeMap::new(),
             })
-            .map_err(|err| babel_types::Error::Canonical(err.to_string()))?,
+            .map_err(|err| babble_types::Error::Canonical(err.to_string()))?,
         )
     }
 
@@ -302,29 +302,29 @@ impl Object {
         self.refresh_unsigned_id()
     }
 
-    pub fn sign(mut self, author: &Identity, keypair: &babel_crypto::Keypair) -> Result<Self> {
+    pub fn sign(mut self, author: &Identity, keypair: &babble_crypto::Keypair) -> Result<Self> {
         if self.author != author.id {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
-        SchemaRegistry::babel_core().validate_object(&self)?;
+        SchemaRegistry::babble_core().validate_object(&self)?;
         self.signature = Some(keypair.sign(&self.commitment().canonical_bytes()?));
         Ok(self)
     }
 
     pub fn verify(&self, author: &Identity) -> Result<()> {
         self.id.validate()?;
-        SchemaRegistry::babel_core().validate_object(self)?;
+        SchemaRegistry::babble_core().validate_object(self)?;
         if self.author != author.id {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         let expected_id = ObjectId::from_hash(&self.commitment().canonical_hash()?);
         if expected_id != self.id {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         let signature = self
             .signature
             .as_ref()
-            .ok_or(babel_types::Error::UnsignedObject)?;
+            .ok_or(babble_types::Error::UnsignedObject)?;
         author
             .public_key
             .verify(&self.commitment().canonical_bytes()?, signature)
@@ -348,7 +348,7 @@ impl Object {
     }
 
     fn refresh_unsigned_id(mut self) -> Result<Self> {
-        SchemaRegistry::babel_core().validate_object(&self)?;
+        SchemaRegistry::babble_core().validate_object(&self)?;
         self.signature = None;
         self.id = ObjectId::from_hash(&self.commitment().canonical_hash()?);
         Ok(self)
@@ -356,68 +356,68 @@ impl Object {
 }
 
 const CORE_CAPABILITIES: &[&str] = &[
-    "babel.identity.current",
-    "babel.social.follow",
-    "babel.social.unfollow",
-    "babel.social.share",
-    "babel.social.reply",
-    "babel.storage.local",
-    "babel.storage.object",
-    "babel.realtime.join",
-    "babel.realtime.send",
-    "babel.realtime.leave",
-    "babel.payments.checkout",
-    "babel.ai.judge",
-    "babel.ai.generate",
-    "babel.ai.embed",
-    "babel.ai.transcribe",
-    "babel.media.camera",
-    "babel.media.microphone",
-    "babel.graphics.webgpu",
-    "babel.notifications.request",
-    "babel.clipboard.write",
-    "babel.fullscreen.enter",
-    "babel.network.fetch",
-    "babel.location",
-    "babel.files",
+    "babble.identity.current",
+    "babble.social.follow",
+    "babble.social.unfollow",
+    "babble.social.share",
+    "babble.social.reply",
+    "babble.storage.local",
+    "babble.storage.object",
+    "babble.realtime.join",
+    "babble.realtime.send",
+    "babble.realtime.leave",
+    "babble.payments.checkout",
+    "babble.ai.judge",
+    "babble.ai.generate",
+    "babble.ai.embed",
+    "babble.ai.transcribe",
+    "babble.media.camera",
+    "babble.media.microphone",
+    "babble.graphics.webgpu",
+    "babble.notifications.request",
+    "babble.clipboard.write",
+    "babble.fullscreen.enter",
+    "babble.network.fetch",
+    "babble.location",
+    "babble.files",
 ];
 
 fn validate_core_schema_payload(kind: &ObjectKind, schema: &str, payload: &Value) -> Result<()> {
     match schema {
-        "babel.schema.text.v1" => {
-            if kind.as_str() != "babel.text" && kind.as_str() != "babel.claim" {
-                return Err(babel_types::Error::Conflict(format!(
+        "babble.schema.text.v1" => {
+            if kind.as_str() != "babble.text" && kind.as_str() != "babble.claim" {
+                return Err(babble_types::Error::Conflict(format!(
                     "schema {schema} is not valid for Object kind {}",
                     kind.as_str()
                 )));
             }
             let text: TextPayload = serde_json::from_value(payload.clone()).map_err(|err| {
-                babel_types::Error::Conflict(format!("invalid text payload: {err}"))
+                babble_types::Error::Conflict(format!("invalid text payload: {err}"))
             })?;
             if text.text.trim().is_empty() {
-                return Err(babel_types::Error::Conflict(
+                return Err(babble_types::Error::Conflict(
                     "text payload must not be empty".to_string(),
                 ));
             }
             for key in text.metadata.keys() {
                 if key.trim().is_empty() {
-                    return Err(babel_types::Error::Conflict(
+                    return Err(babble_types::Error::Conflict(
                         "text metadata keys must not be empty".to_string(),
                     ));
                 }
             }
         }
-        "babel.schema.media.v1" => {
-            if kind.as_str() != "babel.media" {
-                return Err(babel_types::Error::Conflict(format!(
+        "babble.schema.media.v1" => {
+            if kind.as_str() != "babble.media" {
+                return Err(babble_types::Error::Conflict(format!(
                     "schema {schema} is not valid for Object kind {}",
                     kind.as_str()
                 )));
             }
             validate_media_payload(payload)?;
         }
-        _ if schema.starts_with("babel.schema.") => {
-            return Err(babel_types::Error::Conflict(format!(
+        _ if schema.starts_with("babble.schema.") => {
+            return Err(babble_types::Error::Conflict(format!(
                 "unsupported core Object schema: {schema}"
             )));
         }
@@ -430,7 +430,7 @@ fn validate_media_payload(payload: &Value) -> Result<()> {
     let object = object(payload, "media payload")?;
     let title = string_field(object, "title", "media payload")?;
     if title.trim().is_empty() {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "media payload title must not be empty".to_string(),
         ));
     }
@@ -445,7 +445,7 @@ fn validate_media_payload(payload: &Value) -> Result<()> {
         .and_then(Value::as_array)
         .ok_or_else(|| type_error("media payload resources", "array"))?;
     if resources.is_empty() {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "media payload requires at least one resource".to_string(),
         ));
     }
@@ -456,14 +456,14 @@ fn validate_media_payload(payload: &Value) -> Result<()> {
         let key = media_resource_key(resource, "media resource")?;
         saw_primary |= key == primary_resource;
         if !unique.insert(key.clone()) {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "duplicate media resource: {}",
                 key.integrity
             )));
         }
     }
     if !saw_primary {
-        return Err(babel_types::Error::Conflict(
+        return Err(babble_types::Error::Conflict(
             "media payload primary_resource must be present in resources".to_string(),
         ));
     }
@@ -485,18 +485,18 @@ fn media_resource_key(value: &Value, label: &str) -> Result<MediaResourceKey> {
         .and_then(Value::as_u64)
         .ok_or_else(|| type_error(&format!("{label} size_bytes"), "positive integer"))?;
     if size_bytes == 0 {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "{label} size_bytes must be greater than zero"
         )));
     }
-    if !uri.starts_with("babel://blobs/") {
-        return Err(babel_types::Error::Conflict(format!(
-            "{label} URI must use babel://blobs/"
+    if !uri.starts_with("babble://blobs/") {
+        return Err(babble_types::Error::Conflict(format!(
+            "{label} URI must use babble://blobs/"
         )));
     }
     Hash::new_unchecked(integrity.to_string()).validate()?;
-    if uri != format!("babel://blobs/{integrity}") {
-        return Err(babel_types::Error::Conflict(format!(
+    if uri != format!("babble://blobs/{integrity}") {
+        return Err(babble_types::Error::Conflict(format!(
             "{label} URI does not match integrity"
         )));
     }
@@ -508,7 +508,7 @@ fn media_resource_key(value: &Value, label: &str) -> Result<MediaResourceKey> {
 
 fn validate_state(schema: &str, state: &Value) -> Result<()> {
     if state.is_null() {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "state for {schema} must not be null"
         )));
     }
@@ -518,36 +518,36 @@ fn validate_state(schema: &str, state: &Value) -> Result<()> {
 fn validate_core_capability_scope(request: &CapabilityRequest) -> Result<()> {
     let scope = object(&request.scope, &format!("{} scope", request.id))?;
     match request.id.as_str() {
-        "babel.network.fetch" => validate_string_array(scope, "origins", |origin| {
+        "babble.network.fetch" => validate_string_array(scope, "origins", |origin| {
             origin.starts_with("https://")
                 || origin.starts_with("http://localhost")
                 || origin.starts_with("http://127.0.0.1")
                 || origin.starts_with("http://[::1]")
         })?,
-        "babel.realtime.join" | "babel.realtime.send" | "babel.realtime.leave" => {
+        "babble.realtime.join" | "babble.realtime.send" | "babble.realtime.leave" => {
             non_empty_string_field(scope, "room", &request.id)?;
         }
-        "babel.storage.local" => {
+        "babble.storage.local" => {
             non_empty_string_field(scope, "namespace", &request.id)?;
         }
-        "babel.storage.object" => {
+        "babble.storage.object" => {
             if let Some(value) = scope.get("object_id") {
-                let id = babel_types::ObjectId::new_unchecked(string_value(
+                let id = babble_types::ObjectId::new_unchecked(string_value(
                     value,
-                    "babel.storage.object object_id",
+                    "babble.storage.object object_id",
                 )?);
                 id.validate()?;
             } else {
                 non_empty_string_field(scope, "namespace", &request.id)?;
             }
         }
-        "babel.ai.judge" => {
+        "babble.ai.judge" => {
             validate_namespaced(
                 "Judgment definition",
                 &non_empty_string_field(scope, "definition", &request.id)?,
             )?;
         }
-        "babel.ai.generate" => {
+        "babble.ai.generate" => {
             validate_string_array(scope, "tasks", valid_ai_generate_task)?;
             validate_string_array(scope, "output_modalities", valid_ai_modality)?;
             if let Some(value) = scope.get("models") {
@@ -560,7 +560,7 @@ fn validate_core_capability_scope(request: &CapabilityRequest) -> Result<()> {
                 positive_u64_value(value, "AI generate max_output_tokens")?;
             }
         }
-        "babel.ai.embed" => {
+        "babble.ai.embed" => {
             validate_string_array(scope, "input_modalities", valid_ai_embed_modality)?;
             if let Some(value) = scope.get("models") {
                 validate_optional_string_array(value, "AI embed models", valid_ai_model)?;
@@ -572,7 +572,7 @@ fn validate_core_capability_scope(request: &CapabilityRequest) -> Result<()> {
                 positive_u64_value(value, "AI embed dimensions")?;
             }
         }
-        "babel.ai.transcribe" => {
+        "babble.ai.transcribe" => {
             validate_string_array(scope, "media_types", |media_type| {
                 media_type.starts_with("audio/") || media_type.starts_with("video/")
             })?;
@@ -586,7 +586,7 @@ fn validate_core_capability_scope(request: &CapabilityRequest) -> Result<()> {
                 positive_u64_value(value, "AI transcribe max_duration_ms")?;
             }
         }
-        "babel.payments.checkout" => {
+        "babble.payments.checkout" => {
             validate_string_array(scope, "currencies", valid_currency)?;
             if let Some(value) = scope.get("max_amount_minor") {
                 positive_u64_value(value, "payment max_amount_minor")?;
@@ -595,13 +595,13 @@ fn validate_core_capability_scope(request: &CapabilityRequest) -> Result<()> {
                 bounded_token_value(value, "payment merchant_id", 128)?;
             }
         }
-        "babel.notifications.request" => {
+        "babble.notifications.request" => {
             validate_string_array(scope, "categories", valid_category)?;
             if let Some(value) = scope.get("purpose") {
                 bounded_text_value(value, "notification purpose", 200)?;
             }
         }
-        "babel.media.camera" => {
+        "babble.media.camera" => {
             validate_string_array(scope, "modes", valid_camera_mode)?;
             validate_string_array(scope, "media_types", |media_type| {
                 media_type.starts_with("image/") || media_type.starts_with("video/")
@@ -614,21 +614,21 @@ fn validate_core_capability_scope(request: &CapabilityRequest) -> Result<()> {
                     .as_array()
                     .ok_or_else(|| type_error("camera facing_modes", "array"))?;
                 if facing_modes.is_empty() {
-                    return Err(babel_types::Error::Conflict(
+                    return Err(babble_types::Error::Conflict(
                         "camera facing_modes must not be empty".to_string(),
                     ));
                 }
                 for facing_mode in facing_modes {
                     if !valid_camera_facing_mode(&string_value(facing_mode, "camera facing_mode")?)
                     {
-                        return Err(babel_types::Error::Conflict(
+                        return Err(babble_types::Error::Conflict(
                             "invalid camera facing_mode".to_string(),
                         ));
                     }
                 }
             }
         }
-        "babel.media.microphone" => {
+        "babble.media.microphone" => {
             validate_string_array(scope, "modes", valid_microphone_mode)?;
             validate_string_array(scope, "media_types", |media_type| {
                 media_type.starts_with("audio/")
@@ -637,12 +637,12 @@ fn validate_core_capability_scope(request: &CapabilityRequest) -> Result<()> {
                 positive_u64_value(value, "microphone max_duration_ms")?;
             }
         }
-        "babel.social.follow"
-        | "babel.social.unfollow"
-        | "babel.social.share"
-        | "babel.social.reply" => {
+        "babble.social.follow"
+        | "babble.social.unfollow"
+        | "babble.social.share"
+        | "babble.social.reply" => {
             if let Some(value) = scope.get("object_id") {
-                let id = babel_types::ObjectId::new_unchecked(string_value(
+                let id = babble_types::ObjectId::new_unchecked(string_value(
                     value,
                     "social capability object_id",
                 )?);
@@ -651,7 +651,7 @@ fn validate_core_capability_scope(request: &CapabilityRequest) -> Result<()> {
         }
         id if CORE_CAPABILITIES.contains(&id) => {}
         id => {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "unknown core capability: {id}"
             )));
         }
@@ -669,14 +669,14 @@ fn validate_string_array(
         .and_then(Value::as_array)
         .ok_or_else(|| type_error(field, "array"))?;
     if values.is_empty() {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "{field} must not be empty"
         )));
     }
     for value in values {
         let value = string_value(value, field)?;
         if value.trim().is_empty() || !predicate(&value) {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "invalid {field} entry: {value}"
             )));
         }
@@ -691,14 +691,14 @@ fn validate_optional_string_array(
 ) -> Result<()> {
     let values = value.as_array().ok_or_else(|| type_error(label, "array"))?;
     if values.is_empty() {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "{label} must not be empty"
         )));
     }
     for value in values {
         let value = string_value(value, label)?;
         if value.trim().is_empty() || !predicate(&value) {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "invalid {label} entry: {value}"
             )));
         }
@@ -709,7 +709,7 @@ fn validate_optional_string_array(
 fn non_empty_string_field(object: &Map<String, Value>, field: &str, label: &str) -> Result<String> {
     let value = string_field(object, field, label)?;
     if value.trim().is_empty() {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "{label} {field} must not be empty"
         )));
     }
@@ -733,7 +733,7 @@ fn string_value(value: &Value, label: &str) -> Result<String> {
 fn positive_u64_value(value: &Value, label: &str) -> Result<u64> {
     let value = value.as_u64().ok_or_else(|| type_error(label, "u64"))?;
     if value == 0 {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "{label} must be positive"
         )));
     }
@@ -743,7 +743,7 @@ fn positive_u64_value(value: &Value, label: &str) -> Result<u64> {
 fn bounded_token_value(value: &Value, label: &str, max_len: usize) -> Result<String> {
     let value = string_value(value, label)?;
     if value.trim().is_empty() || value.len() > max_len || !token(&value) {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "invalid {label}: {value}"
         )));
     }
@@ -753,7 +753,7 @@ fn bounded_token_value(value: &Value, label: &str, max_len: usize) -> Result<Str
 fn bounded_text_value(value: &Value, label: &str, max_len: usize) -> Result<String> {
     let value = string_value(value, label)?;
     if value.trim().is_empty() || value.len() > max_len {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "invalid {label}: {value}"
         )));
     }
@@ -847,7 +847,7 @@ fn validate_capability_id(value: &str) -> Result<()> {
     if valid {
         Ok(())
     } else {
-        Err(babel_types::Error::Conflict(format!(
+        Err(babble_types::Error::Conflict(format!(
             "invalid capability id: {value}"
         )))
     }
@@ -856,19 +856,19 @@ fn validate_capability_id(value: &str) -> Result<()> {
 fn validate_namespaced(label: &str, value: &str) -> Result<()> {
     let value = value.trim();
     if value.is_empty() || !value.contains('.') || value.contains(char::is_whitespace) {
-        return Err(babel_types::Error::Conflict(format!(
+        return Err(babble_types::Error::Conflict(format!(
             "{label} must be a non-empty namespaced identifier"
         )));
     }
     Ok(())
 }
 
-fn missing(label: &str, field: &str) -> babel_types::Error {
-    babel_types::Error::Conflict(format!("{label} missing required field {field}"))
+fn missing(label: &str, field: &str) -> babble_types::Error {
+    babble_types::Error::Conflict(format!("{label} missing required field {field}"))
 }
 
-fn type_error(label: &str, expected: &str) -> babel_types::Error {
-    babel_types::Error::Conflict(format!("{label} must be {expected}"))
+fn type_error(label: &str, expected: &str) -> babble_types::Error {
+    babble_types::Error::Conflict(format!("{label} must be {expected}"))
 }
 
 #[cfg(test)]
@@ -880,8 +880,8 @@ mod tests {
     fn registry_validates_core_text_schema_and_payload() {
         let valid = validate_object_contract(
             &ObjectKind::text(),
-            "babel.schema.text.v1",
-            &json!({"text": "hello", "metadata": {"topic": "babel"}}),
+            "babble.schema.text.v1",
+            &json!({"text": "hello", "metadata": {"topic": "babble"}}),
             None,
             &[],
         );
@@ -889,7 +889,7 @@ mod tests {
 
         let empty = validate_object_contract(
             &ObjectKind::text(),
-            "babel.schema.text.v1",
+            "babble.schema.text.v1",
             &json!({"text": " ", "metadata": {}}),
             None,
             &[],
@@ -897,8 +897,8 @@ mod tests {
         assert!(empty.is_err());
 
         let wrong_kind = validate_object_contract(
-            &ObjectKind::new("babel.media"),
-            "babel.schema.text.v1",
+            &ObjectKind::new("babble.media"),
+            "babble.schema.text.v1",
             &json!({"text": "hello", "metadata": {}}),
             None,
             &[],
@@ -910,14 +910,14 @@ mod tests {
     fn registry_validates_core_media_payload() {
         let integrity = Hash::from_bytes(b"media");
         let resource = json!({
-            "uri": format!("babel://blobs/{integrity}"),
+            "uri": format!("babble://blobs/{integrity}"),
             "media_type": "image/png",
             "integrity": integrity,
             "size_bytes": 5
         });
         let valid = validate_object_contract(
-            &ObjectKind::new("babel.media"),
-            "babel.schema.media.v1",
+            &ObjectKind::new("babble.media"),
+            "babble.schema.media.v1",
             &json!({
                 "title": "Image",
                 "description": null,
@@ -930,8 +930,8 @@ mod tests {
         assert!(valid.is_ok());
 
         let missing_primary = validate_object_contract(
-            &ObjectKind::new("babel.media"),
-            "babel.schema.media.v1",
+            &ObjectKind::new("babble.media"),
+            "babble.schema.media.v1",
             &json!({
                 "title": "Image",
                 "primary_resource": resource,
@@ -946,37 +946,37 @@ mod tests {
     #[test]
     fn registry_validates_core_capability_scopes() {
         validate_capability_request(&CapabilityRequest {
-            id: "babel.network.fetch".to_string(),
+            id: "babble.network.fetch".to_string(),
             version: 1,
             scope: json!({"origins": ["https://example.com"]}),
         })
         .unwrap();
         validate_capability_request(&CapabilityRequest {
-            id: "babel.network.fetch".to_string(),
+            id: "babble.network.fetch".to_string(),
             version: 1,
             scope: json!({"origins": ["http://127.0.0.1:4317"]}),
         })
         .unwrap();
         validate_capability_request(&CapabilityRequest {
-            id: "babel.realtime.join".to_string(),
+            id: "babble.realtime.join".to_string(),
             version: 1,
             scope: json!({"room": "object-chat"}),
         })
         .unwrap();
         validate_capability_request(&CapabilityRequest {
-            id: "babel.payments.checkout".to_string(),
+            id: "babble.payments.checkout".to_string(),
             version: 1,
             scope: json!({"currencies": ["USD"], "max_amount_minor": 5000}),
         })
         .unwrap();
         validate_capability_request(&CapabilityRequest {
-            id: "babel.notifications.request".to_string(),
+            id: "babble.notifications.request".to_string(),
             version: 1,
             scope: json!({"categories": ["game.turn", "creator_update"]}),
         })
         .unwrap();
         validate_capability_request(&CapabilityRequest {
-            id: "babel.media.camera".to_string(),
+            id: "babble.media.camera".to_string(),
             version: 1,
             scope: json!({
                 "modes": ["photo", "video"],
@@ -987,7 +987,7 @@ mod tests {
         })
         .unwrap();
         validate_capability_request(&CapabilityRequest {
-            id: "babel.media.microphone".to_string(),
+            id: "babble.media.microphone".to_string(),
             version: 1,
             scope: json!({
                 "modes": ["audio_clip"],
@@ -999,7 +999,7 @@ mod tests {
 
         assert!(
             validate_capability_request(&CapabilityRequest {
-                id: "babel.network.fetch".to_string(),
+                id: "babble.network.fetch".to_string(),
                 version: 1,
                 scope: json!({"origins": ["file:///tmp/secret"]}),
             })
@@ -1007,7 +1007,7 @@ mod tests {
         );
         assert!(
             validate_capability_request(&CapabilityRequest {
-                id: "babel.realtime.join".to_string(),
+                id: "babble.realtime.join".to_string(),
                 version: 1,
                 scope: json!({}),
             })
@@ -1015,7 +1015,7 @@ mod tests {
         );
         assert!(
             validate_capability_request(&CapabilityRequest {
-                id: "babel.payments.checkout".to_string(),
+                id: "babble.payments.checkout".to_string(),
                 version: 1,
                 scope: json!({"currencies": ["usd"]}),
             })
@@ -1023,7 +1023,7 @@ mod tests {
         );
         assert!(
             validate_capability_request(&CapabilityRequest {
-                id: "babel.notifications.request".to_string(),
+                id: "babble.notifications.request".to_string(),
                 version: 1,
                 scope: json!({"categories": []}),
             })
@@ -1031,7 +1031,7 @@ mod tests {
         );
         assert!(
             validate_capability_request(&CapabilityRequest {
-                id: "babel.media.camera".to_string(),
+                id: "babble.media.camera".to_string(),
                 version: 1,
                 scope: json!({"modes": ["screen"], "media_types": ["image/jpeg"]}),
             })
@@ -1039,7 +1039,7 @@ mod tests {
         );
         assert!(
             validate_capability_request(&CapabilityRequest {
-                id: "babel.media.microphone".to_string(),
+                id: "babble.media.microphone".to_string(),
                 version: 1,
                 scope: json!({"modes": ["audio_clip"], "media_types": ["video/webm"]}),
             })

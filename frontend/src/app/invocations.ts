@@ -1,9 +1,9 @@
-import { canonicalValueBytes, type JsonValue, type ProtocolTypes } from "@babel-protocol/sdk";
+import { canonicalValueBytes, type JsonValue, type ProtocolTypes } from "@babble-protocol/sdk";
 
 export type Invocation = ProtocolTypes["api.InvocationResponse"];
 export type InvocationSource = Invocation["origin"];
 export type InvocationResult = NonNullable<Invocation["result"]>;
-export type InvocationMethod = `babel.social.${"follow" | "unfollow" | "reply" | "share"}.v2`;
+export type InvocationMethod = `babble.social.${"follow" | "unfollow" | "reply" | "share"}`;
 export interface InvocationExpectation {
   readonly actorId: string;
   readonly objectId: string;
@@ -20,7 +20,7 @@ const uuid = (value: unknown) => typeof value === "string" && /^[0-9a-f]{8}(?:-[
 const invalid = () => new Error("The action response does not match this request. Its outcome could not be confirmed.");
 
 export function isInvocationMethod(method: string): method is InvocationMethod {
-  return /^babel\.social\.(follow|unfollow|reply|share)\.v2$/.test(method);
+  return /^babble\.social\.(follow|unfollow|reply|share)$/.test(method);
 }
 
 function same(a: unknown, b: unknown): boolean {
@@ -30,7 +30,7 @@ function same(a: unknown, b: unknown): boolean {
 
 export function normalizedInvocationPayload(method: InvocationMethod, payload: JsonValue, objectId: string): JsonValue {
   if (!record(payload)) throw invalid();
-  const textAction = method === "babel.social.reply.v2" || method === "babel.social.share.v2";
+  const textAction = method === "babble.social.reply" || method === "babble.social.share";
   const media = payload.media;
   if (textAction && payload.text != null && typeof payload.text !== "string") throw invalid();
   if (media != null && (!record(media) || typeof media.title !== "string" || !Array.isArray(media.resources))) throw invalid();
@@ -56,7 +56,7 @@ export function parseInvocation(value: unknown, expected: InvocationExpectation,
   if (value.state.kind === "completed") {
     if (!record(value.result) || !record(value.result.edge) || !record(value.result.receipt)
       || value.result.edge.author !== expected.actorId || typeof value.result.edge.id !== "string") throw invalid();
-    if (["babel.social.reply.v2", "babel.social.share.v2"].includes(expected.method)
+    if (["babble.social.reply", "babble.social.share"].includes(expected.method)
       && (!record(value.result.object) || value.result.object.author !== expected.actorId || typeof value.result.object.id !== "string")) throw invalid();
     const receipt = value.result.receipt;
     if (!record(receipt.request) || !record(receipt.outcome) || receipt.request.author !== expected.actorId
@@ -125,7 +125,7 @@ export class InvocationApi {
     if (invocation.state.kind !== "completed" || !invocation.result) throw new Error(`This action is ${invocation.state.kind}. Start a new action to continue.`);
     // Cleanup failure must not turn an already committed publication into a failed submit.
     void this.closeDocument(expected.origin.document_id, AbortSignal.timeout(5000)).catch(error => {
-      console.warn("Babel could not close a completed host action document", error);
+      console.warn("Babble could not close a completed host action document", error);
     });
     return invocation.result;
   }
@@ -135,7 +135,7 @@ export class InvocationApi {
     const headers: Record<string, string> = { accept: "application/json" };
     if (source) {
       if (!uuid(source.document_id)) throw invalid();
-      headers[source.kind === "surface" ? "x-babel-surface-document" : "x-babel-host-document"] = source.document_id;
+      headers[source.kind === "surface" ? "x-babble-surface-document" : "x-babble-host-document"] = source.document_id;
     }
     if (body !== undefined) headers["content-type"] = "application/json";
     const response = await this.fetcher(new URL(path, this.origin), {

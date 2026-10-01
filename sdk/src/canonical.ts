@@ -4,9 +4,9 @@ export type CanonicalValue =
   | readonly CanonicalValue[]
   | { readonly [key: string]: CanonicalValue };
 
-const PREAMBLE = new TextEncoder().encode("babel.canonical.v1\0");
-const FLOAT_BRAND: unique symbol = Symbol("babel.canonical.float");
-const UNSIGNED_BRAND: unique symbol = Symbol("babel.canonical.unsigned");
+const PREAMBLE = new TextEncoder().encode("babble.canonical.v1\0");
+const FLOAT_BRAND: unique symbol = Symbol("babble.canonical.float");
+const UNSIGNED_BRAND: unique symbol = Symbol("babble.canonical.unsigned");
 const MAX_I64 = 9_223_372_036_854_775_807n;
 const MIN_I64 = -9_223_372_036_854_775_808n;
 const MAX_U64 = 18_446_744_073_709_551_615n;

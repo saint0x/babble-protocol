@@ -62,8 +62,8 @@ protocol's capability array, including scoped and custom-namespace declarations:
 
 ```json
 [
-  { "id": "babel.storage.local", "version": 1, "scope": { "namespace": "my-app" } },
-  { "id": "babel.clipboard.write", "version": 1, "scope": {} }
+  { "id": "babble.storage.local", "version": 1, "scope": { "namespace": "my-app" } },
+  { "id": "babble.clipboard.write", "version": 1, "scope": {} }
 ]
 ```
 

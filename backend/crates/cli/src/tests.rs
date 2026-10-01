@@ -5,7 +5,7 @@ use serde_json::json;
 fn publish_uses_captured_files_after_inputs_are_replaced_and_removed() {
     let keypair = Keypair::generate();
     let author = Identity::create(IdentityKind::Application, "capture-test", &keypair).unwrap();
-    let root = std::env::temp_dir().join(format!("babel-cli-capture-{}", author.id));
+    let root = std::env::temp_dir().join(format!("babble-cli-capture-{}", author.id));
     fs::create_dir_all(&root).unwrap();
     let html = b"<!doctype html><script src='./app.js'></script>";
     let script = b"document.body.dataset.ready = 'true';";
@@ -15,7 +15,7 @@ fn publish_uses_captured_files_after_inputs_are_replaced_and_removed() {
     fs::write(root.join("image.bin"), image).unwrap();
     let manifest_path = root.join("manifest.json");
     fs::write(&manifest_path, serde_json::to_vec(&json!({
-        "kind":"babel.text", "schema":"babel.schema.text.v1",
+        "kind":"babble.text", "schema":"babble.schema.text.v1",
         "payload":{"text":"Capture once", "metadata":{}},
         "resources":[{"path":"image.bin", "media_type":"application/octet-stream"}],
         "surfaces":[

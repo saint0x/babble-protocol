@@ -1,4 +1,4 @@
-use babel_discovery::{NativeTemporalScorer, TemporalProvider, TemporalRequest};
+use babble_discovery::{NativeTemporalScorer, TemporalProvider, TemporalRequest};
 use serde_json::{Value, json};
 
 /// Native reference values for independent implementations of temporal-v1.

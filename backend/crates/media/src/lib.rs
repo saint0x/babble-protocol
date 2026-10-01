@@ -1,5 +1,5 @@
-use babel_object::Resource;
-use babel_types::{Hash, Result};
+use babble_object::Resource;
+use babble_types::{Hash, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -33,7 +33,7 @@ impl MediaBlob {
         integrity.validate()?;
         let media_type = normalize_media_type(media_type.into())?;
         Ok(Self {
-            uri: format!("babel://blobs/{}", integrity.as_str()),
+            uri: format!("babble://blobs/{}", integrity.as_str()),
             media_type,
             integrity,
             size_bytes,
@@ -51,7 +51,7 @@ impl MediaBlob {
     pub fn validate(&self) -> Result<()> {
         let canonical = Self::from_hash(&self.media_type, self.integrity.clone(), self.size_bytes)?;
         if self.size_bytes == 0 || self != &canonical {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "media resource metadata must be canonical with a positive size".into(),
             ));
         }
@@ -67,12 +67,12 @@ impl MediaObjectPayload {
     ) -> Result<Self> {
         let title = title.into();
         if title.trim().is_empty() {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "media Object title must not be empty".to_string(),
             ));
         }
         if resources.is_empty() {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "media Object requires at least one resource".to_string(),
             ));
         }
@@ -95,7 +95,7 @@ impl MediaObjectPayload {
 
     pub fn validate(&self) -> Result<()> {
         if self.title.trim().is_empty() || self.resources.is_empty() {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "media Object requires a title and at least one resource".into(),
             ));
         }
@@ -103,14 +103,14 @@ impl MediaObjectPayload {
         for resource in &self.resources {
             resource.validate()?;
             if !unique.insert(&resource.integrity) {
-                return Err(babel_types::Error::Conflict(format!(
+                return Err(babble_types::Error::Conflict(format!(
                     "duplicate media resource: {}",
                     resource.integrity
                 )));
             }
         }
         if !self.resources.contains(&self.primary_resource) {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "media primary_resource must exactly match an album resource".into(),
             ));
         }
@@ -122,7 +122,7 @@ impl MediaObjectPayload {
         let mut by_hash = std::collections::BTreeMap::new();
         for resource in resources {
             if by_hash.insert(&resource.integrity, resource).is_some() {
-                return Err(babel_types::Error::Conflict(format!(
+                return Err(babble_types::Error::Conflict(format!(
                     "duplicate media Object resource: {}",
                     resource.integrity
                 )));
@@ -132,7 +132,7 @@ impl MediaObjectPayload {
         // must still have an unambiguous, matching signed delivery descriptor.
         for blob in &self.resources {
             if by_hash.get(&blob.integrity).copied() != Some(&blob.resource()) {
-                return Err(babel_types::Error::Conflict(format!(
+                return Err(babble_types::Error::Conflict(format!(
                     "media payload does not match Object resource: {}",
                     blob.integrity
                 )));
@@ -166,8 +166,8 @@ fn token(value: &str) -> bool {
         })
 }
 
-fn invalid_media_type(value: String) -> babel_types::Error {
-    babel_types::Error::Conflict(format!("invalid media type: {value}"))
+fn invalid_media_type(value: String) -> babble_types::Error {
+    babble_types::Error::Conflict(format!("invalid media type: {value}"))
 }
 
 #[cfg(test)]
@@ -180,7 +180,7 @@ mod tests {
 
         assert_eq!(blob.media_type, "image/png");
         assert_eq!(blob.size_bytes, 9);
-        assert_eq!(blob.uri, format!("babel://blobs/{}", blob.integrity));
+        assert_eq!(blob.uri, format!("babble://blobs/{}", blob.integrity));
         assert_eq!(blob.resource().integrity, blob.integrity);
     }
 

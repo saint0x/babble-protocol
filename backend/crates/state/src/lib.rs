@@ -1,8 +1,8 @@
-use babel_crypto::{Keypair, Signature};
-use babel_graph::{Edge, GraphIndex};
-use babel_identity::{Identity, IdentityKeyTransition};
-use babel_object::Object;
-use babel_types::{Canonical, EventId, IdentityId, ObjectId, Result, Timestamp};
+use babble_crypto::{Keypair, Signature};
+use babble_graph::{Edge, GraphIndex};
+use babble_identity::{Identity, IdentityKeyTransition};
+use babble_object::Object;
+use babble_types::{Canonical, EventId, IdentityId, ObjectId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -29,16 +29,16 @@ pub enum EventKind {
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub enum EventTarget {
-    Identity(babel_types::IdentityId),
+    Identity(babble_types::IdentityId),
     Object(ObjectId),
-    Edge(babel_types::EdgeId),
+    Edge(babble_types::EdgeId),
     Network,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, JsonSchema)]
 pub struct Event {
     pub id: EventId,
-    pub actor: babel_types::IdentityId,
+    pub actor: babble_types::IdentityId,
     pub kind: EventKind,
     pub target: EventTarget,
     pub payload: Value,
@@ -49,7 +49,7 @@ pub struct Event {
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, JsonSchema)]
 struct EventCommitment {
-    pub actor: babel_types::IdentityId,
+    pub actor: babble_types::IdentityId,
     pub kind: EventKind,
     pub target: EventTarget,
     pub payload: Value,
@@ -86,9 +86,9 @@ impl Event {
         })
     }
 
-    pub fn sign(mut self, actor: &Identity, keypair: &babel_crypto::Keypair) -> Result<Self> {
+    pub fn sign(mut self, actor: &Identity, keypair: &babble_crypto::Keypair) -> Result<Self> {
         if self.actor != actor.id {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         self.signature = Some(keypair.sign(&self.commitment().canonical_bytes()?));
         Ok(self)
@@ -97,16 +97,16 @@ impl Event {
     pub fn verify(&self, actor: &Identity) -> Result<()> {
         self.id.validate()?;
         if self.actor != actor.id {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         let expected_id = EventId::from_hash(&self.commitment().canonical_hash()?);
         if expected_id != self.id {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         let signature = self
             .signature
             .as_ref()
-            .ok_or(babel_types::Error::UnsignedEvent)?;
+            .ok_or(babble_types::Error::UnsignedEvent)?;
         actor
             .public_key
             .verify(&self.commitment().canonical_bytes()?, signature)
@@ -126,8 +126,8 @@ impl Event {
 
 #[derive(Default)]
 pub struct MemoryState {
-    identities: BTreeMap<babel_types::IdentityId, Identity>,
-    identity_keys: BTreeMap<babel_types::IdentityId, Vec<IdentityKeyTransition>>,
+    identities: BTreeMap<babble_types::IdentityId, Identity>,
+    identity_keys: BTreeMap<babble_types::IdentityId, Vec<IdentityKeyTransition>>,
     objects: BTreeMap<ObjectId, Object>,
     events: BTreeMap<EventId, Event>,
     graph: GraphIndex,
@@ -140,7 +140,7 @@ impl MemoryState {
             if existing == &identity {
                 return Ok(());
             }
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "identity id conflict: {}",
                 identity.id
             )));
@@ -159,7 +159,7 @@ impl MemoryState {
             .get(&transition.identity_id)
             .map_or(1, |transitions| transitions.len() as u64 + 1);
         if transition.sequence != expected_sequence {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "identity key transition sequence mismatch for {}: expected {}, got {}",
                 transition.identity_id, expected_sequence, transition.sequence
             )));
@@ -179,7 +179,7 @@ impl MemoryState {
             if existing == &object {
                 return Ok(());
             }
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "object id conflict: {}",
                 object.id
             )));
@@ -195,14 +195,14 @@ impl MemoryState {
         let author_id = edge
             .author
             .clone()
-            .ok_or(babel_types::Error::UnsignedEdge)?;
+            .ok_or(babble_types::Error::UnsignedEdge)?;
         let author = self.signing_identity_at(&author_id, edge.created_at)?;
         edge.verify(&author)?;
         if let Some(existing) = self.graph.get(&edge.id) {
             if existing == &edge {
                 return Ok(());
             }
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "edge id conflict: {}",
                 edge.id
             )));
@@ -215,7 +215,7 @@ impl MemoryState {
         let transition = if event.kind == EventKind::IdentityKeyTransition {
             Some(
                 serde_json::from_value::<IdentityKeyTransition>(event.payload.clone())
-                    .map_err(|err| babel_types::Error::Canonical(err.to_string()))?,
+                    .map_err(|err| babble_types::Error::Canonical(err.to_string()))?,
             )
         } else {
             None
@@ -224,7 +224,7 @@ impl MemoryState {
             let identity = self
                 .identities
                 .get(&event.actor)
-                .ok_or_else(|| babel_types::Error::NotFound(event.actor.to_string()))?;
+                .ok_or_else(|| babble_types::Error::NotFound(event.actor.to_string()))?;
             identity.with_signing_key(transition.previous_public_key.clone())
         } else {
             self.signing_identity_at(&event.actor, event.created_at)?
@@ -234,14 +234,14 @@ impl MemoryState {
             if existing == &event {
                 return Ok(());
             }
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "event id conflict: {}",
                 event.id
             )));
         }
         if let Some(transition) = transition {
             if transition.identity_id != event.actor {
-                return Err(babel_types::Error::Conflict(format!(
+                return Err(babble_types::Error::Conflict(format!(
                     "identity key transition actor mismatch: actor={} transition={}",
                     event.actor, transition.identity_id
                 )));
@@ -282,14 +282,14 @@ impl MemoryState {
             kind,
             EventKind::ObjectPublished | EventKind::ObjectForked | EventKind::ObjectRemixed
         ) {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "event kind cannot publish an object: {kind:?}"
             )));
         }
         let author = self.signing_identity_at(&object.author, object.created_at)?;
         object.verify(&author)?;
         if self.objects.contains_key(&object.id) {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "object already exists: {}",
                 object.id
             )));
@@ -319,11 +319,11 @@ impl MemoryState {
         let author_id = edge
             .author
             .clone()
-            .ok_or(babel_types::Error::UnsignedEdge)?;
+            .ok_or(babble_types::Error::UnsignedEdge)?;
         let author = self.signing_identity_at(&author_id, edge.created_at)?;
         edge.verify(&author)?;
         if self.graph.get(&edge.id).is_some() {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "edge already exists: {}",
                 edge.id
             )));
@@ -346,7 +346,7 @@ impl MemoryState {
         Ok(event_id)
     }
 
-    pub fn identity(&self, id: &babel_types::IdentityId) -> Option<&Identity> {
+    pub fn identity(&self, id: &babble_types::IdentityId) -> Option<&Identity> {
         self.identities.get(id)
     }
 
@@ -393,7 +393,7 @@ impl MemoryState {
         let identity = self
             .identities
             .get(id)
-            .ok_or_else(|| babel_types::Error::NotFound(id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(id.to_string()))?;
         let public_key = self
             .identity_keys
             .get(id)

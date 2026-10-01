@@ -14,7 +14,7 @@ pub struct ApiError {
 
 impl ApiError {
     pub(crate) fn report_intake_limit() -> Self {
-        Self { status: StatusCode::CONFLICT, code: "report_intake_limit", message: babel_graph::moderation::REPORT_INTAKE_LIMIT.into() }
+        Self { status: StatusCode::CONFLICT, code: "report_intake_limit", message: babble_graph::moderation::REPORT_INTAKE_LIMIT.into() }
     }
     pub fn unauthorized() -> Self {
         Self {
@@ -97,35 +97,35 @@ impl ApiError {
     }
 }
 
-impl From<babel_types::Error> for ApiError {
-    fn from(value: babel_types::Error) -> Self {
+impl From<babble_types::Error> for ApiError {
+    fn from(value: babble_types::Error) -> Self {
         match value {
-            babel_types::Error::InvalidPrefix { .. }
-            | babel_types::Error::InvalidHashLength { .. }
-            | babel_types::Error::Canonical(_) => Self::bad_request(value.to_string()),
-            babel_types::Error::NotFound(_) => Self::not_found(value.to_string()),
-            babel_types::Error::Conflict(_) => Self::conflict(value.to_string()),
-            babel_types::Error::ProviderUnavailable(_) => Self::unavailable(value.to_string()),
-            babel_types::Error::StorageUnavailable(_) => {
+            babble_types::Error::InvalidPrefix { .. }
+            | babble_types::Error::InvalidHashLength { .. }
+            | babble_types::Error::Canonical(_) => Self::bad_request(value.to_string()),
+            babble_types::Error::NotFound(_) => Self::not_found(value.to_string()),
+            babble_types::Error::Conflict(_) => Self::conflict(value.to_string()),
+            babble_types::Error::ProviderUnavailable(_) => Self::unavailable(value.to_string()),
+            babble_types::Error::StorageUnavailable(_) => {
                 Self::storage_unavailable(value.to_string())
             }
-            babel_types::Error::Signature
-            | babel_types::Error::UnsignedObject
-            | babel_types::Error::UnsignedEdge
-            | babel_types::Error::UnsignedEvent => Self::bad_request(value.to_string()),
+            babble_types::Error::Signature
+            | babble_types::Error::UnsignedObject
+            | babble_types::Error::UnsignedEdge
+            | babble_types::Error::UnsignedEvent => Self::bad_request(value.to_string()),
         }
     }
 }
 
-impl From<babel_store::BlobReadError> for ApiError {
-    fn from(value: babel_store::BlobReadError) -> Self {
+impl From<babble_store::BlobReadError> for ApiError {
+    fn from(value: babble_store::BlobReadError) -> Self {
         match value {
-            babel_store::BlobReadError::TooLarge { .. } => Self {
+            babble_store::BlobReadError::TooLarge { .. } => Self {
                 status: StatusCode::PAYLOAD_TOO_LARGE,
                 code: "payload_too_large",
                 message: value.to_string(),
             },
-            babel_store::BlobReadError::Storage(error) => error.into(),
+            babble_store::BlobReadError::Storage(error) => error.into(),
         }
     }
 }

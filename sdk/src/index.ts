@@ -27,7 +27,7 @@ export {
   type RpcBridgeCancel,
   type RpcBridgeResponse,
 } from "./bridge.js";
-export { BabelClient, createBabelClient, type BabelClientOptions } from "./client.js";
+export { BabbleClient, createBabbleClient, type BabbleClientOptions } from "./client.js";
 export {
   connectSurfaceBridge,
   SURFACE_BRIDGE_VERSION,
@@ -77,15 +77,15 @@ export {
   type SurfaceMountOptions,
   type SurfaceWindowMessageEvent,
 } from "./host.js";
-export { createBabelSDK, createSurfaceSDK, type BabelSDK, type BabelSDKOptions, type SurfaceSDKOptions } from "./sdk.js";
+export { createBabbleSDK, createSurfaceSDK, type BabbleSDK, type BabbleSDKOptions, type SurfaceSDKOptions } from "./sdk.js";
 export {
-  BabelError,
+  BabbleError,
   HttpRpcTransport,
   hostBinding,
   hostSurfaceBinding,
   objectBinding,
   requestId,
-  type BabelTransport,
+  type BabbleTransport,
   type RpcBinding,
   type RpcRequestOptions,
 } from "./transport.js";

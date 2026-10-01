@@ -1,5 +1,5 @@
 import { rpcCatalog, type JsonValue, type RpcRequestEnvelope, type RpcResponseEnvelope } from "./generated/protocol.js";
-import type { BabelTransport, RpcRequestOptions } from "./transport.js";
+import type { BabbleTransport, RpcRequestOptions } from "./transport.js";
 
 type RpcErrorCode = NonNullable<RpcResponseEnvelope["error"]>["code"];
 const rpcMethodNames = new Set<string>(rpcCatalog.methods.map((method) => method.method));
@@ -50,19 +50,19 @@ interface InFlightDispatch {
 }
 
 export interface RpcBridgeRequest {
-  readonly type: "babel.rpc.request";
+  readonly type: "babble.rpc.request";
   readonly protocol: typeof rpcCatalog.protocol;
   readonly envelope: RpcRequestEnvelope;
 }
 
 export interface RpcBridgeResponse {
-  readonly type: "babel.rpc.response";
+  readonly type: "babble.rpc.response";
   readonly protocol: typeof rpcCatalog.protocol;
   readonly response: RpcResponseEnvelope;
 }
 
 export interface RpcBridgeCancel {
-  readonly type: "babel.rpc.cancel";
+  readonly type: "babble.rpc.cancel";
   readonly protocol: typeof rpcCatalog.protocol;
   readonly id: string;
 }
@@ -72,7 +72,7 @@ interface PendingRequest {
   readonly cancel: (reason: Error) => void;
 }
 
-export class BrowserBridgeTransport implements BabelTransport {
+export class BrowserBridgeTransport implements BabbleTransport {
   readonly endpoint: BridgeEndpoint;
   readonly targetOrigin: string | undefined;
   readonly allowedOrigins: ReadonlySet<string>;
@@ -93,13 +93,13 @@ export class BrowserBridgeTransport implements BabelTransport {
 
   request(envelope: RpcRequestEnvelope, options: RpcRequestOptions = {}): Promise<RpcResponseEnvelope> {
     if (this.#closed) {
-      return Promise.reject(new Error("Babel browser bridge transport is closed"));
+      return Promise.reject(new Error("Babble browser bridge transport is closed"));
     }
     if (!validToken(envelope.id, 128)) {
-      return Promise.reject(new Error("Babel browser bridge request id must be 1-128 characters"));
+      return Promise.reject(new Error("Babble browser bridge request id must be 1-128 characters"));
     }
     if (this.#clientIds.has(envelope.id)) {
-      return Promise.reject(new Error(`duplicate in-flight Babel RPC request id: ${envelope.id}`));
+      return Promise.reject(new Error(`duplicate in-flight Babble RPC request id: ${envelope.id}`));
     }
     if (options.signal?.aborted) {
       return Promise.reject(abortError(options.signal.reason));
@@ -110,7 +110,7 @@ export class BrowserBridgeTransport implements BabelTransport {
     // must never match a later attempt, including on older non-cancelling hosts.
     const wireId = `bridge-${crypto.randomUUID()}`;
     const message: RpcBridgeRequest = {
-      type: "babel.rpc.request",
+      type: "babble.rpc.request",
       protocol: rpcCatalog.protocol,
       envelope: { ...envelope, id: wireId },
     };
@@ -132,7 +132,7 @@ export class BrowserBridgeTransport implements BabelTransport {
         if (sent) this.#sendCancellation(wireId);
       };
       const timer = setTimeout(() => {
-        cancel(new Error(`Babel browser bridge request timed out: ${envelope.id}`));
+        cancel(new Error(`Babble browser bridge request timed out: ${envelope.id}`));
       }, timeoutMs);
       const abort = options.signal
         ? (): void => {
@@ -172,13 +172,13 @@ export class BrowserBridgeTransport implements BabelTransport {
     this.#closed = true;
     this.endpoint.removeEventListener("message", this.#handler);
     for (const pending of [...this.#pending.values()]) {
-      pending.cancel(new Error("Babel browser bridge transport closed with request in flight"));
+      pending.cancel(new Error("Babble browser bridge transport closed with request in flight"));
     }
     this.#pending.clear();
   }
 
   #sendCancellation(id: string): void {
-    const message: RpcBridgeCancel = { type: "babel.rpc.cancel", protocol: rpcCatalog.protocol, id };
+    const message: RpcBridgeCancel = { type: "babble.rpc.cancel", protocol: rpcCatalog.protocol, id };
     try { this.endpoint.postMessage(message, this.targetOrigin); }
     catch {
       // A broken endpoint cannot deliver cancellation; terminate its other calls.
@@ -244,7 +244,7 @@ export class BrowserBridgeHost {
       clearTimeout(entry.timer);
     }
     for (const entry of pending) {
-      entry.controller.abort(new Error("Babel browser bridge host is closed"));
+      entry.controller.abort(new Error("Babble browser bridge host is closed"));
     }
   }
 
@@ -255,7 +255,7 @@ export class BrowserBridgeHost {
     const inboundBytes = messageBytes(event.data);
     if (inboundBytes > this.maxInboundBytes) {
       if (isRpcBridgeRequest(event.data)) {
-        this.#postResponse(event, bridgeRpcError(event.data.envelope, "QUOTA_EXCEEDED", `Babel bridge request exceeds host inbound byte limit: ${inboundBytes} > ${this.maxInboundBytes}`));
+        this.#postResponse(event, bridgeRpcError(event.data.envelope, "QUOTA_EXCEEDED", `Babble bridge request exceeds host inbound byte limit: ${inboundBytes} > ${this.maxInboundBytes}`));
       }
       return;
     }
@@ -264,7 +264,7 @@ export class BrowserBridgeHost {
       if (!entry || entry.expired || entry.origin !== event.origin) return;
       entry.expired = true;
       clearTimeout(entry.timer);
-      entry.controller.abort(new Error(`Babel bridge request cancelled by caller: ${event.data.id}`));
+      entry.controller.abort(new Error(`Babble bridge request cancelled by caller: ${event.data.id}`));
       return;
     }
     if (!isRpcBridgeRequest(event.data)) {
@@ -273,15 +273,15 @@ export class BrowserBridgeHost {
 
     const request = event.data.envelope;
     if (this.#inFlight.has(request.id)) {
-      this.#postResponse(event, bridgeRpcError(request, "INVALID_INPUT", `duplicate in-flight Babel RPC request id: ${request.id}`));
+      this.#postResponse(event, bridgeRpcError(request, "INVALID_INPUT", `duplicate in-flight Babble RPC request id: ${request.id}`));
       return;
     }
     if (this.#inFlight.size >= this.maxInFlightRequests) {
-      this.#postResponse(event, bridgeRpcError(request, "RATE_LIMITED", `Babel bridge in-flight request limit reached: ${this.maxInFlightRequests}`, true, 250));
+      this.#postResponse(event, bridgeRpcError(request, "RATE_LIMITED", `Babble bridge in-flight request limit reached: ${this.maxInFlightRequests}`, true, 250));
       return;
     }
     if (request.deadline.timeout_ms <= 0) {
-      this.#postResponse(event, bridgeRpcError(request, "INVALID_INPUT", "Babel bridge request deadline must be positive"));
+      this.#postResponse(event, bridgeRpcError(request, "INVALID_INPUT", "Babble bridge request deadline must be positive"));
       return;
     }
 
@@ -293,8 +293,8 @@ export class BrowserBridgeHost {
       }
       // A timeout cannot free capacity until a non-cooperative dispatch settles.
       entry.expired = true;
-      controller.abort(new Error(`Babel bridge host dispatch timed out: ${request.id}`));
-      this.#postResponse(event, bridgeRpcError(request, "TIMEOUT", `Babel bridge host dispatch timed out: ${request.id}`, true));
+      controller.abort(new Error(`Babble bridge host dispatch timed out: ${request.id}`));
+      this.#postResponse(event, bridgeRpcError(request, "TIMEOUT", `Babble bridge host dispatch timed out: ${request.id}`, true));
     }, timeoutMs);
     const entry: InFlightDispatch = { controller, timer, origin: event.origin, expired: false };
     this.#inFlight.set(request.id, entry);
@@ -337,18 +337,18 @@ export function isRpcBridgeRequest(value: unknown): value is RpcBridgeRequest {
   if (!isRecord(value)) {
     return false;
   }
-  return value.type === "babel.rpc.request" && value.protocol === rpcCatalog.protocol && isRpcRequestEnvelope(value.envelope);
+  return value.type === "babble.rpc.request" && value.protocol === rpcCatalog.protocol && isRpcRequestEnvelope(value.envelope);
 }
 
 export function isRpcBridgeCancel(value: unknown): value is RpcBridgeCancel {
-  return isRecord(value) && value.type === "babel.rpc.cancel"
+  return isRecord(value) && value.type === "babble.rpc.cancel"
     && value.protocol === rpcCatalog.protocol && validToken(value.id, 128)
     && Object.keys(value).length === 3;
 }
 
 export function rpcBridgeResponse(response: RpcResponseEnvelope): RpcBridgeResponse {
   return {
-    type: "babel.rpc.response",
+    type: "babble.rpc.response",
     protocol: rpcCatalog.protocol,
     response,
   };
@@ -385,7 +385,7 @@ function parseBridgeResponse(value: unknown): RpcBridgeResponse | null {
   if (!isRecord(value)) {
     return null;
   }
-  if (value.type !== "babel.rpc.response" || value.protocol !== rpcCatalog.protocol || !isRecord(value.response)) {
+  if (value.type !== "babble.rpc.response" || value.protocol !== rpcCatalog.protocol || !isRecord(value.response)) {
     return null;
   }
   return value as unknown as RpcBridgeResponse;
@@ -486,7 +486,7 @@ function abortError(reason: unknown): Error {
   if (typeof reason === "string" && reason.length > 0) {
     return new Error(reason);
   }
-  return new Error("Babel browser bridge request was aborted");
+  return new Error("Babble browser bridge request was aborted");
 }
 
 function errorMessage(error: unknown): string {
@@ -496,7 +496,7 @@ function errorMessage(error: unknown): string {
   if (typeof error === "string" && error.length > 0) {
     return error;
   }
-  return "Babel browser bridge host dispatch failed";
+  return "Babble browser bridge host dispatch failed";
 }
 
 function errorDetails(error: unknown): JsonValue {

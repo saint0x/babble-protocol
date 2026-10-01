@@ -5,8 +5,8 @@ import { verifyBridgeCancellation } from "./bridge-cancellation-browser.mjs";
 
 const addr = process.env.AEGIS_SERVER_ADDR ?? "127.0.0.1:7879";
 assert.equal(addr, "127.0.0.1:7879", "standalone document bridge regression owns only Aegis port 7879");
-const frontend = process.env.BABEL_FRONTEND_URL ?? "http://127.0.0.1:4321/";
-const api = process.env.BABEL_API_URL ?? "http://127.0.0.1:8787";
+const frontend = process.env.BABBLE_FRONTEND_URL ?? "http://127.0.0.1:4321/";
+const api = process.env.BABBLE_API_URL ?? "http://127.0.0.1:8787";
 
 async function post(path, body) {
   const response = await fetch(`${api}${path}`, {

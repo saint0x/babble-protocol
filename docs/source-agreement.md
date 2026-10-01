@@ -1,6 +1,6 @@
 # Source Agreement
 
-`babel.judgment.source_agreement.v1` connects the migrated Python consensus
+`babble.judgment.source_agreement.v1` connects the migrated Python consensus
 algorithm to on-demand Object evaluations. This is source comparison, not
 hashgraph finality, verified source independence, semantic entailment, or truth.
 Its components and limitations remain separately inspectable. It does not affect

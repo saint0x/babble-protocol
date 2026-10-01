@@ -34,7 +34,7 @@ test("snapshot parser enforces authoritative shape, active-only, sorted unique i
 
 test("client uses authenticated host REST and bounds request payloads before transport", async () => {
   const calls = [], values = [state(), state(true, false, 1), snapshot([state(true, false, 1)])];
-  const client = new SafetyClient("https://babel.test/base", async (url, init) => { calls.push({ url, init }); return Response.json(values.shift()); });
+  const client = new SafetyClient("https://babble.test/base", async (url, init) => { calls.push({ url, init }); return Response.json(values.shift()); });
   const signal = new AbortController().signal;
   await client.state(owner, target, signal);
   const intent = { blocked: true, muted: false, expected_revision: 0, idempotency_key: "same-key" };
@@ -51,23 +51,23 @@ test("client uses authenticated host REST and bounds request payloads before tra
 test("HTTP errors retain status without exposing server diagnostics; streamed size, invalid JSON and UTF-8 fail", async () => {
   const signal = new AbortController().signal;
   for (const status of [401, 403, 404, 409, 422, 429, 503]) for (const thrown of [true, false]) {
-    const client = new SafetyClient("https://babel.test", async () => {
+    const client = new SafetyClient("https://babble.test", async () => {
       if (thrown) throw Object.assign(new Error("secret diagnostic"), { status });
       return new Response("secret diagnostic", { status });
     });
     await assert.rejects(client.state(owner, target, signal), e => e.status === status && !e.message.includes("secret"));
   }
   for (const body of ["x".repeat(4097), "{broken", new Uint8Array([255])]) {
-    const client = new SafetyClient("https://babel.test", async () => new Response(body));
+    const client = new SafetyClient("https://babble.test", async () => new Response(body));
     await assert.rejects(client.state(owner, target, signal), /Could not load/);
   }
-  const client = new SafetyClient("https://babel.test", async () => new Response("x".repeat(4 * 1024 * 1024 + 1)));
+  const client = new SafetyClient("https://babble.test", async () => new Response("x".repeat(4 * 1024 * 1024 + 1)));
   await assert.rejects(client.snapshot(owner, signal));
 });
 
 test("abort is checked after streamed JSON even when a fetch adapter ignores cancellation", async () => {
   const controller = new AbortController(); let stream;
-  const client = new SafetyClient("https://babel.test", async () => new Response(new ReadableStream({ start(c) { stream = c; } })));
+  const client = new SafetyClient("https://babble.test", async () => new Response(new ReadableStream({ start(c) { stream = c; } })));
   const request = client.state(owner, target, controller.signal); await settle();
   controller.abort(); stream.enqueue(new TextEncoder().encode(JSON.stringify(state()))); stream.close();
   await assert.rejects(request, e => e.name === "AbortError");
@@ -75,7 +75,7 @@ test("abort is checked after streamed JSON even when a fetch adapter ignores can
 
 test("identity labels use the authenticated identity route and reject another author's identity", async () => {
   const calls = []; let person = identity();
-  const client = new SafetyClient("https://babel.test", async (url, init) => { calls.push({ url, init }); return Response.json({ identity: person }); });
+  const client = new SafetyClient("https://babble.test", async (url, init) => { calls.push({ url, init }); return Response.json({ identity: person }); });
   const signal = new AbortController().signal;
   assert.equal((await client.identity(target, signal)).handle, "Author");
   assert.equal(calls[0].url.pathname, `/identities/${target}`); assert.equal(calls[0].init.cache, "no-store");

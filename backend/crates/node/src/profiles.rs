@@ -3,10 +3,10 @@
 //! backdated imports. Clients restart at page one; no Objects silently drift
 //! between pages. The immutable index is rebuilt identically on node restart.
 use crate::LocalNode;
-use babel_identity::Identity;
-use babel_judgment::JudgmentProvider;
-use babel_object::Object;
-use babel_types::{Error, IdentityId, ObjectId, Result, Timestamp};
+use babble_identity::Identity;
+use babble_judgment::JudgmentProvider;
+use babble_object::Object;
+use babble_types::{Error, IdentityId, ObjectId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};

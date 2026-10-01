@@ -8,9 +8,9 @@ use axum::{
     middleware::{Next, from_fn_with_state},
     response::{IntoResponse, Response},
 };
-use babel_judgment::JudgmentProvider;
-use babel_object::bundle::BundleFileKind;
-use babel_store::VerifiedBundleFile;
+use babble_judgment::JudgmentProvider;
+use babble_object::bundle::BundleFileKind;
+use babble_store::VerifiedBundleFile;
 use std::sync::Arc;
 use tokio::sync::OwnedSemaphorePermit;
 

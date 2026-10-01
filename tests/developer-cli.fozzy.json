@@ -14,7 +14,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-cli"
+        "babble-cli"
       ],
       "exit_code": 0,
       "times": 1
@@ -27,7 +27,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-cli",
+        "babble-cli",
         "--",
         "--help"
       ],
@@ -42,7 +42,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-cli"
+        "babble-cli"
       ],
       "expect_exit": 0
     },
@@ -54,7 +54,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-cli",
+        "babble-cli",
         "--",
         "--help"
       ],

@@ -1,5 +1,5 @@
 use super::*;
-use babel_judgment::{
+use babble_judgment::{
     ConstantProvider, DefinitionId, JudgmentProvider, JudgmentRequest, JudgmentState,
 };
 use std::{process::Command, sync::atomic::AtomicU64};
@@ -9,7 +9,7 @@ impl Root {
     pub(super) fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let path = std::env::temp_dir().join(format!(
-            "babel-object-judgments-{}-{}",
+            "babble-object-judgments-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
@@ -358,13 +358,13 @@ fn errors_at_every_boundary_recover_both_records_and_block_failed_handles() {
 
 #[test]
 fn object_judgment_crash_child() {
-    let Some(root) = std::env::var_os("BABEL_OBJECT_JUDGMENT_CRASH_ROOT") else {
+    let Some(root) = std::env::var_os("BABBLE_OBJECT_JUDGMENT_CRASH_ROOT") else {
         return;
     };
-    let phase = std::env::var("BABEL_OBJECT_JUDGMENT_CRASH_PHASE").unwrap();
+    let phase = std::env::var("BABBLE_OBJECT_JUDGMENT_CRASH_PHASE").unwrap();
     let store = FileStore::open(PathBuf::from(root)).unwrap();
     let (input, mut judgment) = fixture();
-    if std::env::var_os("BABEL_OBJECT_JUDGMENT_REFRESH").is_some() {
+    if std::env::var_os("BABBLE_OBJECT_JUDGMENT_REFRESH").is_some() {
         store.commit_publication(batch(&input, &judgment)).unwrap();
         judgment.confidence = 0.7;
         judgment.created_at =
@@ -393,10 +393,10 @@ fn process_exit_and_refresh_recover_atomically_at_every_boundary() {
                     "publication::object_judgment_tests::object_judgment_crash_child",
                     "--nocapture",
                 ])
-                .env("BABEL_OBJECT_JUDGMENT_CRASH_ROOT", &root.0)
-                .env("BABEL_OBJECT_JUDGMENT_CRASH_PHASE", &phase);
+                .env("BABBLE_OBJECT_JUDGMENT_CRASH_ROOT", &root.0)
+                .env("BABBLE_OBJECT_JUDGMENT_CRASH_PHASE", &phase);
             if refresh {
-                command.env("BABEL_OBJECT_JUDGMENT_REFRESH", "1");
+                command.env("BABBLE_OBJECT_JUDGMENT_REFRESH", "1");
             }
             let output = command.output().unwrap();
             assert_eq!(

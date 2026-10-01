@@ -33,7 +33,7 @@ export async function verifyBridgeCancellation(execute, waitFor) {
           addEventListener: (type, handler) => port.addEventListener(type, handler),
           removeEventListener: (type, handler) => port.removeEventListener(type, handler),
         });
-        const response = (id, marker) => ({ protocol: 'babel.rpc.v1', id, result: { marker }, error: null, trace_id: null });
+        const response = (id, marker) => ({ protocol: 'babble.rpc.v1', id, result: { marker }, error: null, trace_id: null });
         state.host = new BrowserBridgeHost(endpoint(channel.port2), (request, { signal }) => {
           if (request.payload.q === 'first') {
             state.firstWireId = request.id;
@@ -47,7 +47,7 @@ export async function verifyBridgeCancellation(execute, waitFor) {
         channel.port1.start(); channel.port2.start();
         state.ports = [channel.port1, channel.port2];
         state.controller = new AbortController();
-        const request = q => ({ protocol: 'babel.rpc.v1', id: 'reused', method: 'babel.search.objects.v1',
+        const request = q => ({ protocol: 'babble.rpc.v1', id: 'reused', method: 'babble.search.objects.v1',
           binding: { object_id: null, surface_session_id: null, runtime_id: 'cancellation-test', origin: location.origin,
             capability_grants: [], identity_id: null },
           payload: { q, author: null, kind: null, limit: 1 }, idempotency_key: null,

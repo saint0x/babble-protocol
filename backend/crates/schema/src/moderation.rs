@@ -1,15 +1,15 @@
-use babel_crypto::Keypair;
-use babel_graph::moderation::*;
-use babel_identity::{Identity, IdentityKind};
-use babel_types::{Canonical, IdentityId, ObjectId, Timestamp};
+use babble_crypto::Keypair;
+use babble_graph::moderation::*;
+use babble_identity::{Identity, IdentityKind};
+use babble_types::{Canonical, IdentityId, ObjectId, Timestamp};
 use serde_json::{Value, json};
 use std::collections::BTreeSet;
 
-pub(crate) fn fixtures() -> babel_types::Result<Value> {
+pub(crate) fn fixtures() -> babble_types::Result<Value> {
     let key = Keypair::from_ed25519_secret_hex(&"41".repeat(32))?;
     let at: Timestamp = serde_json::from_value(json!("2026-09-30T00:00:00Z"))
-        .map_err(|e| babel_types::Error::Canonical(e.to_string()))?;
-    let identity = |handle: &str| -> babel_types::Result<Identity> {
+        .map_err(|e| babble_types::Error::Canonical(e.to_string()))?;
+    let identity = |handle: &str| -> babble_types::Result<Identity> {
         let commitment =
             json!({"kind":"Person","handle":handle,"public_key":key.public_key(),"created_at":at});
         let identity = Identity {

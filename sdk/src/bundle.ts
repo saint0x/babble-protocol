@@ -1,6 +1,6 @@
 import type { RpcOutput } from "./generated/protocol.js";
 
-type SurfacePlan = RpcOutput<"babel.runtime.surface.prepare.v1">["plan"];
+type SurfacePlan = RpcOutput<"babble.runtime.surface.prepare.v1">["plan"];
 
 /**
  * Admit a native-verified gateway assignment from the host's trusted session RPC.
@@ -117,5 +117,5 @@ function localGateway(hostname: string): boolean {
 }
 
 function fail(reason: string): never {
-  throw new Error(`Babel verified bundle execution gateway: ${reason}`);
+  throw new Error(`Babble verified bundle execution gateway: ${reason}`);
 }

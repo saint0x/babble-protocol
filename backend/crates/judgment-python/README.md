@@ -2,7 +2,7 @@
 
 `PythonProvider::new(WorkerConfig)` starts and health-checks a persistent local
 worker. `WorkerConfig` has `executable`, `args`, `working_directory`, and `timeout`.
-Use an installed interpreter with `-I -m babel_algorithms.worker`. The provider
+Use an installed interpreter with `-I -m babble_algorithms.worker`. The provider
 is synchronous and Send + Sync; async callers must provide a bounded blocking
 execution boundary. Timeout must be positive and at most 300 seconds.
 
@@ -35,9 +35,9 @@ does not monitor an idle worker or descendants. There is no cumulative CPU
 limit: active computation is bounded by the per-call deadline. Linux resource
 behavior requires verification on a Linux host; current integration ran on macOS.
 
-From `backend`, run `cargo test -p babel-judgment-python`. Real-worker tests are
-required and fail if the installed worker is missing. Set BABEL_TEST_PYTHON to
-override `algorithms/.venv/bin/python`. `cargo run -p babel-judgment-python
+From `backend`, run `cargo test -p babble-judgment-python`. Real-worker tests are
+required and fail if the installed worker is missing. Set BABBLE_TEST_PYTHON to
+override `algorithms/.venv/bin/python`. `cargo run -p babble-judgment-python
 --example export` regenerates the checked Rust schemas and real-worker fixtures
 under `fixtures/algorithms/v1`. Registry validation remains authoritative for
 definition-specific outputs and semantic conditions such as confidence equality.

@@ -1,20 +1,20 @@
-use babel_crypto::Keypair;
-use babel_identity::{Identity, IdentityKind};
-use babel_object::{
+use babble_crypto::Keypair;
+use babble_identity::{Identity, IdentityKind};
+use babble_object::{
     Object, Surface, SurfaceRole, SurfaceTarget,
     bundle::{
         BUNDLE_VERSION, BundleFile, BundleFileKind, BundleManifest, MAX_BUNDLE_BYTES,
         MAX_BUNDLE_FILE_BYTES, MAX_BUNDLE_FILES, MAX_BUNDLE_MANIFEST_BYTES, MAX_BUNDLE_PATH_BYTES,
     },
 };
-use babel_types::{Canonical, Hash, ObjectId};
+use babble_types::{Canonical, Hash, ObjectId};
 use serde_json::{Value, json};
 
 fn file(path: &str, kind: BundleFileKind, media_type: &str) -> BundleFile {
     let integrity = Hash::from_bytes(path.as_bytes());
     BundleFile {
         path: path.into(),
-        source_uri: format!("babel://blobs/{integrity}"),
+        source_uri: format!("babble://blobs/{integrity}"),
         integrity,
         size_bytes: path.len() as u64,
         media_type: media_type.into(),
@@ -56,7 +56,7 @@ fn identity() -> (Identity, Keypair) {
 fn canonical_identity_uses_versioned_encoding_and_rejects_invalid_manifests() {
     let bundle = manifest();
     let encoded = bundle.canonical_bytes().unwrap();
-    assert!(encoded.starts_with(b"babel.canonical.v1\0"));
+    assert!(encoded.starts_with(b"babble.canonical.v1\0"));
     assert_eq!(bundle.hash().unwrap(), Hash::from_bytes(&encoded));
     assert_eq!(bundle.hash().unwrap(), bundle.canonical_hash().unwrap());
     let roundtrip: BundleManifest =

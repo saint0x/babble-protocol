@@ -3,13 +3,13 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode},
 };
-use babel_api::{ApiState, provider::ServerProvider, router};
-use babel_discovery::{NativeTemporalScorer, TemporalProvider, TemporalRequest};
-use babel_identity::IdentityKind;
-use babel_judgment_python::{PythonProvider, WorkerConfig};
-use babel_node::LocalNode;
-use babel_object::Object;
-use babel_rpc::{RpcBinding, RpcRequestEnvelope, babel_rpc_catalog};
+use babble_api::{ApiState, provider::ServerProvider, router};
+use babble_discovery::{NativeTemporalScorer, TemporalProvider, TemporalRequest};
+use babble_identity::IdentityKind;
+use babble_judgment_python::{PythonProvider, WorkerConfig};
+use babble_node::LocalNode;
+use babble_object::Object;
+use babble_rpc::{RpcBinding, RpcRequestEnvelope, babble_rpc_catalog};
 use serde_json::{Value, json};
 use std::{
     collections::BTreeSet,
@@ -30,8 +30,8 @@ use tower::ServiceExt;
 const OBSERVED_WORKER: &str = r#"
 import json, os, socket, sys
 from dataclasses import asdict
-from babel_algorithms.execution import AlgorithmExecutor
-from babel_algorithms.worker import handle
+from babble_algorithms.execution import AlgorithmExecutor
+from babble_algorithms.worker import handle
 executor = AlgorithmExecutor()
 observer = socket.create_connection(('127.0.0.1', int(sys.argv[1])), timeout=3)
 for line in sys.stdin.buffer:
@@ -54,7 +54,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-search-api-{}-{}-{}",
+            "babble-search-api-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed)
@@ -222,10 +222,10 @@ async fn discover(app: &Router, transport: Transport, token: Option<&str>, query
             "/rpc",
             json!(
                 RpcRequestEnvelope::new(
-                    &babel_rpc_catalog().unwrap(),
+                    &babble_rpc_catalog().unwrap(),
                     "discovery-search-regression",
-                    "babel.discovery.candidates.v1",
-                    RpcBinding::host("web-host", "https://babel.test").unwrap(),
+                    "babble.discovery.candidates.v1",
+                    RpcBinding::host("web-host", "https://babble.test").unwrap(),
                     query,
                 )
                 .unwrap()
@@ -296,11 +296,11 @@ fn assert_pipeline(
     }
     assert_eq!(
         result["ranking_provider"],
-        json!({"provider":"babel-python", "model":"lenses-v1", "version":"1"})
+        json!({"provider":"babble-python", "model":"lenses-v1", "version":"1"})
     );
     assert_eq!(
         result["temporal"]["provider"],
-        json!({"provider":"babel-python", "model":"temporal-v1", "version":"1"})
+        json!({"provider":"babble-python", "model":"temporal-v1", "version":"1"})
     );
     let ranks: Vec<_> = frames
         .iter()

@@ -1,8 +1,8 @@
-use babel_graph::{EdgeOrigin, Relation};
-use babel_identity::IdentityKind;
-use babel_judgment_local::LocalProvider;
-use babel_node::{LocalNode, QuotesListQuery, RepliesListQuery, moderation::*};
-use babel_types::{IdentityId, ObjectId, Timestamp};
+use babble_graph::{EdgeOrigin, Relation};
+use babble_identity::IdentityKind;
+use babble_judgment_local::LocalProvider;
+use babble_node::{LocalNode, QuotesListQuery, RepliesListQuery, moderation::*};
+use babble_types::{IdentityId, ObjectId, Timestamp};
 use std::{
     path::PathBuf,
     sync::atomic::{AtomicU64, Ordering},
@@ -23,7 +23,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-moderation-projections-{}-{}-{}",
+            "babble-moderation-projections-{}-{}-{}",
             std::process::id(),
             Timestamp::now().0.unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed)

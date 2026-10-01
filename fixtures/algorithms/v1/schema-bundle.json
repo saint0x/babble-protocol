@@ -1,5 +1,5 @@
 {
-  "protocol": "babel.algorithms.v1",
+  "protocol": "babble.algorithms.v1",
   "request": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "Request",
@@ -45,7 +45,7 @@
                   {
                     "properties": {
                       "definition": {
-                        "const": "babel.judgment.spam.v1"
+                        "const": "babble.judgment.spam.v1"
                       },
                       "parameters": {
                         "type": "object",
@@ -56,7 +56,7 @@
                   {
                     "properties": {
                       "definition": {
-                        "const": "babel.judgment.relevance.v1"
+                        "const": "babble.judgment.relevance.v1"
                       },
                       "parameters": {
                         "$ref": "#/$defs/RelevanceParameters"
@@ -66,7 +66,7 @@
                   {
                     "properties": {
                       "definition": {
-                        "const": "babel.judgment.relationship.v1"
+                        "const": "babble.judgment.relationship.v1"
                       },
                       "parameters": {
                         "$ref": "#/$defs/RelationshipParameters"
@@ -76,7 +76,7 @@
                   {
                     "properties": {
                       "definition": {
-                        "const": "babel.judgment.evidence_quality.v1"
+                        "const": "babble.judgment.evidence_quality.v1"
                       },
                       "parameters": {
                         "type": "object",
@@ -87,7 +87,7 @@
                   {
                     "properties": {
                       "definition": {
-                        "const": "babel.judgment.content_analysis.v1"
+                        "const": "babble.judgment.content_analysis.v1"
                       },
                       "parameters": {
                         "type": "object",
@@ -98,7 +98,7 @@
                   {
                     "properties": {
                       "definition": {
-                        "const": "babel.judgment.moderation.v1"
+                        "const": "babble.judgment.moderation.v1"
                       },
                       "parameters": {
                         "$ref": "#/$defs/ModerationParameters"
@@ -108,7 +108,7 @@
                   {
                     "properties": {
                       "definition": {
-                        "const": "babel.judgment.source_agreement.v1"
+                        "const": "babble.judgment.source_agreement.v1"
                       },
                       "parameters": {
                         "type": "object",
@@ -184,7 +184,7 @@
       "Protocol": {
         "type": "string",
         "enum": [
-          "babel.algorithms.v1"
+          "babble.algorithms.v1"
         ]
       },
       "JudgmentRequest": {
@@ -969,7 +969,7 @@
       "Protocol": {
         "type": "string",
         "enum": [
-          "babel.algorithms.v1"
+          "babble.algorithms.v1"
         ]
       },
       "HealthResult": {
@@ -1004,7 +1004,7 @@
         "properties": {
           "provider": {
             "type": "string",
-            "const": "babel-python"
+            "const": "babble-python"
           },
           "model": {
             "type": "string",
@@ -1053,7 +1053,7 @@
             "minLength": 1,
             "maxLength": 128,
             "pattern": "^[!-~]+$",
-            "const": "babel-python"
+            "const": "babble-python"
           },
           "model": {
             "type": "string",
@@ -1687,27 +1687,27 @@
     "judgment_json_nodes": 4096
   },
   "provider": {
-    "provider": "babel-python",
+    "provider": "babble-python",
     "model": "lexical-v1",
     "version": "1"
   },
   "ranking_provider": {
-    "provider": "babel-python",
+    "provider": "babble-python",
     "model": "lenses-v1",
     "version": "1"
   },
   "temporal_provider": {
-    "provider": "babel-python",
+    "provider": "babble-python",
     "model": "temporal-v1",
     "version": "1"
   },
   "supported_definitions": [
-    "babel.judgment.spam.v1",
-    "babel.judgment.relevance.v1",
-    "babel.judgment.relationship.v1",
-    "babel.judgment.evidence_quality.v1",
-    "babel.judgment.content_analysis.v1",
-    "babel.judgment.moderation.v1",
-    "babel.judgment.source_agreement.v1"
+    "babble.judgment.spam.v1",
+    "babble.judgment.relevance.v1",
+    "babble.judgment.relationship.v1",
+    "babble.judgment.evidence_quality.v1",
+    "babble.judgment.content_analysis.v1",
+    "babble.judgment.moderation.v1",
+    "babble.judgment.source_agreement.v1"
   ]
 }

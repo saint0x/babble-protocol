@@ -2,26 +2,26 @@ import assert from "node:assert/strict";
 
 export async function verifySourceAgreement(execute, waitFor, postRpc, apiUrl, authorId) {
   const selected = await waitFor(`({ id: document.querySelector('.post-card[data-offset="0"]')?.dataset.objectId,
-    prior: [...document.querySelectorAll('[data-definition="babel.judgment.source_agreement.v1"]')].map(node => node.dataset.judgmentId) })`, value => Boolean(value.id));
+    prior: [...document.querySelectorAll('[data-definition="babble.judgment.source_agreement.v1"]')].map(node => node.dataset.judgmentId) })`, value => Boolean(value.id));
   const sources = [];
   for (const [relation, text] of [
     ["supports", "According to the study, a measured increase was observed in the public dataset with reproducible methodology."],
     ["contradicts", "However, a replication study found no measured increase in the public dataset under the same methodology."],
   ]) {
-    const source = await postRpc("babel.object.publish_text.v1", { author_id: authorId, text });
-    await postRpc("babel.graph.edge.publish.v1", { author_id: authorId, source: source.object.id,
+    const source = await postRpc("babble.object.publish_text.v1", { author_id: authorId, text });
+    await postRpc("babble.graph.edge.publish.v1", { author_id: authorId, source: source.object.id,
       target: selected.id, relation, origin: "HumanAssertion" });
     sources.push(source.object.id);
   }
   await execute([{ type: "eval", code: `(() => {
     const select = document.querySelector('[data-judgment-definition]');
-    select.value = 'babel.judgment.source_agreement.v1';
+    select.value = 'babble.judgment.source_agreement.v1';
     select.dispatchEvent(new Event('change', { bubbles: true }));
     document.querySelector('[data-judgment-form]').requestSubmit();
     return { submitted: true };
   })()` }]);
   const evaluated = await waitFor(`(() => {
-    const card = [...document.querySelectorAll('[data-definition="babel.judgment.source_agreement.v1"]')]
+    const card = [...document.querySelectorAll('[data-definition="babble.judgment.source_agreement.v1"]')]
       .find(node => !${JSON.stringify(selected.prior)}.includes(node.dataset.judgmentId));
     return { ready: document.querySelector('[data-judgment-status]').dataset.state === 'ready',
       id: card?.dataset.judgmentId, text: card?.textContent,
@@ -54,7 +54,7 @@ export async function verifySourceAgreement(execute, waitFor, postRpc, apiUrl, a
 
   await execute([{ type: "eval", code: `document.querySelector('[data-judgment-form]').requestSubmit(); ({ submitted: true })` }]);
   await waitFor(`(() => ({ ready: document.querySelector('[data-judgment-status]').dataset.state === 'ready',
-    count: document.querySelectorAll('[data-definition="babel.judgment.source_agreement.v1"]').length,
+    count: document.querySelectorAll('[data-definition="babble.judgment.source_agreement.v1"]').length,
     retained: Boolean(document.querySelector('[data-judgment-id="${evaluated.id}"]')) }))()`,
   value => value.ready && value.count === selected.prior.length + 1 && value.retained);
   const repeated = await (await fetch(`${apiUrl}/judgments/${evaluated.id}`)).json();

@@ -4,7 +4,7 @@ async fn start(app: &Router, account: &Account, object: &str) -> String {
     let result = rpc(
         app,
         account,
-        "babel.runtime.surface.session.start.v1",
+        "babble.runtime.surface.session.start.v1",
         host(),
         json!({"object_id":object,"role":"Feed"}),
     )
@@ -29,7 +29,7 @@ async fn transition(
     rpc(
         app,
         account,
-        "babel.runtime.surface.session.transition.v1",
+        "babble.runtime.surface.session.transition.v1",
         binding,
         json!({"lifecycle":lifecycle,"reason":"auth regression"}),
     )
@@ -54,12 +54,12 @@ async fn login_again(app: &Router, account: &Account) -> Account {
 
 fn native_lifecycle(state: &ApiState<LocalProvider>, id: &str) -> Value {
     let request = serde_json::from_value(envelope(
-        "babel.runtime.surface.session.get.v1",
+        "babble.runtime.surface.session.get.v1",
         host(),
         json!({"session_id":id}),
     ))
     .unwrap();
-    let response = babel_api::dispatch_rpc_request(state, request);
+    let response = babble_api::dispatch_rpc_request(state, request);
     assert!(response.error.is_none(), "{:?}", response.error);
     response.result.unwrap()["session"]["lifecycle"].clone()
 }
@@ -82,7 +82,7 @@ async fn auth_surface_author_cannot_execute_suspended_evicted_or_mismatched_sess
         rpc(
             &app,
             &alice,
-            "babel.storage.local.set.v1",
+            "babble.storage.local.set.v1",
             binding,
             json!({"key":"lifecycle","value":"allowed"}),
         )
@@ -98,7 +98,7 @@ async fn auth_surface_author_cannot_execute_suspended_evicted_or_mismatched_sess
         rpc(
             &app,
             &alice,
-            "babel.object.get.v1",
+            "babble.object.get.v1",
             bound(&target, &session, vec![]),
             json!({"object_id":target})
         )
@@ -115,7 +115,7 @@ async fn auth_surface_author_cannot_execute_suspended_evicted_or_mismatched_sess
         rpc(
             &app,
             &alice,
-            "babel.runtime.surface.session.get.v1",
+            "babble.runtime.surface.session.get.v1",
             mismatch,
             json!({"session_id":foreign})
         )
@@ -141,7 +141,7 @@ async fn auth_surface_author_cannot_execute_suspended_evicted_or_mismatched_sess
         rpc(
             &app,
             &alice,
-            "babel.object.get.v1",
+            "babble.object.get.v1",
             binding.clone(),
             json!({"object_id":object})
         )
@@ -183,7 +183,7 @@ async fn auth_surface_author_cannot_execute_suspended_evicted_or_mismatched_sess
         rpc(
             &app,
             &alice,
-            "babel.runtime.surface.session.get.v1",
+            "babble.runtime.surface.session.get.v1",
             host(),
             json!({"session_id":session})
         )
@@ -269,7 +269,7 @@ async fn auth_surface_logout_and_expiry_evict_originating_device_without_client_
         rpc(
             &app,
             &alice,
-            "babel.storage.local.set.v1",
+            "babble.storage.local.set.v1",
             bound(&object, &first, ids.clone()),
             json!({"key":"after-logout","value":true})
         )
@@ -328,7 +328,7 @@ async fn auth_surface_logout_and_expiry_evict_originating_device_without_client_
         rpc(
             &app,
             &fresh,
-            "babel.storage.local.set.v1",
+            "babble.storage.local.set.v1",
             bound(&object, &third, ids),
             json!({"key":"fresh-device","value":true})
         )
@@ -418,7 +418,7 @@ async fn auth_viewer_consent_runtime_isolation_and_hostile_surface_boundary() {
     let (status, started) = rpc(
         &app,
         &viewer,
-        "babel.runtime.surface.session.start.v1",
+        "babble.runtime.surface.session.start.v1",
         host(),
         start,
     )
@@ -434,7 +434,7 @@ async fn auth_viewer_consent_runtime_isolation_and_hostile_surface_boundary() {
     let (_, prompt) = rpc(
         &app,
         &viewer,
-        "babel.social.reply.v2",
+        "babble.social.reply",
         binding.clone(),
         json!({"author_id":viewer.id,"target_object_id":target,"text":"viewer-approved reply"}),
     )
@@ -453,18 +453,18 @@ async fn auth_viewer_consent_runtime_isolation_and_hostile_surface_boundary() {
             &format!("/invocations/v1/{invocation}/{action}"),
             Some(&viewer.token),
             body,
-            &[("x-babel-surface-document", DOCUMENT)],
+            &[("x-babble-surface-document", DOCUMENT)],
         )
         .await;
         assert_eq!(status, StatusCode::OK, "{result}");
     }
     for (method, payload) in [
         (
-            "babel.storage.local.set.v1",
+            "babble.storage.local.set.v1",
             json!({"key":"private","value":"viewer"}),
         ),
         (
-            "babel.storage.object.set.v1",
+            "babble.storage.object.set.v1",
             json!({"key":"shared","value":"viewer consent"}),
         ),
     ] {
@@ -473,13 +473,13 @@ async fn auth_viewer_consent_runtime_isolation_and_hostile_surface_boundary() {
         assert!(result.1["error"].is_null(), "{}", result.1);
     }
     for method in [
-        "babel.object.publish_text.v1",
-        "babel.capabilities.grant.v1",
-        "babel.capabilities.revoke.v1",
-        "babel.runtime.surface.session.start.v1",
-        "babel.runtime.surface.session.transition.v1",
-        "babel.judgment.object.evaluate.v1",
-        "babel.observability.snapshot.v1",
+        "babble.object.publish_text.v1",
+        "babble.capabilities.grant.v1",
+        "babble.capabilities.revoke.v1",
+        "babble.runtime.surface.session.start.v1",
+        "babble.runtime.surface.session.transition.v1",
+        "babble.judgment.object.evaluate.v1",
+        "babble.observability.snapshot.v1",
     ] {
         assert_eq!(
             rpc(
@@ -534,7 +534,7 @@ async fn auth_viewer_consent_runtime_isolation_and_hostile_surface_boundary() {
     let transitioned = rpc(
         &app,
         &viewer,
-        "babel.runtime.surface.session.transition.v1",
+        "babble.runtime.surface.session.transition.v1",
         host_binding.clone(),
         json!({"lifecycle":"active","reason":"viewer opens"}),
     )
@@ -545,7 +545,7 @@ async fn auth_viewer_consent_runtime_isolation_and_hostile_surface_boundary() {
         rpc(
             &app,
             &author,
-            "babel.runtime.surface.session.transition.v1",
+            "babble.runtime.surface.session.transition.v1",
             host_binding,
             json!({"lifecycle":"Active","reason":"hijack"})
         )
@@ -556,7 +556,7 @@ async fn auth_viewer_consent_runtime_isolation_and_hostile_surface_boundary() {
     let secret = rpc(
         &app,
         &viewer,
-        "babel.storage.object.get.v1",
+        "babble.storage.object.get.v1",
         binding,
         json!({"key":format!("runtime/surface_sessions/{session}/state")}),
     )
@@ -573,7 +573,7 @@ async fn auth_two_viewers_get_only_their_grants_and_session_retries_preserve_own
     let target = publish(&app, &alice, "target").await;
     let (object, caps) = controller(&app, &alice, &target, true).await;
     let alice_grants = grants(&app, &alice, &object, &caps).await;
-    let id = babel_runtime::SurfaceSessionId::from_material("retry surface");
+    let id = babble_runtime::SurfaceSessionId::from_material("retry surface");
     let start = json!({"object_id":object,"role":"Feed","session_id":id});
     let failed = request(
         &app,
@@ -590,7 +590,7 @@ async fn auth_two_viewers_get_only_their_grants_and_session_retries_preserve_own
         .unwrap();
     assert_eq!(reserved, 0, "failed admission must not leave a reservation");
     let bob_grants = grants(&app, &bob, &object, &caps).await;
-    let alice_id = babel_runtime::SurfaceSessionId::from_material("alice private session");
+    let alice_id = babble_runtime::SurfaceSessionId::from_material("alice private session");
     let own_start = request(
         &app,
         "POST",
@@ -668,7 +668,7 @@ async fn auth_two_viewers_get_only_their_grants_and_session_retries_preserve_own
         rpc(
             &app,
             &alice,
-            "babel.runtime.surface.session.start.v1",
+            "babble.runtime.surface.session.start.v1",
             host(),
             start.clone()
         )
@@ -678,13 +678,13 @@ async fn auth_two_viewers_get_only_their_grants_and_session_retries_preserve_own
     );
     let mut victim_binding = host();
     victim_binding.surface_session_id = Some(id.to_string());
-    assert_eq!(rpc(&app, &alice, "babel.runtime.surface.session.transition.v1", victim_binding, json!({"session_id":alice_id,"lifecycle":"evicted","reason":"mismatched session attack"})).await.0, StatusCode::FORBIDDEN);
+    assert_eq!(rpc(&app, &alice, "babble.runtime.surface.session.transition.v1", victim_binding, json!({"session_id":alice_id,"lifecycle":"evicted","reason":"mismatched session attack"})).await.0, StatusCode::FORBIDDEN);
     let counterfeit = bound(&object, id.as_str(), alice_grants.clone());
     assert_eq!(
         rpc(
             &app,
             &bob,
-            "babel.storage.local.get.v1",
+            "babble.storage.local.get.v1",
             counterfeit,
             json!({"key":"private"})
         )
@@ -694,10 +694,10 @@ async fn auth_two_viewers_get_only_their_grants_and_session_retries_preserve_own
     );
     drop(app);
     let mut node = LocalNode::open(&fixture.root, LocalProvider::default()).unwrap();
-    let native_id = babel_runtime::SurfaceSessionId::from_material("trusted-native");
+    let native_id = babble_runtime::SurfaceSessionId::from_material("trusted-native");
     node.start_surface_session(
-        &babel_types::ObjectId::new_unchecked(object.clone()),
-        babel_object::SurfaceRole::Feed,
+        &babble_types::ObjectId::new_unchecked(object.clone()),
+        babble_object::SurfaceRole::Feed,
         Some(native_id.clone()),
     )
     .unwrap();

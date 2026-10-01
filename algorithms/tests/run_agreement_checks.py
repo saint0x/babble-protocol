@@ -12,8 +12,8 @@ def main() -> int:
         (["uv", "run", "--frozen", "basedpyright"], root / "algorithms"),
         (["uv", "run", "--frozen", "ruff", "check", "."], root / "algorithms"),
         (["/usr/bin/env", "CARGO_INCREMENTAL=0", "cargo", "test", "--quiet",
-          "-p", "babel-judgment-python", "-p", "babel-judgment-local",
-          "-p", "babel-judgment", "-p", "babel-schema"], root / "backend"),
+          "-p", "babble-judgment-python", "-p", "babble-judgment-local",
+          "-p", "babble-judgment", "-p", "babble-schema"], root / "backend"),
         (["node", "scripts/generate-protocol.mjs", "--check"], root / "sdk"),
     )
     for command, cwd in checks:

@@ -1,10 +1,10 @@
-use babel_object::{Resource, resource_uri::ResourceUri};
-use babel_types::Hash;
+use babble_object::{Resource, resource_uri::ResourceUri};
+use babble_types::Hash;
 
 fn blob_resource() -> Resource {
     let integrity = Hash::from_bytes(b"surface bytes");
     Resource {
-        uri: format!("babel://blobs/{integrity}"),
+        uri: format!("babble://blobs/{integrity}"),
         media_type: "text/html".into(),
         integrity,
     }
@@ -110,18 +110,18 @@ fn resource_uri_requires_canonical_blob_address_and_matching_integrity() {
             .matches_resource(&resource)
     );
     for entry in [
-        format!("babel://blobs/{hash}?v=1"),
-        format!("babel://blobs/{hash}#view"),
-        format!("babel://blobs/{hash}/"),
-        format!("babel://blobs/{hash}/a"),
-        format!("babel://blobs/{hash}.js"),
-        format!("babel://blobs:80/{hash}"),
-        format!("babel://user@blobs/{hash}"),
-        format!("babel://blobs/{hash}@evil.com"),
-        format!("BABEL://blobs/{hash}"),
-        format!("babel://BLOBS/{hash}"),
-        format!("babel://blobs/{}", hash.to_uppercase()),
-        format!("babel://blobs/{}", "z".repeat(64)),
+        format!("babble://blobs/{hash}?v=1"),
+        format!("babble://blobs/{hash}#view"),
+        format!("babble://blobs/{hash}/"),
+        format!("babble://blobs/{hash}/a"),
+        format!("babble://blobs/{hash}.js"),
+        format!("babble://blobs:80/{hash}"),
+        format!("babble://user@blobs/{hash}"),
+        format!("babble://blobs/{hash}@evil.com"),
+        format!("BABBLE://blobs/{hash}"),
+        format!("babble://BLOBS/{hash}"),
+        format!("babble://blobs/{}", hash.to_uppercase()),
+        format!("babble://blobs/{}", "z".repeat(64)),
     ] {
         assert!(ResourceUri::parse(&entry).is_err(), "{entry}");
     }
@@ -227,7 +227,7 @@ fn resource_uri_external_declarations_require_exact_reference() {
         format!("https://signed.example/app/{hash}.js?v=2#view"),
         format!("https://signed.example/app/{hash}.js?v=1#other"),
         format!("https://signed.example/runtime/surfaces/blobs/{hash}"),
-        format!("babel://blobs/{hash}"),
+        format!("babble://blobs/{hash}"),
     ] {
         assert!(
             !ResourceUri::parse(&entry)
@@ -251,7 +251,7 @@ fn resource_uri_mutations_cannot_change_the_admitted_blob_hash() {
             mutated[offset] = *replacement;
             let mutated = String::from_utf8(mutated).unwrap();
             for entry in [
-                format!("babel://blobs/{mutated}"),
+                format!("babble://blobs/{mutated}"),
                 format!(
                     "https://gateway.example/runtime/surfaces/blobs/{mutated}?media_type=text/html"
                 ),

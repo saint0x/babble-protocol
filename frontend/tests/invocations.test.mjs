@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
-import { canonicalValueBytes } from "@babel-protocol/sdk";
+import { canonicalValueBytes } from "@babble-protocol/sdk";
 
 const context = { exports: {}, URL, Error, Date, TextDecoder, AbortSignal, structuredClone,
   console: { warn() {} }, require: () => ({ canonicalValueBytes }) };
@@ -13,7 +13,7 @@ vm.runInNewContext(ts.transpileModule(readFileSync(new URL("../src/app/invocatio
 const { InvocationApi, parseInvocation, normalizedInvocationPayload, isInvocationMethod } = context.exports;
 const actor = `id_${"a".repeat(64)}`, object = `obj_${"b".repeat(64)}`, target = `obj_${"c".repeat(64)}`;
 const documentId = "da9bab5c-3a90-4dc2-a9c9-ade1e1f8588c";
-const expected = () => ({ actorId: actor, objectId: object, method: "babel.social.reply.v2", requestKey: "one-operation",
+const expected = () => ({ actorId: actor, objectId: object, method: "babble.social.reply", requestKey: "one-operation",
   origin: { kind: "host_action", document_id: documentId }, payload: { author_id: actor, target_object_id: target, text: "  Literal <script>text</script>  " } });
 const pending = (exp = expected()) => ({ invocation_id: "d".repeat(64), actor_id: exp.actorId, object_id: exp.objectId,
   method: exp.method, request_key: exp.requestKey, origin: structuredClone(exp.origin),
@@ -25,22 +25,22 @@ const completed = (base = pending()) => ({ ...base, state: { kind: "completed", 
       outcome: { object: `obj_${"f".repeat(64)}`, edges: [`edge_${"e".repeat(64)}`], event: `evt_${"a".repeat(64)}` } } } });
 const plain = value => JSON.parse(JSON.stringify(value));
 
-test("invocation methods use v2 without changing other social contracts", () => {
+test("invocation methods use  without changing other social contracts", () => {
   for (const name of ["follow", "unfollow", "reply", "share"]) {
-    assert.equal(isInvocationMethod(`babel.social.${name}.v2`), true);
-    assert.equal(isInvocationMethod(`babel.social.${name}.v1`), false);
+    assert.equal(isInvocationMethod(`babble.social.${name}`), true);
+    assert.equal(isInvocationMethod(`babble.social.${name}.v1`), false);
   }
-  assert.equal(isInvocationMethod("babel.social.replies.list.v1"), false);
+  assert.equal(isInvocationMethod("babble.social.replies.list.v1"), false);
 });
 
 test("normalization freezes server defaults without inventing actor or widening scope", () => {
-  assert.deepEqual(plain(normalizedInvocationPayload("babel.social.reply.v2", { text: " hello " }, object)), {
+  assert.deepEqual(plain(normalizedInvocationPayload("babble.social.reply", { text: " hello " }, object)), {
     target_object_id: object, text: "hello", media: null,
   });
-  assert.deepEqual(plain(normalizedInvocationPayload("babel.social.follow.v2", { target_object_id: target }, object)), {
+  assert.deepEqual(plain(normalizedInvocationPayload("babble.social.follow", { target_object_id: target }, object)), {
     target_object_id: target, text: null, media: null,
   });
-  assert.throws(() => normalizedInvocationPayload("babel.social.reply.v2", { text: 5 }, object));
+  assert.throws(() => normalizedInvocationPayload("babble.social.reply", { text: 5 }, object));
 });
 
 test("authoritative intent readback is a detached snapshot", () => {
@@ -61,7 +61,7 @@ test("binary canonical comparison rejects adjacent media sizes with invalid UTF-
 
 for (const [name, change] of Object.entries({
   actor: v => { v.actor_id = "another"; }, object: v => { v.object_id = target; },
-  method: v => { v.method = "babel.social.share.v2"; }, key: v => { v.request_key = "other"; },
+  method: v => { v.method = "babble.social.share"; }, key: v => { v.request_key = "other"; },
   document: v => { v.origin.document_id = crypto.randomUUID(); }, origin: v => { v.origin.kind = "surface"; },
   text: v => { v.payload.text += " changed"; }, target: v => { v.payload.target_object_id = object; },
   expiry: v => { v.deadline = "invalid"; }, budget: v => { v.deadline = "2026-10-01T00:00:00Z"; },
@@ -96,16 +96,16 @@ test("host transport uses distinct header, exact body and confirmation flow with
     const body = init.body && JSON.parse(init.body);
     calls.push({ path: url.pathname, method: init.method, headers: init.headers, body });
     if (url.pathname.endsWith("recover")) {
-      assert.equal(init.headers["x-babel-host-document"], undefined);
-      assert.equal(init.headers["x-babel-surface-document"], undefined);
+      assert.equal(init.headers["x-babble-host-document"], undefined);
+      assert.equal(init.headers["x-babble-surface-document"], undefined);
       assert.deepEqual(body, { object_id: object, method: exp.method, request_key: exp.requestKey, payload: exp.payload });
       return new Response(null, { status: 204 });
     }
     if (init.method === "PUT") return Response.json({ document_id: documentId, object_id: object,
       expires_at: new Date(Date.now() + 60_000).toISOString(), renew_after_ms: 20_000 });
     if (init.method === "DELETE") return new Response(null, { status: 204 });
-    assert.equal(init.headers["x-babel-host-document"], documentId);
-    assert.equal(init.headers["x-babel-surface-document"], undefined);
+    assert.equal(init.headers["x-babble-host-document"], documentId);
+    assert.equal(init.headers["x-babble-surface-document"], undefined);
     if (url.pathname.endsWith("prepare")) {
       assert.equal(body.request_key, exp.requestKey);
       assert.deepEqual(body.payload, exp.payload);
@@ -120,7 +120,7 @@ test("host transport uses distinct header, exact body and confirmation flow with
   });
   assert.equal((await api.performHost(exp, new AbortController().signal)).object.author, actor);
   assert.deepEqual(calls.map(c => c.method), ["POST", "PUT", "POST", "POST", "POST", "DELETE"]);
-  assert.equal(calls[1].headers["x-babel-host-document"], undefined);
+  assert.equal(calls[1].headers["x-babble-host-document"], undefined);
   assert.deepEqual(calls[1].body, { object_id: object });
 });
 
@@ -140,8 +140,8 @@ test("completed prepare retry returns stored result without another decision or 
 test("Surface operations use registered document header, never host authority", async () => {
   const exp = { ...expected(), origin: { kind: "surface", session_id: "surface-one", document_id: documentId } };
   const api = new InvocationApi(new URL("https://node.test"), async (url, init) => {
-    assert.equal(init.headers["x-babel-surface-document"], documentId);
-    assert.equal(init.headers["x-babel-host-document"], undefined);
+    assert.equal(init.headers["x-babble-surface-document"], documentId);
+    assert.equal(init.headers["x-babble-host-document"], undefined);
     assert.equal(init.method, "GET"); assert.equal(init.body, undefined);
     assert.ok(url.pathname.endsWith("/status"));
     return Response.json(pending(exp));
@@ -171,7 +171,7 @@ test("completed host history survives a replacement document without registering
   const exp = expected(); exp.origin.document_id = crypto.randomUUID();
   const calls = [], api = new InvocationApi(new URL("https://node.test"), async (url, init) => {
     calls.push(url.pathname);
-    assert.equal(init.headers["x-babel-host-document"], undefined);
+    assert.equal(init.headers["x-babble-host-document"], undefined);
     return Response.json(completed());
   });
   assert.equal((await api.performHost(exp, new AbortController().signal)).object.author, actor);

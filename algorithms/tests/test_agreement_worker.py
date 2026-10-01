@@ -6,11 +6,11 @@ from dataclasses import asdict
 import pytest
 from test_worker import error, exchange, frame, health, judge, output, result
 
-from babel_algorithms.agreement_wire import parse_source_agreement
-from babel_algorithms.consensus import ConsensusAnalyzer
-from babel_algorithms.execution import AlgorithmExecutor
-from babel_algorithms.wire import DEFINITIONS, Json, object_value
-from babel_algorithms.worker import encode, handle
+from babble_algorithms.agreement_wire import parse_source_agreement
+from babble_algorithms.consensus import ConsensusAnalyzer
+from babble_algorithms.execution import AlgorithmExecutor
+from babble_algorithms.wire import DEFINITIONS, Json, object_value
+from babble_algorithms.worker import encode, handle
 
 
 def source(index: int = 0) -> dict[str, Json]:

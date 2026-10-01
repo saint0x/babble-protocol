@@ -1,15 +1,15 @@
 mod support;
 
-use babel_authoring::ObjectDraft;
-use babel_identity::{Identity, IdentityKeyScope, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
-use babel_object::{
+use babble_authoring::ObjectDraft;
+use babble_identity::{Identity, IdentityKeyScope, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
+use babble_object::{
     Object,
     bundle::{BundleManifest, MAX_BUNDLE_FILE_BYTES, MAX_BUNDLE_MANIFEST_BYTES},
 };
-use babel_store::FileStore;
-use babel_types::Hash;
+use babble_store::FileStore;
+use babble_types::Hash;
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, fs};
 use support::*;
@@ -46,7 +46,7 @@ fn bundle_binary_build_sign_publish_reopen_and_verify() {
         let bytes = fs::read(fixture.root.join("dist").join(&file.path)).unwrap();
         assert_eq!(Hash::from_bytes(&bytes), file.integrity);
         assert_eq!(file.size_bytes, bytes.len() as u64);
-        assert_eq!(file.source_uri, format!("babel://blobs/{}", file.integrity));
+        assert_eq!(file.source_uri, format!("babble://blobs/{}", file.integrity));
     }
 
     let draft_file = fixture.root.join("draft.json");

@@ -38,7 +38,7 @@ test("BrowserSurfaceHost mounts a ready Web Surface with sandbox and bridge disp
     dispatch: (request) => {
       dispatches.push(request);
       return {
-        protocol: "babel.rpc.v1",
+        protocol: "babble.rpc.v1",
         id: request.id,
         result: { results: [] },
         error: null,
@@ -64,12 +64,12 @@ test("BrowserSurfaceHost mounts a ready Web Surface with sandbox and bridge disp
   assert.match(frame.attributes.allow, /usb 'none'/);
   assert.match(frame.attributes.allow, /webgpu 'none'/);
   assert.equal(frame.attributes.credentialless, "");
-  assert.equal(frame.attributes["data-babel-object"], "obj_surface");
-  assert.equal(frame.attributes["data-babel-surface-role"], "Feed");
-  assert.equal(frame.attributes["data-babel-surface-target"], "Web");
-  assert.equal(frame.attributes["data-babel-lifecycle"], "prefetched");
-  assert.equal(frame.attributes["data-babel-memory-budget"], "33554432");
-  assert.equal(frame.attributes["data-babel-network-budget"], "524288");
+  assert.equal(frame.attributes["data-babble-object"], "obj_surface");
+  assert.equal(frame.attributes["data-babble-surface-role"], "Feed");
+  assert.equal(frame.attributes["data-babble-surface-target"], "Web");
+  assert.equal(frame.attributes["data-babble-lifecycle"], "prefetched");
+  assert.equal(frame.attributes["data-babble-memory-budget"], "33554432");
+  assert.equal(frame.attributes["data-babble-network-budget"], "524288");
   assert.deepEqual([...frame.sandbox.tokens].sort(), ["allow-scripts"]);
   assert.equal(mounted.lifecycle.state, "prefetched");
   assert.deepEqual(mounted.lifecycle.budget, readyPlan().budget);
@@ -99,11 +99,11 @@ test("BrowserSurfaceHost mounts a ready Web Surface with sandbox and bridge disp
 
   mounted.activate();
   assert.equal(mounted.lifecycle.state, "active");
-  assert.equal(frame.attributes["data-babel-lifecycle"], "active");
+  assert.equal(frame.attributes["data-babble-lifecycle"], "active");
   mounted.suspend("offscreen");
   assert.equal(mounted.lifecycle.state, "suspended");
-  assert.equal(frame.attributes["data-babel-lifecycle"], "suspended");
-  assert.equal(frame.attributes["data-babel-suspended"], "true");
+  assert.equal(frame.attributes["data-babble-lifecycle"], "suspended");
+  assert.equal(frame.attributes["data-babble-suspended"], "true");
   mounted.evict("budget reclaimed");
   assert.equal(mounted.lifecycle.state, "evicted");
   assert.equal(frame.removed, true);
@@ -128,7 +128,7 @@ test("BrowserSurfaceHost keeps exact origin bridge policy for non-isolated Surfa
     dispatch: (request) => {
       dispatches.push(request);
       return {
-        protocol: "babel.rpc.v1",
+        protocol: "babble.rpc.v1",
         id: request.id,
         result: { results: [] },
         error: null,
@@ -163,7 +163,7 @@ test("BrowserSurfaceHost synchronizes budgets but requires a fresh mount after s
     surfaceSessionId: "surface_session_3",
     plan: readyPlan(),
     dispatch: () => rpcBridgeResponse({
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "unused",
       result: { results: [] },
       error: null,
@@ -173,8 +173,8 @@ test("BrowserSurfaceHost synchronizes budgets but requires a fresh mount after s
 
   mounted.activate();
   mounted.suspend("viewport left active set");
-  assert.equal(frame.attributes["data-babel-lifecycle"], "suspended");
-  assert.equal(frame.attributes["data-babel-suspended"], "true");
+  assert.equal(frame.attributes["data-babble-lifecycle"], "suspended");
+  assert.equal(frame.attributes["data-babble-suspended"], "true");
 
   mounted.lifecycle.updateBudget(
     {
@@ -186,12 +186,12 @@ test("BrowserSurfaceHost synchronizes budgets but requires a fresh mount after s
     },
     "resource pressure",
   );
-  assert.equal(frame.attributes["data-babel-memory-budget"], "8388608");
-  assert.equal(frame.attributes["data-babel-cpu-budget"], "250");
-  assert.equal(frame.attributes["data-babel-network-budget"], "65536");
-  assert.equal(frame.attributes["data-babel-realtime-budget"], "0");
-  assert.equal(frame.attributes["data-babel-storage-budget"], "1048576");
-  assert.equal(frame.attributes["data-babel-gpu-expected"], "false");
+  assert.equal(frame.attributes["data-babble-memory-budget"], "8388608");
+  assert.equal(frame.attributes["data-babble-cpu-budget"], "250");
+  assert.equal(frame.attributes["data-babble-network-budget"], "65536");
+  assert.equal(frame.attributes["data-babble-realtime-budget"], "0");
+  assert.equal(frame.attributes["data-babble-storage-budget"], "1048576");
+  assert.equal(frame.attributes["data-babble-gpu-expected"], "false");
 
   assert.equal(frame.removed, true);
   assert.throws(() => mounted.activate(), /fresh mount/);
@@ -208,7 +208,7 @@ test("BrowserSurfaceHost applies pressure signals as budget reductions and lifec
     surfaceSessionId: "surface_session_4",
     plan: readyPlan(),
     dispatch: () => rpcBridgeResponse({
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "unused",
       result: { results: [] },
       error: null,
@@ -230,12 +230,12 @@ test("BrowserSurfaceHost applies pressure signals as budget reductions and lifec
   });
 
   assert.equal(mounted.lifecycle.state, "suspended");
-  assert.equal(frame.attributes["data-babel-lifecycle"], "suspended");
-  assert.equal(frame.attributes["data-babel-memory-budget"], "4194304");
-  assert.equal(frame.attributes["data-babel-cpu-budget"], "125");
-  assert.equal(frame.attributes["data-babel-network-budget"], "32768");
-  assert.equal(frame.attributes["data-babel-storage-budget"], "262144");
-  assert.equal(frame.attributes["data-babel-realtime-budget"], "0");
+  assert.equal(frame.attributes["data-babble-lifecycle"], "suspended");
+  assert.equal(frame.attributes["data-babble-memory-budget"], "4194304");
+  assert.equal(frame.attributes["data-babble-cpu-budget"], "125");
+  assert.equal(frame.attributes["data-babble-network-budget"], "32768");
+  assert.equal(frame.attributes["data-babble-storage-budget"], "262144");
+  assert.equal(frame.attributes["data-babble-realtime-budget"], "0");
 
   assert.throws(
     () =>
@@ -261,7 +261,7 @@ test("BrowserSurfaceHost gates WebGPU through iframe Permissions Policy", () => 
     surfaceSessionId: "surface_session_5",
     plan: readyPlan(),
     dispatch: () => rpcBridgeResponse({
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "unused",
       result: { results: [] },
       error: null,
@@ -283,7 +283,7 @@ test("BrowserSurfaceHost gates WebGPU through iframe Permissions Policy", () => 
       budget: { ...readyPlan().budget, gpu_expected: true },
     },
     dispatch: () => rpcBridgeResponse({
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "unused",
       result: { results: [] },
       error: null,
@@ -310,7 +310,7 @@ test("BrowserSurfaceHost normalizes spoofed Surface bridge bindings", async () =
     dispatch: (request) => {
       dispatches.push(request);
       return {
-        protocol: "babel.rpc.v1",
+        protocol: "babble.rpc.v1",
         id: request.id,
         result: { results: [] },
         error: null,
@@ -360,16 +360,16 @@ test("BrowserSurfaceHost never delegates host signing, consent, or administratio
     dispatch: (request) => { dispatches.push(request); throw new Error("Host-only request escaped"); },
   });
   const methods = [
-    "babel.identity.create.v1", "babel.object.publish_text.v1", "babel.object.publish.v1",
-    "babel.object.publish_media.v1", "babel.object.fork.v1", "babel.object.remix.v1",
-    "babel.capabilities.grant.v1", "babel.capabilities.revoke.v1",
-    "babel.graph.edge.publish.v1", "babel.media.blob.put.v1",
-    "babel.events.import.v1", "babel.consensus.checkpoint.publish.v1",
-    "babel.observability.snapshot.v1", "babel.personalization.sync.list.v1",
-    "babel.runtime.surface.session.start.v1", "babel.runtime.surface.session.transition.v1",
-    "babel.runtime.surface.session.heartbeat.v1",
-    "babel.social.reactions.mine.v1", "babel.social.reactions.set.v1",
-    "babel.judgment.object.evaluate.v1", "babel.realtime.room.define.v1", "unknown.method.v1",
+    "babble.identity.create.v1", "babble.object.publish_text.v1", "babble.object.publish.v1",
+    "babble.object.publish_media.v1", "babble.object.fork.v1", "babble.object.remix.v1",
+    "babble.capabilities.grant.v1", "babble.capabilities.revoke.v1",
+    "babble.graph.edge.publish.v1", "babble.media.blob.put.v1",
+    "babble.events.import.v1", "babble.consensus.checkpoint.publish.v1",
+    "babble.observability.snapshot.v1", "babble.personalization.sync.list.v1",
+    "babble.runtime.surface.session.start.v1", "babble.runtime.surface.session.transition.v1",
+    "babble.runtime.surface.session.heartbeat.v1",
+    "babble.social.reactions.mine.v1", "babble.social.reactions.set.v1",
+    "babble.judgment.object.evaluate.v1", "babble.realtime.room.define.v1", "unknown.method.v1",
   ];
   await connectFake(window, frame);
   for (const method of methods) {
@@ -398,13 +398,13 @@ test("BrowserSurfaceHost can read public reaction summaries and signed records",
     currentIdentityId: "id_alice", plan: readyPlan(),
     dispatch: async (request) => {
       dispatches.push(request);
-      return { protocol: "babel.rpc.v1", id: request.id, result: {}, error: null, trace_id: null };
+      return { protocol: "babble.rpc.v1", id: request.id, result: {}, error: null, trace_id: null };
     },
   });
   await connectFake(window, frame);
   for (const kind of ["summary", "record"]) {
     const message = requestMessage(`reaction-${kind}`);
-    message.envelope.method = `babel.social.reactions.${kind}.v1`;
+    message.envelope.method = `babble.social.reactions.${kind}.v1`;
     message.envelope.payload = { object_id: "obj_public", ...(kind === "record" ? { actor_id: "id_bob" } : {}) };
     frame.port.postMessage(message);
   }
@@ -447,7 +447,7 @@ test("BrowserSurfaceHost rejects unsafe or unsupported plans", () => {
         ...mountHarness(),
         plan: {
           ...readyPlan(),
-          surface: { ...readyPlan().surface, entry: "babel://object/surface" },
+          surface: { ...readyPlan().surface, entry: "babble://object/surface" },
         },
       }),
     /HTTP\(S\) Surface entry/,
@@ -479,7 +479,7 @@ for (const state of ["suspended", "evicted"]) {
       dispatch: (request, context) => {
         calls += 1;
         signal = context.signal;
-        return new Promise((done) => { resolve = () => done({ protocol: "babel.rpc.v1", id: request.id, result: null, error: null }); });
+        return new Promise((done) => { resolve = () => done({ protocol: "babble.rpc.v1", id: request.id, result: null, error: null }); });
       },
     });
     await connectFake(harness.window, frame);
@@ -514,7 +514,7 @@ test("runtime session snapshots dispose and recursive eviction hooks unmount onl
   mounted.lifecycle.applySession({ lifecycle: "evicted", budget: readyPlan().budget, updated_at: "2026-09-30T00:00:00Z" });
   assert.equal(harness.document.frame.removalCount, 1);
   assert.equal(harness.window.listeners.size, 0);
-  assert.equal(harness.document.frame.attributes["data-babel-lifecycle"], "evicted");
+  assert.equal(harness.document.frame.attributes["data-babble-lifecycle"], "evicted");
   mounted.unmount();
   assert.equal(harness.document.frame.removalCount, 1);
 });
@@ -561,7 +561,7 @@ test("reload revokes the old document bridge and suppresses late responses", asy
   await connectFake(harness.window, frame);
   frame.port.postMessage(requestMessage("old-document"));
   frame.dispatchEvent(new Event("load"));
-  resolve({ protocol: "babel.rpc.v1", id: "old-document", result: null, error: null });
+  resolve({ protocol: "babble.rpc.v1", id: "old-document", result: null, error: null });
   await Promise.resolve();
   assert.equal(mounted.lifecycle.state, "evicted");
   assert.equal(frame.removalCount, 1);
@@ -585,7 +585,7 @@ test("replacement frame windows cannot receive responses or inherit an old bridg
   frame.port.postMessage(requestMessage("old"));
   frame.contentWindow = new FakeFrameWindow();
   harness.window.dispatch({ origin: "null", source: frame.contentWindow, data: requestMessage("new") });
-  resolve({ protocol: "babel.rpc.v1", id: "old", result: null, error: null });
+  resolve({ protocol: "babble.rpc.v1", id: "old", result: null, error: null });
   await Promise.resolve();
   assert.equal(calls, 1);
   assert.equal(oldWindow.messages.length, 0);
@@ -617,7 +617,7 @@ function mountHarness() {
     hostOrigin: "https://host.test",
     surfaceSessionId: "surface_session_1",
     dispatch: () => rpcBridgeResponse({
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id: "unused",
       result: null,
       error: {
@@ -634,12 +634,12 @@ function mountHarness() {
 
 function requestMessage(id, binding = {}) {
   return {
-    type: "babel.rpc.request",
-    protocol: "babel.rpc.v1",
+    type: "babble.rpc.request",
+    protocol: "babble.rpc.v1",
     envelope: {
-      protocol: "babel.rpc.v1",
+      protocol: "babble.rpc.v1",
       id,
-      method: "babel.search.objects.v1",
+      method: "babble.search.objects.v1",
       binding: {
         ...objectBinding({
           objectId: "obj_surface",
@@ -650,7 +650,7 @@ function requestMessage(id, binding = {}) {
         }),
         ...binding,
       },
-      payload: { q: "babel", author: null, kind: null, limit: 3 },
+      payload: { q: "babble", author: null, kind: null, limit: 3 },
       idempotency_key: null,
       deadline: {
         timeout_ms: 30000,
@@ -799,7 +799,7 @@ class FakePort {
   listeners = new Map([['message', new Set()], ['messageerror', new Set()], ['close', new Set()]]);
   received = [];
   closed = false;
-  get responses() { return this.received.filter(({ message }) => message.type === "babel.rpc.response"); }
+  get responses() { return this.received.filter(({ message }) => message.type === "babble.rpc.response"); }
   postMessage(message) {
     if (this.closed || this.peer.closed) return;
     this.peer.received.push({ message });

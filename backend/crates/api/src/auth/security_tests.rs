@@ -1,6 +1,6 @@
 use super::*;
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
 use serde_json::{Value, json};
 
 #[test]
@@ -63,7 +63,7 @@ fn security_password_policy_counts_unicode_scalars_and_utf8_bytes_without_normal
 #[tokio::test]
 async fn security_legacy_password_and_new_password_are_verified_exactly() {
     let root = std::env::temp_dir().join(format!(
-        "babel-security-password-{}",
+        "babble-security-password-{}",
         random_token().unwrap()
     ));
     let mut node = LocalNode::open(&root, LocalProvider::default()).unwrap();
@@ -159,7 +159,7 @@ async fn security_legacy_password_and_new_password_are_verified_exactly() {
 #[tokio::test]
 async fn security_revocation_invalidates_previously_admitted_execution() {
     let root = std::env::temp_dir().join(format!(
-        "babel-security-admission-{}",
+        "babble-security-admission-{}",
         random_token().unwrap()
     ));
     let mut node = LocalNode::open(&root, LocalProvider::default()).unwrap();
@@ -214,10 +214,10 @@ async fn security_revocation_invalidates_previously_admitted_execution() {
 
 #[test]
 fn security_account_methods_are_not_rpc_or_surface_operations() {
-    let catalog = babel_rpc::babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc::babble_rpc_catalog().unwrap();
     for method in catalog.methods {
         let name = method.method.as_str();
-        assert!(!name.starts_with("babel.auth."));
+        assert!(!name.starts_with("babble.auth."));
         assert!(!name.contains("password"));
     }
     let response = AccountSessionsResponse {

@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
-import * as sdk from "@babel-protocol/sdk";
+import * as sdk from "@babble-protocol/sdk";
 import { mediaResource } from "./media-modules.mjs";
 
 function load(name, require = () => ({})) {
@@ -15,8 +15,8 @@ function load(name, require = () => ({})) {
   return context.exports;
 }
 const profiles = load("profile-response"), invocations = load("invocations", () => sdk);
-const { BabelFrontendClient } = load("protocol", name => name === "./invocations" ? invocations
-  : name === "@babel-protocol/sdk" ? sdk : name === "./media-resource" ? mediaResource : profiles);
+const { BabbleFrontendClient } = load("protocol", name => name === "./invocations" ? invocations
+  : name === "@babble-protocol/sdk" ? sdk : name === "./media-resource" ? mediaResource : profiles);
 const native = JSON.parse(readFileSync(new URL("../../fixtures/protocol/v1/ranking.json", import.meta.url), "utf8"));
 const objectId = i => `obj_${i.toString(16).padStart(64, "0")}`;
 const author = i => `id_${i.toString(16).padStart(64, "0")}`;
@@ -36,22 +36,22 @@ function response(count = 24) {
       reasons: [{ signal: "diversity:stale_public_marker", contribution: .17 }] };
   });
   const objects = ranked.map(({ candidate }, i) => ({ id: candidate.object_id, author: author(i < 9 ? 1 : 2),
-    created_at: candidate.created_at, kind: "text", schema: "babel.text.v1", protocol: { name: "babel", version: 1 },
+    created_at: candidate.created_at, kind: "text", schema: "babble.text.v1", protocol: { name: "babble", version: 1 },
     payload: { text: `Public note ${i}` }, provenance: { parent: null, forked_from: null, remixed_from: [] },
     relations: [], resources: [], surfaces: [], capabilities: [] }));
   return { ranked, objects, trace: { candidates: [] }, temporal: null,
-    ranking_provider: { provider: "babel-python", model: "lenses-v1", version: "1" },
+    ranking_provider: { provider: "babble-python", model: "lenses-v1", version: "1" },
     diversity_trace: { policy, filtered: [], candidates: ranked.map((entry, i) => ({ rank: i + 1,
       object_id: entry.candidate.object_id, source: entry.candidate.source, lens_score: entry.score,
       diversified_score: entry.score, reasons: [{ signal: "stale_public_marker", contribution: .17 }] })) } };
 }
 
 function clientFor(data) {
-  const client = new BabelFrontendClient("https://babel.example"), requests = [], hydrated = [];
+  const client = new BabbleFrontendClient("https://babble.example"), requests = [], hydrated = [];
   client.catalog = async () => ({ methods: [] });
   client.rpc = async (method, input) => {
     requests.push({ method, input });
-    assert.equal(method, "babel.discovery.candidates.v1");
+    assert.equal(method, "babble.discovery.candidates.v1");
     return { discovery: data };
   };
   const original = client.objectToCard.bind(client);

@@ -1,12 +1,12 @@
-use babel_crypto::Keypair;
-use babel_discovery::{CandidateEngine, DiscoveryRequest, ObjectSignals};
-use babel_graph::{Edge, EdgeOrigin, GraphIndex, Relation};
-use babel_identity::{Identity, IdentityKind};
-use babel_lens::{
+use babble_crypto::Keypair;
+use babble_discovery::{CandidateEngine, DiscoveryRequest, ObjectSignals};
+use babble_graph::{Edge, EdgeOrigin, GraphIndex, Relation};
+use babble_identity::{Identity, IdentityKind};
+use babble_lens::{
     CandidateSource, EvidenceSignals, Lens, ReputationSignals, ResearchLens, WeirdLens,
 };
-use babel_object::Object;
-use babel_types::Timestamp;
+use babble_object::Object;
+use babble_types::Timestamp;
 use std::collections::{BTreeMap, BTreeSet};
 use time::OffsetDateTime;
 

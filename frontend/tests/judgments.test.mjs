@@ -16,10 +16,10 @@ vm.runInNewContext(code, context);
 
 test("Judgment confidence distinguishes calibration status from a numeric score", () => {
   const judgment = (provider, output, confidence = 0.72) => ({ provider: { provider }, output, confidence });
-  assert.equal(context.judgmentConfidence(judgment("babel-python", { confidence_status: "uncalibrated" }, 0)), "Uncalibrated");
-  assert.equal(context.judgmentConfidence(judgment("babel-python", { confidence_status: "legacy_heuristic" })), "Heuristic");
-  assert.equal(context.judgmentConfidence(judgment("babel-local", {})), "Heuristic");
-  assert.equal(context.judgmentConfidence(judgment("babel-constant", {})), "Uncalibrated");
+  assert.equal(context.judgmentConfidence(judgment("babble-python", { confidence_status: "uncalibrated" }, 0)), "Uncalibrated");
+  assert.equal(context.judgmentConfidence(judgment("babble-python", { confidence_status: "legacy_heuristic" })), "Heuristic");
+  assert.equal(context.judgmentConfidence(judgment("babble-local", {})), "Heuristic");
+  assert.equal(context.judgmentConfidence(judgment("babble-constant", {})), "Uncalibrated");
   assert.equal(context.judgmentConfidence(judgment("measured-provider", {})), "72%");
   assert.equal(context.judgmentConfidence(judgment("measured-provider", null)), "72%");
 });

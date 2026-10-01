@@ -5,7 +5,7 @@
     {
       "type": "proc_spawn",
       "cmd": "env",
-      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-api", "--test", "source_agreement", "--", "--test-threads=1"],
+      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babble-api", "--test", "source_agreement", "--", "--test-threads=1"],
       "expect_exit": 0
     }
   ]

@@ -1,6 +1,6 @@
-use babel_identity::{Identity, IdentityKeyTransition};
-use babel_state::{Event, EventKind, EventTarget};
-use babel_types::{Canonical, EventId, IdentityId, Result, Timestamp};
+use babble_identity::{Identity, IdentityKeyTransition};
+use babble_state::{Event, EventKind, EventTarget};
+use babble_types::{Canonical, EventId, IdentityId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -14,18 +14,18 @@ pub struct ValidatorSet {
 impl ValidatorSet {
     pub fn new(weights: BTreeMap<IdentityId, u64>) -> Result<Self> {
         if weights.is_empty() {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "validator set cannot be empty".to_string(),
             ));
         }
         let total_weight = weights.values().try_fold(0_u64, |total, weight| {
             if *weight == 0 {
-                return Err(babel_types::Error::Conflict(
+                return Err(babble_types::Error::Conflict(
                     "validator weight must be greater than zero".to_string(),
                 ));
             }
             total.checked_add(*weight).ok_or_else(|| {
-                babel_types::Error::Conflict("validator weight overflow".to_string())
+                babble_types::Error::Conflict("validator weight overflow".to_string())
             })
         })?;
         Ok(Self {
@@ -58,7 +58,7 @@ impl ValidatorSet {
         self.total_weight
     }
 
-    pub fn commitment_hash(&self) -> Result<babel_types::Hash> {
+    pub fn commitment_hash(&self) -> Result<babble_types::Hash> {
         self.weights.canonical_hash()
     }
 
@@ -79,7 +79,7 @@ pub struct OrderedEvent {
 pub struct Checkpoint {
     pub event_count: u64,
     pub last_event: Option<EventId>,
-    pub order_hash: babel_types::Hash,
+    pub order_hash: babble_types::Hash,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -87,9 +87,9 @@ pub struct FinalityCheckpoint {
     pub checkpoint: Checkpoint,
     pub finalized_count: u64,
     pub last_finalized_event: EventId,
-    pub finalized_order_hash: babel_types::Hash,
-    pub validator_set_hash: babel_types::Hash,
-    pub finality_report_hash: babel_types::Hash,
+    pub finalized_order_hash: babble_types::Hash,
+    pub validator_set_hash: babble_types::Hash,
+    pub finality_report_hash: babble_types::Hash,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -115,7 +115,7 @@ pub struct FinalizedEvent {
     pub actor: IdentityId,
     pub event_round: u64,
     pub round_received: u64,
-    pub consensus_timestamp: babel_types::Timestamp,
+    pub consensus_timestamp: babble_types::Timestamp,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, JsonSchema)]
@@ -144,7 +144,7 @@ impl EventDag {
             if existing == &identity {
                 return Ok(());
             }
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "identity id conflict: {}",
                 identity.id
             )));
@@ -157,7 +157,7 @@ impl EventDag {
         let transition = if event.kind == EventKind::IdentityKeyTransition {
             Some(
                 serde_json::from_value::<IdentityKeyTransition>(event.payload.clone())
-                    .map_err(|err| babel_types::Error::Canonical(err.to_string()))?,
+                    .map_err(|err| babble_types::Error::Canonical(err.to_string()))?,
             )
         } else {
             None
@@ -166,7 +166,7 @@ impl EventDag {
             let identity = self
                 .identities
                 .get(&event.actor)
-                .ok_or_else(|| babel_types::Error::NotFound(event.actor.to_string()))?;
+                .ok_or_else(|| babble_types::Error::NotFound(event.actor.to_string()))?;
             identity.with_signing_key(transition.previous_public_key.clone())
         } else {
             self.signing_identity_at(&event.actor, event.created_at)?
@@ -177,7 +177,7 @@ impl EventDag {
             if existing == &event {
                 return Ok(());
             }
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "event id conflict: {}",
                 event.id
             )));
@@ -186,7 +186,7 @@ impl EventDag {
         let mut generation = 0;
         for parent in &event.parents {
             let Some(parent_generation) = self.generations.get(parent) else {
-                return Err(babel_types::Error::NotFound(format!(
+                return Err(babble_types::Error::NotFound(format!(
                     "event parent {parent}"
                 )));
             };
@@ -194,7 +194,7 @@ impl EventDag {
         }
 
         if self.descendants(&event.id).contains(&event.id) {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "event cycle detected: {}",
                 event.id
             )));
@@ -208,7 +208,7 @@ impl EventDag {
         }
         if let Some(transition) = transition {
             if transition.identity_id != event.actor {
-                return Err(babel_types::Error::Conflict(format!(
+                return Err(babble_types::Error::Conflict(format!(
                     "identity key transition actor mismatch: actor={} transition={}",
                     event.actor, transition.identity_id
                 )));
@@ -220,7 +220,7 @@ impl EventDag {
                 .get(&transition.identity_id)
                 .map_or(1, |transitions| transitions.len() as u64 + 1);
             if transition.sequence != expected_sequence {
-                return Err(babel_types::Error::Conflict(format!(
+                return Err(babble_types::Error::Conflict(format!(
                     "identity key transition sequence mismatch for {}: expected {}, got {}",
                     transition.identity_id, expected_sequence, transition.sequence
                 )));
@@ -241,7 +241,7 @@ impl EventDag {
         let identity = self
             .identities
             .get(id)
-            .ok_or_else(|| babel_types::Error::NotFound(id.to_string()))?;
+            .ok_or_else(|| babble_types::Error::NotFound(id.to_string()))?;
         let public_key = self
             .identity_keys
             .get(id)
@@ -367,13 +367,13 @@ impl EventDag {
         for event in self.events.values() {
             let event_position = positions
                 .get(&event.id)
-                .ok_or_else(|| babel_types::Error::NotFound(event.id.to_string()))?;
+                .ok_or_else(|| babble_types::Error::NotFound(event.id.to_string()))?;
             for parent in &event.parents {
                 let parent_position = positions
                     .get(parent)
-                    .ok_or_else(|| babel_types::Error::NotFound(parent.to_string()))?;
+                    .ok_or_else(|| babble_types::Error::NotFound(parent.to_string()))?;
                 if parent_position >= event_position {
-                    return Err(babel_types::Error::Conflict(format!(
+                    return Err(babble_types::Error::Conflict(format!(
                         "parent {parent} is not ordered before child {}",
                         event.id
                     )));
@@ -401,7 +401,7 @@ impl EventDag {
             EventKind::ConsensusCheckpoint,
             EventTarget::Network,
             serde_json::to_value(checkpoint)
-                .map_err(|err| babel_types::Error::Canonical(err.to_string()))?,
+                .map_err(|err| babble_types::Error::Canonical(err.to_string()))?,
             self.consensus_order()?
                 .last()
                 .map(|event| vec![event.id.clone()])
@@ -412,7 +412,7 @@ impl EventDag {
     pub fn finality_checkpoint(&self, validators: &ValidatorSet) -> Result<FinalityCheckpoint> {
         let report = self.finality(validators)?;
         let Some(last_finalized) = report.finalized.last() else {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "cannot checkpoint without finalized events".to_string(),
             ));
         };
@@ -464,7 +464,7 @@ impl EventDag {
     fn validate_validators(&self, validators: &ValidatorSet) -> Result<()> {
         for validator_id in validators.weights.keys() {
             if !self.identities.contains_key(validator_id) {
-                return Err(babel_types::Error::NotFound(format!(
+                return Err(babble_types::Error::NotFound(format!(
                     "validator {validator_id}"
                 )));
             }
@@ -481,7 +481,7 @@ impl EventDag {
             let event = self
                 .events
                 .get(&ordered.id)
-                .ok_or_else(|| babel_types::Error::NotFound(ordered.id.to_string()))?;
+                .ok_or_else(|| babble_types::Error::NotFound(ordered.id.to_string()))?;
             let parent_round = event
                 .parents
                 .iter()
@@ -549,7 +549,7 @@ impl EventDag {
                 .map(|round_info| round_info.witness)
                 .unwrap_or_default()
             {
-                return Err(babel_types::Error::Conflict(format!(
+                return Err(babble_types::Error::Conflict(format!(
                     "fame decided for non-witness event {witness_id}"
                 )));
             }
@@ -688,7 +688,7 @@ impl EventDag {
             let event = self
                 .events
                 .get(&ordered.id)
-                .ok_or_else(|| babel_types::Error::NotFound(ordered.id.to_string()))?;
+                .ok_or_else(|| babble_types::Error::NotFound(ordered.id.to_string()))?;
             let Some(event_round) = rounds.get(&ordered.id).map(|round_info| round_info.round)
             else {
                 continue;
@@ -726,7 +726,7 @@ impl EventDag {
         event_round: u64,
         validators: &ValidatorSet,
         famous_by_round: &BTreeMap<u64, Vec<EventId>>,
-    ) -> Option<(u64, babel_types::Timestamp)> {
+    ) -> Option<(u64, babble_types::Timestamp)> {
         for (round, witnesses) in famous_by_round.range((event_round + 1)..) {
             let mut seen_weight = 0_u64;
             let mut timestamps = Vec::new();

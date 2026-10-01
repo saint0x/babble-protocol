@@ -3,10 +3,10 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode},
 };
-use babel_api::{ApiState, router};
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
-use babel_rpc::{RpcBinding, RpcRequestEnvelope, babel_rpc_catalog};
+use babble_api::{ApiState, router};
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
+use babble_rpc::{RpcBinding, RpcRequestEnvelope, babble_rpc_catalog};
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -21,7 +21,7 @@ impl Fixture {
     fn new() -> Self {
         static SEQUENCE: AtomicU64 = AtomicU64::new(0);
         Self(std::env::temp_dir().join(format!(
-            "babel-capability-consent-{}-{}-{}",
+            "babble-capability-consent-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             SEQUENCE.fetch_add(1, Ordering::Relaxed)
@@ -124,7 +124,7 @@ async fn register(app: &Router, handle: &str) -> Account {
 }
 
 fn capability() -> Value {
-    json!({"id":"babel.storage.local","version":1,"scope":{"namespace":"self"}})
+    json!({"id":"babble.storage.local","version":1,"scope":{"namespace":"self"}})
 }
 
 async fn publish(app: &Router, author: &Account) -> String {
@@ -139,9 +139,9 @@ async fn publish(app: &Router, author: &Account) -> String {
     )
     .await);
     let hash = blob["blob"]["integrity"].as_str().unwrap();
-    let uri = format!("babel://blobs/{hash}");
+    let uri = format!("babble://blobs/{hash}");
     let mut draft = serde_json::to_value(
-        babel_authoring::ObjectDraft::text("Capability consent fixture").unwrap(),
+        babble_authoring::ObjectDraft::text("Capability consent fixture").unwrap(),
     )
     .unwrap();
     draft["capabilities"] = json!([capability()]);
@@ -208,14 +208,14 @@ async fn prepare(app: &Router, account: Option<&Account>, object: &str) -> Value
 }
 
 fn host() -> RpcBinding {
-    RpcBinding::host("consent-host", "https://babel.test").unwrap()
+    RpcBinding::host("consent-host", "https://babble.test").unwrap()
 }
 
 fn envelope(method: &str, binding: RpcBinding, payload: Value) -> Value {
     static OPERATION: AtomicU64 = AtomicU64::new(0);
     serde_json::to_value(
         RpcRequestEnvelope::new(
-            &babel_rpc_catalog().unwrap(),
+            &babble_rpc_catalog().unwrap(),
             "consent-request",
             method,
             binding,
@@ -235,7 +235,7 @@ async fn rpc(app: &Router, account: &Account, operation: Value) -> (StatusCode, 
         && operation["binding"]["surface_session_id"].is_string()
     {
         vec![(
-            "x-babel-surface-document",
+            "x-babble-surface-document",
             "550e8400-e29b-41d4-a716-446655440000",
         )]
     } else {
@@ -305,7 +305,7 @@ async fn inspection_and_foreign_object_consent_are_viewer_owned_with_public_mani
             "/rpc",
             None,
             envelope(
-                "babel.capabilities.inspect.v1",
+                "babble.capabilities.inspect.v1",
                 host(),
                 json!({"object_id":object}),
             ),
@@ -318,7 +318,7 @@ async fn inspection_and_foreign_object_consent_are_viewer_owned_with_public_mani
             &app,
             &viewer,
             envelope(
-                "babel.capabilities.inspect.v1",
+                "babble.capabilities.inspect.v1",
                 host(),
                 json!({"object_id":object}),
             ),
@@ -397,7 +397,7 @@ async fn inspection_and_foreign_object_consent_are_viewer_owned_with_public_mani
             &app,
             &viewer,
             envelope(
-                "babel.runtime.surface.prepare.v1",
+                "babble.runtime.surface.prepare.v1",
                 host(),
                 json!({"object_id":object,"role":"Feed"}),
             ),
@@ -411,7 +411,7 @@ async fn inspection_and_foreign_object_consent_are_viewer_owned_with_public_mani
             &app,
             &viewer,
             envelope(
-                "babel.capabilities.inspect.v1",
+                "babble.capabilities.inspect.v1",
                 host(),
                 json!({"object_id":object}),
             ),
@@ -533,7 +533,7 @@ async fn rpc_consent_retries_replay_the_event_but_reconcile_current_access_acros
     let account = register(&app, "retry-consenter").await;
     let object = publish(&app, &account).await;
     let operation = envelope(
-        "babel.capabilities.grant.v1",
+        "babble.capabilities.grant.v1",
         host(),
         grant_payload(&account, &object, "approved"),
     );
@@ -568,7 +568,7 @@ async fn rpc_consent_retries_replay_the_event_but_reconcile_current_access_acros
     assert_eq!(rpc(&app, &account, bound).await.0, StatusCode::FORBIDDEN);
 
     let revocation = envelope(
-        "babel.capabilities.revoke.v1",
+        "babble.capabilities.revoke.v1",
         host(),
         json!({
             "author_id":account.id,"object_id":object,"grant_id":grant_id(&first)
@@ -619,7 +619,7 @@ async fn concurrent_consent_retries_and_cross_actor_keys_do_not_duplicate_or_sha
     let bob = register(&app, "consent-bob").await;
     let object = publish(&app, &alice).await;
     let operation = envelope(
-        "babel.capabilities.grant.v1",
+        "babble.capabilities.grant.v1",
         host(),
         grant_payload(&alice, &object, "approved"),
     );
@@ -640,7 +640,7 @@ async fn concurrent_consent_retries_and_cross_actor_keys_do_not_duplicate_or_sha
     assert_ne!(grant_id(&other), grant_id(&first));
     assert_eq!(other["grants"].as_array().unwrap().len(), 1);
     let mut collision = envelope(
-        "babel.capabilities.revoke.v1",
+        "babble.capabilities.revoke.v1",
         host(),
         json!({"author_id":alice.id,"object_id":object,"grant_id":grant_id(&first)}),
     );
@@ -808,12 +808,12 @@ async fn revocation_retires_running_session_and_fresh_consent_requires_a_new_ses
     .await);
     let read = |id: &str| {
         envelope(
-            "babel.storage.local.get.v1",
+            "babble.storage.local.get.v1",
             RpcBinding::object(
                 &object,
                 session,
                 "consent-host",
-                "https://babel.test",
+                "https://babble.test",
                 vec![id.into()],
             )
             .unwrap(),
@@ -907,12 +907,12 @@ async fn revocation_retires_running_session_and_fresh_consent_requires_a_new_ses
             &app,
             &viewer,
             envelope(
-                "babel.storage.local.get.v1",
+                "babble.storage.local.get.v1",
                 RpcBinding::object(
                     &object,
                     fresh_id,
                     "consent-host",
-                    "https://babel.test",
+                    "https://babble.test",
                     vec![replacement],
                 )
                 .unwrap(),
@@ -953,12 +953,12 @@ async fn receipt_selection_uses_only_the_viewers_authorized_bound_grant() {
     let session = started["session"]["id"].as_str().unwrap();
     let operation = |id: &str| {
         envelope(
-            "babel.storage.local.get.v1",
+            "babble.storage.local.get.v1",
             RpcBinding::object(
                 &object,
                 session,
                 "consent-host",
-                "https://babel.test",
+                "https://babble.test",
                 vec![id.into()],
             )
             .unwrap(),
@@ -973,7 +973,7 @@ async fn receipt_selection_uses_only_the_viewers_authorized_bound_grant() {
     let result = rpc_result(rpc(&app, caller, operation(supplied)).await);
     assert_eq!(result["receipt"]["grant_id"], supplied.as_str());
 
-    let unknown = babel_types::CapabilityGrantId::from_hash(&babel_types::Hash::from_bytes(
+    let unknown = babble_types::CapabilityGrantId::from_hash(&babble_types::Hash::from_bytes(
         b"unknown consent",
     ))
     .to_string();
@@ -1016,7 +1016,7 @@ async fn inspect_does_not_accept_forged_viewers_and_keeps_denied_revoked_records
             &app,
             &viewer,
             envelope(
-                "babel.capabilities.grant.v1",
+                "babble.capabilities.grant.v1",
                 host(),
                 grant_payload(&viewer, &object, "approved"),
             ),
@@ -1030,7 +1030,7 @@ async fn inspect_does_not_accept_forged_viewers_and_keeps_denied_revoked_records
             &app,
             &viewer,
             envelope(
-                "babel.capabilities.revoke.v1",
+                "babble.capabilities.revoke.v1",
                 host(),
                 json!({"author_id":viewer.id,"object_id":object,"grant_id":approved}),
             ),
@@ -1040,7 +1040,7 @@ async fn inspect_does_not_accept_forged_viewers_and_keeps_denied_revoked_records
     assert_eq!(revoked["grants"].as_array().unwrap().len(), 2);
     let path = format!("/objects/{object}/capabilities");
     let operation = envelope(
-        "babel.capabilities.inspect.v1",
+        "babble.capabilities.inspect.v1",
         host(),
         json!({"object_id":object}),
     );
@@ -1099,7 +1099,7 @@ async fn inspect_does_not_accept_forged_viewers_and_keeps_denied_revoked_records
         );
     }
     let unknown =
-        babel_types::ObjectId::from_hash(&babel_types::Hash::from_bytes(b"unknown object"));
+        babble_types::ObjectId::from_hash(&babble_types::Hash::from_bytes(b"unknown object"));
     for token in [None, Some(viewer.token.as_str())] {
         assert_eq!(
             request(
@@ -1119,7 +1119,7 @@ async fn inspect_does_not_accept_forged_viewers_and_keeps_denied_revoked_records
             "/rpc",
             token,
             envelope(
-                "babel.capabilities.inspect.v1",
+                "babble.capabilities.inspect.v1",
                 host(),
                 json!({"object_id":unknown}),
             ),
@@ -1131,11 +1131,11 @@ async fn inspect_does_not_accept_forged_viewers_and_keeps_denied_revoked_records
 
 #[test]
 fn node_receipts_reject_inactive_bindings_and_never_substitute_unbound_grants() {
-    use babel_authoring::{CapabilityGrantDraft, ObjectDraft};
-    use babel_capabilities::{CapabilityGrant, GrantDecision};
-    use babel_identity::IdentityKind;
-    use babel_object::CapabilityRequest;
-    use babel_types::{CapabilityGrantId, Hash, Timestamp};
+    use babble_authoring::{CapabilityGrantDraft, ObjectDraft};
+    use babble_capabilities::{CapabilityGrant, GrantDecision};
+    use babble_identity::IdentityKind;
+    use babble_object::CapabilityRequest;
+    use babble_types::{CapabilityGrantId, Hash, Timestamp};
 
     let fixture = Fixture::new();
     let mut node = LocalNode::open(&fixture.0, LocalProvider::default()).unwrap();
@@ -1146,7 +1146,7 @@ fn node_receipts_reject_inactive_bindings_and_never_substitute_unbound_grants() 
         .create_identity(IdentityKind::Person, "native-viewer")
         .unwrap();
     let request: CapabilityRequest = serde_json::from_value(json!({
-        "id":"babel.notifications.request", "version":1,
+        "id":"babble.notifications.request", "version":1,
         "scope":{"categories":["game.turn"],"purpose":"Turn alerts"}
     }))
     .unwrap();
@@ -1159,7 +1159,7 @@ fn node_receipts_reject_inactive_bindings_and_never_substitute_unbound_grants() 
                 .unwrap(),
         )
         .unwrap();
-    let mut issue = |actor: &babel_types::IdentityId, decision, expires_at| -> CapabilityGrant {
+    let mut issue = |actor: &babble_types::IdentityId, decision, expires_at| -> CapabilityGrant {
         let event = node
             .grant_capability_draft(
                 actor,
@@ -1189,7 +1189,7 @@ fn node_receipts_reject_inactive_bindings_and_never_substitute_unbound_grants() 
     let unknown = CapabilityGrantId::from_hash(&Hash::from_bytes(b"missing native grant"));
     let check = |node: &LocalNode<LocalProvider>, ids: &[String]| {
         [
-            node.authorize_capability_binding(&object.id, "babel.notifications.request", 1, ids),
+            node.authorize_capability_binding(&object.id, "babble.notifications.request", 1, ids),
             node.notifications_request(&object.id, "Turn alerts", &["game.turn".into()], ids),
         ]
     };

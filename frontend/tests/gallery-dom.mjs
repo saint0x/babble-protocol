@@ -28,7 +28,7 @@ export function galleryHarness() {
     replaceChildren(...children) { for (const child of [...this.children]) child.remove(); this.text = ""; this.append(...children); }
     matches(selector) {
       if (selector === "audio, video") return this.tag === "audio" || this.tag === "video";
-      if (selector === "[data-babel-playback]") return this.dataset.babelPlayback !== undefined;
+      if (selector === "[data-babble-playback]") return this.dataset.babblePlayback !== undefined;
       if (selector === '[hidden], [inert], details:not([open])') {
         return this.hidden || this.hasAttribute("inert") || this.tag === "details" && !this.hasAttribute("open");
       }

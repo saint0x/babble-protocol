@@ -1,11 +1,11 @@
-use babel_authoring::{EdgeDraft, ObjectDraft};
-use babel_crypto::Keypair;
-use babel_graph::{Appreciation, Edge, EdgeOrigin, ReactionValue, Relation};
-use babel_identity::{Identity, IdentityKeyScope, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_node::{FollowingQuery, ImportBundle, LocalNode};
-use babel_object::{Object, Provenance};
-use babel_types::Error;
+use babble_authoring::{EdgeDraft, ObjectDraft};
+use babble_crypto::Keypair;
+use babble_graph::{Appreciation, Edge, EdgeOrigin, ReactionValue, Relation};
+use babble_identity::{Identity, IdentityKeyScope, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_node::{FollowingQuery, ImportBundle, LocalNode};
+use babble_object::{Object, Provenance};
+use babble_types::Error;
 use std::path::PathBuf;
 
 struct Fixture {
@@ -20,7 +20,7 @@ struct Fixture {
 impl Fixture {
     fn new() -> Self {
         let root = std::env::temp_dir().join(format!(
-            "babel-safety-node-{}-{}",
+            "babble-safety-node-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos()
         ));
@@ -340,7 +340,7 @@ fn safety_mutes_filter_following_invalidate_cursors_and_allow_interaction_and_wi
         .unwrap();
     let like = ReactionValue {
         appreciation: Some(Appreciation::Like),
-        stance: Some(babel_graph::Stance::Support),
+        stance: Some(babble_graph::Stance::Support),
         ..Default::default()
     };
     let original = f
@@ -420,7 +420,7 @@ fn safety_malformed_targets_and_requests_never_write() {
         f.node
             .set_safety(
                 &f.alice.id,
-                &babel_types::IdentityId::new_unchecked("bad"),
+                &babble_types::IdentityId::new_unchecked("bad"),
                 true,
                 false,
                 0,

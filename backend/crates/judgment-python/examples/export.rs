@@ -1,13 +1,13 @@
-use babel_discovery::{TemporalProvider, TemporalRequest};
-use babel_judgment::{JudgmentProvider, JudgmentRequest, JudgmentState};
-use babel_judgment_python::{
+use babble_discovery::{TemporalProvider, TemporalRequest};
+use babble_judgment::{JudgmentProvider, JudgmentRequest, JudgmentState};
+use babble_judgment_python::{
     PythonProvider, WorkerConfig,
     contract::{
         self, ErrorCode, HealthResult, JudgeResult, Protocol, Request, Response, WorkerError,
         WorkerResult,
     },
 };
-use babel_lens::{RankingProvider, RankingRequest};
+use babble_lens::{RankingProvider, RankingRequest};
 use serde_json::json;
 use std::{collections::BTreeMap, path::PathBuf, time::Duration};
 
@@ -15,10 +15,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..");
     let directory = root.join("fixtures/algorithms/v1");
     let provider = PythonProvider::new(WorkerConfig {
-        executable: std::env::var_os("BABEL_TEST_PYTHON")
+        executable: std::env::var_os("BABBLE_TEST_PYTHON")
             .map(PathBuf::from)
             .unwrap_or_else(|| root.join("algorithms/.venv/bin/python")),
-        args: vec!["-I".into(), "-m".into(), "babel_algorithms.worker".into()],
+        args: vec!["-I".into(), "-m".into(), "babble_algorithms.worker".into()],
         working_directory: None,
         timeout: Duration::from_secs(5),
     })?;
@@ -49,7 +49,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             parameters: BTreeMap::new(),
         };
         match request.definition.as_str() {
-            "babel.judgment.source_agreement.v1" => {
+            "babble.judgment.source_agreement.v1" => {
                 request.state.context.insert(
                     "source_agreement".into(),
                     json!({
@@ -68,17 +68,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }),
                 );
             }
-            "babel.judgment.relevance.v1" => {
+            "babble.judgment.relevance.v1" => {
                 request
                     .parameters
                     .insert("query".into(), json!("dataset protocol"));
             }
-            "babel.judgment.relationship.v1" => {
+            "babble.judgment.relationship.v1" => {
                 request
                     .parameters
                     .insert("relation".into(), json!("supports"));
             }
-            "babel.judgment.moderation.v1" => {
+            "babble.judgment.moderation.v1" => {
                 request
                     .parameters
                     .insert("context".into(), json!({"reports": 2}));

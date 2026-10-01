@@ -3,7 +3,7 @@
   "name": "judgment-deadlines-deterministic-harness",
   "steps": [
     {"type": "trace_event", "name": "Scripted process harness only; deadlines-host.fozzy.json executes Rust and real Python deadline regressions"},
-    {"type": "proc_when", "cmd": "/usr/bin/env", "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-judgment", "-p", "babel-judgment-python", "--quiet"], "exit_code": 0, "times": 1},
-    {"type": "proc_spawn", "cmd": "/usr/bin/env", "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-judgment", "-p", "babel-judgment-python", "--quiet"], "expect_exit": 0}
+    {"type": "proc_when", "cmd": "/usr/bin/env", "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babble-judgment", "-p", "babble-judgment-python", "--quiet"], "exit_code": 0, "times": 1},
+    {"type": "proc_spawn", "cmd": "/usr/bin/env", "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babble-judgment", "-p", "babble-judgment-python", "--quiet"], "expect_exit": 0}
   ]
 }

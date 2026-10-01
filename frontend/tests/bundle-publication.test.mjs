@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
-import * as sdk from "@babel-protocol/sdk";
+import * as sdk from "@babble-protocol/sdk";
 import { mediaResource } from "./media-modules.mjs";
 
 const globals = { URL, File, Response, TextEncoder, TextDecoder, Uint8Array, ArrayBuffer, ReadableStream,
@@ -21,12 +21,12 @@ function module(name, dependencies = {}) {
   } });
   return exports;
 }
-const { inspectBundleFiles, bundleEntries, publishBundle, parseBundleCapabilities } = module("bundle-publication", { "@babel-protocol/sdk": sdk });
-const { BabelFrontendClient } = module("protocol", {
-  "@babel-protocol/sdk": sdk, "./profile-response": module("profile-response"),
+const { inspectBundleFiles, bundleEntries, publishBundle, parseBundleCapabilities } = module("bundle-publication", { "@babble-protocol/sdk": sdk });
+const { BabbleFrontendClient } = module("protocol", {
+  "@babble-protocol/sdk": sdk, "./profile-response": module("profile-response"),
   "./media-resource": mediaResource,
-  "./invocations": module("invocations", { "@babel-protocol/sdk": sdk }),
-  "./browser-invocations": module("browser-invocations", { "@babel-protocol/sdk": sdk }),
+  "./invocations": module("invocations", { "@babble-protocol/sdk": sdk }),
+  "./browser-invocations": module("browser-invocations", { "@babble-protocol/sdk": sdk }),
 });
 const { draftTransport } = module("drafts");
 const AUTHOR = `id_${"a".repeat(64)}`;
@@ -61,23 +61,23 @@ function harness(options = {}) {
     assert.equal(new Headers(init.headers).get("authorization"), "Bearer session-token");
     const request = JSON.parse(init.body);
     requests.push(request);
-    if (request.method === "babel.media.blob.put.v1") {
+    if (request.method === "babble.media.blob.put.v1") {
       const bytes = Buffer.from(request.payload.bytes_hex, "hex");
       uploaded.push(bytes);
       // Deterministic receipt fixture only. Production trusts the server's BLAKE3.
       const integrity = createHash("sha256").update(bytes).digest("hex");
-      const receipt = { integrity, uri: `babel://blobs/${integrity}`,
+      const receipt = { integrity, uri: `babble://blobs/${integrity}`,
         size_bytes: bytes.length, media_type: request.payload.media_type };
       await options.upload?.(receipt, uploaded.length);
       return Response.json({ result: { blob: receipt }, error: null });
     }
-    assert.equal(request.method, "babel.object.publish.v1");
+    assert.equal(request.method, "babble.object.publish.v1");
     await options.publish?.(request);
     return Response.json({ result: { object: published }, error: null });
   };
   const authenticated = (url, init) => transport(url, { ...init,
     headers: { ...init.headers, authorization: "Bearer session-token" } });
-  const client = new BabelFrontendClient("https://babel.test", draftTransport(authenticated, () => authorized, "stable-operation"));
+  const client = new BabbleFrontendClient("https://babble.test", draftTransport(authenticated, () => authorized, "stable-operation"));
   return { client, requests, uploaded, published, revoke() { authorized = false; } };
 }
 
@@ -85,24 +85,24 @@ test("public signatures type-check against current generated protocol contracts 
   const root = fileURLToPath(new URL("../src/app/bundle-publication.ts", import.meta.url));
   const contractPath = fileURLToPath(new URL("./bundle-publication.contract.ts", import.meta.url));
   const contract = `
-    import type { RpcInput, RpcOutput } from '@babel-protocol/sdk';
-    import { BabelFrontendClient } from '../src/app/protocol';
+    import type { RpcInput, RpcOutput } from '@babble-protocol/sdk';
+    import { BabbleFrontendClient } from '../src/app/protocol';
     import { inspectBundleFiles, bundleEntries, publishBundle, parseBundleCapabilities, type CapabilityRequest, type BundleAttachment } from '../src/app/bundle-publication';
-    declare const client: BabelFrontendClient;
+    declare const client: BabbleFrontendClient;
     declare const files: readonly File[];
-    declare const draft: RpcInput<'babel.object.publish.v1'>['draft'];
+    declare const draft: RpcInput<'babble.object.publish.v1'>['draft'];
     const attachment: BundleAttachment = inspectBundleFiles(files);
     const capabilities: readonly CapabilityRequest[] = parseBundleCapabilities('[]');
     const declared: typeof draft.capabilities = capabilities;
     const edited: BundleAttachment = { ...attachment, capabilitiesText: '[' };
     const entries: readonly string[] = bundleEntries(attachment);
-    const result: Promise<RpcOutput<'babel.object.publish.v1'>['object']> = publishBundle(client, 'author', 'text', attachment);
+    const result: Promise<RpcOutput<'babble.object.publish.v1'>['object']> = publishBundle(client, 'author', 'text', attachment);
     const published: typeof result = client.publishDraft('author', draft);
   `;
   const options = { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext,
     moduleResolution: ts.ModuleResolutionKind.Bundler, strict: true, noUncheckedIndexedAccess: true,
     exactOptionalPropertyTypes: true, noEmit: true, skipLibCheck: true, types: [],
-    paths: { "@babel-protocol/sdk": [fileURLToPath(new URL("../../sdk/src/index.ts", import.meta.url))] } };
+    paths: { "@babble-protocol/sdk": [fileURLToPath(new URL("../../sdk/src/index.ts", import.meta.url))] } };
   const host = ts.createCompilerHost(options);
   const getSourceFile = host.getSourceFile.bind(host);
   host.getSourceFile = (path, ...args) => path === contractPath
@@ -116,8 +116,8 @@ test("public signatures type-check against current generated protocol contracts 
 
 test("capability parser accepts protocol and custom namespaces with immutable nested scope data", () => {
   const input = [
-    { id: "babel.clipboard.write", version: 1, scope: {} },
-    { id: "babel.ui.fullscreen", version: 1, scope: {} },
+    { id: "babble.clipboard.write", version: 1, scope: {} },
+    { id: "babble.ui.fullscreen", version: 1, scope: {} },
     { id: "vendor-2.custom.capability", version: 0xffffffff,
       scope: { origins: ["https://example.test"], nested: { enabled: true, empty: null, ratio: 0.125 }, text: "cafe\u0301 \ud83c\udf04" } },
   ];
@@ -136,7 +136,7 @@ test("capability declarations reject invalid envelopes, IDs, versions, scopes an
     [{ id: valid.id, version: 1 }], [{ version: 1, scope: {} }], [{ id: valid.id, scope: {} }]]) {
     assert.throws(() => parseBundleCapabilities(JSON.stringify(invalid)), /capabilit/i);
   }
-  for (const id of ["", "babel", "babel..test", ".babel.test", "babel.test.", "Babel.test", "babel.test_name", "babel.a/b", "babel.t\u00e9st", "babel.test\n"]) {
+  for (const id of ["", "babble", "babble..test", ".babble.test", "babble.test.", "Babble.test", "babble.test_name", "babble.a/b", "babble.t\u00e9st", "babble.test\n"]) {
     assert.throws(() => parseBundleCapabilities(JSON.stringify([{ ...valid, id }])), /namespaced id/);
   }
   for (const version of [0, -1, 0.5, 0x100000000, "1", null, false]) {
@@ -216,7 +216,7 @@ test("request-size preflight accounts for declarations before uploading any byte
   h.client.putMediaBlob = async (media_type, bytes) => {
     uploads++;
     const integrity = "a".repeat(64);
-    return { integrity, uri: `babel://blobs/${integrity}`, media_type, size_bytes: bytes.length };
+    return { integrity, uri: `babble://blobs/${integrity}`, media_type, size_bytes: bytes.length };
   };
   h.client.publishDraft = async () => h.published;
   const attachment = inspectBundleFiles([html()]);
@@ -241,7 +241,7 @@ test("capability declarations are captured before awaiting file reads and includ
       return { read: async () => { await gate; return reader.read(); }, cancel: () => reader.cancel(), releaseLock: () => reader.releaseLock() };
     } };
   } });
-  const declarations = [{ id: "babel.clipboard.write", version: 1, scope: {} }];
+  const declarations = [{ id: "babble.clipboard.write", version: 1, scope: {} }];
   const attachment = { files: [selected], entryPath: "index.html", capabilitiesText: JSON.stringify(declarations) };
   const h = harness();
   const pending = publishBundle(h.client, AUTHOR, "caption", attachment);
@@ -261,8 +261,8 @@ test("unchanged declared capability retries retain publication keys and edited d
   await publishBundle(h.client, AUTHOR, "caption", attachment);
   attachment.capabilitiesText = JSON.stringify([{ id: "vendor.test", version: 1, scope: { value: "second" } }]);
   await publishBundle(h.client, AUTHOR, "caption", attachment);
-  const uploads = h.requests.filter((request) => request.method === "babel.media.blob.put.v1");
-  const publications = h.requests.filter((request) => request.method === "babel.object.publish.v1");
+  const uploads = h.requests.filter((request) => request.method === "babble.media.blob.put.v1");
+  const publications = h.requests.filter((request) => request.method === "babble.object.publish.v1");
   assert.equal(publications[0].idempotency_key, publications[1].idempotency_key);
   assert.notEqual(publications[1].idempotency_key, publications[2].idempotency_key);
   assert.equal(uploads[0].idempotency_key, uploads[2].idempotency_key);
@@ -364,7 +364,7 @@ test("capture enforces streamed bytes, cancels oversized reads and accepts an ex
   let uploaded = 0;
   h.client.putMediaBlob = async (media_type, bytes) => {
     uploaded = bytes.length;
-    return { media_type, size_bytes: bytes.length, integrity: "c".repeat(64), uri: `babel://blobs/${"c".repeat(64)}` };
+    return { media_type, size_bytes: bytes.length, integrity: "c".repeat(64), uri: `babble://blobs/${"c".repeat(64)}` };
   };
   await publishBundle(h.client, AUTHOR, "caption", inspectBundleFiles([exact]));
   assert.equal(uploaded, 8 * MIB);
@@ -375,7 +375,7 @@ test("capture enforces streamed bytes, cancels oversized reads and accepts an ex
 test("malformed hash, URI, MIME and size receipts prevent signed publication", async () => {
   for (const change of [
     { integrity: "A".repeat(64) }, { integrity: "g".repeat(64) }, { integrity: "a".repeat(63) },
-    { uri: `https://external.test/${"a".repeat(64)}` }, { uri: `babel://blobs/${"f".repeat(64)}` },
+    { uri: `https://external.test/${"a".repeat(64)}` }, { uri: `babble://blobs/${"f".repeat(64)}` },
     { size_bytes: -1 }, { size_bytes: 999 }, { size_bytes: "1" }, { media_type: "text/plain" },
   ]) {
     const h = harness({ upload(receipt) { Object.assign(receipt, change); } });
@@ -393,7 +393,7 @@ test("hash alias inconsistencies in receipts prevent publication", async () => {
     const selected = inspectBundleFiles([file("a.html", "first"), file("b.html", sameBytes ? "first" : "other")]);
     const h = harness({ upload(receipt, index) {
       receipt.integrity = (sameBytes && index === 2 ? "b" : "a").repeat(64);
-      receipt.uri = `babel://blobs/${receipt.integrity}`;
+      receipt.uri = `babble://blobs/${receipt.integrity}`;
     } });
     await assert.rejects(publishBundle(h.client, AUTHOR, "caption", selected), /inconsistent.*hashes/);
     assert.equal(h.requests.length, 2);
@@ -438,12 +438,12 @@ test("success preserves raw bytes, uses filename MIME and publishes the selected
     ["text/javascript", "text/html", "image/svg+xml", "text/html"]);
   const request = h.requests.at(-1);
   assert.match(request.idempotency_key, /^web-draft-[0-9a-f]{64}$/);
-  assert.equal(request.protocol, "babel.rpc.v1");
-  assert.equal(request.binding.runtime_id, "babel-web-runtime");
+  assert.equal(request.protocol, "babble.rpc.v1");
+  assert.equal(request.binding.runtime_id, "babble-web-runtime");
   assert.equal(request.payload.author_id, AUTHOR);
   const { draft } = request.payload;
-  assert.equal(draft.kind, "babel.text");
-  assert.equal(draft.schema, "babel.schema.text.v1");
+  assert.equal(draft.kind, "babble.text");
+  assert.equal(draft.schema, "babble.schema.text.v1");
   assert.deepEqual(draft.payload, { text: "caption", metadata: {} });
   assert.deepEqual(draft.provenance, { parent: null, forked_from: null, remixed_from: [] });
   assert.deepEqual(draft.resources, []);
@@ -469,7 +469,7 @@ test("retry retains exact Files, upload bytes, publication payload and draftTran
   assert.equal(attachment.files[0], selected[1]);
   assert.equal(attachment.files[1], selected[0]);
   assert.deepEqual(h.uploaded.slice(0, 2), h.uploaded.slice(2));
-  const publications = h.requests.filter((request) => request.method === "babel.object.publish.v1");
+  const publications = h.requests.filter((request) => request.method === "babble.object.publish.v1");
   assert.deepEqual(publications[0].payload, publications[1].payload);
   assert.equal(publications[0].idempotency_key, publications[1].idempotency_key);
   await publishBundle(h.client, AUTHOR, "edited", attachment);

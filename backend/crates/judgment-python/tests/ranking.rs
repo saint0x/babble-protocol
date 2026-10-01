@@ -1,6 +1,6 @@
-use babel_judgment::{DefinitionId, JudgmentProvider, JudgmentRequest, JudgmentState};
-use babel_judgment_python::{PythonProvider, WorkerConfig};
-use babel_lens::{BuiltInLens, LensWeight, RankingProvider, RankingRequest, RankingResult};
+use babble_judgment::{DefinitionId, JudgmentProvider, JudgmentRequest, JudgmentState};
+use babble_judgment_python::{PythonProvider, WorkerConfig};
+use babble_lens::{BuiltInLens, LensWeight, RankingProvider, RankingRequest, RankingResult};
 use serde_json::{Value, json};
 use std::{
     collections::BTreeMap,
@@ -15,7 +15,7 @@ fn config(mode: Option<&str>) -> WorkerConfig {
     WorkerConfig {
         executable: root().join("algorithms/.venv/bin/python"),
         args: mode.map_or_else(
-            || vec!["-I".into(), "-m".into(), "babel_algorithms.worker".into()],
+            || vec!["-I".into(), "-m".into(), "babble_algorithms.worker".into()],
             |mode| {
                 vec![
                     "-I".into(),
@@ -102,7 +102,7 @@ fn full_candidate_batch_with_all_lenses_fits_the_bounded_worker_transport() {
     request.candidates = (0..200)
         .map(|index| {
             let mut candidate = sample.clone();
-            candidate.object_id = babel_types::ObjectId::new_unchecked(format!("obj_{index:064x}"));
+            candidate.object_id = babble_types::ObjectId::new_unchecked(format!("obj_{index:064x}"));
             candidate
         })
         .collect();

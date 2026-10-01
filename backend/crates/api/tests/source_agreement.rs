@@ -1,19 +1,19 @@
 use axum::http::StatusCode;
-use babel_api::{
+use babble_api::{
     ApiState, JudgeObjectResponse,
     config::ServerConfig,
     provider::{JudgmentConfig, ServerProvider},
     serve::configured_router,
 };
-use babel_crypto::Keypair;
-use babel_graph::{Edge, EdgeOrigin, Relation};
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment::{JudgmentProvider, SourceAgreementInput, SourceAgreementOutput};
-use babel_judgment_python::{PythonProvider, WorkerConfig};
-use babel_node::{ImportBundle, LocalNode};
-use babel_object::{Object, ObjectKind};
-use babel_rpc::{RpcBinding, RpcRequestEnvelope, babel_rpc_catalog};
-use babel_types::{ObjectId, Timestamp};
+use babble_crypto::Keypair;
+use babble_graph::{Edge, EdgeOrigin, Relation};
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment::{JudgmentProvider, SourceAgreementInput, SourceAgreementOutput};
+use babble_judgment_python::{PythonProvider, WorkerConfig};
+use babble_node::{ImportBundle, LocalNode};
+use babble_object::{Object, ObjectKind};
+use babble_rpc::{RpcBinding, RpcRequestEnvelope, babble_rpc_catalog};
+use babble_types::{ObjectId, Timestamp};
 use serde_json::{Value, json};
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -28,7 +28,7 @@ use std::{
     time::Duration,
 };
 
-const DEFINITION: &str = "babel.judgment.source_agreement.v1";
+const DEFINITION: &str = "babble.judgment.source_agreement.v1";
 const PRIVATE: &str = "PRIVATE-SOURCE-AGREEMENT-DO-NOT-EXPORT";
 
 struct Root(PathBuf);
@@ -36,7 +36,7 @@ impl Root {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let path = std::env::temp_dir().join(format!(
-            "babel-source-agreement-api-{}-{}-{}",
+            "babble-source-agreement-api-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed),
@@ -142,7 +142,7 @@ impl Api {
     }
     async fn rpc(&self, method: &str, token: &str, params: Value) -> (StatusCode, Value) {
         let envelope = RpcRequestEnvelope::new(
-            &babel_rpc_catalog().unwrap(),
+            &babble_rpc_catalog().unwrap(),
             "agreement-test",
             method,
             RpcBinding::host("agreement-tests", &self.origin).unwrap(),
@@ -237,7 +237,7 @@ fn association(
     let output: SourceAgreementOutput =
         serde_json::from_value(response.judgment.output.clone()).unwrap();
     output.validate_for(&input.request).unwrap();
-    assert_eq!(response.judgment.provider.provider, "babel-python");
+    assert_eq!(response.judgment.provider.provider, "babble-python");
     assert_eq!(response.judgment.confidence, 0.0);
     assert_eq!(output.confidence, 0.0);
     assert_eq!(output.confidence_status, "uncalibrated");
@@ -304,7 +304,7 @@ async fn signed_sources_python_components_http_rpc_readback_restart_and_new_hist
     let api = Api::start(&root, node).await;
     let token = api.register().await;
     let health = api.get("/health").await;
-    assert_eq!(health["judgment_provider"]["provider"], "babel-python");
+    assert_eq!(health["judgment_provider"]["provider"], "babble-python");
     let providers = api.get("/judgments/providers").await;
     let supported = providers["providers"][0]["supported_definitions"]
         .as_array()
@@ -318,7 +318,7 @@ async fn signed_sources_python_components_http_rpc_readback_restart_and_new_hist
     assert!(
         before
             .iter()
-            .any(|j| j["definition"] == "babel.judgment.moderation.v1")
+            .any(|j| j["definition"] == "babble.judgment.moderation.v1")
     );
     let start = Timestamp::now();
     let first = api.evaluate(&claim.id, &token).await;
@@ -348,14 +348,14 @@ async fn signed_sources_python_components_http_rpc_readback_restart_and_new_hist
         let records = source_history["judgments"].as_array().unwrap();
         let moderation = records
             .iter()
-            .find(|j| j["definition"] == "babel.judgment.moderation.v1")
+            .find(|j| j["definition"] == "babble.judgment.moderation.v1")
             .unwrap();
         let evidence = records
             .iter()
-            .find(|j| j["definition"] == "babel.judgment.evidence_quality.v1")
+            .find(|j| j["definition"] == "babble.judgment.evidence_quality.v1")
             .unwrap();
-        assert_eq!(moderation["provider"]["provider"], "babel-python");
-        assert_eq!(evidence["provider"]["provider"], "babel-python");
+        assert_eq!(moderation["provider"]["provider"], "babble-python");
+        assert_eq!(evidence["provider"]["provider"], "babble-python");
         assert_eq!(
             source.quality_score,
             moderation["output"]["quality"].as_f64().unwrap()
@@ -378,7 +378,7 @@ async fn signed_sources_python_components_http_rpc_readback_restart_and_new_hist
     assert_eq!(fetched["input"], first["input"]);
     let rpc = rpc_ok(
         api.rpc(
-            "babel.judgment.object.evaluate.v1",
+            "babble.judgment.object.evaluate.v1",
             &token,
             json!({"object_id":claim.id,"definition":DEFINITION,"parameters":{}}),
         )
@@ -389,7 +389,7 @@ async fn signed_sources_python_components_http_rpc_readback_restart_and_new_hist
     assert_eq!(rpc["orchestration"]["cache_hit"], true);
     let rpc_list = rpc_ok(
         api.rpc(
-            "babel.judgment.object.list.v1",
+            "babble.judgment.object.list.v1",
             &token,
             json!({"object_id":claim.id}),
         )
@@ -592,7 +592,7 @@ async fn empty_evidence_is_insufficient_and_http_rpc_caller_forgery_is_rejected(
         assert!(rejected.0.is_client_error(), "{rejected:?}");
         let rejected = ok(api
             .rpc(
-                "babel.judgment.object.evaluate.v1",
+                "babble.judgment.object.evaluate.v1",
                 &token,
                 json!({"object_id":claim.id,"definition":DEFINITION,"parameters":parameters}),
             )
@@ -617,8 +617,8 @@ async fn empty_evidence_is_insufficient_and_http_rpc_caller_forgery_is_rejected(
 const OBSERVED_WORKER: &str = r#"
 import json, socket, sys
 from dataclasses import asdict
-from babel_algorithms.execution import AlgorithmExecutor
-from babel_algorithms.worker import handle
+from babble_algorithms.execution import AlgorithmExecutor
+from babble_algorithms.worker import handle
 executor = AlgorithmExecutor()
 mode, port = sys.argv[1:]
 observer = socket.create_connection(('127.0.0.1', int(port)), timeout=3)
@@ -627,7 +627,7 @@ for line in sys.stdin.buffer:
     response = asdict(handle(line, executor))
     observer.sendall(json.dumps({'request': request, 'response': response}).encode() + b'\n')
     assert observer.recv(16) == b'observed'
-    if request['method'] == 'judge' and request['request']['definition'] == 'babel.judgment.source_agreement.v1':
+    if request['method'] == 'judge' and request['request']['definition'] == 'babble.judgment.source_agreement.v1':
         assert response['error'] is None
         result = response['result']
         output = result['output']
@@ -854,7 +854,7 @@ async fn real_worker_failures_and_malformed_outputs_are_sanitized_and_never_pers
         if matches!(mode, "error" | "foreign") {
             let failed_rpc = ok(api
                 .rpc(
-                    "babel.judgment.object.evaluate.v1",
+                    "babble.judgment.object.evaluate.v1",
                     &token,
                     json!({"object_id":claim.id,"definition":DEFINITION,"parameters":{}}),
                 )

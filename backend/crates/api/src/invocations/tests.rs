@@ -3,12 +3,12 @@ use axum::{
     body::{Body, to_bytes},
     http::Request,
 };
-use babel_authoring::ObjectDraft;
-use babel_identity::IdentityKind;
-use babel_judgment_local::LocalProvider;
-use babel_object::{CapabilityRequest, Resource, Surface, SurfaceRole, SurfaceTarget};
-use babel_rpc::{RpcBinding, babel_rpc_catalog};
-use babel_types::Hash;
+use babble_authoring::ObjectDraft;
+use babble_identity::IdentityKind;
+use babble_judgment_local::LocalProvider;
+use babble_object::{CapabilityRequest, Resource, Surface, SurfaceRole, SurfaceTarget};
+use babble_rpc::{RpcBinding, babble_rpc_catalog};
+use babble_types::Hash;
 use serde_json::json;
 use tower::ServiceExt;
 
@@ -18,22 +18,22 @@ const OTHER_DOCUMENT: &str = "00000000-0000-4000-8000-000000000002";
 mod browser;
 
 #[tokio::test]
-async fn safety_v2_http_execute_rechecks_block_after_host_approval() {
+async fn safety_http_execute_rechecks_block_after_host_approval() {
     for action in ["follow", "reply", "share", "unfollow"] {
         let mut f = Fixture::new();
         let (owner, actor) = {
             let mut node = f.state.node.lock().unwrap();
             let owner = node.create_identity(IdentityKind::Person, "target-owner").unwrap();
             let target = node.publish_text(&owner.id, "other target").unwrap();
-            let actor = babel_types::IdentityId::new_unchecked(f.actor.clone());
+            let actor = babble_types::IdentityId::new_unchecked(f.actor.clone());
             let draft = ObjectDraft::text("safety controller").unwrap().with_capability(CapabilityRequest {
-                id: format!("babel.social.{action}"), version: 1, scope: json!({"object_id":target.id})
+                id: format!("babble.social.{action}"), version: 1, scope: json!({"object_id":target.id})
             }).unwrap();
             f.controller = node.publish_draft(&actor, draft).unwrap().id.to_string();
             f.target = target.id.to_string();
             if action == "unfollow" {
-                node.publish_edge(&actor, babel_types::ObjectId::new_unchecked(f.controller.clone()),
-                    target.id, babel_graph::Relation::Follows, babel_graph::EdgeOrigin::HumanAssertion).unwrap();
+                node.publish_edge(&actor, babble_types::ObjectId::new_unchecked(f.controller.clone()),
+                    target.id, babble_graph::Relation::Follows, babble_graph::EdgeOrigin::HumanAssertion).unwrap();
             }
             (owner.id, actor)
         };
@@ -43,7 +43,7 @@ async fn safety_v2_http_execute_rechecks_block_after_host_approval() {
         } else { json!({"author_id":f.actor,"target_object_id":f.target}) };
         let (status, prepared) = f.host("POST", "/invocations/v1/prepare", json!({
             "origin":{"kind":"host_action","document_id":DOCUMENT}, "object_id":f.controller,
-            "method":format!("babel.social.{action}.v2"),"request_key":"safety-invocation","payload":payload
+            "method":format!("babble.social.{action}"),"request_key":"safety-invocation","payload":payload
         })).await;
         assert_eq!(status, StatusCode::OK, "{prepared}");
         let id = prepared["invocation_id"].as_str().unwrap();
@@ -75,7 +75,7 @@ struct Fixture {
 impl Fixture {
     fn new() -> Self {
         let root = std::env::temp_dir().join(format!(
-            "babel-invocation-api-{}",
+            "babble-invocation-api-{}",
             crate::auth::random_token().unwrap()
         ));
         let mut node = LocalNode::open(&root, LocalProvider::default()).unwrap();
@@ -105,13 +105,13 @@ impl Fixture {
         for action in ["follow", "unfollow", "share", "reply"] {
             draft = draft
                 .with_capability(CapabilityRequest {
-                    id: format!("babel.social.{action}"),
+                    id: format!("babble.social.{action}"),
                     version: 1,
                     scope: json!({"object_id":target.id}),
                 })
                 .unwrap();
         }
-        for capability in ["babel.clipboard.write", "babel.fullscreen.enter"] {
+        for capability in ["babble.clipboard.write", "babble.fullscreen.enter"] {
             draft = draft.with_capability(CapabilityRequest {
                 id: capability.into(), version: 1, scope: json!({}),
             }).unwrap();
@@ -176,7 +176,7 @@ impl Fixture {
             path,
             body,
             &self.token,
-            Some(("x-babel-host-document", DOCUMENT)),
+            Some(("x-babble-host-document", DOCUMENT)),
         )
         .await
     }
@@ -196,7 +196,7 @@ impl Fixture {
 
     fn prepare(&self, key: &str) -> Value {
         json!({"origin":{"kind":"host_action","document_id":DOCUMENT}, "object_id":self.controller,
-            "method":"babel.social.reply.v2","request_key":key,
+            "method":"babble.social.reply","request_key":key,
             "payload":{"author_id":self.actor,"target_object_id":self.target,"text":"approved text"}})
     }
 }
@@ -363,7 +363,7 @@ async fn invocation_completed_host_recovery_is_exact_login_bound_and_read_only_a
         assert!(body.get("result").is_none());
     }
     let mut changed = recovery.clone();
-    changed["method"] = json!("babel.social.share.v2");
+    changed["method"] = json!("babble.social.share");
     assert_eq!(
         f.call("POST", recover, changed, &f.token, None).await.0,
         StatusCode::CONFLICT
@@ -388,7 +388,7 @@ async fn invocation_completed_host_recovery_is_exact_login_bound_and_read_only_a
             &format!("/invocations/v1/{pending_id}/execute"),
             json!({}),
             &f.token,
-            Some(("x-babel-host-document", OTHER_DOCUMENT))
+            Some(("x-babble-host-document", OTHER_DOCUMENT))
         )
         .await
         .0,
@@ -499,7 +499,7 @@ async fn invocation_rejects_forged_login_document_author_and_implicit_host() {
                 &path,
                 json!({"decision":"allow_once"}),
                 token,
-                Some(("x-babel-host-document", document))
+                Some(("x-babble-host-document", document))
             )
             .await
             .0,
@@ -532,13 +532,13 @@ async fn invocation_rejects_forged_login_document_author_and_implicit_host() {
         f.host("POST", "/invocations/v1/prepare", extra).await.0,
         StatusCode::UNPROCESSABLE_ENTITY
     );
-    let catalog = babel_rpc_catalog().unwrap();
+    let catalog = babble_rpc_catalog().unwrap();
     let mut legacy_binding = RpcBinding::host("host", "https://host.example").unwrap();
     legacy_binding.object_id = Some(f.controller.clone());
     let request = RpcRequestEnvelope::new(
         &catalog,
         "legacy",
-        "babel.social.reply.v1",
+        "babble.social.reply.v1",
         legacy_binding,
         json!({"author_id":f.actor,"target_object_id":f.target,"text":"legacy"}),
     )
@@ -556,7 +556,7 @@ async fn invocation_rejects_forged_login_document_author_and_implicit_host() {
     assert_eq!(response["error"]["code"], "UNSUPPORTED_VERSION");
     assert_eq!(
         response["error"]["details"]["supported_method"],
-        "babel.social.reply.v2"
+        "babble.social.reply"
     );
 }
 
@@ -649,7 +649,7 @@ async fn invocation_surface_requires_active_bound_document_and_suspend_never_rev
     .unwrap();
     assert_eq!(
         session.plan.admission,
-        babel_runtime::RuntimeAdmissionStatus::Ready
+        babble_runtime::RuntimeAdmissionStatus::Ready
     );
     assert!(
         session
@@ -657,7 +657,7 @@ async fn invocation_surface_requires_active_bound_document_and_suspend_never_rev
             .capability_decisions
             .iter()
             .all(|decision| decision.status
-                == babel_capabilities::CapabilityDecisionStatus::RequiresUser
+                == babble_capabilities::CapabilityDecisionStatus::RequiresUser
                 && decision.grant.is_none())
     );
     crate::auth::bind_surface_document(&f.state, session.id.clone(), DOCUMENT.into(), &principal)
@@ -671,27 +671,27 @@ async fn invocation_surface_requires_active_bound_document_and_suspend_never_rev
     )
     .unwrap();
     let request = RpcRequestEnvelope::new(
-        &babel_rpc_catalog().unwrap(),
+        &babble_rpc_catalog().unwrap(),
         "surface-call",
-        "babel.social.reply.v2",
+        "babble.social.reply",
         binding,
         json!({"author_id":f.actor,"target_object_id":f.target,"text":"surface reply"}),
     )
     .unwrap()
     .with_idempotency_key("surface-key");
     let request = serde_json::to_value(request).unwrap();
-    let headers = Some(("x-babel-surface-document", DOCUMENT));
+    let headers = Some(("x-babble-surface-document", DOCUMENT));
     let (_, prefetch) = f
         .call("POST", "/rpc", request.clone(), &f.token, headers)
         .await;
     assert_eq!(prefetch["error"]["code"], "CAPABILITY_DENIED");
     {
         let mut node = f.state.node.lock().unwrap();
-        node.transition_surface_session(&session.id, babel_runtime::SurfaceLifecycle::Warm, "warm")
+        node.transition_surface_session(&session.id, babble_runtime::SurfaceLifecycle::Warm, "warm")
             .unwrap();
         node.transition_surface_session(
             &session.id,
-            babel_runtime::SurfaceLifecycle::Active,
+            babble_runtime::SurfaceLifecycle::Active,
             "visible",
         )
         .unwrap();
@@ -733,19 +733,19 @@ async fn invocation_surface_requires_active_bound_document_and_suspend_never_rev
         let mut node = f.state.node.lock().unwrap();
         node.transition_surface_session(
             &session.id,
-            babel_runtime::SurfaceLifecycle::Suspended,
+            babble_runtime::SurfaceLifecycle::Suspended,
             "hidden",
         )
         .unwrap();
         node.transition_surface_session(
             &session.id,
-            babel_runtime::SurfaceLifecycle::Warm,
+            babble_runtime::SurfaceLifecycle::Warm,
             "rewarm",
         )
         .unwrap();
         node.transition_surface_session(
             &session.id,
-            babel_runtime::SurfaceLifecycle::Active,
+            babble_runtime::SurfaceLifecycle::Active,
             "visible again",
         )
         .unwrap();
@@ -846,7 +846,7 @@ async fn invocation_all_four_social_methods_publish_real_bound_effects_including
         .unwrap();
     for action in ["follow", "unfollow", "share", "reply"] {
         let mut input = f.prepare(action);
-        input["method"] = json!(format!("babel.social.{action}.v2"));
+        input["method"] = json!(format!("babble.social.{action}"));
         if matches!(action, "follow" | "unfollow") {
             input["payload"].as_object_mut().unwrap().remove("text");
         } else {
@@ -871,7 +871,7 @@ async fn invocation_all_four_social_methods_publish_real_bound_effects_including
         assert_eq!(code, StatusCode::OK, "{result}");
         assert_eq!(result["result"]["edge"]["target"], f.target);
         if matches!(action, "share" | "reply") {
-            assert_eq!(result["result"]["object"]["kind"], "babel.media");
+            assert_eq!(result["result"]["object"]["kind"], "babble.media");
             assert_eq!(
                 result["result"]["object"]["payload"]["resources"],
                 json!([media])

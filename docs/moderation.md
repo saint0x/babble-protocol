@@ -7,7 +7,7 @@ workflow; completion is established by the evidence section, not by this design.
 
 Reports concern an existing public Object. Reporting alone never changes its
 distribution. Private mute/block and personal Lens preferences remain separate.
-Node-local reviewers are explicitly configured by `BABEL_MODERATOR_IDS` (comma
+Node-local reviewers are explicitly configured by `BABBLE_MODERATOR_IDS` (comma
 separated canonical identity IDs). Ordinary account sessions authenticate reviewers;
 no operator secret enters the frontend and no account can grant itself authority.
 An empty configuration grants nobody review authority. Malformed configuration must
@@ -61,7 +61,7 @@ are unavailable to the Object/Surface bridge. No equivalent public RPC is added.
   `{details, expected_revision, idempotency_key}`.
 
 Reason values: `spam`, `malware`, `fraud`, `harassment`, `illegal_content`,
-`other_integrity`. Policy version: `babel.integrity.v1`.
+`other_integrity`. Policy version: `babble.integrity.v1`.
 
 `ModerationCase` fields: `id` (`report_` + 64 lowercase hex), `sequence` (positive
 safe integer), `object_id`, `subject_author_id`, `reporter_id` (nullable when
@@ -96,7 +96,7 @@ retry the same intent; ambiguous writes do not silently create another report.
 ## Reviewer Setup
 
 Create reviewer accounts through normal registration and retain their identity IDs.
-Set `BABEL_MODERATOR_IDS` on the API process to a comma-separated list of those exact
+Set `BABBLE_MODERATOR_IDS` on the API process to a comma-separated list of those exact
 IDs, with no spaces or duplicates, then restart that process against the same store.
 Use at least two independent reviewer accounts so an initial decision can be appealed
 to a different person. Do not put this setting in Astro public environment variables.

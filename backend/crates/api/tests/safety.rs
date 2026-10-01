@@ -3,9 +3,9 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode},
 };
-use babel_api::{ApiState, router};
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
+use babble_api::{ApiState, router};
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -19,7 +19,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         Self(std::env::temp_dir().join(format!(
-            "babel-safety-http-{}-{}-{}",
+            "babble-safety-http-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed)
@@ -103,11 +103,11 @@ async fn rpc(
     payload: Value,
     key: &str,
 ) -> (StatusCode, Value) {
-    let envelope = babel_rpc::RpcRequestEnvelope::new(
-        &babel_rpc::babel_rpc_catalog().unwrap(),
+    let envelope = babble_rpc::RpcRequestEnvelope::new(
+        &babble_rpc::babble_rpc_catalog().unwrap(),
         key,
         method,
-        babel_rpc::RpcBinding::host("safety-tests", "https://babel.test").unwrap(),
+        babble_rpc::RpcBinding::host("safety-tests", "https://babble.test").unwrap(),
         payload,
     )
     .unwrap()
@@ -168,16 +168,16 @@ async fn safety_http_and_rpc_mutation_paths_enforce_both_directions_and_preserve
         )
         .await;
         assert_eq!(result.0, StatusCode::CONFLICT, "{result:?}");
-        let result = rpc(&app, actor, "babel.graph.edge.publish.v1", edge, "edge").await;
+        let result = rpc(&app, actor, "babble.graph.edge.publish.v1", edge, "edge").await;
         assert_eq!(result.1["error"]["code"], "CONFLICT", "{result:?}");
         assert!(
             result.1.to_string().contains("interaction unavailable"),
             "{result:?}"
         );
-        let draft = babel_authoring::ObjectDraft::text("generic provenance")
+        let draft = babble_authoring::ObjectDraft::text("generic provenance")
             .unwrap()
-            .with_provenance(babel_object::Provenance {
-                parent: Some(babel_types::ObjectId::new_unchecked(target.clone())),
+            .with_provenance(babble_object::Provenance {
+                parent: Some(babble_types::ObjectId::new_unchecked(target.clone())),
                 forked_from: None,
                 remixed_from: vec![],
             })
@@ -195,7 +195,7 @@ async fn safety_http_and_rpc_mutation_paths_enforce_both_directions_and_preserve
             .0,
             StatusCode::CONFLICT
         );
-        let result = rpc(&app, actor, "babel.object.publish.v1", payload, "generic").await;
+        let result = rpc(&app, actor, "babble.object.publish.v1", payload, "generic").await;
         assert!(
             result.1.to_string().contains("interaction unavailable"),
             "{result:?}"
@@ -214,7 +214,7 @@ async fn safety_http_and_rpc_mutation_paths_enforce_both_directions_and_preserve
         let result = rpc(
             &app,
             actor,
-            "babel.social.reactions.set.v1",
+            "babble.social.reactions.set.v1",
             json!({"object_id":target,"value":value,"expected_revision":0}),
             "reaction-rpc",
         )
@@ -439,7 +439,7 @@ async fn safety_http_auth_owner_isolation_validation_restart_and_exact_retry() {
             Request::builder()
                 .uri("/social/safety")
                 .header("authorization", format!("Bearer {}", alice.token))
-                .header("x-babel-surface-document", "embedded")
+                .header("x-babble-surface-document", "embedded")
                 .body(Body::empty())
                 .unwrap(),
         )

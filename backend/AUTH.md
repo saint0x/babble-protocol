@@ -139,7 +139,7 @@ iframe; the frontend watchdog and renewal-failure teardown enforce local exit.
 
 Moderation REST endpoints under `/moderation/` require an ordinary account session
 and return `no-store`, including failures. Only explicitly configured canonical
-identity IDs in `BABEL_MODERATOR_IDS` can review; empty configuration grants nobody
+identity IDs in `BABBLE_MODERATOR_IDS` can review; empty configuration grants nobody
 authority and malformed configuration prevents startup. Self-review and appeals
 reviewed by the original decision maker are denied. Object-bound RPC and Surface
 documents cannot use moderation endpoints. Private signed receipts, case history,
@@ -148,14 +148,14 @@ are checked at Surface preparation, execution, heartbeat, and bundle-gateway
 authorization; public signed Object reads remain intact. See
 `../docs/moderation.md` for workflow, redaction, and operator setup.
 
-`BABEL_OPERATOR_TOKEN` is an optional environment-only credential of at least 32
+`BABBLE_OPERATOR_TOKEN` is an optional environment-only credential of at least 32
 bytes. Without a valid configured token, HTTP event export/import, consensus
 checkpoint operations, global observability and runtime health are inaccessible.
 User tokens cannot access these operations. Never expose this token in the UI.
 Legacy HTTP `/identities` and RPC identity creation are disabled for everyone;
 registration is canonical.
 
-Accounts and token hashes live in `<BABEL_STORE_ROOT>/auth/accounts.sqlite3` using
+Accounts and token hashes live in `<BABBLE_STORE_ROOT>/auth/accounts.sqlite3` using
 SQLite transactions and full synchronization. Only hashes of passwords and bearer
 tokens are stored. Signing keys, which the custodial node needs to publish on an
 account's behalf, live separately under `signing_keys`, versioned by public key.

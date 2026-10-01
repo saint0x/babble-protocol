@@ -4,14 +4,14 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode, header},
 };
-use babel_authoring::ObjectDraft;
-use babel_identity::IdentityKind;
-use babel_judgment_local::LocalProvider;
-use babel_object::{
+use babble_authoring::ObjectDraft;
+use babble_identity::IdentityKind;
+use babble_judgment_local::LocalProvider;
+use babble_object::{
     Surface, SurfaceTarget,
     bundle::{BundleFile, BundleFileKind, BundleManifest},
 };
-use babel_runtime::{RuntimeAdmissionStatus, SurfaceLifecycle};
+use babble_runtime::{RuntimeAdmissionStatus, SurfaceLifecycle};
 use serde_json::{Value, json};
 use std::{fs, path::PathBuf};
 use tower::ServiceExt;
@@ -26,7 +26,7 @@ struct Harness {
 
 #[tokio::test]
 async fn moderation_restrict_withdraws_live_gateway_heartbeat_and_restores_only_new_admission() {
-    use babel_graph::moderation::*;
+    use babble_graph::moderation::*;
     let h = Harness::new();
     let (reporter,reviewer,independent) = {
         let mut node=h.state.node.lock().unwrap();
@@ -66,7 +66,7 @@ impl Drop for Harness {
 }
 impl Harness {
     fn new() -> Self {
-        let root = std::env::temp_dir().join(format!("babel-gateway-{}", random_token().unwrap()));
+        let root = std::env::temp_dir().join(format!("babble-gateway-{}", random_token().unwrap()));
         let mut node = LocalNode::open(&root, LocalProvider::default()).unwrap();
         let identity = node
             .create_identity(IdentityKind::Person, "gateway")
@@ -95,7 +95,7 @@ impl Harness {
             let integrity = node.store().put_blob(bytes.as_bytes()).unwrap();
             files.push(BundleFile {
                 path: path.into(),
-                source_uri: format!("babel://blobs/{integrity}"),
+                source_uri: format!("babble://blobs/{integrity}"),
                 integrity,
                 size_bytes: bytes.len() as u64,
                 media_type: media_type.into(),
@@ -527,8 +527,8 @@ async fn http_prepare_and_start_preserve_account_ownership_and_disabled_gateway_
 async fn grant_revocation_prevents_further_resource_delivery_even_for_a_valid_snapshot() {
     let mut h = Harness::new();
     let identity = IdentityId::new_unchecked(h.principal.identity_id.clone());
-    let capability = babel_object::CapabilityRequest {
-        id: "babel.storage.local".into(),
+    let capability = babble_object::CapabilityRequest {
+        id: "babble.storage.local".into(),
         version: 1,
         scope: json!({"namespace":"self"}),
     };
@@ -557,10 +557,10 @@ async fn grant_revocation_prevents_further_resource_delivery_even_for_a_valid_sn
             &identity,
             &h.object,
             capability,
-            babel_capabilities::GrantDecision::Approved,
+            babble_capabilities::GrantDecision::Approved,
         )
         .unwrap();
-    let grant = babel_types::CapabilityGrantId::new_unchecked(
+    let grant = babble_types::CapabilityGrantId::new_unchecked(
         event.payload["grant"]["id"].as_str().unwrap().to_owned(),
     );
     let mount = h.start(None).unwrap().plan.verified_mount.unwrap();

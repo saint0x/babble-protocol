@@ -5,7 +5,7 @@ import { assertLiveStackIsolation } from "./live-stack-isolation.mjs";
 const stages = ["setup", "cancel", "layout-320", "layout-390", "layout-1280", "comment-report", "report", "privacy", "review", "restriction", "restart", "appeal", "reversal", "receipts", "comment-restrict", "comment-appeal", "comment-reversal"];
 
 export function assertModerationIsolation(config) {
-  return assertLiveStackIsolation(config, "BABEL_MODERATION_SOURCE_FROZEN");
+  return assertLiveStackIsolation(config, "BABBLE_MODERATION_SOURCE_FROZEN");
 }
 
 // These accounts exist only under live-stack's mkdtemp store. No SQLite edits or
@@ -149,11 +149,11 @@ function moderationHarness({ apiUrl, accounts, seed, marker }, readMutation) {
   const canonical = value => Array.isArray(value) ? value.map(canonical) : value && typeof value === "object"
     ? Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])])) : value;
   const equal = (actual, expected, message) => check(JSON.stringify(canonical(actual)) === JSON.stringify(canonical(expected)), message);
-  const sessionKey = `babel.session.v1:${apiUrl}`;
+  const sessionKey = `babble.session.v1:${apiUrl}`;
   const savedSession = sessionStorage.getItem(sessionKey);
   const reporter = JSON.parse(savedSession ?? "null");
   check(reporter?.token && reporter.identity?.id, "Disposable reporter must be signed in");
-  check(location.origin === "http://127.0.0.1:14329" && document.documentElement.dataset.babelApi === apiUrl, "Production preview must not be used");
+  check(location.origin === "http://127.0.0.1:14329" && document.documentElement.dataset.babbleApi === apiUrl, "Production preview must not be used");
   const restoreStorage = () => savedSession === null ? sessionStorage.removeItem(sessionKey) : sessionStorage.setItem(sessionKey, savedSession);
   const key = label => `${marker}-${label}-${crypto.randomUUID()}`;
   let frame, doc, win, object, child, sibling, childCase, quoteEdge, initialObject, initialGraph, initialOutgoing, report, session, followBefore, restrictedCase, busy = false;
@@ -196,7 +196,7 @@ function moderationHarness({ apiUrl, accounts, seed, marker }, readMutation) {
   };
   const rpc = async (method, payload) => {
     const response = await ok("/rpc", { account: null, method: "POST", body: {
-      protocol: "babel.rpc.v1", id: crypto.randomUUID(), method, payload, idempotency_key: null,
+      protocol: "babble.rpc.v1", id: crypto.randomUUID(), method, payload, idempotency_key: null,
       binding: { object_id: null, surface_session_id: null, runtime_id: "moderation-acceptance", origin: location.origin, capability_grants: [] },
       deadline: { timeout_ms: 20000, client_started_at: null }, trace_id: null,
     } });
@@ -205,7 +205,7 @@ function moderationHarness({ apiUrl, accounts, seed, marker }, readMutation) {
   };
   const reportPath = () => `/moderation/reports/${report.id}`;
   const detail = (account = reporter) => ok(reportPath(), { account });
-  const decision = (revision, outcome = "restrict") => ({ outcome, reason: "spam", explanation: "Reviewed the original Object and the submitted integrity evidence.", policy_version: "babel.integrity.v1", source_signals: [], expected_revision: revision, idempotency_key: key("decision") });
+  const decision = (revision, outcome = "restrict") => ({ outcome, reason: "spam", explanation: "Reviewed the original Object and the submitted integrity evidence.", policy_version: "babble.integrity.v1", source_signals: [], expected_revision: revision, idempotency_key: key("decision") });
   const denied = async (path, options, status) => {
     const result = await request(path, options); check(result.status === status, `Expected ${status}: ${path}, received ${result.status}`); return result;
   };
@@ -225,7 +225,7 @@ function moderationHarness({ apiUrl, accounts, seed, marker }, readMutation) {
     const path = kind === "report" ? "/moderation/reports" : `/moderation/reports/${target.id}/${kind === "decision" ? "decisions" : "appeals"}`;
     const expected = kind === "report" ? { object_id: target.id, reason: field("reason"), details: field("details") }
       : kind === "appeal" ? { details: field("details"), expected_revision: target.revision }
-        : { outcome: field("outcome"), reason: field("reason"), explanation: field("explanation"), policy_version: "babel.integrity.v1", source_signals: [], expected_revision: target.revision };
+        : { outcome: field("outcome"), reason: field("reason"), explanation: field("explanation"), policy_version: "babble.integrity.v1", source_signals: [], expected_revision: target.revision };
     // The arrival cursor is captured immediately before this one UI action. Keep
     // reading that floor until its real response completes; never skip in-flight
     // requests when unrelated background traffic advances the observer cursor.
@@ -299,7 +299,7 @@ function moderationHarness({ apiUrl, accounts, seed, marker }, readMutation) {
     const replyIds = [], cursors = new Set();
     let cursor = null;
     do {
-      const page = await rpc("babel.social.replies.list.v1", { object_id: object.id, cursor, limit: 1 });
+      const page = await rpc("babble.social.replies.list.v1", { object_id: object.id, cursor, limit: 1 });
       check(page.object_id === object.id && page.replies.length === 1, "Reply pagination returned an empty or oversized page");
       check(page.replies[0].object.signature && page.replies[0].edge.signature, "Reply projection lost signed records");
       replyIds.push(page.replies[0].object.id);
@@ -309,7 +309,7 @@ function moderationHarness({ apiUrl, accounts, seed, marker }, readMutation) {
     } while (cursor !== null);
     equal(replyIds, restricted ? [sibling.id] : [child.id, sibling.id], "Restricted replies must be filtered before pagination");
     const quoteRest = await ok(`/objects/${object.id}/quotes?limit=20`, { account: null });
-    const quoteRpc = await rpc("babel.social.quotes.list.v1", { object_id: object.id, cursor: null, limit: 20 });
+    const quoteRpc = await rpc("babble.social.quotes.list.v1", { object_id: object.id, cursor: null, limit: 20 });
     equal(quoteRpc, quoteRest, "REST and RPC quote projections diverged");
     const quote = quoteRest.quotes.find(item => item.edge.id === quoteEdge.id);
     check(quote, "Moderation deleted the quoted relationship");
@@ -363,7 +363,7 @@ function moderationHarness({ apiUrl, accounts, seed, marker }, readMutation) {
     return { state, width: win.innerWidth, height: win.innerHeight, radii, controls: controls.length, scope: "Production iframe responsive layout; not physical touch E2E" };
   };
   const discovery = async (restricted) => {
-    for (const lens of [null, { id: "babel.lens.stack.research.v1", weights: [{ lens: "Research", weight: 1 }] }, { id: "babel.lens.stack.weird.v1", weights: [{ lens: "Weird", weight: 1 }] }]) {
+    for (const lens of [null, { id: "babble.lens.stack.research.v1", weights: [{ lens: "Research", weight: 1 }] }, { id: "babble.lens.stack.weird.v1", weights: [{ lens: "Weird", weight: 1 }] }]) {
       const result = await ok("/discovery/candidates", { method: "POST", body: { anchors: [], search: marker, followed_objects: [], limit: 50, exploration_slots: 1, lens } });
       check(result.discovery.objects.some(item => item.id === object.id) === !restricted, `Discovery restriction mismatch: ${lens?.id ?? "default"}`);
     }
@@ -645,7 +645,7 @@ if (process.argv[2] === "--contract-check") {
   for (const kind of ["decision", "appeal"]) {
     const path = `/moderation/reports/${caseId}/${kind === "decision" ? "decisions" : "appeals"}`;
     const expected = kind === "decision"
-      ? { outcome: "restrict", reason: "spam", explanation: "Actual submitted review explanation.", policy_version: "babel.integrity.v1", source_signals: [], expected_revision: 1 }
+      ? { outcome: "restrict", reason: "spam", explanation: "Actual submitted review explanation.", policy_version: "babble.integrity.v1", source_signals: [], expected_revision: 1 }
       : { details: "Private appeal evidence must stay redacted to reporter.", expected_revision: 2 };
     const value = { id: caseId, revision: expected.expected_revision + 1, status: kind === "decision" ? "decided" : "appealed",
       ...(kind === "decision" ? { decisions: [{ ...expected, reviewer_id: actor }] } : { reporter_id: null, reason: null, details: null, appeal: { appellant_id: actor, details: expected.details } }) };
@@ -656,16 +656,16 @@ if (process.argv[2] === "--contract-check") {
       kind === "decision" ? { ...value, decisions: [{ ...value.decisions[0], outcome: "no_action" }] } : { ...value, appeal: { ...value.appeal, details: "Changed" } },
     ]) assert.throws(() => read({ cursor: 5, requests: [record(path, expected, invalid)] }, settings));
   }
-  const priorFreeze = process.env.BABEL_MODERATION_SOURCE_FROZEN;
+  const priorFreeze = process.env.BABBLE_MODERATION_SOURCE_FROZEN;
   try {
-    delete process.env.BABEL_MODERATION_SOURCE_FROZEN;
+    delete process.env.BABBLE_MODERATION_SOURCE_FROZEN;
     await assert.rejects(assertModerationIsolation({ apiPort: 18787, gatewayPort: 18788, frontendPort: 14329, aegisAddr: "127.0.0.1:17878" }), /source freeze required/);
-    process.env.BABEL_MODERATION_SOURCE_FROZEN = "1";
+    process.env.BABBLE_MODERATION_SOURCE_FROZEN = "1";
     await assert.rejects(assertModerationIsolation({ apiPort: 8787, gatewayPort: 8788, frontendPort: 4321, aegisAddr: "127.0.0.1:17878" }), /Disposable test ports/);
     await assert.rejects(assertModerationIsolation({ apiPort: 18787, gatewayPort: 18788, frontendPort: 14329, aegisAddr: "127.0.0.1:7878" }), /Acceptance Aegis address/);
   } finally {
-    if (priorFreeze === undefined) delete process.env.BABEL_MODERATION_SOURCE_FROZEN;
-    else process.env.BABEL_MODERATION_SOURCE_FROZEN = priorFreeze;
+    if (priorFreeze === undefined) delete process.env.BABBLE_MODERATION_SOURCE_FROZEN;
+    else process.env.BABBLE_MODERATION_SOURCE_FROZEN = priorFreeze;
   }
   for (const failed of [...stages, "cleanup"]) {
     const calls = [], context = createContext({ window: {} });

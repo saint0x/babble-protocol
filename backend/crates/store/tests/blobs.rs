@@ -1,5 +1,5 @@
-use babel_store::{BlobReadError, FileStore};
-use babel_types::Hash;
+use babble_store::{BlobReadError, FileStore};
+use babble_types::Hash;
 use std::{
     fs,
     path::PathBuf,
@@ -12,7 +12,7 @@ impl StoreRoot {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         Self(std::env::temp_dir().join(format!(
-            "babel-bounded-blobs-{}-{}-{}",
+            "babble-bounded-blobs-{}-{}-{}",
                 std::process::id(),
                 SystemTime::now()
                     .duration_since(UNIX_EPOCH)
@@ -68,11 +68,11 @@ fn bounded_blobs_distinguish_missing_invalid_and_tampered_bytes() {
         let invalid = Hash::new_unchecked(invalid);
         assert!(matches!(
             store.get_blob_bounded(&invalid, 100),
-            Err(BlobReadError::Storage(babel_types::Error::Canonical(_)))
+            Err(BlobReadError::Storage(babble_types::Error::Canonical(_)))
         ));
         assert!(matches!(
             store.get_blob(&invalid),
-            Err(babel_types::Error::Canonical(_))
+            Err(babble_types::Error::Canonical(_))
         ));
     }
     assert_eq!(

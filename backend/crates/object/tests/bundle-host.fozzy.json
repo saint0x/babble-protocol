@@ -14,7 +14,7 @@
         "--manifest-path",
         "backend/Cargo.toml",
         "-p",
-        "babel-object"
+        "babble-object"
       ],
       "expect_exit": 0
     }

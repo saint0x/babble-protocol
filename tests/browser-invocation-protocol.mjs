@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 // durable failure/ack replay without fabricating a native-success result.
 export async function verifyBrowserDispatchProtocol({ task, invocation }) {
   const results = [];
-  for (const method of ["babel.clipboard.write.v2", "babel.fullscreen.enter.v2"]) {
+  for (const method of ["babble.clipboard.write", "babble.fullscreen.enter"]) {
     const input = { method, key: randomUUID(), payload: method.includes("clipboard") ? { text: "Protocol-only unexecuted intent" } : {}, timeoutMs: 30000 };
     const prepared = await task((s, input) => s.prepare(input), input);
     assert.equal(prepared.status, 200);
@@ -18,7 +18,7 @@ export async function verifyBrowserDispatchProtocol({ task, invocation }) {
     const tickets = winners.filter(result => result.body.execution_ticket);
     assert.equal(tickets.length, 1, "only first winning response receives execution authority");
     const ticket = tickets[0].body.execution_ticket;
-    assert.equal(ticket.executor, "babel.browser.v1");
+    assert.equal(ticket.executor, "babble.browser.v1");
     assert.equal((await invocation(id)).body.execution_ticket, null, "lost dispatch response cannot recover native authority through status");
     assert.equal((await invocation(id, "dispatch")).body.execution_ticket, null, "retry cannot recover native authority");
     const ack = { dispatch_id: ticket.dispatch_id, result: { kind: "failed", code: "context_lost" } };

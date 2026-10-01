@@ -1,7 +1,7 @@
-import type { RpcOutput } from "@babel-protocol/sdk";
+import type { RpcOutput } from "@babble-protocol/sdk";
 import { mediaKind, type MediaKind } from "./media-kind";
 
-type MediaObject = RpcOutput<"babel.object.get.v1">["object"];
+type MediaObject = RpcOutput<"babble.object.get.v1">["object"];
 type Resource = MediaObject["resources"][number];
 export interface CardMedia {
   readonly media: string | null;
@@ -24,7 +24,7 @@ export function resolveCardMedia(object: MediaObject, apiUrl: URL): MediaCollect
   const empty: MediaCollection = { media: null, mediaKind: null, mediaType: null, mediaItems: [] };
   const payload = object.payload;
   const hasPayload = payload !== null && typeof payload === "object" && !Array.isArray(payload);
-  const hasAlbum = object.kind === "babel.media" && hasPayload && Object.hasOwn(payload, "resources");
+  const hasAlbum = object.kind === "babble.media" && hasPayload && Object.hasOwn(payload, "resources");
   if (hasAlbum && !Array.isArray(payload.resources)) return empty;
   // Payload resources define the album; outer resources also carry unrelated Surface assets.
   let resources: readonly (Resource | undefined)[] = object.resources;
@@ -74,7 +74,7 @@ function resolveResource(resource: Resource, objectId: string, apiUrl: URL): Med
   const kind = mediaKind(resource.media_type);
   if (!kind) return null;
   const result = { mediaKind: kind, mediaType: resource.media_type, integrity: resource.integrity };
-  if (resource.uri === `babel://blobs/${resource.integrity}`) {
+  if (resource.uri === `babble://blobs/${resource.integrity}`) {
     return { ...result, media: new URL(`/objects/${encodeURIComponent(objectId)}/media/${encodeURIComponent(resource.integrity)}`, apiUrl).href };
   }
   try {

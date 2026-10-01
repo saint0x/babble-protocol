@@ -16,7 +16,7 @@ export function audioFixture() {
 }
 
 export function videoFixture() {
-  const directory = mkdtempSync(join(tmpdir(), "babel-media-fixture-"));
+  const directory = mkdtempSync(join(tmpdir(), "babble-media-fixture-"));
   try {
     const file = join(directory, "motion.webm");
     execFileSync("ffmpeg", ["-v", "error", "-f", "lavfi", "-i", "testsrc2=size=320x180:rate=12", "-t", "4", "-an",
@@ -134,7 +134,7 @@ async function verifyMediaConversations(evaluate, waitFor, playbackFixtures) {
     137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,1,0,0,0,1,8,6,0,0,0,31,21,196,
     137,0,0,0,13,73,68,65,84,120,156,99,248,15,4,0,9,251,3,253,167,89,231,219,0,0,0,0,73,69,78,68,174,66,96,130,
   ]) }, ...playbackFixtures];
-  const { api } = await evaluate("({api:document.documentElement.dataset.babelApi})");
+  const { api } = await evaluate("({api:document.documentElement.dataset.babbleApi})");
   for (const fixture of fixtures) {
     for (const mode of ["reply", "share"]) {
       const caption = `Surface live ${mode} ${fixture.kind} Object`;
@@ -175,7 +175,7 @@ async function verifyMediaConversations(evaluate, waitFor, playbackFixtures) {
       const objectResponse = await fetch(`${api}/objects/${publication.id}`);
       assert.equal(objectResponse.status, 200);
       const { object } = await objectResponse.json();
-      assert.equal(object.kind, "babel.media");
+      assert.equal(object.kind, "babble.media");
       assert.equal(object.payload.description, caption);
       assert.equal(object.payload.primary_resource.media_type, fixture.type);
       const graphResponse = await fetch(`${api}/graph/objects/${publication.id}/outgoing`);

@@ -18,12 +18,12 @@ export interface RpcRequestOptions {
   readonly surfaceDocumentId?: string;
 }
 
-export interface BabelTransport {
+export interface BabbleTransport {
   request(envelope: RpcRequestEnvelope, options?: RpcRequestOptions): Promise<RpcResponseEnvelope>;
   close(): void;
 }
 
-export class BabelError extends Error {
+export class BabbleError extends Error {
   readonly code: RpcError["code"];
   readonly retryable: boolean;
   readonly retryAfterMs: number | null;
@@ -31,7 +31,7 @@ export class BabelError extends Error {
 
   constructor(error: RpcError) {
     super(error.message);
-    this.name = "BabelError";
+    this.name = "BabbleError";
     this.code = error.code;
     this.retryable = error.retryable;
     this.retryAfterMs = error.retry_after_ms ?? null;
@@ -39,7 +39,7 @@ export class BabelError extends Error {
   }
 }
 
-export class HttpRpcTransport implements BabelTransport {
+export class HttpRpcTransport implements BabbleTransport {
   readonly endpoint: URL;
   readonly fetchImpl: typeof fetch;
 
@@ -54,11 +54,11 @@ export class HttpRpcTransport implements BabelTransport {
     const headers: Record<string, string> = { "content-type": "application/json" };
     if (surfaceBound) {
       if (typeof documentId !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(documentId)) {
-        throw new Error("Babel Object+Surface RPC requires a canonical lowercase UUID surface document ID");
+        throw new Error("Babble Object+Surface RPC requires a canonical lowercase UUID surface document ID");
       }
-      headers["x-babel-surface-document"] = documentId;
+      headers["x-babble-surface-document"] = documentId;
     } else if (documentId !== undefined) {
-      throw new Error("Babel surface document ID requires both Object and Surface session bindings");
+      throw new Error("Babble surface document ID requires both Object and Surface session bindings");
     }
     const init: RequestInit = {
       method: "POST",
@@ -70,7 +70,7 @@ export class HttpRpcTransport implements BabelTransport {
     }
     const response = await this.fetchImpl(this.endpoint, init);
     if (!response.ok) {
-      throw new Error(`Babel RPC HTTP transport failed with status ${response.status}`);
+      throw new Error(`Babble RPC HTTP transport failed with status ${response.status}`);
     }
     return (await response.json()) as RpcResponseEnvelope;
   }

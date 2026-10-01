@@ -1,6 +1,6 @@
-use babel_judgment::{DefinitionId, JudgmentProvider, JudgmentRequest, JudgmentState};
-use babel_judgment_local::LocalProvider;
-use babel_types::Error;
+use babble_judgment::{DefinitionId, JudgmentProvider, JudgmentRequest, JudgmentState};
+use babble_judgment_local::LocalProvider;
+use babble_types::Error;
 use serde_json::json;
 use std::collections::BTreeMap;
 

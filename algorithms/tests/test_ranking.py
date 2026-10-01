@@ -12,10 +12,10 @@ from pathlib import Path
 import pytest
 from ranking_assertions import assert_json_close
 
-from babel_algorithms.execution import AlgorithmExecutor
-from babel_algorithms.ranking import lens_reasons, rank
-from babel_algorithms.ranking_time import parse_timestamp, timestamp_nanos
-from babel_algorithms.ranking_types import (
+from babble_algorithms.execution import AlgorithmExecutor
+from babble_algorithms.ranking import lens_reasons, rank
+from babble_algorithms.ranking_time import parse_timestamp, timestamp_nanos
+from babble_algorithms.ranking_types import (
     RANKING_PROVIDER,
     BuiltInLens,
     Candidate,
@@ -27,9 +27,9 @@ from babel_algorithms.ranking_types import (
     Signals,
     SourceFloor,
 )
-from babel_algorithms.ranking_wire import parse_ranking_request
-from babel_algorithms.types import CandidateSource, CandidateSourceContribution, ReputationSignals
-from babel_algorithms.wire import (
+from babble_algorithms.ranking_wire import parse_ranking_request
+from babble_algorithms.types import CandidateSource, CandidateSourceContribution, ReputationSignals
+from babble_algorithms.wire import (
     MAX_ARRAY_ITEMS,
     MAX_DEPTH,
     MAX_JUDGMENT_LINE_BYTES,
@@ -42,7 +42,7 @@ from babel_algorithms.wire import (
     decode,
     object_value,
 )
-from babel_algorithms.worker import encode, handle
+from babble_algorithms.worker import encode, handle
 
 
 def candidate(index: int = 0, source: CandidateSource = "Following") -> Candidate:
@@ -89,7 +89,7 @@ def envelope(body: Json, identity: int = 1) -> dict[str, Json]:
 
 def exchange(data: bytes) -> list[dict[str, Json]]:
     result = subprocess.run(
-        [sys.executable, "-m", "babel_algorithms.worker"],
+        [sys.executable, "-m", "babble_algorithms.worker"],
         input=data,
         capture_output=True,
         timeout=15,
@@ -410,7 +410,7 @@ def test_maximum_request_full_trace_and_empty_candidates() -> None:
 
 def test_persistent_worker_flushes_rank_before_eof_with_deadline() -> None:
     with subprocess.Popen(
-        [sys.executable, "-m", "babel_algorithms.worker"],
+        [sys.executable, "-m", "babble_algorithms.worker"],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
     ) as process:
@@ -437,7 +437,7 @@ def test_judgment_frame_limit_retained_after_ranking_expansion() -> None:
         "id": 1,
         "method": "judge",
         "request": {
-            "definition": "babel.judgment.spam.v1",
+            "definition": "babble.judgment.spam.v1",
             "state": {"subject": "obj_test", "context": {"text": "hello"}},
             "parameters": {},
         },
@@ -447,7 +447,7 @@ def test_judgment_frame_limit_retained_after_ranking_expansion() -> None:
     responses = exchange(exact + exact[:-1] + b" \n")
     assert responses[0]["error"] is None
     assert responses[1]["error"] is not None
-    oversized_unknown = exact[:-1].replace(b"babel.judgment.spam.v1", b"babel.judgment.unknown.v1")
+    oversized_unknown = exact[:-1].replace(b"babble.judgment.spam.v1", b"babble.judgment.unknown.v1")
     rejected = handle(oversized_unknown + b"\n", AlgorithmExecutor())
     assert rejected.error is not None and rejected.error.code == "invalid_request"
 
@@ -460,7 +460,7 @@ def test_rust_golden_ranking_parity() -> None:
     for raw in cases:
         case = object_value(raw)
         expected = object_value(case["result"])
-        expected["provider"] = {"provider": "babel-python", "model": "lenses-v1", "version": "1"}
+        expected["provider"] = {"provider": "babble-python", "model": "lenses-v1", "version": "1"}
         response = handle(frame(envelope(case["request"])), AlgorithmExecutor())
         assert response.error is None, case.get("name")
         actual = object_value(decode(encode(response)))["result"]

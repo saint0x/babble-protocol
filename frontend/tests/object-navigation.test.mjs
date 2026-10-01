@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
-import { createPersonalizationFilter } from "@babel-protocol/sdk";
+import { createPersonalizationFilter } from "@babble-protocol/sdk";
 
 const source = (name) => readFileSync(new URL(`../src/app/${name}.ts`, import.meta.url), "utf8");
 const main = ts.createSourceFile("main.ts", source("main"), ts.ScriptTarget.Latest, true);
@@ -102,7 +102,7 @@ function harness({ lens = "balanced", guest = false } = {}) {
     ObjectVisits, Profiles, document, HTMLElement: Element, required: (value) => value, ...reading,
     cards: initial, currentIndex: 1, loadSequence: 4, activeLens: lens, followingDirty: false,
     author: guest ? null : { identityId: "owner", handle: "Owner" },
-    accounts: { current: guest ? null : { identity: { id: "owner", handle: "Owner" } }, origin: new URL("https://babel.test"),
+    accounts: { current: guest ? null : { identity: { id: "owner", handle: "Owner" } }, origin: new URL("https://babble.test"),
       fetch() { assert.fail("Object navigation must not issue authenticated transport requests"); } },
     client: {
       publicIdentity(id, signal) { calls.push(["identity", id]); return Promise.resolve({ id, handle: id }); },

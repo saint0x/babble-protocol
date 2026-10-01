@@ -1,8 +1,8 @@
 use crate::LocalNode;
-use babel_graph::{Edge, Relation};
-use babel_judgment::JudgmentProvider;
-use babel_object::Object;
-use babel_types::{EdgeId, Error, IdentityId, ObjectId, Result, Timestamp};
+use babble_graph::{Edge, Relation};
+use babble_judgment::JudgmentProvider;
+use babble_object::Object;
+use babble_types::{EdgeId, Error, IdentityId, ObjectId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, ops::Bound};

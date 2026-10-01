@@ -6,10 +6,10 @@ mod ranking;
 mod temporal;
 mod transport;
 
-use babel_judgment::{
+use babble_judgment::{
     Judgment, JudgmentProvider, JudgmentRegistry, JudgmentRequest, ProviderVersion,
 };
-use babel_types::{Canonical, Error, JudgmentId, Result, Timestamp};
+use babble_types::{Canonical, Error, JudgmentId, Result, Timestamp};
 use contract::{JudgeResult, Request, Response, WorkerResult};
 use std::{
     path::PathBuf,
@@ -123,8 +123,8 @@ impl PythonProvider {
 }
 
 impl JudgmentProvider for PythonProvider {
-    fn privacy_policy(&self) -> babel_judgment::JudgmentPrivacyPolicy {
-        let mut policy = babel_judgment::JudgmentPrivacyPolicy::local_full();
+    fn privacy_policy(&self) -> babble_judgment::JudgmentPrivacyPolicy {
+        let mut policy = babble_judgment::JudgmentPrivacyPolicy::local_full();
         policy.allowed_context_keys.extend(
             ["source_agreement", "source_text", "target_text"]
                 .into_iter()
@@ -226,10 +226,10 @@ fn validate_result(request: &JudgmentRequest, result: &JudgeResult) -> Result<()
     {
         return Err(unavailable("invalid worker result"));
     }
-    JudgmentRegistry::babel_core()
+    JudgmentRegistry::babble_core()
         .validate_output(&request.definition, &result.output)
         .map_err(|_| unavailable("invalid worker output"))?;
-    if request.definition == babel_judgment::DefinitionId::relationship_v1() {
+    if request.definition == babble_judgment::DefinitionId::relationship_v1() {
         let expected = request
             .parameters
             .get("relation")
@@ -244,8 +244,8 @@ fn validate_result(request: &JudgmentRequest, result: &JudgeResult) -> Result<()
             return Err(unavailable("worker changed requested relation"));
         }
     }
-    if request.definition == babel_judgment::DefinitionId::source_agreement_v1() {
-        babel_judgment::validate_source_agreement_result(request, &result.output)
+    if request.definition == babble_judgment::DefinitionId::source_agreement_v1() {
+        babble_judgment::validate_source_agreement_result(request, &result.output)
             .map_err(|_| unavailable("worker source agreement does not match request"))?;
     }
     Ok(())

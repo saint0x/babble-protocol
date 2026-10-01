@@ -5,7 +5,7 @@ import { assertLiveStackIsolation } from "./live-stack-isolation.mjs";
 const stages = ["fixtures", "baseline", "private", "lenses", "empty", "following"];
 
 export function assertFeedDiversityIsolation(config) {
-  return assertLiveStackIsolation(config, "BABEL_FEED_DIVERSITY_SOURCE_FROZEN");
+  return assertLiveStackIsolation(config, "BABBLE_FEED_DIVERSITY_SOURCE_FROZEN");
 }
 
 // These are actual HTTP bodies from the transparent acceptance proxy, never
@@ -17,7 +17,7 @@ export function decodeFeedDiscovery(snapshot, privateMarker) {
   const calls = snapshot.requests.filter(request => request.method === 'POST' && new URL(request.url).pathname === '/rpc').map(request => {
     check(typeof request.requestBody === 'string', 'Missing observed RPC request body');
     return { request, envelope: JSON.parse(request.requestBody) };
-  }).filter(({ envelope }) => envelope.method === 'babel.discovery.candidates.v1');
+  }).filter(({ envelope }) => envelope.method === 'babble.discovery.candidates.v1');
   check(calls.length === 1, `Expected one actual discovery HTTP request, got ${calls.length}`);
   const { request, envelope } = calls[0];
   check(request.method === 'POST' && request.status === 200 && !request.error, 'Discovery HTTP request failed or incomplete');
@@ -122,7 +122,7 @@ function feedDiversityHarness({ apiUrl, identityId, marker }, decodeDiscovery) {
     }
   };
   const origin = new URL(apiUrl).origin;
-  const sessionKey = `babel.session.v1:${origin}`;
+  const sessionKey = `babble.session.v1:${origin}`;
   const session = JSON.parse(sessionStorage.getItem(sessionKey) ?? "null");
   check(session?.identity.id === identityId, "Expected live-stack's ordinary browser account");
   const accounts = [], objects = [], edges = [];
@@ -161,7 +161,7 @@ function feedDiversityHarness({ apiUrl, identityId, marker }, decodeDiscovery) {
     await until('settings closed', () => required('[data-settings-panel]').hidden);
   };
   const modelSnapshot = () => {
-    const key = kind => `babel.local.v2:${JSON.stringify([origin, identityId, kind])}`;
+    const key = kind => `babble.local:${JSON.stringify([origin, identityId, kind])}`;
     const parsed = preferencesModule.readPreferences(localStorage, key('preferences'));
     check(!parsed.warning, `Unreadable saved preferences: ${parsed.warning}`);
     const p = parsed.preferences, query = required('[data-search-input]').value.trim();
@@ -360,7 +360,7 @@ function feedDiversityHarness({ apiUrl, identityId, marker }, decodeDiscovery) {
       for (const name of ['research', 'weird', 'balanced']) {
         const load = await lens(name);
         output[name] = await verify(load, { hidden: true });
-        equal(load.discovery.payload.lens.id, `babel.lens.stack.${name}.v1`, 'Distinct lens reaches backend');
+        equal(load.discovery.payload.lens.id, `babble.lens.stack.${name}.v1`, 'Distinct lens reaches backend');
       }
       return { verified: true, lenses: output };
     },
@@ -398,7 +398,7 @@ function feedDiversityHarness({ apiUrl, identityId, marker }, decodeDiscovery) {
       equal(required('[data-diversity-label]').textContent, 'Chronological', 'Following bypasses ranked diversity');
       const observedRequests = await network(cursor);
       const discoveryCalls = observedRequests.requests.filter(r => r.method === 'POST' && new URL(r.url).pathname === '/rpc')
-        .filter(r => JSON.parse(r.requestBody).method === 'babel.discovery.candidates.v1');
+        .filter(r => JSON.parse(r.requestBody).method === 'babble.discovery.candidates.v1');
       equal(discoveryCalls.length, 0, 'Following must not call ranked discovery');
       return { verified: true, observed, chronological: true, rankedDiscoveryCalls: 0 };
     },
@@ -435,19 +435,19 @@ function feedDiversityHarness({ apiUrl, identityId, marker }, decodeDiscovery) {
 // Astro, Aegis, SDK build, or production model is run by this contract check.
 if (process.argv[2] === "--contract-check") {
   const { Script, createContext, runInContext } = await import("node:vm");
-  const originalFreeze = process.env.BABEL_FEED_DIVERSITY_SOURCE_FROZEN;
+  const originalFreeze = process.env.BABBLE_FEED_DIVERSITY_SOURCE_FROZEN;
   const ports = { apiPort: 18787, gatewayPort: 18788, frontendPort: 14329, aegisAddr: "127.0.0.1:17878" };
   try {
-    delete process.env.BABEL_FEED_DIVERSITY_SOURCE_FROZEN;
+    delete process.env.BABBLE_FEED_DIVERSITY_SOURCE_FROZEN;
     await assert.rejects(assertFeedDiversityIsolation(ports), /Parent source freeze required/);
-    process.env.BABEL_FEED_DIVERSITY_SOURCE_FROZEN = "1";
+    process.env.BABBLE_FEED_DIVERSITY_SOURCE_FROZEN = "1";
     await assert.rejects(assertFeedDiversityIsolation({ ...ports, apiPort: 8787 }), /Disposable test ports/);
     await assert.rejects(assertFeedDiversityIsolation({ ...ports, gatewayPort: 8788 }), /Disposable test ports/);
     await assert.rejects(assertFeedDiversityIsolation({ ...ports, frontendPort: 4321 }), /Disposable test ports/);
     await assert.rejects(assertFeedDiversityIsolation({ ...ports, aegisAddr: "127.0.0.1:7878" }), /Acceptance Aegis/);
   } finally {
-    if (originalFreeze === undefined) delete process.env.BABEL_FEED_DIVERSITY_SOURCE_FROZEN;
-    else process.env.BABEL_FEED_DIVERSITY_SOURCE_FROZEN = originalFreeze;
+    if (originalFreeze === undefined) delete process.env.BABBLE_FEED_DIVERSITY_SOURCE_FROZEN;
+    else process.env.BABBLE_FEED_DIVERSITY_SOURCE_FROZEN = originalFreeze;
   }
   for (const failed of [...stages, "cleanup"]) {
     const calls = [], context = createContext({ window: {} });
@@ -474,7 +474,7 @@ if (process.argv[2] === "--contract-check") {
   }
   const request = {
     sequence: 1, url: 'http://127.0.0.1:18787/rpc', method: 'POST', status: 200,
-    requestBody: JSON.stringify({ method: 'babel.discovery.candidates.v1', payload: { search: 'public' } }),
+    requestBody: JSON.stringify({ method: 'babble.discovery.candidates.v1', payload: { search: 'public' } }),
     responseBody: JSON.stringify({ result: { discovery: { ranked: [] } }, error: null }),
   };
   const observation = patch => ({ cursor: 1, requests: [{ ...request, ...patch }] });
@@ -487,7 +487,7 @@ if (process.argv[2] === "--contract-check") {
     'An empty POST body must still fail closed');
   for (const body of ['PrivateOnly', 'privateonly', 'PRIVATEONLY']) {
     assert.throws(() => decodeFeedDiscovery(observation({ requestBody: JSON.stringify({
-      method: 'babel.discovery.candidates.v1', payload: { search: 'public', interests: [body] },
+      method: 'babble.discovery.candidates.v1', payload: { search: 'public', interests: [body] },
     }) }), 'PrivateOnly'), /Private preference leaked/);
   }
   assert.throws(() => decodeFeedDiscovery({ cursor: 1, requests: [] }, 'private'), /Expected one actual discovery/);

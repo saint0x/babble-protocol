@@ -1,0 +1,134 @@
+"""Run with python -m babble_algorithms.worker; stdout is exclusively NDJSON."""
+
+from __future__ import annotations
+
+import json
+import sys
+from contextlib import redirect_stdout
+from dataclasses import asdict, dataclass
+from typing import BinaryIO
+
+from babble_algorithms.execution import AlgorithmExecutor, HealthResult, JudgeResult
+from babble_algorithms.ranking_types import RankingResult
+from babble_algorithms.temporal_types import TemporalResult
+from babble_algorithms.wire import (
+    MAX_JUDGMENT_LINE_BYTES,
+    MAX_JUDGMENT_NODES,
+    MAX_LINE_BYTES,
+    MAX_NODES,
+    PROTOCOL,
+    ErrorCode,
+    HealthRequest,
+    InvalidRequest,
+    RankRequest,
+    TemporalWorkerRequest,
+    UnsupportedDefinition,
+    decode,
+    json_value,
+    parse_request,
+    request_id,
+    validate_tree,
+)
+
+
+@dataclass(frozen=True, slots=True)
+class Error:
+    code: ErrorCode
+    message: str
+
+
+@dataclass(frozen=True, slots=True)
+class Response:
+    protocol: str
+    id: int | None
+    result: HealthResult | JudgeResult | RankingResult | TemporalResult | None
+    error: Error | None
+
+
+def failure(identity: int | None, code: ErrorCode) -> Response:
+    messages: dict[ErrorCode, str] = {
+        "invalid_request": "Invalid algorithm worker request.",
+        "unsupported_definition": "Unsupported Judgment definition.",
+        "algorithm_failure": "Algorithm execution failed.",
+    }
+    return Response(PROTOCOL, identity, None, Error(code, messages[code]))
+
+
+def handle(line: bytes, executor: AlgorithmExecutor) -> Response:
+    identity: int | None = None
+    try:
+        value = decode(line)
+        identity = request_id(value)
+        if (
+            isinstance(value, dict)
+            and value.get("method") == "judge"
+            and len(line) > MAX_JUDGMENT_LINE_BYTES
+        ):
+            raise InvalidRequest("Judgment frame exceeds the limit")
+        request = parse_request(value)
+    except UnsupportedDefinition:
+        return failure(identity, "unsupported_definition")
+    except InvalidRequest:
+        return failure(identity, "invalid_request")
+    try:
+        # Protect the protocol even if a library starts writing diagnostics.
+        with redirect_stdout(sys.stderr):
+            if isinstance(request, HealthRequest):
+                result = executor.health()
+            elif isinstance(request, RankRequest):
+                result = executor.rank(request.request)
+            elif isinstance(request, TemporalWorkerRequest):
+                result = executor.temporal(request.request)
+            else:
+                result = executor.judge(request.request)
+        return Response(PROTOCOL, identity, result, None)
+    except Exception:
+        # Exception messages and tracebacks may contain private request content.
+        return failure(identity, "algorithm_failure")
+
+
+def encode(response: Response) -> bytes:
+    try:
+        judgment = isinstance(response.result, JudgeResult)
+        limit = MAX_JUDGMENT_LINE_BYTES if judgment else MAX_LINE_BYTES
+        value = json_value(asdict(response))
+        # Output strings are bounded by the frame; summaries may exceed input text limits.
+        validate_tree(value, MAX_JUDGMENT_NODES if judgment else MAX_NODES, max_text_bytes=limit)
+        data = (
+            json.dumps(
+                value, ensure_ascii=False, allow_nan=False, separators=(",", ":")
+            ).encode("utf-8")
+            + b"\n"
+        )
+        if len(data) <= limit:
+            return data
+    except (ValueError, TypeError, UnicodeError):
+        pass
+    return encode(failure(response.id, "algorithm_failure"))
+
+
+def serve(source: BinaryIO, sink: BinaryIO) -> None:
+    executor = AlgorithmExecutor()
+    while True:
+        line = source.readline(MAX_LINE_BYTES + 1)
+        if not line:
+            return
+        if len(line) > MAX_LINE_BYTES or not line.endswith(b"\n"):
+            # Stop rather than drain an attacker-controlled unbounded stream.
+            sink.write(encode(failure(None, "invalid_request")))
+            sink.flush()
+            return
+        sink.write(encode(handle(line, executor)))
+        sink.flush()
+
+
+def main() -> None:
+    try:
+        serve(sys.stdin.buffer, sys.stdout.buffer)
+    except BrokenPipeError:
+        # Avoid a second flush error during interpreter shutdown.
+        sys.stdout = sys.stderr
+
+
+if __name__ == "__main__":
+    main()

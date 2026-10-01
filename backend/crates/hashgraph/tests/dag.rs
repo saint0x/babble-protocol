@@ -1,7 +1,7 @@
-use babel_crypto::Keypair;
-use babel_hashgraph::{EventDag, ValidatorSet};
-use babel_identity::{Identity, IdentityKind};
-use babel_state::{Event, EventKind, EventTarget};
+use babble_crypto::Keypair;
+use babble_hashgraph::{EventDag, ValidatorSet};
+use babble_identity::{Identity, IdentityKind};
+use babble_state::{Event, EventKind, EventTarget};
 
 #[test]
 fn hashgraph_orders_events_after_their_parents() {
@@ -41,7 +41,7 @@ fn hashgraph_rejects_missing_parent_and_conflicting_event_id() {
         &identity,
         &keypair,
         "orphan",
-        vec![babel_types::EventId::new_unchecked(format!(
+        vec![babble_types::EventId::new_unchecked(format!(
             "evt_{}",
             "0".repeat(64)
         ))],
@@ -206,7 +206,7 @@ fn signed_event(
     identity: &Identity,
     keypair: &Keypair,
     label: &str,
-    parents: Vec<babel_types::EventId>,
+    parents: Vec<babble_types::EventId>,
 ) -> Event {
     Event::new(
         identity,
@@ -221,7 +221,7 @@ fn signed_event(
 }
 
 struct ValidatorIdentity {
-    id: babel_types::IdentityId,
+    id: babble_types::IdentityId,
     identity: Identity,
     keypair: Keypair,
 }

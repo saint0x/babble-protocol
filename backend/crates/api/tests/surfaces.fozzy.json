@@ -3,11 +3,11 @@
   "name": "surface-auth-process-contract",
   "steps": [
     {"type":"trace_event","name":"Deterministic orchestration only; actual HTTP/RPC and queued-execution assertions run in surfaces-host.fozzy.json"},
-    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--test","auth"],"exit_code":0,"times":1},
-    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--test","auth"],"expect_exit":0},
-    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--lib","auth::"],"exit_code":0,"times":1},
-    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--lib","auth::"],"expect_exit":0},
-    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--lib","surface","--","--skip","auth::"],"exit_code":0,"times":1},
-    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babel-api","--lib","surface","--","--skip","auth::"],"expect_exit":0}
+    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babble-api","--test","auth"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babble-api","--test","auth"],"expect_exit":0},
+    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babble-api","--lib","auth::"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babble-api","--lib","auth::"],"expect_exit":0},
+    {"type":"proc_when","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babble-api","--lib","surface","--","--skip","auth::"],"exit_code":0,"times":1},
+    {"type":"proc_spawn","cmd":"cargo","args":["test","--manifest-path","backend/Cargo.toml","-p","babble-api","--lib","surface","--","--skip","auth::"],"expect_exit":0}
   ]
 }

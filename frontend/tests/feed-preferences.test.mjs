@@ -27,7 +27,7 @@ function harness() {
     removeItem: key => data.delete(key),
   };
   const accounts = { current: { identity: { id: a, handle: "reader" } },
-    localDataKey(kind) { return `babel.local.v2:${JSON.stringify(["https://babel.test", this.current?.identity.id ?? null, kind])}`; } };
+    localDataKey(kind) { return `babble.local:${JSON.stringify(["https://babble.test", this.current?.identity.id ?? null, kind])}`; } };
   const view = { show: value => shows.push(clone(value)), message: (...value) => messages.push(value), setSeenCount: count => counts.push(count) };
   const host = { changed: () => events.push("changed"), historyCleared: () => events.push("cleared"), seenCount: () => 3 };
   const controller = new FeedPreferences(accounts, () => storage, view, host);
@@ -82,11 +82,11 @@ test("external preference edits reject stale full-form saves until reopened", ()
 
 test("reset preferences preserves reading history and never clears account/session storage", () => {
   const h = harness(); h.controller.save({ ...local.defaultPreferences(), mutedTerms: ["spoiler"] });
-  h.data.set(h.key("seen"), '{"obj":2}'); h.data.set("babel.session", "keep");
+  h.data.set(h.key("seen"), '{"obj":2}'); h.data.set("babble.session", "keep");
   h.controller.reset();
   assert.deepEqual(h.read(), clone(local.defaultPreferences()));
   assert.equal(h.data.get(h.key("seen")), '{"obj":2}');
-  assert.equal(h.data.get("babel.session"), "keep");
+  assert.equal(h.data.get("babble.session"), "keep");
 });
 
 test("clearing history preserves preferences and unsaved form fields", () => {

@@ -2,8 +2,8 @@
 
 Backend workstream contract, September 30, 2026. Parent owns generated schema refresh.
 
-RPC methods: `babel.clipboard.write.v2` accepts `{text:string}`;
-`babel.fullscreen.enter.v2` accepts `{target_hint?:string|null,navigation_ui?:"auto"|"hide"|"show"}`.
+RPC methods: `babble.clipboard.write` accepts `{text:string}`;
+`babble.fullscreen.enter` accepts `{target_hint?:string|null,navigation_ui?:"auto"|"hide"|"show"}`.
 Normalized fullscreen payload always has target_hint (null or string) and navigation_ui (default auto).
 Old v1 methods return UnsupportedVersion.
 
@@ -18,7 +18,7 @@ Endpoints:
 Same authentication and exact source document headers as social invocations.
 BrowserInvocationResponse has the same common fields as InvocationResponse plus:
 `result: BrowserInvocationResult|null` and
-`execution_ticket: {dispatch_id:Hash,executor:"babel.browser.v1"}|null`.
+`execution_ticket: {dispatch_id:Hash,executor:"babble.browser.v1"}|null`.
 Only the first successful dispatch response has an execution_ticket. Running/Unknown
 dispatch_id is identity only: retries/status NEVER authorize another native call.
 

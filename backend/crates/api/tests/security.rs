@@ -3,9 +3,9 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode},
 };
-use babel_api::{ApiState, router};
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
+use babble_api::{ApiState, router};
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -25,7 +25,7 @@ impl Fixture {
         static SEQUENCE: AtomicU64 = AtomicU64::new(0);
         Self {
             root: std::env::temp_dir().join(format!(
-                "babel-security-{}-{}-{}",
+                "babble-security-{}-{}-{}",
                 std::process::id(),
                 time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
                 SEQUENCE.fetch_add(1, Ordering::Relaxed)

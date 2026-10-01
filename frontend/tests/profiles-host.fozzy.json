@@ -3,6 +3,6 @@
   "name": "public-profiles-production-paths-host",
   "steps": [
     {"type":"proc_spawn","cmd":"node","args":["--test","frontend/tests/profiles.test.mjs"],"expect_exit":0},
-    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babel-node","-p","babel-api","--test","profiles"],"expect_exit":0}
+    {"type":"proc_spawn","cmd":"env","args":["CARGO_INCREMENTAL=0","cargo","test","--manifest-path","backend/Cargo.toml","-p","babble-node","-p","babble-api","--test","profiles"],"expect_exit":0}
   ]
 }

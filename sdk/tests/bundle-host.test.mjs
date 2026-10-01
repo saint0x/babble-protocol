@@ -14,13 +14,13 @@ test("verified bundles mount the gateway entry with exact origin and script/same
   const plan = bundlePlan();
   const mounted = mount(h, plan);
   assert.equal(h.frame.src, `${origin}/app/index.html`);
-  assert.equal(plan.surface.entry, `babel://blobs/${entryHash}`);
+  assert.equal(plan.surface.entry, `babble://blobs/${entryHash}`);
   assert.deepEqual([...h.frame.sandbox.tokens].sort(), ["allow-same-origin", "allow-scripts"]);
   assert.equal(h.frame.attributes.credentialless, "");
   assert.equal(h.frame.attributes.csp, undefined);
   assert.equal(mounted.surfaceOrigin, origin);
   const child = offer(h, origin);
-  assert.equal(child.messages[0].type, "babel.surface.accept");
+  assert.equal(child.messages[0].type, "babble.surface.accept");
   child.postMessage(request("before-confirm"));
   assert.equal(h.requests.length, 0);
   child.postMessage(surfaceBridgeControl("confirm"));
@@ -74,7 +74,7 @@ test("verified bundle navigation revokes the admitted port and suppresses outsta
   assert.equal(h.requests[0].context.signal.aborted, true);
   resolve(response(h.requests[0].value));
   await Promise.resolve();
-  assert.equal(child.messages.filter((value) => value.type === "babel.rpc.response").length, 0);
+  assert.equal(child.messages.filter((value) => value.type === "babble.rpc.response").length, 0);
   assert.equal(h.window.listeners.size, 0);
 });
 
@@ -209,8 +209,8 @@ function rejected(mutate, overrides = {}, error = /verified bundle execution gat
 function bundlePlan() {
   return {
     object_id: "obj_surface", admission: "ready", lifecycle: "cold", blocked_reasons: [], capability_decisions: [],
-    surface: { role: "Feed", target: "Web", entry: `babel://blobs/${entryHash}`, integrity: entryHash,
-      bundle: { version: 1, entry_path: "app/index.html", files: [{ path: "app/index.html", source_uri: `babel://blobs/${entryHash}`,
+    surface: { role: "Feed", target: "Web", entry: `babble://blobs/${entryHash}`, integrity: entryHash,
+      bundle: { version: 1, entry_path: "app/index.html", files: [{ path: "app/index.html", source_uri: `babble://blobs/${entryHash}`,
         integrity: entryHash, size_bytes: 100, media_type: "text/html", kind: "document" }] } },
     bundle_verification: { policy_version: 1, manifest_hash: manifestHash },
     verified_mount: { version: 1, session_id: "surface_session_1", object_id: "obj_surface", role: "Feed",
@@ -240,10 +240,10 @@ function mount(h, plan = bundlePlan(), overrides = {}) {
   return mounted;
 }
 
-function response(value) { return { protocol: "babel.rpc.v1", id: value.id, result: { results: [] }, error: null, trace_id: null }; }
+function response(value) { return { protocol: "babble.rpc.v1", id: value.id, result: { results: [] }, error: null, trace_id: null }; }
 function request(id) {
-  return { type: "babel.rpc.request", protocol: "babel.rpc.v1", envelope: { protocol: "babel.rpc.v1", id,
-    method: "babel.search.objects.v1", payload: { q: "babel", limit: 3, author: null, kind: null },
+  return { type: "babble.rpc.request", protocol: "babble.rpc.v1", envelope: { protocol: "babble.rpc.v1", id,
+    method: "babble.search.objects.v1", payload: { q: "babble", limit: 3, author: null, kind: null },
     binding: objectBinding({ objectId: "obj_spoofed", surfaceSessionId: "surface_session_spoofed", origin: "null", runtimeId: "test", capabilityGrants: [] }),
     idempotency_key: null, deadline: { timeout_ms: 30000, client_started_at: "2026-09-30T00:00:00Z" }, trace_id: null } };
 }

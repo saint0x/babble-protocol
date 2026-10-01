@@ -12,12 +12,12 @@ import { promisify } from "node:util";
 // All browser control goes through the installed Aegis CLI. The page runs its
 // own assertions and reports observations to its temporary loopback fixture.
 const exec = promisify(execFile);
-const addr = process.env.BABEL_ORIGIN_AEGIS_ADDR ?? "127.0.0.1:17892";
+const addr = process.env.BABBLE_ORIGIN_AEGIS_ADDR ?? "127.0.0.1:17892";
 assert.match(addr, /^127\.0\.0\.1:\d+$/);
 assert.ok(![7878, 7879, 17878].includes(Number(addr.split(":")[1])), "dedicated Aegis port required");
 const nonce = randomBytes(12).toString("hex");
 const requests = [];
-const output = await mkdtemp(join(tmpdir(), "babel-bundle-origins-"));
+const output = await mkdtemp(join(tmpdir(), "babble-bundle-origins-"));
 const env = { ...process.env };
 for (const key of Object.keys(env)) if (/^(https?|all|no)_proxy$/i.test(key)) delete env[key];
 const cli = (...args) => exec("aegis", args, { env, timeout: 25_000, maxBuffer: 4 * 1024 * 1024 });
@@ -92,9 +92,9 @@ function parentMain(c) {
     }
     throw new Error('timeout: ' + label);
   };
-  const control = type => ({ type: 'babel.surface.' + type, protocol: 'babel.rpc.v1', version: 1 });
-  const isControl = (data, type) => data?.type === 'babel.surface.' + type
-    && data.protocol === 'babel.rpc.v1' && data.version === 1 && Object.keys(data).length === 3;
+  const control = type => ({ type: 'babble.surface.' + type, protocol: 'babble.rpc.v1', version: 1 });
+  const isControl = (data, type) => data?.type === 'babble.surface.' + type
+    && data.protocol === 'babble.rpc.v1' && data.version === 1 && Object.keys(data).length === 3;
   function frame() {
     const f = document.createElement('iframe');
     f.sandbox = 'allow-scripts allow-same-origin';
@@ -283,7 +283,7 @@ function childMain(c, cycle, dynamic) {
   }
   const violations = [];
   document.addEventListener('securitypolicyviolation', e => violations.push({ directive: e.effectiveDirective, blocked: e.blockedURI }));
-  const control = type => ({ type: 'babel.surface.' + type, protocol: 'babel.rpc.v1', version: 1 });
+  const control = type => ({ type: 'babble.surface.' + type, protocol: 'babble.rpc.v1', version: 1 });
   const channel = new MessageChannel();
   const request = req => new Promise((resolve, reject) => {
     req.onsuccess = () => resolve(req.result);
@@ -326,8 +326,8 @@ function childMain(c, cycle, dynamic) {
   }
   channel.port1.onmessage = async event => {
     const data = event.data;
-    if (data?.type === 'babel.surface.accept') channel.port1.postMessage(control('confirm'));
-    if (data?.type === 'babel.surface.ready') channel.port1.postMessage({ type: 'fixture.rpc', id: 'ready-rpc' });
+    if (data?.type === 'babble.surface.accept') channel.port1.postMessage(control('confirm'));
+    if (data?.type === 'babble.surface.ready') channel.port1.postMessage({ type: 'fixture.rpc', id: 'ready-rpc' });
     if (data?.type === 'fixture.command') {
       let value;
       try { value = data.action === 'facts' ? await facts() : await storage(data.write); }
@@ -342,10 +342,10 @@ function childMain(c, cycle, dynamic) {
 
 function externalMain(c) {
   const channel = new MessageChannel();
-  const control = type => ({ type: 'babel.surface.' + type, protocol: 'babel.rpc.v1', version: 1 });
+  const control = type => ({ type: 'babble.surface.' + type, protocol: 'babble.rpc.v1', version: 1 });
   channel.port1.onmessage = e => {
-    if (e.data?.type === 'babel.surface.accept') channel.port1.postMessage(control('confirm'));
-    if (e.data?.type === 'babel.surface.ready') channel.port1.postMessage({ type: 'fixture.rpc', id: 'external-rpc' });
+    if (e.data?.type === 'babble.surface.accept') channel.port1.postMessage(control('confirm'));
+    if (e.data?.type === 'babble.surface.ready') channel.port1.postMessage({ type: 'fixture.rpc', id: 'external-rpc' });
   };
   parent.postMessage(control('connect'), c.parent, [channel.port2]);
   parent.postMessage({ type: 'fixture.report', value: { marker: 'external-executed' } }, c.parent);

@@ -1,10 +1,10 @@
-use babel_discovery::{
+use babble_discovery::{
     NativeTemporalScorer, TemporalClass, TemporalEngagement, TemporalItem, TemporalProvider,
     TemporalRequest, TemporalResult,
 };
-use babel_judgment::{DefinitionId, JudgmentProvider, JudgmentRequest, JudgmentState};
-use babel_judgment_python::{PythonProvider, WorkerConfig, contract};
-use babel_types::{ObjectId, Timestamp};
+use babble_judgment::{DefinitionId, JudgmentProvider, JudgmentRequest, JudgmentState};
+use babble_judgment_python::{PythonProvider, WorkerConfig, contract};
+use babble_types::{ObjectId, Timestamp};
 use serde_json::json;
 use std::{
     collections::BTreeMap,
@@ -40,7 +40,7 @@ fn config(mode: Option<&str>) -> WorkerConfig {
         executable: PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../../../algorithms/.venv/bin/python"),
         args: mode.map_or_else(
-            || vec!["-I".into(), "-m".into(), "babel_algorithms.worker".into()],
+            || vec!["-I".into(), "-m".into(), "babble_algorithms.worker".into()],
             |mode| vec!["-I".into(), "-c".into(), FAULT_WORKER.into(), mode.into()],
         ),
         working_directory: None,
@@ -384,10 +384,10 @@ fn temporal_wire_schemas_are_strict_and_judgment_bounds_remain_small() {
     assert!(serde_json::from_value::<TemporalRequest>(value).is_err());
     let result = NativeTemporalScorer.score(&request()).unwrap();
     let mut response =
-        json!({"protocol":"babel.algorithms.v1","id":1,"result":result,"error":null});
+        json!({"protocol":"babble.algorithms.v1","id":1,"result":result,"error":null});
     response["result"]["scores"][0]["extra"] = json!(true);
     assert!(contract::decode(&serde_json::to_vec(&response).unwrap()).is_err());
-    let response = json!({"protocol":"babel.algorithms.v1","id":1,"result":{
+    let response = json!({"protocol":"babble.algorithms.v1","id":1,"result":{
         "provider":contract::provider(),"confidence":0.5,
         "output":{"extra":vec![vec![0; 256]; 17]}},"error":null});
     assert!(contract::decode(&serde_json::to_vec(&response).unwrap()).is_err());
@@ -421,8 +421,8 @@ fn temporal_wire_rejects_non_rfc3339_date_time_separators() {
 const FAULT_WORKER: &str = r#"
 import json, os, sys, time
 from dataclasses import asdict
-from babel_algorithms.execution import AlgorithmExecutor
-from babel_algorithms.worker import handle
+from babble_algorithms.execution import AlgorithmExecutor
+from babble_algorithms.worker import handle
 mode = sys.argv[1]
 executor = AlgorithmExecutor()
 calls = 0

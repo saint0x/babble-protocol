@@ -6,7 +6,7 @@ from typing import cast
 
 import pytest
 
-from babel_algorithms.consensus import (
+from babble_algorithms.consensus import (
     MAX_ID_BYTES,
     MAX_SOURCE_TEXT_BYTES,
     MAX_SOURCES,

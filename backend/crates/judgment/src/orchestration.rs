@@ -2,7 +2,7 @@ use crate::{
     CacheKey, CachedJudgment, DefinitionId, Judgment, JudgmentCache, JudgmentProvider,
     JudgmentRegistry, JudgmentRequest, JudgmentState, ProviderVersion, cache_key, check_deadline,
 };
-use babel_types::{Canonical, Error, Hash, Result};
+use babble_types::{Canonical, Error, Hash, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -44,7 +44,7 @@ impl JudgmentPrivacyPolicy {
         &self,
         request: &JudgmentRequest,
     ) -> Result<(JudgmentRequest, AppliedPrivacyPolicy)> {
-        JudgmentRegistry::babel_core().validate_request(request)?;
+        JudgmentRegistry::babble_core().validate_request(request)?;
         let original_input_hash = request.state.canonical_hash()?;
         let mut context = BTreeMap::new();
         let mut redacted_context_keys = Vec::new();
@@ -91,7 +91,7 @@ impl JudgmentPrivacyPolicy {
             state: JudgmentState { subject, context },
             parameters: request.parameters.clone(),
         };
-        JudgmentRegistry::babel_core().validate_request(&scoped)?;
+        JudgmentRegistry::babble_core().validate_request(&scoped)?;
         let provider_input_hash = scoped.state.canonical_hash()?;
         let applied = AppliedPrivacyPolicy {
             include_subject: self.include_subject,
@@ -129,7 +129,7 @@ pub struct ProviderDecision {
     pub accepted: bool,
     pub confidence: Option<f64>,
     pub accept_confidence: f64,
-    pub judgment_id: Option<babel_types::JudgmentId>,
+    pub judgment_id: Option<babble_types::JudgmentId>,
     pub privacy: AppliedPrivacyPolicy,
     pub error: Option<String>,
 }
@@ -230,7 +230,7 @@ impl<'a> JudgmentOrchestrator<'a> {
     ) -> Result<OrchestratedJudgment> {
         let check = || deadline.map(check_deadline).unwrap_or(Ok(()));
         check()?;
-        JudgmentRegistry::babel_core().validate_request(request)?;
+        JudgmentRegistry::babble_core().validate_request(request)?;
         if self.routes.is_empty() {
             return Err(Error::ProviderUnavailable(
                 "judgment orchestrator has no providers".to_string(),
@@ -266,7 +266,7 @@ impl<'a> JudgmentOrchestrator<'a> {
 
             match evaluated {
                 Ok((judgment, cache_hit)) => {
-                    JudgmentRegistry::babel_core()
+                    JudgmentRegistry::babble_core()
                         .validate_output(&judgment.definition, &judgment.output)?;
                     check()?;
                     let accepted = judgment.confidence >= route.accept_confidence;
@@ -399,7 +399,7 @@ impl Drop for EvaluationCache<'_> {
 pub fn batch_by_definition(
     requests: &[JudgmentRequest],
 ) -> Result<BTreeMap<DefinitionId, Vec<JudgmentRequest>>> {
-    let registry = JudgmentRegistry::babel_core();
+    let registry = JudgmentRegistry::babble_core();
     let mut batches: BTreeMap<DefinitionId, Vec<JudgmentRequest>> = BTreeMap::new();
     for request in requests {
         registry.validate_request(request)?;

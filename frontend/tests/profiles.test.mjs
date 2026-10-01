@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
-import * as sdk from "@babel-protocol/sdk";
+import * as sdk from "@babble-protocol/sdk";
 import { mediaResource } from "./media-modules.mjs";
 
 function module(name, require, globals = {}) {
@@ -22,7 +22,7 @@ const protocol = module("protocol", (name) => {
   if (name === "./browser-invocations") return browserInvocations;
   if (name === "./media-resource") return mediaResource;
   if (name === "./profile-response") return contract;
-  assert.equal(name, "@babel-protocol/sdk");
+  assert.equal(name, "@babble-protocol/sdk");
   return { HttpRpcTransport: class {}, hostBinding: () => ({}) };
 });
 const id = (letter) => `id_${letter.repeat(64)}`;
@@ -197,14 +197,14 @@ test("repeated cursors and cross-author pages are recoverable errors without par
 });
 
 const object = () => ({ id: `obj_${"c".repeat(64)}`, author: id("a"), created_at: "2026-09-29T12:00:00Z",
-  kind: "text", schema: "babel.text.v1", protocol: { name: "babel", version: 1 }, payload: { text: "Real content" },
+  kind: "text", schema: "babble.text.v1", protocol: { name: "babble", version: 1 }, payload: { text: "Real content" },
   provenance: { parent: null, forked_from: null, remixed_from: [] }, relations: [], resources: [], surfaces: [], capabilities: [] });
 
 test("explicit Object opening fetches the requested record without inventing rank provenance", async () => {
-  const client = new protocol.BabelFrontendClient("https://babel.example", async () => { throw new Error("unexpected HTTP request"); });
+  const client = new protocol.BabbleFrontendClient("https://babble.example", async () => { throw new Error("unexpected HTTP request"); });
   const record = object();
   client.rpc = async (method, input) => {
-    assert.equal(method, "babel.object.get.v1");
+    assert.equal(method, "babble.object.get.v1");
     assert.equal(input.object_id, record.id);
     return { object: record };
   };
@@ -219,7 +219,7 @@ test("explicit Object opening fetches the requested record without inventing ran
 
 test("production profile HTTP client uses injected transport, bounded page request and existing Object conversion", async () => {
   const requests = [];
-  const client = new protocol.BabelFrontendClient("https://babel.example", async (url, options) => {
+  const client = new protocol.BabbleFrontendClient("https://babble.example", async (url, options) => {
     requests.push({ url, options });
     return Response.json(url.pathname.endsWith("/objects") ? { identity: identity(), objects: [object()], next_cursor: null } : { identity: identity() });
   });
@@ -237,12 +237,12 @@ test("HTTP malformed JSON, missing shapes, oversized pages and wrong author prod
     { identity: identity(), objects: Array(51).fill(object()), next_cursor: null },
     { identity: identity(), objects: [{ ...object(), resources: [null] }], next_cursor: null },
     { identity: identity(id("b")), objects: [], next_cursor: null }]) {
-    const client = new protocol.BabelFrontendClient("https://babel.example", async () => Response.json(value));
+    const client = new protocol.BabbleFrontendClient("https://babble.example", async () => Response.json(value));
     await assert.rejects(client.profileObjects(id("a"), null, new AbortController().signal), /invalid profile response/);
   }
-  const malformed = new protocol.BabelFrontendClient("https://babel.example", async () => new Response("<html>bad upstream</html>"));
+  const malformed = new protocol.BabbleFrontendClient("https://babble.example", async () => new Response("<html>bad upstream</html>"));
   await assert.rejects(malformed.publicIdentity(id("a"), new AbortController().signal), /invalid profile response/);
-  const conflict = new protocol.BabelFrontendClient("https://babel.example", async () => new Response("private diagnostic", { status: 409 }));
+  const conflict = new protocol.BabbleFrontendClient("https://babble.example", async () => new Response("private diagnostic", { status: 409 }));
   await assert.rejects(conflict.profileObjects(id("a"), "bookmark", new AbortController().signal), /profile has changed/);
 });
 

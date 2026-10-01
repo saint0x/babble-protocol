@@ -28,7 +28,7 @@ another attachment pauses and releases the outgoing player. Images open the
 existing full-image viewer, and audio/video retain native controls and errors.
 The resource resolver preserves signed resource order and does not substitute
 another resource when an explicit primary is invalid.
-For `babel.media`, album order and membership come from `payload.resources`;
+For `babble.media`, album order and membership come from `payload.resources`;
 outer Object resources may also describe unrelated Surface assets and do not
 reorder or extend that album. Generic Object kinds retain their resource fallback.
 
@@ -57,7 +57,7 @@ for retry with the same mutation keys.
 
 The browser uploads the blob through the authenticated media endpoint, then
 submits `media: { title, resources }` alongside `text` to
-`babel.social.reply.v1` or `babel.social.share.v1`. The existing target-scoped
+`babble.social.reply.v1` or `babble.social.share.v1`. The existing target-scoped
 controller and grant authorize the operation. The node verifies canonical blob
 references, integrity, and size before publishing the media Object and its
 `reply_to` or `quotes` edge together. Publication receipts make retries durable
@@ -98,7 +98,7 @@ navigation restores the feed and reading position. Nested visits and profile
 detours preserve their respective return histories. Changing accounts clears
 that history and cached quote panels.
 
-`babel.social.quotes.list.v1` and `GET /objects/{id}/quotes` return paginated,
+`babble.social.quotes.list.v1` and `GET /objects/{id}/quotes` return paginated,
 deduplicated outgoing quote links verified against the source author's historical
 signing identity. Unrelated authors' assertions and unsigned/forged links do not
 become a post's quoted context. Missing originals remain explicit unavailable
@@ -125,7 +125,7 @@ implied by native playback.
 `tests/media-albums-browser.mjs` exercises real multi-file composition, correction
 of duplicate content, publication/reply/share, exact ordered resource readback,
 binary delivery, gallery controls, image viewing, video playback/cleanup, and
-responsive full/compact galleries and composer. Use `BABEL_LIVE_FOCUS=albums`
+responsive full/compact galleries and composer. Use `BABBLE_LIVE_FOCUS=albums`
 with `tests/live-stack.mjs` for the focused journey; the complete suite includes
 it by default. Fozzy entrypoints are `tests/media-albums-browser.fozzy.json`
 (orchestration) and `tests/media-albums-browser-host.fozzy.json` (real stack).

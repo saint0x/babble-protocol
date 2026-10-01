@@ -1,13 +1,13 @@
-use babel_crypto::{Keypair, Signature};
-use babel_identity::Identity;
-use babel_judgment::JudgmentProvider;
-use babel_node::{ImportBundle, ImportReport, LocalNode};
-use babel_types::{Canonical, EventId, Hash, IdentityId, ObjectId, Result};
+use babble_crypto::{Keypair, Signature};
+use babble_identity::Identity;
+use babble_judgment::JudgmentProvider;
+use babble_node::{ImportBundle, ImportReport, LocalNode};
+use babble_types::{Canonical, EventId, Hash, IdentityId, ObjectId, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
-pub const NETWORK_PROTOCOL: &str = "babel.network.v1";
+pub const NETWORK_PROTOCOL: &str = "babble.network.v1";
 pub const NETWORK_PROTOCOL_VERSION: u32 = 1;
 
 #[derive(
@@ -67,11 +67,11 @@ impl Envelope {
         message: Message,
     ) -> Result<Self> {
         if keypair.public_key() != sender.public_key {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         if supported_versions.is_empty() || !supported_versions.contains(&NETWORK_PROTOCOL_VERSION)
         {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "network envelope must advertise the active protocol version".to_string(),
             ));
         }
@@ -97,28 +97,28 @@ impl Envelope {
 
     pub fn verify(&self, sender: &Identity) -> Result<()> {
         if self.protocol != NETWORK_PROTOCOL {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "unsupported network protocol: {}",
                 self.protocol
             )));
         }
         if self.version != NETWORK_PROTOCOL_VERSION {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "unsupported network protocol version: {}",
                 self.version
             )));
         }
         if !self.supported_versions.contains(&NETWORK_PROTOCOL_VERSION) {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "network peer does not support the active protocol version".to_string(),
             ));
         }
         if sender.id != self.sender.0 {
-            return Err(babel_types::Error::Signature);
+            return Err(babble_types::Error::Signature);
         }
         let expected = self.message.canonical_hash()?;
         if expected != self.payload_hash {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "network payload hash mismatch".to_string(),
             ));
         }
@@ -183,7 +183,7 @@ impl GossipEngine {
             Message::Hello { identity } => {
                 identity.verify()?;
                 if identity.id != envelope.sender.0 {
-                    return Err(babel_types::Error::Signature);
+                    return Err(babble_types::Error::Signature);
                 }
                 let is_new = node.identity(&identity.id).is_none();
                 if is_new {
@@ -261,13 +261,13 @@ impl GossipEngine {
             Message::Hello { identity } => {
                 identity.verify()?;
                 if identity.id != envelope.sender.0 {
-                    return Err(babel_types::Error::Signature);
+                    return Err(babble_types::Error::Signature);
                 }
                 Ok(identity.clone())
             }
             _ => node
                 .signing_identity(&envelope.sender.0)
-                .map_err(|_| babel_types::Error::NotFound(envelope.sender.0.to_string())),
+                .map_err(|_| babble_types::Error::NotFound(envelope.sender.0.to_string())),
         }
     }
 
@@ -286,7 +286,7 @@ impl GossipEngine {
 
     fn ensure_len(&self, label: &str, actual: usize, limit: usize) -> Result<()> {
         if actual > limit {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "{label} length {actual} exceeds limit {limit}"
             )));
         }

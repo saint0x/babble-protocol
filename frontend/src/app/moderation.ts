@@ -1,4 +1,4 @@
-import type { ProtocolTypes } from "@babel-protocol/sdk";
+import type { ProtocolTypes } from "@babble-protocol/sdk";
 
 export const moderationReasons = ["spam", "malware", "fraud", "harassment", "illegal_content", "other_integrity"] as const satisfies readonly ModerationReason[];
 export type ModerationReason = ProtocolTypes["moderation.ModerationReason"];
@@ -19,7 +19,7 @@ export const moderationId = (v: unknown, prefix: "id" | "obj" | "jud" | "report"
 const positive = (v: unknown): v is number => typeof v === "number" && Number.isSafeInteger(v) && v > 0;
 const reason = (v: unknown): v is ModerationReason => moderationReasons.includes(v as ModerationReason);
 const timestamp = (v: unknown): v is string => typeof v === "string" && v.length <= 64 && /^\d{4}-\d\d-\d\dT/.test(v) && Number.isFinite(Date.parse(v));
-const policy = (v: unknown): v is string => v === "babel.integrity.v1";
+const policy = (v: unknown): v is string => v === "babble.integrity.v1";
 const key = (v: unknown): v is string => typeof v === "string" && /^[\x21-\x7e]{1,256}$/.test(v);
 const invalid = () => new Error("The node returned invalid moderation data. Refresh and try again.");
 

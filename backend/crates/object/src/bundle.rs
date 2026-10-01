@@ -1,7 +1,7 @@
 //! Signed bundle inventory admission. Acquisition must separately verify every file's bytes.
 
 use crate::{Surface, SurfaceTarget, resource_uri::ResourceUri};
-use babel_types::{Canonical, Error, Hash, Result};
+use babble_types::{Canonical, Error, Hash, Result};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -145,7 +145,7 @@ impl BundleManifest {
             .ok_or_else(|| invalid("entry_path must identify a declared file"))
     }
 
-    /// Hash only admitted inventories with Babel's versioned canonical encoding.
+    /// Hash only admitted inventories with Babble's versioned canonical encoding.
     pub fn hash(&self) -> Result<Hash> {
         self.validate()?;
         self.canonical_hash()

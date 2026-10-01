@@ -6,7 +6,7 @@
     {
       "type": "proc_spawn",
       "cmd": "cargo",
-      "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-graph", "-p", "babel-node", "-p", "babel-api", "replies"],
+      "args": ["test", "--manifest-path", "backend/Cargo.toml", "-p", "babble-graph", "-p", "babble-node", "-p", "babble-api", "replies"],
       "expect_exit": 0
     }
   ]

@@ -1,11 +1,11 @@
 //! Authenticated node mutations and public readback of signed reaction registers.
 use crate::LocalNode;
-use babel_graph::{
+use babble_graph::{
     ReactionAction, ReactionActionPayload, ReactionReceipt, ReactionReceiptPayload, ReactionRecord,
     ReactionRequest, ReactionState, ReactionSummary, ReactionValue,
 };
-use babel_judgment::JudgmentProvider;
-use babel_types::{Canonical, Error, IdentityId, ObjectId, Result, Timestamp};
+use babble_judgment::JudgmentProvider;
+use babble_types::{Canonical, Error, IdentityId, ObjectId, Result, Timestamp};
 
 impl<P: JudgmentProvider> LocalNode<P> {
     pub(crate) fn verify_reactions(&self) -> Result<()> {
@@ -143,13 +143,13 @@ impl<P: JudgmentProvider> LocalNode<P> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use babel_identity::{IdentityKeyScope, IdentityKind};
-    use babel_judgment_local::LocalProvider;
+    use babble_identity::{IdentityKeyScope, IdentityKind};
+    use babble_judgment_local::LocalProvider;
 
     #[test]
     fn reactions_transaction_timestamp_checks_expiry_and_no_write_on_failure() {
         let root = std::env::temp_dir().join(format!(
-            "babel-reaction-expiry-{}-{}",
+            "babble-reaction-expiry-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos()
         ));
@@ -170,7 +170,7 @@ mod tests {
             author_id: author.id.clone(),
             object_id: object.id.clone(),
             value: ReactionValue {
-                appreciation: Some(babel_graph::Appreciation::Like),
+                appreciation: Some(babble_graph::Appreciation::Like),
                 ..Default::default()
             },
             expected_revision: 0,

@@ -4,7 +4,7 @@
   "steps": [
     {
       "type": "trace_event",
-      "name": "Parent source freeze required: inherited BABEL_FEED_DIVERSITY_SOURCE_FROZEN=1; disposable 18787/18788/14329 and Aegis 17878; run separate full regression after this focus",
+      "name": "Parent source freeze required: inherited BABBLE_FEED_DIVERSITY_SOURCE_FROZEN=1; disposable 18787/18788/14329 and Aegis 17878; run separate full regression after this focus",
       "fields": {}
     },
     {

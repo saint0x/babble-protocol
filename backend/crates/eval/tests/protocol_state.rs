@@ -1,17 +1,17 @@
-use babel_crypto::Keypair;
-use babel_eval::{
+use babble_crypto::Keypair;
+use babble_eval::{
     ConsensusFinalityEvalCase, ConsensusLoadEvalCase, RealtimeLoadEvalCase, RealtimeRoomEvalCase,
     evaluate_consensus_finality, evaluate_consensus_load, evaluate_realtime_load,
     evaluate_realtime_rooms,
 };
-use babel_hashgraph::{EventDag, ValidatorSet};
-use babel_identity::{Identity, IdentityKind};
-use babel_realtime::{
+use babble_hashgraph::{EventDag, ValidatorSet};
+use babble_identity::{Identity, IdentityKind};
+use babble_realtime::{
     MembershipPolicy, PersistencePolicy, RealtimeHub, RealtimeOperation, RealtimePayload,
     RoomLimits, RoomSpec,
 };
-use babel_state::{Event, EventKind, EventTarget};
-use babel_types::{EventId, IdentityId, ObjectId};
+use babble_state::{Event, EventKind, EventTarget};
+use babble_types::{EventId, IdentityId, ObjectId};
 use serde_json::json;
 use std::collections::{BTreeMap, BTreeSet};
 use std::time::Instant;
@@ -82,7 +82,7 @@ fn realtime_rooms_pass_state_eval_corpus() {
     let spec = RoomSpec::new(
         object_id(),
         "object-surface",
-        "babel.realtime.state.v1",
+        "babble.realtime.state.v1",
         MembershipPolicy::Open,
         PersistencePolicy::DurableMessages,
         RoomLimits::default(),
@@ -241,7 +241,7 @@ fn realtime_load_case() -> RealtimeLoadEvalCase {
     let spec = RoomSpec::new(
         object_id(),
         "scaled-object-surface",
-        "babel.realtime.state.v1",
+        "babble.realtime.state.v1",
         MembershipPolicy::Open,
         PersistencePolicy::DurableMessages,
         RoomLimits {

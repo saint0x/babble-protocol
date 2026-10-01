@@ -14,19 +14,19 @@ export async function verifyFollowing({ postAegisExecute, waitForAegisEval,
   const input = { identityId, targetIdentityId, targetHandle, search, targetPostIds };
   await waitForAegisEval("({ state: document.querySelector('[data-status]')?.dataset.state })", (value) => value?.state === "online");
   const started = await postAegisExecute([{ type: "eval", code: `(() => {
-    window.__babelFollowingCheck = null;
-    window.__babelFollowingFailure = null;
-    window.__babelFollowingProgress = { step: 'starting', since: Date.now() };
+    window.__babbleFollowingCheck = null;
+    window.__babbleFollowingFailure = null;
+    window.__babbleFollowingProgress = { step: 'starting', since: Date.now() };
     (${exerciseFollowing.toString()})(${JSON.stringify(input)})
-      .then((result) => { window.__babelFollowingCheck = result; })
-      .catch((error) => { window.__babelFollowingCheck = window.__babelFollowingFailure
-        ?? { error: String(error), progress: window.__babelFollowingProgress }; });
+      .then((result) => { window.__babbleFollowingCheck = result; })
+      .catch((error) => { window.__babbleFollowingCheck = window.__babbleFollowingFailure
+        ?? { error: String(error), progress: window.__babbleFollowingProgress }; });
     return true;
   })()` }]);
   assert.equal(started.results?.[0]?.ok, true, JSON.stringify(started));
-  const snapshot = await waitForAegisEval("({ result: window.__babelFollowingCheck, progress: window.__babelFollowingProgress, failure: window.__babelFollowingFailure })", (value) => value?.result != null);
+  const snapshot = await waitForAegisEval("({ result: window.__babbleFollowingCheck, progress: window.__babbleFollowingProgress, failure: window.__babbleFollowingFailure })", (value) => value?.result != null);
   const result = snapshot.result;
-  await postAegisExecute([{ type: "eval", code: "delete window.__babelFollowingCheck; delete window.__babelFollowingProgress; delete window.__babelFollowingFailure; true" }]);
+  await postAegisExecute([{ type: "eval", code: "delete window.__babbleFollowingCheck; delete window.__babbleFollowingProgress; delete window.__babbleFollowingFailure; true" }]);
   assert.equal(result.error, undefined, JSON.stringify(result));
   assert.deepEqual(result.order, targetPostIds);
   for (const key of ["unfollowEmpty", "followPersisted", "privateListHandle", "selfHidden", "unfollowRemoved", "noFallback"]) {
@@ -44,7 +44,7 @@ async function exerciseFollowing(input) {
     return element;
   };
   const pause = () => new Promise((resolve) => setTimeout(resolve, 35));
-  const mark = (step) => { window.__babelFollowingProgress = { step, since: Date.now() }; };
+  const mark = (step) => { window.__babbleFollowingProgress = { step, since: Date.now() }; };
   const until = async (read, predicate, label) => {
     mark(label);
     const deadline = Date.now() + 25000;
@@ -106,8 +106,8 @@ async function exerciseFollowing(input) {
     return { visible: visible(element), ancestors };
   };
   const captureFailure = (cause) => {
-    window.__babelFollowingFailure ??= {
-      error: String(cause), progress: { ...window.__babelFollowingProgress },
+    window.__babbleFollowingFailure ??= {
+      error: String(cause), progress: { ...window.__babbleFollowingProgress },
       dialog: visibilityDetails(dialog), follow: visibilityDetails(follow),
       followStatus: required('[data-author-follow-status]').textContent,
       profileStatus: required('[data-public-profile-status]').textContent,
@@ -255,7 +255,7 @@ async function exerciseFollowing(input) {
       closeProfile();
       if (captured && initial) { await openTarget(); await setFollow(true); closeProfile(); await followingFeed(); }
     } catch (cause) {
-      if (window.__babelFollowingFailure) window.__babelFollowingFailure.cleanupError = String(cause);
+      if (window.__babbleFollowingFailure) window.__babbleFollowingFailure.cleanupError = String(cause);
       else { captureFailure(cause); throw cause; }
     }
   }

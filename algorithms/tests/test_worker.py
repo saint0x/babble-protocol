@@ -12,14 +12,14 @@ from typing import cast
 import pytest
 from ranking_assertions import assert_json_close
 
-from babel_algorithms import worker as worker_module
-from babel_algorithms.content import ContentAnalyzer
-from babel_algorithms.execution import PROVIDER, AlgorithmExecutor
-from babel_algorithms.judgment import LocalJudgmentProvider
-from babel_algorithms.moderation import CommunityModerator, ModerationContext, ModerationPolicy
-from babel_algorithms.ranking_types import RANKING_PROVIDER
-from babel_algorithms.temporal_types import TEMPORAL_PROVIDER
-from babel_algorithms.wire import (
+from babble_algorithms import worker as worker_module
+from babble_algorithms.content import ContentAnalyzer
+from babble_algorithms.execution import PROVIDER, AlgorithmExecutor
+from babble_algorithms.judgment import LocalJudgmentProvider
+from babble_algorithms.moderation import CommunityModerator, ModerationContext, ModerationPolicy
+from babble_algorithms.ranking_types import RANKING_PROVIDER
+from babble_algorithms.temporal_types import TEMPORAL_PROVIDER
+from babble_algorithms.wire import (
     DEFINITIONS,
     MAX_ID,
     MAX_JUDGMENT_NODES,
@@ -31,7 +31,7 @@ from babel_algorithms.wire import (
     json_value,
     object_value,
 )
-from babel_algorithms.worker import Response, encode, handle
+from babble_algorithms.worker import Response, encode, handle
 
 
 def frame(value: Json) -> bytes:
@@ -55,7 +55,7 @@ def judge(
         "id": 2,
         "method": "judge",
         "request": {
-            "definition": f"babel.judgment.{name}.v1",
+            "definition": f"babble.judgment.{name}.v1",
             "state": {"subject": subject, "context": {"text": text, **(context or {})}},
             "parameters": {} if parameters is None else parameters,
         },
@@ -64,7 +64,7 @@ def judge(
 
 def exchange(data: bytes) -> list[dict[str, Json]]:
     process = subprocess.run(
-        [sys.executable, "-m", "babel_algorithms.worker"],
+        [sys.executable, "-m", "babble_algorithms.worker"],
         input=data,
         capture_output=True,
         timeout=15,
@@ -177,9 +177,9 @@ def test_local_provider_mapping_and_query_binding() -> None:
     local = LocalJudgmentProvider()
     for definition, response in zip(DEFINITIONS[:3], responses, strict=True):
         assert definition in (
-            "babel.judgment.spam.v1",
-            "babel.judgment.evidence_quality.v1",
-            "babel.judgment.relevance.v1",
+            "babble.judgment.spam.v1",
+            "babble.judgment.evidence_quality.v1",
+            "babble.judgment.relevance.v1",
         )
         expected = local.judge(definition, text, context="study absent")
         actual = output(response)
@@ -320,7 +320,7 @@ def test_maximum_id_is_preserved() -> None:
         b"{}\n",
         b"not-json\n",
         b"\xff\n",
-        b'{"protocol":"babel.algorithms.v1","id":1,"id":2,"method":"health"}\n',
+        b'{"protocol":"babble.algorithms.v1","id":1,"id":2,"method":"health"}\n',
         b'{"id":1,"nested":{"x":1,"x":2}}\n',
         b'{"id":1,"x":NaN}\n',
         b'{"id":1,"x":Infinity}\n',
@@ -489,7 +489,7 @@ def test_domain_context_rejects_invalid_account_age(value: float) -> None:
 
 def test_response_is_flushed_before_stdin_closes() -> None:
     with subprocess.Popen(
-        [sys.executable, "-m", "babel_algorithms.worker"],
+        [sys.executable, "-m", "babble_algorithms.worker"],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,

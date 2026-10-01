@@ -91,14 +91,14 @@ test("summarizeDiscoveryObject extracts text and topics from protocol Objects", 
   const object = {
     id: "obj_note",
     author: "id_alice",
-    kind: "babel.text.v1",
+    kind: "babble.text.v1",
     payload: { text: "A protocol note", topics: ["protocol", 7] },
   };
 
   assert.deepEqual(summarizeDiscoveryObject(object), {
     object_id: "obj_note",
     author: "id_alice",
-    kind: "babel.text.v1",
+    kind: "babble.text.v1",
     text: "A protocol note",
     topics: ["protocol"],
   });
@@ -117,7 +117,7 @@ test("createPersonalizationFilter agrees with ranked trace for every local filte
     summary("obj_muted", "id_ok", "ragebait", []),
     summary("obj_all", "id_blocked", "spoiler and ragebait", []),
     summary("obj_topic", "id_ok", "neutral", ["CLASSIFIED"]),
-    { ...summary("obj_kind", "id_ok", "neutral", []), kind: "babel.media.v1" },
+    { ...summary("obj_kind", "id_ok", "neutral", []), kind: "babble.media.v1" },
     summary("obj_visible", "id_ok", "neutral", []),
   ];
   const candidates = [...summaries.map((entry) => entry.object_id), "obj_unknown"]
@@ -234,7 +234,7 @@ test("every human-readable media field participates in filtering, including full
     description: `${"A long caption. ".repeat(2000)}classified ending`,
     alt: "An image of a secret",
   };
-  const entry = summarizeDiscoveryObject({ id: "obj_media", author: "id_ok", kind: "babel.media.v1", payload });
+  const entry = summarizeDiscoveryObject({ id: "obj_media", author: "id_ok", kind: "babble.media.v1", payload });
   assert.equal(entry.text, [payload.text, payload.title, payload.description, payload.alt].join("\n"));
   const candidate = rankedCandidate(entry.object_id, 0.5, "2026-09-27T00:00:00Z", 0.5, 0.5, 0.5);
   for (const term of ["spoiler", "ragebait", "classified", "secret"]) {
@@ -248,7 +248,7 @@ test("every human-readable media field participates in filtering, including full
 
 test("summary text projection is explicit, unique, ordered, and excludes opaque or private fields", () => {
   const object = {
-    id: "obj_projection", author: "id_ok", kind: "babel.media.v1",
+    id: "obj_projection", author: "id_ok", kind: "babble.media.v1",
     metadata: { title: "secretmetadata" },
     capabilities: [{ text: "secretcapability" }],
     resources: [{ uri: "https://example.test/secretresource" }],
@@ -284,7 +284,7 @@ test("summary projection ignores non-string fields and unsupported payload shape
     assert.equal(createPersonalizationFilter({ hidden_terms: ["secret"] })(entry), true);
   }
   const entry = summarizeDiscoveryObject({
-    id: "obj_description", author: "id_ok", kind: "babel.media.v1",
+    id: "obj_description", author: "id_ok", kind: "babble.media.v1",
     payload: { text: "", title: "", description: "A complete description", alt: "" },
   });
   assert.equal(entry.text, "A complete description");
@@ -331,7 +331,7 @@ function summary(objectId, author, text, topics) {
   return {
     object_id: objectId,
     author,
-    kind: "babel.text.v1",
+    kind: "babble.text.v1",
     text,
     topics,
   };

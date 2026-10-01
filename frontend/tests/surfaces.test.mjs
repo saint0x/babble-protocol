@@ -825,12 +825,12 @@ function sdkHostHarness(options = {}) {
       waiters.get(message.type)?.(message);
       waiters.delete(message.type);
     });
-    const accepted = next("babel.surface.accept");
-    windowMessage({ type: "babel.surface.connect", protocol: "babel.rpc.v1", version: 1 }, [channel.port2]);
+    const accepted = next("babble.surface.accept");
+    windowMessage({ type: "babble.surface.connect", protocol: "babble.rpc.v1", version: 1 }, [channel.port2]);
     await accepted;
     const child = { port: channel.port1, received, next, async confirm() {
-      const ready = next("babel.surface.ready");
-      channel.port1.postMessage({ type: "babel.surface.confirm", protocol: "babel.rpc.v1", version: 1 });
+      const ready = next("babble.surface.ready");
+      channel.port1.postMessage({ type: "babble.surface.confirm", protocol: "babble.rpc.v1", version: 1 });
       await ready;
     } };
     if (confirm) await child.confirm();
@@ -854,13 +854,13 @@ test("server document acknowledgement gates the real SDK bridge and frontend act
   t.after(() => h.dispose());
   const opening = h.open(); await settle();
   const child = await h.connect(false);
-  child.port.postMessage({ type: "babel.surface.confirm", protocol: "babel.rpc.v1", version: 1 });
+  child.port.postMessage({ type: "babble.surface.confirm", protocol: "babble.rpc.v1", version: 1 });
   await entered.promise;
   assert.equal(h.control.phase, "mounting");
   assert.equal(observed.id, "session-object-a");
   assert.match(observed.documentId, /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/);
   assert.equal(observed.signal.aborted, false);
-  assert.equal(child.received.some(message => message.type === "babel.surface.ready"), false);
+  assert.equal(child.received.some(message => message.type === "babble.surface.ready"), false);
   assert.equal(h.calls.some(([kind]) => kind === "warm" || kind === "active"), false);
   gate.resolve(); await opening;
   assert.equal(h.control.phase, "active", h.control.state.message);
@@ -879,7 +879,7 @@ for (const ending of ["close", "authority", "lease", "reject"]) {
     t.after(() => h.dispose());
     const opening = h.open(); await settle();
     const child = await h.connect(false);
-    child.port.postMessage({ type: "babel.surface.confirm", protocol: "babel.rpc.v1", version: 1 });
+    child.port.postMessage({ type: "babble.surface.confirm", protocol: "babble.rpc.v1", version: 1 });
     await entered.promise;
     if (ending === "close") await h.control.close();
     if (ending === "authority") { h.revoke(); h.control.checkLease(); }
@@ -890,7 +890,7 @@ for (const ending of ["close", "authority", "lease", "reject"]) {
     assert.equal(signal.aborted, true);
     assert.equal(h.container.childNodes.length, 0);
     assert.equal(h.calls.some(([kind]) => kind === "warm" || kind === "active"), false);
-    assert.equal(child.received.some(message => message.type === "babel.surface.ready"), false);
+    assert.equal(child.received.some(message => message.type === "babble.surface.ready"), false);
     if (ending === "reject") {
       assert.equal(h.control.phase, "error");
       assert.match(h.control.state.message, /registration failed/);
@@ -902,8 +902,8 @@ for (const ending of ["close", "authority", "lease", "reject"]) {
 for (const mismatched of [false, true]) {
   test(`frontend controller uses the session's verified bundle mount and rejects mismatched assignment: ${mismatched}`, { timeout: 5000 }, async (t) => {
     const origin = "http://m-0123456789abcdef.localhost:8788", hash = "b".repeat(64);
-    const prepared = { ...plan(), surface: { role: "Feed", target: "Web", entry: `babel://blobs/${hash}`, integrity: hash,
-      bundle: { version: 1, entry_path: "app/index.html", files: [{ path: "app/index.html", source_uri: `babel://blobs/${hash}`,
+    const prepared = { ...plan(), surface: { role: "Feed", target: "Web", entry: `babble://blobs/${hash}`, integrity: hash,
+      bundle: { version: 1, entry_path: "app/index.html", files: [{ path: "app/index.html", source_uri: `babble://blobs/${hash}`,
         integrity: hash, media_type: "text/html", kind: "document", size_bytes: 24 }] } },
       bundle_verification: { policy_version: 1, manifest_hash: "a".repeat(64) },
       sandbox: { isolated_origin: true, capability_bridge: true, host_cookies: false, top_navigation: false,
@@ -939,7 +939,7 @@ test("real SDK legacy-window Surface times out with actionable error and never a
   t.after(() => h.dispose());
   const opening = h.open(); await settle();
   assert.equal(h.control.phase, "mounting");
-  h.windowMessage({ type: "babel.rpc.request", protocol: "babel.rpc.v1", envelope: { id: "legacy-window" } });
+  h.windowMessage({ type: "babble.rpc.request", protocol: "babble.rpc.v1", envelope: { id: "legacy-window" } });
   await opening;
   assert.equal(h.control.phase, "error");
   assert.match(h.control.state.message, /could not establish a secure bridge.*handshake timed out.*Reopen the Surface or update/);
@@ -984,7 +984,7 @@ for (const action of ["close", "account", "lease", "replace"]) {
     }
     await opening; await rejected;
     const state = h.control.state;
-    child.port.postMessage({ type: "babel.surface.confirm", protocol: "babel.rpc.v1", version: 1 });
+    child.port.postMessage({ type: "babble.surface.confirm", protocol: "babble.rpc.v1", version: 1 });
     await settle();
     assert.equal(h.control.state, state);
     assert.equal(h.control.phase, action === "replace" ? "active" : action === "lease" ? "error" : "idle");
@@ -1027,9 +1027,9 @@ test("real SDK connector completes document handshake and closes controller on p
 
 test("production heartbeat client uses real SDK transport, host binding, empty payload and cancellation", async () => {
   const { mediaResource } = await import("./media-modules.mjs");
-  const sdk = await import("@babel-protocol/sdk");
+  const sdk = await import("@babble-protocol/sdk");
   const invocationContext = { exports: {}, URL, AbortController, AbortSignal, TextEncoder, TextDecoder, structuredClone, console,
-    crypto: globalThis.crypto, require: name => { assert.equal(name, "@babel-protocol/sdk"); return sdk; } };
+    crypto: globalThis.crypto, require: name => { assert.equal(name, "@babble-protocol/sdk"); return sdk; } };
   vm.runInNewContext(ts.transpileModule(readFileSync(new URL("../src/app/invocations.ts", import.meta.url), "utf8"), {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS },
   }).outputText, invocationContext);
@@ -1041,7 +1041,7 @@ test("production heartbeat client uses real SDK transport, host binding, empty p
     if (name === "./invocations") return invocationContext.exports;
     if (name === "./browser-invocations") return browserContext.exports;
     if (name === "./media-resource") return mediaResource;
-    if (name === "@babel-protocol/sdk") return sdkModule(new URL("../../sdk/src/transport.ts", import.meta.url));
+    if (name === "@babble-protocol/sdk") return sdkModule(new URL("../../sdk/src/transport.ts", import.meta.url));
     assert.equal(name, "./profile-response");
     return sdkModule(new URL("../src/app/profile-response.ts", import.meta.url));
   } };
@@ -1050,20 +1050,20 @@ test("production heartbeat client uses real SDK transport, host binding, empty p
   }).outputText, protocolContext);
   const calls = [];
   let pending = false;
-  const client = new protocolContext.exports.BabelFrontendClient("https://babel.test", async (url, init) => {
+  const client = new protocolContext.exports.BabbleFrontendClient("https://babble.test", async (url, init) => {
     calls.push({ url, init, envelope: JSON.parse(init.body) });
     if (pending) return new Promise((resolve, reject) => init.signal.addEventListener("abort", () => reject(init.signal.reason), { once: true }));
-    return Response.json({ protocol: "babel.rpc.v1", id: calls.at(-1).envelope.id, result: { lease: lease() }, error: null });
+    return Response.json({ protocol: "babble.rpc.v1", id: calls.at(-1).envelope.id, result: { lease: lease() }, error: null });
   });
   const controller = new AbortController();
   assert.deepEqual(await client.heartbeatSurfaceSession("session-object-a", controller.signal), lease());
   const call = calls[0];
-  assert.equal(call.url.href, "https://babel.test/rpc");
+  assert.equal(call.url.href, "https://babble.test/rpc");
   assert.equal(call.init.signal, controller.signal);
-  assert.equal(call.envelope.method, "babel.runtime.surface.session.heartbeat.v1");
+  assert.equal(call.envelope.method, "babble.runtime.surface.session.heartbeat.v1");
   assert.deepEqual(call.envelope.payload, {});
   assert.deepEqual(call.envelope.binding, { object_id: null, surface_session_id: "session-object-a",
-    identity_id: null, runtime_id: "babel-web-runtime", origin: "browser://babel", capability_grants: [] });
+    identity_id: null, runtime_id: "babble-web-runtime", origin: "browser://babble", capability_grants: [] });
   pending = true;
   const request = client.heartbeatSurfaceSession("session-object-a", controller.signal);
   const rejected = assert.rejects(request, /cancelled by host/);
@@ -1091,16 +1091,16 @@ for (const outcome of ["resolve", "reject", "navigation", "suspended", "lease ex
     assert.equal(h.control.phase, "active", h.control.state.message);
     assert.equal(h.frames.length, 1);
     const envelope = {
-      protocol: "babel.rpc.v1", id: "bridge-pending", method: "babel.search.objects.v1",
+      protocol: "babble.rpc.v1", id: "bridge-pending", method: "babble.search.objects.v1",
       binding: { object_id: "object-a", surface_session_id: "session-object-a", identity_id: "account-a",
         runtime_id: "runtime", origin: "https://surface.test", capability_grants: [] },
       payload: { q: "surface", author: null, kind: null, limit: 3 }, idempotency_key: null, trace_id: null,
       deadline: { timeout_ms: 30000, client_started_at: "2026-09-30T00:00:00Z" },
     };
-    h.windowMessage({ type: "babel.rpc.request", protocol: "babel.rpc.v1", envelope });
+    h.windowMessage({ type: "babble.rpc.request", protocol: "babble.rpc.v1", envelope });
     await settle();
     assert.equal(h.dispatchCalls.length, 0, "raw window RPC must remain unsupported");
-    child.port.postMessage({ type: "babel.rpc.request", protocol: "babel.rpc.v1", envelope });
+    child.port.postMessage({ type: "babble.rpc.request", protocol: "babble.rpc.v1", envelope });
     await dispatched.promise;
     assert.equal(h.dispatchCalls.length, 1);
     if (outcome === "navigation") {
@@ -1114,11 +1114,11 @@ for (const outcome of ["resolve", "reject", "navigation", "suspended", "lease ex
     await h.control.close();
     assert.equal(h.container.childNodes.length, 0);
     assert.equal(h.listeners.size, 0);
-    if (outcome !== "reject") gate.resolve({ protocol: "babel.rpc.v1", id: envelope.id, result: { secret: "old account" }, error: null });
+    if (outcome !== "reject") gate.resolve({ protocol: "babble.rpc.v1", id: envelope.id, result: { secret: "old account" }, error: null });
     else gate.reject(new Error("Old account transport failed"));
     await settle();
     assert.equal(h.messages.length, 0);
-    assert.equal(child.received.some(({ type }) => type === "babel.rpc.response"), false);
+    assert.equal(child.received.some(({ type }) => type === "babble.rpc.response"), false);
     assert.equal(contexts[0]?.signal.aborted, true);
     assert.equal(h.calls.filter(([kind]) => kind === "evicted").length, 1);
   });

@@ -1,12 +1,12 @@
-use babel_crypto::Keypair;
-use babel_graph::{Edge, EdgeOrigin, Relation};
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment::{
+use babble_crypto::Keypair;
+use babble_graph::{Edge, EdgeOrigin, Relation};
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment::{
     ConstantProvider, DefinitionId, JudgmentCache, JudgmentRequest, JudgmentState,
 };
-use babel_object::Object;
-use babel_state::{Event, EventKind, EventTarget};
-use babel_store::FileStore;
+use babble_object::Object;
+use babble_state::{Event, EventKind, EventTarget};
+use babble_store::FileStore;
 use std::{
     collections::BTreeMap,
     fs,
@@ -43,7 +43,7 @@ fn file_store_round_trips_protocol_records_and_blobs() {
         &identity,
         EventKind::ObjectPublished,
         EventTarget::Object(object.id.clone()),
-        serde_json::json!({ "kind": "babel.text" }),
+        serde_json::json!({ "kind": "babble.text" }),
         Vec::new(),
     )
     .unwrap()
@@ -201,5 +201,5 @@ fn unique_root(name: &str) -> PathBuf {
         .duration_since(UNIX_EPOCH)
         .unwrap()
         .as_nanos();
-    std::env::temp_dir().join(format!("babel-store-{name}-{nanos}"))
+    std::env::temp_dir().join(format!("babble-store-{name}-{nanos}"))
 }

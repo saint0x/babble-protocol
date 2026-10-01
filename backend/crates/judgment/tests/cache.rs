@@ -1,9 +1,9 @@
-use babel_judgment::{
+use babble_judgment::{
     ConstantProvider, DefinitionId, Judgment, JudgmentCache, JudgmentOrchestrator,
     JudgmentPrivacyPolicy, JudgmentProvider, JudgmentRequest, JudgmentState, ProviderCascade,
     ProviderRole, ProviderVersion,
 };
-use babel_types::{Canonical, Error as CoreError, JudgmentId, Timestamp};
+use babble_types::{Canonical, Error as CoreError, JudgmentId, Timestamp};
 use std::{cell::RefCell, collections::BTreeMap};
 
 #[test]
@@ -30,7 +30,7 @@ fn cache_key_reuses_definition_provider_model_and_input() {
 fn cascade_returns_first_provider_that_meets_confidence_policy() {
     let low = ConstantProvider::new(
         ProviderVersion {
-            provider: "babel-low".to_string(),
+            provider: "babble-low".to_string(),
             model: "rules".to_string(),
             version: "1".to_string(),
         },
@@ -39,7 +39,7 @@ fn cascade_returns_first_provider_that_meets_confidence_policy() {
     );
     let high = ConstantProvider::new(
         ProviderVersion {
-            provider: "babel-high".to_string(),
+            provider: "babble-high".to_string(),
             model: "rules".to_string(),
             version: "1".to_string(),
         },
@@ -47,7 +47,7 @@ fn cascade_returns_first_provider_that_meets_confidence_policy() {
         0.9,
     );
     let cascade = ProviderCascade::new(ProviderVersion {
-        provider: "babel-cascade".to_string(),
+        provider: "babble-cascade".to_string(),
         model: "ordered-confidence".to_string(),
         version: "1".to_string(),
     })
@@ -68,7 +68,7 @@ fn cascade_returns_first_provider_that_meets_confidence_policy() {
     assert_eq!(judgment.confidence, 0.9);
     assert_eq!(
         judgment.output["selected_provider"]["provider"],
-        serde_json::json!("babel-high")
+        serde_json::json!("babble-high")
     );
     assert_eq!(judgment.output["evaluated"].as_array().unwrap().len(), 2);
 }
@@ -84,7 +84,7 @@ fn orchestrator_minimizes_remote_input_and_records_cache_hits() {
         0.82,
     );
     let orchestrator = JudgmentOrchestrator::new(ProviderVersion {
-        provider: "babel-orchestrator".to_string(),
+        provider: "babble-orchestrator".to_string(),
         model: "privacy-aware".to_string(),
         version: "1".to_string(),
     })
@@ -202,7 +202,7 @@ fn orchestrator_degrades_across_provider_outage_and_low_confidence() {
     )
     .with_role(ProviderRole::Remote);
     let orchestrator = JudgmentOrchestrator::new(ProviderVersion {
-        provider: "babel-provider-cascade".to_string(),
+        provider: "babble-provider-cascade".to_string(),
         model: "local-remote".to_string(),
         version: "1".to_string(),
     })
@@ -331,7 +331,7 @@ impl JudgmentProvider for RecordingProvider {
         self.role.clone()
     }
 
-    fn judge(&self, request: &JudgmentRequest) -> babel_types::Result<Judgment> {
+    fn judge(&self, request: &JudgmentRequest) -> babble_types::Result<Judgment> {
         self.seen.borrow_mut().push(request.clone());
         let input_hash = request.state.canonical_hash()?;
         let output = serde_json::json!({
@@ -373,7 +373,7 @@ impl JudgmentProvider for FailingProvider {
         self.version.clone()
     }
 
-    fn judge(&self, _request: &JudgmentRequest) -> babel_types::Result<Judgment> {
+    fn judge(&self, _request: &JudgmentRequest) -> babble_types::Result<Judgment> {
         Err(CoreError::ProviderUnavailable(format!(
             "{} unavailable",
             self.version.provider

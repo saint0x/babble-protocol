@@ -6,14 +6,14 @@
     {
       "type": "proc_when",
       "cmd": "env",
-      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-graph", "-p", "babel-store", "-p", "babel-node", "following"],
+      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babble-graph", "-p", "babble-store", "-p", "babble-node", "following"],
       "exit_code": 0,
       "times": 1
     },
     {
       "type": "proc_spawn",
       "cmd": "env",
-      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babel-graph", "-p", "babel-store", "-p", "babel-node", "following"],
+      "args": ["CARGO_INCREMENTAL=0", "cargo", "test", "--manifest-path", "backend/Cargo.toml", "-p", "babble-graph", "-p", "babble-store", "-p", "babble-node", "following"],
       "expect_exit": 0
     }
   ]

@@ -29,12 +29,12 @@ sandbox tokens, credentialless settings, and scoped authority remain enforced.
 
 Browser Surface hosts admit one child-created MessageChannel port per mount.
 The child transfers port2 in a window offer with exactly three fields:
-`{type:"babel.surface.connect", protocol:"babel.rpc.v1", version:1}`.
+`{type:"babble.surface.connect", protocol:"babble.rpc.v1", version:1}`.
 Admission requires the current frame's exact `event.source`, the configured
 origin policy, and exactly one transferred port. Isolated frames permit `null`
 or the configured Surface origin; non-isolated frames require the exact origin.
-The host sends `babel.surface.accept` on the offered port, the child replies
-`babel.surface.confirm`, and the host sends `babel.surface.ready`. These controls
+The host sends `babble.surface.accept` on the offered port, the child replies
+`babble.surface.confirm`, and the host sends `babble.surface.ready`. These controls
 have the same protocol/version and exactly three fields. All RPC requests and
 responses travel on that port. Window messages never carry host credentials or
 capability grants, and there is no window RPC fallback. Duplicate or malformed
@@ -50,7 +50,7 @@ does not rely on that event: an old-document reply uses the original port even
 if a replacement document has appeared in the same WindowProxy before load.
 
 `connectSurfaceBridge({parentOrigin, timeoutMs?, signal?})` returns a promise for
-a BabelTransport usable with `createBabelSDK` or `createSurfaceSDK({transport,
+a BabbleTransport usable with `createBabbleSDK` or `createSurfaceSDK({transport,
 ...bindingOptions})`. The connector requires an exact HTTP(S) parent origin,
 offers its port only to `window.parent`, and installs no window response listener.
 Only its paired port can acknowledge the offer; sibling window messages cannot
@@ -58,7 +58,7 @@ complete the handshake. A raw public bootstrap that cannot know its embedder's
 origin may target `"*"` for the secret-free offer; host admission checks remain
 the same. The connector closes on abort (including after readiness), pagehide,
 explicit close, messageerror, or a peer close. Close control is
-`babel.surface.close` with the same protocol/version. Native port close events
+`babble.surface.close` with the same protocol/version. Native port close events
 are handled where available; abrupt disappearance without notification is not a
 portable browser liveness signal. Handshake and RPC deadlines stay bounded.
 

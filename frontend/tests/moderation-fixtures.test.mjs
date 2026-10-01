@@ -9,8 +9,8 @@ export const owner = id("id", "a"), author = id("id", "b"), reviewer = id("id", 
 export const object = id("obj", "e"), reportId = id("report", "f"), signalId = id("jud", "1");
 export const text = "This is a complete explanation for this moderation case.";
 export const date = "2026-09-30T12:00:00Z";
-export const access = (actor_id = owner, can_review = false) => ({ actor_id, can_review, policy_version: "babel.integrity.v1", reasons: [...api.moderationReasons] });
-export const decision = (outcome = "restrict", reviewer_id = reviewer) => ({ reviewer_id, outcome, reason: "spam", explanation: text, policy_version: "babel.integrity.v1", source_signals: [], created_at: date });
+export const access = (actor_id = owner, can_review = false) => ({ actor_id, can_review, policy_version: "babble.integrity.v1", reasons: [...api.moderationReasons] });
+export const decision = (outcome = "restrict", reviewer_id = reviewer) => ({ reviewer_id, outcome, reason: "spam", explanation: text, policy_version: "babble.integrity.v1", source_signals: [], created_at: date });
 export const item = (patch = {}) => ({ id: reportId, sequence: 10, object_id: object, subject_author_id: author, reporter_id: owner, reason: "spam", details: text,
   created_at: date, updated_at: date, revision: 1, status: "pending", decisions: [], appeal: null, ...patch });
 export const decided = (outcome = "restrict") => item({ status: "decided", revision: 2, decisions: [decision(outcome)] });

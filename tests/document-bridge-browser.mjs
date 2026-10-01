@@ -61,22 +61,22 @@ async function verifyCase(execute, waitFor, originalPlan, mode) {
         acknowledgements: {}, duplicateSends: [], ports: [], restore: [],
       };
       const mode = ${JSON.stringify(mode)};
-      const control = type => ({ type: 'babel.surface.' + type, protocol: 'babel.rpc.v1', version: 1 });
+      const control = type => ({ type: 'babble.surface.' + type, protocol: 'babble.rpc.v1', version: 1 });
       import('/src/app/protocol.ts').then(({ mountSurface }) => {
         const container = document.createElement('div');
         container.style.cssText = 'position:fixed;top:0;left:0;width:400px;height:240px;z-index:9999;background:white';
         document.body.append(container);
         state.container = container;
-        const barrier = id => state.mounted.frame.contentWindow.postMessage({ type: 'babel.test.barrier', id }, '*');
+        const barrier = id => state.mounted.frame.contentWindow.postMessage({ type: 'babble.test.barrier', id }, '*');
         // Installed before mountSurface registers its admission listener. Native
         // sends/closes complete before checkpoints are exposed to the test.
         state.observe = event => {
           if (event.source !== state.mounted?.frame.contentWindow) return;
-          if (event.data?.type === 'babel.test.observation') {
+          if (event.data?.type === 'babble.test.observation') {
             state.observations.push(event.data.value);
-          } else if (event.data?.type === 'babel.test.ack') {
+          } else if (event.data?.type === 'babble.test.ack') {
             state.acknowledgements[event.data.id] = event.data;
-          } else if (event.data?.type === 'babel.surface.connect' && event.ports.length === 1) {
+          } else if (event.data?.type === 'babble.surface.connect' && event.ports.length === 1) {
             const port = event.ports[0];
             state.offerOrigins.push(event.origin);
             const duplicate = ++state.offers > 1;
@@ -86,8 +86,8 @@ async function verifyCase(execute, waitFor, originalPlan, mode) {
             state.restore.push(() => { port.postMessage = send; port.close = close; });
             port.postMessage = function(message, ...args) {
               send.call(this, message, ...args);
-              if (duplicate && message?.type?.startsWith('babel.surface.')) state.duplicateSends.push(message.type);
-              if (message?.type === 'babel.rpc.response' && message.response?.id === 'old-pending') {
+              if (duplicate && message?.type?.startsWith('babble.surface.')) state.duplicateSends.push(message.type);
+              if (message?.type === 'babble.rpc.response' && message.response?.id === 'old-pending') {
                 state.oldReplySent = true;
                 if (mode === 'leaky-window') state.mounted.frame.contentWindow.postMessage(message, '*');
                 // Successful native send is a checkpoint, not proof that the
@@ -107,19 +107,19 @@ async function verifyCase(execute, waitFor, originalPlan, mode) {
               let confirmed = false;
               port.onmessage = message => {
                 const data = message.data;
-                if (!confirmed && data?.type === 'babel.surface.confirm'
-                  && data.protocol === 'babel.rpc.v1' && data.version === 1 && Object.keys(data).length === 3) {
+                if (!confirmed && data?.type === 'babble.surface.confirm'
+                  && data.protocol === 'babble.rpc.v1' && data.version === 1 && Object.keys(data).length === 3) {
                   confirmed = true;
                   state.duplicateConfirmed = true;
                   port.postMessage(control('ready'));
-                } else if (confirmed && data?.type === 'babel.rpc.request') {
+                } else if (confirmed && data?.type === 'babble.rpc.request') {
                   state.calls.push({ id: data.envelope.id, binding: data.envelope.binding });
-                  port.postMessage({ type: 'babel.rpc.response', protocol: 'babel.rpc.v1', response: {
-                    protocol: 'babel.rpc.v1', id: data.envelope.id, result: { duplicate: true }, error: null, trace_id: null,
+                  port.postMessage({ type: 'babble.rpc.response', protocol: 'babble.rpc.v1', response: {
+                    protocol: 'babble.rpc.v1', id: data.envelope.id, result: { duplicate: true }, error: null, trace_id: null,
                   } });
                   // The port barrier follows ready and the RPC response on the
                   // same port, so its acknowledgement proves child processing.
-                  port.postMessage({ type: 'babel.test.barrier', id: 'duplicate' });
+                  port.postMessage({ type: 'babble.test.barrier', id: 'duplicate' });
                 }
               };
               port.start();
@@ -135,7 +135,7 @@ async function verifyCase(execute, waitFor, originalPlan, mode) {
           registerDocument: async documentId => { state.documentId = documentId; },
           dispatch: request => {
             state.calls.push({ id: request.id, binding: request.binding });
-            const response = result => ({ protocol: 'babel.rpc.v1', id: request.id, result, error: null, trace_id: null });
+            const response = result => ({ protocol: 'babble.rpc.v1', id: request.id, result, error: null, trace_id: null });
             if (request.id === 'old-pending') return new Promise(resolve => {
               state.release = () => { state.resolved = true; resolve(response({ secret: 'old-document-only' })); };
             });
@@ -195,7 +195,7 @@ async function verifyCase(execute, waitFor, originalPlan, mode) {
       assert.equal(duringNavigation.duplicateConfirmed, true);
       assert.equal(duplicateAck.path, "port");
       assert.equal(duplicateAck.connected, true);
-      assert.deepEqual(duplicateAck.portMessages, ["babel.surface.accept", "babel.surface.ready", "babel.rpc.response"]);
+      assert.deepEqual(duplicateAck.portMessages, ["babble.surface.accept", "babble.surface.ready", "babble.rpc.response"]);
       assert.equal(duplicateAck.portReplies[0]?.response?.id, "replacement-port");
     } else {
       assert.equal(duringNavigation.duplicateClosed, true);
@@ -250,8 +250,8 @@ async function bounded(promise, message) {
 }
 
 function request(id) {
-  return { type: "babel.rpc.request", protocol: "babel.rpc.v1", envelope: {
-    protocol: "babel.rpc.v1", id, method: "babel.search.objects.v1",
+  return { type: "babble.rpc.request", protocol: "babble.rpc.v1", envelope: {
+    protocol: "babble.rpc.v1", id, method: "babble.search.objects.v1",
     binding: { object_id: null, surface_session_id: null, runtime_id: "document-regression",
       origin: "https://spoof.invalid", identity_id: "spoofed-principal", capability_grants: [] },
     payload: { q: null, author: null, kind: null, limit: 1 },
@@ -264,48 +264,48 @@ function initialDocument() {
     const channel = new MessageChannel();
     channel.port1.onmessage = event => {
       const data = event.data;
-      if (data?.type === 'babel.surface.accept') {
-        channel.port1.postMessage({ type: 'babel.surface.confirm', protocol: 'babel.rpc.v1', version: 1 });
-      } else if (data?.type === 'babel.surface.ready') {
-        parent.postMessage({ type: 'babel.test.observation', value: 'initial-connected' }, '*');
+      if (data?.type === 'babble.surface.accept') {
+        channel.port1.postMessage({ type: 'babble.surface.confirm', protocol: 'babble.rpc.v1', version: 1 });
+      } else if (data?.type === 'babble.surface.ready') {
+        parent.postMessage({ type: 'babble.test.observation', value: 'initial-connected' }, '*');
         channel.port1.postMessage(${JSON.stringify(request("old-pending"))});
         channel.port1.postMessage(${JSON.stringify(request("navigate"))});
-      } else if (data?.type === 'babel.rpc.response' && data.response?.result?.navigate) {
+      } else if (data?.type === 'babble.rpc.response' && data.response?.result?.navigate) {
         location.replace(data.response.result.navigate);
       }
     };
-    parent.postMessage({ type: 'babel.surface.connect', protocol: 'babel.rpc.v1', version: 1 }, '*', [channel.port2]);
+    parent.postMessage({ type: 'babble.surface.connect', protocol: 'babble.rpc.v1', version: 1 }, '*', [channel.port2]);
   }, { once: true });`;
 }
 
 function replacementDocument() {
-  return `const report = value => parent.postMessage({ type: 'babel.test.observation', value }, '*');
+  return `const report = value => parent.postMessage({ type: 'babble.test.observation', value }, '*');
     const windowReplies = [], portMessages = [], portReplies = [];
     let accepted = false, connected = false;
     const acknowledge = (id, path) => parent.postMessage({
-      type: 'babel.test.ack', id, path, connected, windowReplies, portMessages, portReplies,
+      type: 'babble.test.ack', id, path, connected, windowReplies, portMessages, portReplies,
     }, '*');
     window.addEventListener('message', event => {
       if (event.source !== parent) return;
-      if (event.data?.type === 'babel.test.barrier') acknowledge(event.data.id, 'window');
-      else if (event.data?.type?.startsWith('babel.')) windowReplies.push(event.data);
+      if (event.data?.type === 'babble.test.barrier') acknowledge(event.data.id, 'window');
+      else if (event.data?.type?.startsWith('babble.')) windowReplies.push(event.data);
     });
     const channel = new MessageChannel();
     channel.port1.onmessage = event => {
       const data = event.data;
-      if (data?.type === 'babel.test.barrier') { acknowledge(data.id, 'port'); return; }
+      if (data?.type === 'babble.test.barrier') { acknowledge(data.id, 'port'); return; }
       portMessages.push(data?.type);
-      if (data?.protocol !== 'babel.rpc.v1') return;
-      if (data.type === 'babel.surface.accept' && data.version === 1 && Object.keys(data).length === 3 && !accepted) {
+      if (data?.protocol !== 'babble.rpc.v1') return;
+      if (data.type === 'babble.surface.accept' && data.version === 1 && Object.keys(data).length === 3 && !accepted) {
         accepted = true;
-        channel.port1.postMessage({ type: 'babel.surface.confirm', protocol: 'babel.rpc.v1', version: 1 });
-      } else if (data.type === 'babel.surface.ready' && data.version === 1 && Object.keys(data).length === 3 && accepted && !connected) {
+        channel.port1.postMessage({ type: 'babble.surface.confirm', protocol: 'babble.rpc.v1', version: 1 });
+      } else if (data.type === 'babble.surface.ready' && data.version === 1 && Object.keys(data).length === 3 && accepted && !connected) {
         connected = true;
         channel.port1.postMessage(${JSON.stringify(request("replacement-port"))});
-      } else if (data.type === 'babel.rpc.response') portReplies.push(data);
+      } else if (data.type === 'babble.rpc.response') portReplies.push(data);
     };
     parent.postMessage(${JSON.stringify(request("replacement-window"))}, '*');
-    parent.postMessage({ type: 'babel.surface.connect', protocol: 'babel.rpc.v1', version: 1 }, '*', [channel.port2]);
+    parent.postMessage({ type: 'babble.surface.connect', protocol: 'babble.rpc.v1', version: 1 }, '*', [channel.port2]);
     channel.port1.postMessage(${JSON.stringify(request("replacement-port-early"))});
     report('replacement-started');`;
 }

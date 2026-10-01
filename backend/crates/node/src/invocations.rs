@@ -2,21 +2,21 @@
 //! at ingress and again under its node lock. Native callers are trusted hosts;
 //! an InvocationContext parsed directly from an untrusted request is not authority.
 use crate::{LocalNode, SocialMediaAttachment};
-use babel_authoring::{EdgeDraft, ObjectDraft};
-use babel_capabilities::invocation::{
+use babble_authoring::{EdgeDraft, ObjectDraft};
+use babble_capabilities::invocation::{
     InvocationAction, InvocationContext, InvocationExecutor, InvocationId, InvocationIntent,
     InvocationInvalidation, InvocationOrigin, InvocationOutcome, InvocationRecord, InvocationState,
     MAX_INVOCATION_TTL_MS, invocation_key, invocation_key_for_login, is_social_invocation,
     is_one_use_invocation,
 };
-use babel_capabilities::{CapabilityDefinition, PermissionMode};
-use babel_graph::{Edge, EdgeOrigin, Relation};
-use babel_judgment::JudgmentProvider;
-use babel_object::Object;
-use babel_runtime::{SurfaceLifecycle, SurfaceSessionId};
-use babel_state::EventKind;
-use babel_store::{PublicationBatch, PublicationReceipt, PublicationRequest};
-use babel_types::{Canonical, Error, Hash, IdentityId, ObjectId, Result, Timestamp};
+use babble_capabilities::{CapabilityDefinition, PermissionMode};
+use babble_graph::{Edge, EdgeOrigin, Relation};
+use babble_judgment::JudgmentProvider;
+use babble_object::Object;
+use babble_runtime::{SurfaceLifecycle, SurfaceSessionId};
+use babble_state::EventKind;
+use babble_store::{PublicationBatch, PublicationReceipt, PublicationRequest};
+use babble_types::{Canonical, Error, Hash, IdentityId, ObjectId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
@@ -56,7 +56,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
             .into_iter()
             .filter(|d| is_one_use_invocation(d.id.as_str()))
             .collect();
-        ("babel.social.invocation.policy.v1", definitions).canonical_hash()
+        ("babble.social.invocation.policy.v1", definitions).canonical_hash()
     }
 
     /// Resolve defaults once here. A retry compares normalized user intent and
@@ -129,7 +129,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
         self.check_ready()?;
         object_id.validate()?;
         let capability = method
-            .strip_suffix(".v2")
+            .strip_suffix("")
             .filter(|id| is_social_invocation(id))
             .ok_or_else(|| conflict("unsupported social invocation method"))?;
         let payload =
@@ -261,7 +261,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
         let payload: SocialInvocationPayload =
             serde_json::from_value(record.intent().payload.clone()).map_err(encoding)?;
         let request = PublicationRequest {
-            id: ("babel.invocation.publication.v1", record.id()).canonical_hash()?,
+            id: ("babble.invocation.publication.v1", record.id()).canonical_hash()?,
             fingerprint: record.intent().fingerprint()?,
             author: context.actor.clone(),
         };
@@ -439,7 +439,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
 
     fn social_definition(&self, method: &str) -> Result<CapabilityDefinition> {
         let capability = method
-            .strip_suffix(".v2")
+            .strip_suffix("")
             .filter(|id| is_social_invocation(id))
             .ok_or_else(|| conflict("unsupported social invocation method"))?;
         self.capability_definitions()
@@ -601,13 +601,13 @@ impl<P: JudgmentProvider> LocalNode<P> {
         payload: SocialInvocationPayload,
     ) -> Result<()> {
         let context = &record.intent().context;
-        if record.intent().capability.as_str() != "babel.social.unfollow" {
+        if record.intent().capability.as_str() != "babble.social.unfollow" {
             self.require_object_interaction(&context.actor, &payload.target_object_id)?;
             self.require_object_interaction(&context.actor, &context.object_id)?;
         }
         match record.intent().capability.as_str() {
-            "babel.social.follow" | "babel.social.unfollow" => {
-                let unfollow = record.intent().capability.as_str() == "babel.social.unfollow";
+            "babble.social.follow" | "babble.social.unfollow" => {
+                let unfollow = record.intent().capability.as_str() == "babble.social.unfollow";
                 let mut draft = EdgeDraft::new(
                     context.object_id.clone(),
                     payload.target_object_id,
@@ -626,7 +626,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
                 }
                 self.publish_edge_draft(&context.actor, draft)?;
             }
-            "babel.social.share" | "babel.social.reply" => {
+            "babble.social.share" | "babble.social.reply" => {
                 let draft = social_draft(&payload)?;
                 self.publish_related_draft(
                     &context.actor,
@@ -634,7 +634,7 @@ impl<P: JudgmentProvider> LocalNode<P> {
                     EventKind::ObjectPublished,
                     vec![(
                         payload.target_object_id,
-                        if record.intent().capability.as_str() == "babel.social.share" {
+                        if record.intent().capability.as_str() == "babble.social.share" {
                             Relation::Quotes
                         } else {
                             Relation::ReplyTo
@@ -704,7 +704,7 @@ fn normalize_payload(
     payload.target_object_id.validate()?;
     if matches!(
         method,
-        "babel.social.follow.v2" | "babel.social.unfollow.v2"
+        "babble.social.follow" | "babble.social.unfollow"
     ) {
         if payload.text.is_some() || payload.media.is_some() {
             return Err(conflict(
@@ -747,6 +747,6 @@ fn conflict(message: &str) -> Error {
 fn encoding(error: serde_json::Error) -> Error {
     Error::Canonical(error.to_string())
 }
-fn publication_error(error: babel_store::PublicationError) -> Error {
+fn publication_error(error: babble_store::PublicationError) -> Error {
     Error::Conflict(error.to_string())
 }

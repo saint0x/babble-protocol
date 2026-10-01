@@ -81,7 +81,7 @@ const button = (element, text) => {
 };
 const settle = () => new Promise((resolve) => setImmediate(resolve));
 function card(id, overrides = {}) {
-  return { id, author: "did:babel:1234567890abcdefghijklmnopqrstuvwxyz", title: `Title ${id}`, content: `Content ${id}`,
+  return { id, author: "did:babble:1234567890abcdefghijklmnopqrstuvwxyz", title: `Title ${id}`, content: `Content ${id}`,
     media: null, mediaKind: null, mediaType: null, mediaItems: [], surfaces: [], ...overrides };
 }
 const item = (id, value = card(id)) => ({ targetId: id, card: value });

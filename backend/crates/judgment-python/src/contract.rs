@@ -1,9 +1,9 @@
 //! Versioned wire DTOs and schemas. Python returns output, never Judgment records.
 use crate::{invalid, unavailable};
-use babel_discovery::{TemporalProviderVersion, TemporalRequest, TemporalResult};
-use babel_judgment::{DefinitionId, JudgmentRegistry, JudgmentRequest, ProviderVersion};
-use babel_lens::{RankingProviderVersion, RankingRequest, RankingResult};
-use babel_types::Result;
+use babble_discovery::{TemporalProviderVersion, TemporalRequest, TemporalResult};
+use babble_judgment::{DefinitionId, JudgmentRegistry, JudgmentRequest, ProviderVersion};
+use babble_lens::{RankingProviderVersion, RankingRequest, RankingResult};
+use babble_types::Result;
 use schemars::JsonSchema;
 use serde::{
     Deserialize, Serialize,
@@ -26,7 +26,7 @@ pub const MAX_ARRAY_ITEMS: usize = 256;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 pub enum Protocol {
-    #[serde(rename = "babel.algorithms.v1")]
+    #[serde(rename = "babble.algorithms.v1")]
     V1,
 }
 
@@ -154,7 +154,7 @@ pub enum ErrorCode {
 
 pub fn provider() -> ProviderVersion {
     ProviderVersion {
-        provider: "babel-python".into(),
+        provider: "babble-python".into(),
         model: "lexical-v1".into(),
         version: "1".into(),
     }
@@ -162,14 +162,14 @@ pub fn provider() -> ProviderVersion {
 
 pub fn ranking_provider() -> RankingProviderVersion {
     RankingProviderVersion {
-        provider: "babel-python".into(),
+        provider: "babble-python".into(),
         model: "lenses-v1".into(),
         version: "1".into(),
     }
 }
 
 pub fn definitions() -> Vec<DefinitionId> {
-    JudgmentRegistry::babel_core()
+    JudgmentRegistry::babble_core()
         .definitions
         .into_iter()
         .map(|definition| definition.id)
@@ -178,7 +178,7 @@ pub fn definitions() -> Vec<DefinitionId> {
 
 pub fn temporal_provider() -> TemporalProviderVersion {
     TemporalProviderVersion {
-        provider: "babel-python".into(),
+        provider: "babble-python".into(),
         model: "temporal-v1".into(),
         version: "1".into(),
     }
@@ -223,14 +223,14 @@ pub fn schemas() -> Value {
     ]);
     response["$defs"]["ProviderVersion"]["additionalProperties"] = false.into();
     for (key, value) in [
-        ("provider", "babel-python"),
+        ("provider", "babble-python"),
         ("model", "lexical-v1"),
         ("version", "1"),
     ] {
         response["$defs"]["ProviderVersion"]["properties"][key]["const"] = value.into();
     }
     for (key, value) in [
-        ("provider", "babel-python"),
+        ("provider", "babble-python"),
         ("model", "temporal-v1"),
         ("version", "1"),
     ] {
@@ -308,13 +308,13 @@ struct ModerationPolicy {
 
 fn judgment_request_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
     let base = generator.subschema_for::<JudgmentRequest>();
-    let agreement = generator.subschema_for::<babel_judgment::SourceAgreementInput>();
+    let agreement = generator.subschema_for::<babble_judgment::SourceAgreementInput>();
     let empty = serde_json::json!({"type": "object", "additionalProperties": false});
     let cases: Vec<_> = definitions().into_iter().map(|definition| {
         let parameters = match definition.as_str() {
-            "babel.judgment.relevance.v1" => serde_json::to_value(generator.subschema_for::<RelevanceParameters>()).unwrap(),
-            "babel.judgment.relationship.v1" => serde_json::to_value(generator.subschema_for::<RelationshipParameters>()).unwrap(),
-            "babel.judgment.moderation.v1" => serde_json::to_value(generator.subschema_for::<ModerationParameters>()).unwrap(),
+            "babble.judgment.relevance.v1" => serde_json::to_value(generator.subschema_for::<RelevanceParameters>()).unwrap(),
+            "babble.judgment.relationship.v1" => serde_json::to_value(generator.subschema_for::<RelationshipParameters>()).unwrap(),
+            "babble.judgment.moderation.v1" => serde_json::to_value(generator.subschema_for::<ModerationParameters>()).unwrap(),
             _ => empty.clone(),
         };
         let mut case = serde_json::json!({"properties": {"definition": {"const": definition}, "parameters": parameters}});
@@ -379,7 +379,7 @@ pub(crate) fn validate_request(request: &JudgmentRequest) -> Result<()> {
             _ => {}
         }
     }
-    JudgmentRegistry::babel_core()
+    JudgmentRegistry::babble_core()
         .validate_request(request)
         .map_err(|_| invalid("invalid Judgment request"))?;
     validate_parameters(request)?;
@@ -405,9 +405,9 @@ pub(crate) fn validate_request(request: &JudgmentRequest) -> Result<()> {
 
 fn validate_parameters(request: &JudgmentRequest) -> Result<()> {
     let allowed: &[&str] = match request.definition.as_str() {
-        "babel.judgment.relevance.v1" => &["query"],
-        "babel.judgment.relationship.v1" => &["relation"],
-        "babel.judgment.moderation.v1" => &["context", "policy"],
+        "babble.judgment.relevance.v1" => &["query"],
+        "babble.judgment.relationship.v1" => &["relation"],
+        "babble.judgment.moderation.v1" => &["context", "policy"],
         _ => &[],
     };
     if request

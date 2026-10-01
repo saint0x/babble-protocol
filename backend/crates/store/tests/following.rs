@@ -1,11 +1,11 @@
-use babel_crypto::Keypair;
-use babel_graph::{
+use babble_crypto::Keypair;
+use babble_graph::{
     FollowAction, FollowActionPayload, FollowReceipt, FollowReceiptPayload, FollowRequest,
     FollowState,
 };
-use babel_identity::{Identity, IdentityKind};
-use babel_store::FileStore;
-use babel_types::{Canonical, Error, Timestamp};
+use babble_identity::{Identity, IdentityKind};
+use babble_store::FileStore;
+use babble_types::{Canonical, Error, Timestamp};
 use rusqlite::Connection;
 use std::{
     path::PathBuf,
@@ -26,7 +26,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-follow-store-{}-{}-{}",
+            "babble-follow-store-{}-{}-{}",
             std::process::id(),
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
@@ -58,7 +58,7 @@ impl Fixture {
             idempotency_key: key.into(),
         }
     }
-    fn verify(&self) -> babel_types::Result<()> {
+    fn verify(&self) -> babble_types::Result<()> {
         self.store.verify_following_records(|id, _| {
             if id == &self.author.id {
                 Ok(self.author.clone())
@@ -83,7 +83,7 @@ fn commit(
     store: &FileStore,
     request: &FollowRequest,
     key: &Keypair,
-) -> babel_types::Result<FollowState> {
+) -> babble_types::Result<FollowState> {
     commit_at(store, request, key, Timestamp::now())
 }
 
@@ -92,7 +92,7 @@ fn commit_at(
     request: &FollowRequest,
     key: &Keypair,
     created_at: Timestamp,
-) -> babel_types::Result<FollowState> {
+) -> babble_types::Result<FollowState> {
     store.commit_following(
         request,
         |state, previous_id, changed, sequence, receipt_previous_id| {

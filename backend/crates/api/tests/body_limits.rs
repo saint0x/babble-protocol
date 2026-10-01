@@ -3,12 +3,12 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode},
 };
-use babel_api::{ApiState, router};
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
-use babel_rpc::{RpcBinding, RpcRequestEnvelope, babel_rpc_catalog};
-use babel_store::FileStore;
-use babel_types::Hash;
+use babble_api::{ApiState, router};
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
+use babble_rpc::{RpcBinding, RpcRequestEnvelope, babble_rpc_catalog};
+use babble_store::FileStore;
+use babble_types::Hash;
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -28,7 +28,7 @@ impl Fixture {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         Self {
             root: std::env::temp_dir().join(format!(
-                "babel-body-limits-{}-{}-{}",
+                "babble-body-limits-{}-{}-{}",
                 std::process::id(),
                 time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
                 NEXT.fetch_add(1, Ordering::Relaxed),
@@ -94,10 +94,10 @@ fn upload_body(path: &str, payload: &[u8]) -> Vec<u8> {
         json!({"media_type": "application/octet-stream", "bytes_hex": hex::encode(payload)});
     if path == "/rpc" {
         let request = RpcRequestEnvelope::new(
-            &babel_rpc_catalog().unwrap(),
+            &babble_rpc_catalog().unwrap(),
             "body-limit-upload",
-            "babel.media.blob.put.v1",
-            RpcBinding::host("body-limit-tests", "https://babel.test").unwrap(),
+            "babble.media.blob.put.v1",
+            RpcBinding::host("body-limit-tests", "https://babble.test").unwrap(),
             input,
         )
         .unwrap()

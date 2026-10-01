@@ -5,9 +5,9 @@ Status (September 30, 2026): **Four social methods and two browser consent/proto
 ## Implemented Social Milestone
 
 The SDK helpers `social.follow`, `social.unfollow`, `social.share`, and
-`social.reply` now call `babel.social.{action}.v2`. Their capability IDs and
+`social.reply` now call `babble.social.{action}`. Their capability IDs and
 declarations remain version 1. The four old `.v1` mutation methods return
-`UnsupportedVersion` (`UNSUPPORTED_VERSION` on the wire), with the supported v2
+`UnsupportedVersion` (`UNSUPPORTED_VERSION` on the wire), with the supported
 method in error details. Social reads and other namespaces are not migrated by
 this change. Mutation results contain a `PublicationReceipt`, not the former
 capability receipt.
@@ -56,8 +56,8 @@ are separate evidence; see the
 ## Current Wire Contract
 
 All endpoints require the authenticated originating login. Execution operations
-also require exactly the matching source header: `x-babel-surface-document` or
-`x-babel-host-document`. Host decision endpoints are not delegated SDK methods.
+also require exactly the matching source header: `x-babble-surface-document` or
+`x-babble-host-document`. Host decision endpoints are not delegated SDK methods.
 
 | Endpoint | Contract |
 | --- | --- |
@@ -83,7 +83,7 @@ and returns the completed typed result to the original SDK request.
 
 ## Native Browser Methods
 
-`babel.clipboard.write.v2` and `babel.fullscreen.enter.v2` share the canonical
+`babble.clipboard.write` and `babble.fullscreen.enter` share the canonical
 invocation journal, authenticated document binding and one-use consent rules.
 Capability declarations remain version 1; their old RPC v1 methods are rejected
 as unsupported. Historical reusable grants cannot authorize these actions.
@@ -104,7 +104,7 @@ originating host Object panel.
 `BrowserInvocationResponse` is distinct from the social publication response.
 It has the common intent/state fields, typed `result`, and `execution_ticket`.
 Only the first successful dispatch response contains
-`{dispatch_id, executor: "babel.browser.v1"}`. Status, retries, and recovered
+`{dispatch_id, executor: "babble.browser.v1"}`. Status, retries, and recovered
 Running/Unknown records never return another execution ticket. A lost dispatch
 response therefore cannot justify another native attempt.
 
@@ -155,11 +155,11 @@ Five `ask_each_time` methods are **not migrated to durable invocation consent**:
 
 | Capability (version 1) | Current RPC method |
 | --- | --- |
-| `babel.payments.checkout` | `babel.payments.checkout.v1` |
-| `babel.ai.generate` | `babel.ai.generate.v1` |
-| `babel.ai.transcribe` | `babel.ai.transcribe.v1` |
-| `babel.media.camera` | `babel.media.camera.request.v1` |
-| `babel.media.microphone` | `babel.media.microphone.request.v1` |
+| `babble.payments.checkout` | `babble.payments.checkout.v1` |
+| `babble.ai.generate` | `babble.ai.generate.v1` |
+| `babble.ai.transcribe` | `babble.ai.transcribe.v1` |
+| `babble.media.camera` | `babble.media.camera.request.v1` |
+| `babble.media.microphone` | `babble.media.microphone.request.v1` |
 
 Their raw RPC handlers return validated action descriptors and receipts, not
 completed external effects. The social and browser invocation integrations do
@@ -278,7 +278,7 @@ still required; existing denied grant history is not a reusable approval.
 | Contracts | `capabilities`, `rpc`, API invocation schema, and generated SDK protocol types define the versioned social contract. |
 | Node/store | `node/src/invocations.rs` and `store/src/invocations.rs` own intent, transitions, social publication, quotas and lifecycle/restart invalidation. Invocation keys are separate from durable grant/revoke retry records. |
 | API/runtime | `api/src/invocations.rs` and its context/schema helpers authenticate source-specific operations and recovery. Runtime admits supported promptable social declarations without granting execution. |
-| SDK/frontend | SDK v2 helpers, trusted document injection, `invocations.ts`, `surface-invocations.ts`, `invocation-prompt.ts`, `protocol.ts` and `main.ts` connect real host decisions and results. |
+| SDK/frontend | SDK  helpers, trusted document injection, `invocations.ts`, `surface-invocations.ts`, `invocation-prompt.ts`, `protocol.ts` and `main.ts` connect real host decisions and results. |
 | Remaining acceptance | Physical-device gestures, broader embedded media/login/restart journeys, five remaining external executors, broader migration, recovery/retention policy and full requirement audit remain open. |
 
 Prefer extending the existing publication journal. Storing consumption only in

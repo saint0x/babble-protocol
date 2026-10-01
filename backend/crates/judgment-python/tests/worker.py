@@ -5,10 +5,10 @@ import sys
 import time
 
 MODE = sys.argv[1]
-PROVIDER = {"provider": "babel-python", "model": "lexical-v1", "version": "1"}
-RANKING_PROVIDER = {"provider": "babel-python", "model": "lenses-v1", "version": "1"}
-TEMPORAL_PROVIDER = {"provider": "babel-python", "model": "temporal-v1", "version": "1"}
-DEFINITIONS = ["babel.judgment." + name + ".v1" for name in (
+PROVIDER = {"provider": "babble-python", "model": "lexical-v1", "version": "1"}
+RANKING_PROVIDER = {"provider": "babble-python", "model": "lenses-v1", "version": "1"}
+TEMPORAL_PROVIDER = {"provider": "babble-python", "model": "temporal-v1", "version": "1"}
+DEFINITIONS = ["babble.judgment." + name + ".v1" for name in (
     "spam", "relevance", "relationship", "evidence_quality", "content_analysis", "moderation",
     "source_agreement"
 )]
@@ -22,7 +22,7 @@ for line in sys.stdin:
                    "label": "test", "pid": os.getpid()},
         "confidence": 0.75,
     }
-    response = {"protocol": "babel.algorithms.v1", "id": request["id"], "result": result, "error": None}
+    response = {"protocol": "babble.algorithms.v1", "id": request["id"], "result": result, "error": None}
     if health:
         if MODE == "health_timeout":
             time.sleep(30)
@@ -62,7 +62,7 @@ for line in sys.stdin:
         if MODE == "stale_id":
             response["id"] -= 1
         if MODE == "protocol":
-            response["protocol"] = "babel.algorithms.v0"
+            response["protocol"] = "babble.algorithms.v0"
         if MODE == "provider":
             result["provider"] = {**PROVIDER, "model": "pretend"}
         if MODE == "shape":

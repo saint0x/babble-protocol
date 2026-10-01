@@ -97,7 +97,7 @@ const button = (element, text) => {
 const settle = () => new Promise((resolve) => setImmediate(resolve));
 function card(id, overrides = {}) {
   return {
-    id, author: "did:babel:1234567890abcdefghijklmnopqrstuvwxyz", title: `Title ${id}`,
+    id, author: "did:babble:1234567890abcdefghijklmnopqrstuvwxyz", title: `Title ${id}`,
     content: `Reply ${id}`, createdAt: "2026-09-29T12:00:00Z", media: null, mediaItems: [], surfaces: [], ...overrides,
   };
 }
@@ -449,7 +449,7 @@ test("reply DOM preserves full text, semantic dates, actual media and delegated 
   h.conversations.activate("root");
   await settle();
   const content = '<script>alert("no")</script>\n' + "A long reply. ".repeat(1000);
-  const author = "did:babel:1234567890abcdefghijklmnopqrstuvwxyz";
+  const author = "did:babble:1234567890abcdefghijklmnopqrstuvwxyz";
   h.requests[0].resolve([card("text", { content, author }), card("media", {
     media: "https://example.test/reply.png", surfaces: [{ target: "app" }],
   })]);
@@ -458,7 +458,7 @@ test("reply DOM preserves full text, semantic dates, actual media and delegated 
   const media = rows(panel).find((row) => row.dataset.objectId === "media");
   assert.equal(byClass(text, "reply-content")[0].textContent, content);
   assert.equal(byClass(text, "reply-author")[0].children[0].title, author);
-  assert.equal(byClass(text, "reply-author")[0].children[0].textContent, "did:babel:12...stuvwxyz");
+  assert.equal(byClass(text, "reply-author")[0].children[0].textContent, "did:babble:1...stuvwxyz");
   const profile = byClass(text, "reply-author")[0].children[0];
   assert.equal(profile.tag, "button");
   assert.equal(profile.type, "button");

@@ -1,8 +1,8 @@
-use babel_capabilities::{
+use babble_capabilities::{
     CapabilityBroker, CapabilityDecision, CapabilityDecisionStatus, CapabilityGrant,
 };
-use babel_object::{Object, Surface, SurfaceRole, SurfaceTarget};
-use babel_types::{Hash, ObjectId, Result, Timestamp};
+use babble_object::{Object, Surface, SurfaceRole, SurfaceTarget};
+use babble_types::{Hash, ObjectId, Result, Timestamp};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -96,7 +96,7 @@ impl ResourceBudget {
             || (self.gpu_expected && !current.gpu_expected)
             || (self.background_eligible && !current.background_eligible);
         if raised {
-            return Err(babel_types::Error::Conflict(
+            return Err(babble_types::Error::Conflict(
                 "Surface resource budget updates may only preserve or lower host budgets"
                     .to_string(),
             ));
@@ -426,13 +426,13 @@ impl SurfaceSessionId {
 
     pub fn validate(&self) -> Result<()> {
         let Some(suffix) = self.0.strip_prefix(Self::PREFIX) else {
-            return Err(babel_types::Error::InvalidPrefix {
+            return Err(babble_types::Error::InvalidPrefix {
                 expected: Self::PREFIX,
                 actual: self.0.clone(),
             });
         };
         if suffix.len() != 64 {
-            return Err(babel_types::Error::InvalidHashLength {
+            return Err(babble_types::Error::InvalidHashLength {
                 expected: 64,
                 actual: suffix.len(),
             });
@@ -490,7 +490,7 @@ impl SurfaceStateCheckpoint {
         state: serde_json::Value,
     ) -> Result<Self> {
         let state_bytes = serde_json::to_vec(&state).map_err(|err| {
-            babel_types::Error::Canonical(format!("encode Surface state checkpoint: {err}"))
+            babble_types::Error::Canonical(format!("encode Surface state checkpoint: {err}"))
         })?;
         Ok(Self {
             session_id,
@@ -508,12 +508,12 @@ impl SurfaceStateCheckpoint {
         self.session_id.validate()?;
         self.object_id.validate()?;
         let state_bytes = serde_json::to_vec(&self.state).map_err(|err| {
-            babel_types::Error::Canonical(format!("encode Surface state checkpoint: {err}"))
+            babble_types::Error::Canonical(format!("encode Surface state checkpoint: {err}"))
         })?;
         let actual_hash = Hash::from_bytes(&state_bytes);
         let actual_size = state_bytes.len() as u64;
         if actual_hash != self.state_hash || actual_size != self.size_bytes {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "Surface state checkpoint integrity mismatch for session {}",
                 self.session_id
             )));
@@ -536,7 +536,7 @@ pub struct SurfaceSession {
 impl SurfaceSession {
     pub fn start(id: SurfaceSessionId, plan: SurfaceSessionPlan, reason: &str) -> Result<Self> {
         if plan.admission != RuntimeAdmissionStatus::Ready {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "cannot start Surface session with admission {:?}",
                 plan.admission
             )));
@@ -574,7 +574,7 @@ impl SurfaceSession {
             );
         }
         if !lifecycle_transition_allowed(&self.lifecycle, &next) {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "invalid Surface lifecycle transition: {:?} -> {:?}",
                 self.lifecycle, next
             )));
@@ -615,7 +615,7 @@ impl SurfaceSession {
     ) -> Result<SurfaceRuntimeEvent> {
         checkpoint.verify()?;
         if checkpoint.session_id != self.id || checkpoint.object_id != self.plan.object_id {
-            return Err(babel_types::Error::Conflict(format!(
+            return Err(babble_types::Error::Conflict(format!(
                 "Surface state checkpoint {} is not bound to session {}",
                 checkpoint.state_hash, self.id
             )));
@@ -712,8 +712,8 @@ impl SurfaceRuntime {
         Self { broker }
     }
 
-    pub fn babel_default() -> Self {
-        Self::new(CapabilityBroker::babel_default())
+    pub fn babble_default() -> Self {
+        Self::new(CapabilityBroker::babble_default())
     }
 
     pub fn prepare_surface(
@@ -730,7 +730,7 @@ impl SurfaceRuntime {
         object: &Object,
         role: SurfaceRole,
         grants: &[CapabilityGrant],
-        receipt: Option<&babel_store::VerifiedBundle>,
+        receipt: Option<&babble_store::VerifiedBundle>,
     ) -> Result<SurfaceSessionPlan> {
         object.verify_unsigned_commitment_shape()?;
         let surface = object
@@ -739,7 +739,7 @@ impl SurfaceRuntime {
             .find(|surface| surface.role == role)
             .cloned()
             .ok_or_else(|| {
-                babel_types::Error::NotFound(format!("surface {:?} for object {}", role, object.id))
+                babble_types::Error::NotFound(format!("surface {:?} for object {}", role, object.id))
             })?;
         let bundle_verification = receipt
             .map(|receipt| bundles::validate_receipt(object, &surface, receipt))
@@ -762,10 +762,10 @@ impl SurfaceRuntime {
             && !object
                 .capabilities
                 .iter()
-                .any(|capability| capability.id == "babel.graphics.webgpu")
+                .any(|capability| capability.id == "babble.graphics.webgpu")
         {
             blocked_reasons
-                .push("WebGPU surfaces must declare babel.graphics.webgpu capability".to_string());
+                .push("WebGPU surfaces must declare babble.graphics.webgpu capability".to_string());
         }
         let permission_blocked = capability_decisions.iter().any(|decision| {
             decision.status == CapabilityDecisionStatus::RequiresUser
@@ -839,9 +839,9 @@ impl SurfaceRuntime {
 fn promptable_invocation_decision(decision: &CapabilityDecision) -> bool {
     decision.request.version == 1
         && decision.definition.as_ref().is_some_and(|definition| {
-            definition.permission == babel_capabilities::PermissionMode::AskEachTime
+            definition.permission == babble_capabilities::PermissionMode::AskEachTime
         })
-        && babel_capabilities::invocation::is_one_use_invocation(decision.request.id.as_str())
+        && babble_capabilities::invocation::is_one_use_invocation(decision.request.id.as_str())
 }
 
 trait ObjectRuntimeValidation {
@@ -861,7 +861,7 @@ fn executable_blockers(object: &Object, surface: &Surface, verified_bundle: bool
     if entry.is_empty() {
         reasons.push("surface entry must not be empty".to_string());
     }
-    let parsed_entry = babel_object::resource_uri::ResourceUri::parse(entry);
+    let parsed_entry = babble_object::resource_uri::ResourceUri::parse(entry);
     if parsed_entry.is_err() {
         reasons.push(
             "surface entry must be a safe relative or integrity-addressed HTTP(S) resource"
@@ -880,7 +880,7 @@ fn executable_blockers(object: &Object, surface: &Surface, verified_bundle: bool
         let has_background_capability = object.capabilities.iter().any(|capability| {
             matches!(
                 capability.id.as_str(),
-                "babel.realtime.join" | "babel.realtime.send" | "babel.storage.local"
+                "babble.realtime.join" | "babble.realtime.send" | "babble.storage.local"
             )
         });
         if !has_background_capability {
@@ -993,7 +993,7 @@ fn wasm_capability_import(decision: &CapabilityDecision) -> Option<WasmCapabilit
     Some(WasmCapabilityImport {
         capability: capability.to_string(),
         version: definition.version,
-        module: format!("babel:capability/{}@{}", capability, definition.version),
+        module: format!("babble:capability/{}@{}", capability, definition.version),
         function: capability_import_function(capability),
         grant_id: decision.grant.as_ref().map(|grant| grant.id.to_string()),
         max_call_ms: definition.quota.max_call_ms,
@@ -1003,7 +1003,7 @@ fn wasm_capability_import(decision: &CapabilityDecision) -> Option<WasmCapabilit
 
 fn capability_import_function(capability: &str) -> String {
     capability
-        .strip_prefix("babel.")
+        .strip_prefix("babble.")
         .unwrap_or(capability)
         .replace(['.', '-'], "_")
 }
@@ -1229,11 +1229,11 @@ fn clean_reason(reason: impl Into<String>) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use babel_capabilities::{CapabilityBroker, GrantDecision};
-    use babel_crypto::Keypair;
-    use babel_identity::{Identity, IdentityKind};
-    use babel_object::{CapabilityRequest, Object, Resource, Surface, SurfaceRole, SurfaceTarget};
-    use babel_types::Hash;
+    use babble_capabilities::{CapabilityBroker, GrantDecision};
+    use babble_crypto::Keypair;
+    use babble_identity::{Identity, IdentityKind};
+    use babble_object::{CapabilityRequest, Object, Resource, Surface, SurfaceRole, SurfaceTarget};
+    use babble_types::Hash;
     use serde_json::json;
 
     #[test]
@@ -1242,13 +1242,13 @@ mod tests {
         let identity = Identity::create(IdentityKind::Person, "invocation", &keypair).unwrap();
         let digest = Hash::from_bytes(b"surface");
         for capability in [
-            "babel.social.follow",
-            "babel.social.unfollow",
-            "babel.social.share",
-            "babel.social.reply",
-            "babel.clipboard.write",
-            "babel.fullscreen.enter",
-            "babel.media.camera",
+            "babble.social.follow",
+            "babble.social.unfollow",
+            "babble.social.share",
+            "babble.social.reply",
+            "babble.clipboard.write",
+            "babble.fullscreen.enter",
+            "babble.media.camera",
         ] {
             let object = Object::text(&identity, "controller")
                 .unwrap()
@@ -1269,7 +1269,7 @@ mod tests {
                 .with_capabilities(vec![CapabilityRequest {
                     id: capability.into(),
                     version: 1,
-                    scope: if capability == "babel.media.camera" {
+                    scope: if capability == "babble.media.camera" {
                         json!({"modes":["photo"],"media_types":["image/png"]})
                     } else {
                         json!({})
@@ -1278,13 +1278,13 @@ mod tests {
                 .unwrap()
                 .sign(&identity, &keypair)
                 .unwrap();
-            let runtime = SurfaceRuntime::babel_default();
+            let runtime = SurfaceRuntime::babble_default();
             let plan = runtime
                 .prepare_surface(&object, SurfaceRole::Feed, &[])
                 .unwrap();
             assert_eq!(
                 plan.admission,
-                if babel_capabilities::invocation::is_one_use_invocation(capability) {
+                if babble_capabilities::invocation::is_one_use_invocation(capability) {
                     RuntimeAdmissionStatus::Ready
                 } else {
                     RuntimeAdmissionStatus::NeedsPermission
@@ -1315,7 +1315,7 @@ mod tests {
             .sign(&identity, &keypair)
             .unwrap();
 
-        let plan = SurfaceRuntime::babel_default()
+        let plan = SurfaceRuntime::babble_default()
             .prepare_surface(&object, SurfaceRole::Feed, &[])
             .unwrap();
 
@@ -1331,7 +1331,7 @@ mod tests {
     fn runtime_blocks_executable_surface_resource_abuse() {
         let keypair = Keypair::generate();
         let identity = Identity::create(IdentityKind::Person, "alice", &keypair).unwrap();
-        let bundle_hash = Hash::from_bytes(b"console.log('babel')");
+        let bundle_hash = Hash::from_bytes(b"console.log('babble')");
         let image_hash = Hash::from_bytes(b"not executable");
         let base = Object::text(&identity, "active object")
             .unwrap()
@@ -1361,7 +1361,7 @@ mod tests {
             .unwrap()
             .sign(&identity, &keypair)
             .unwrap();
-        let unsafe_plan = SurfaceRuntime::babel_default()
+        let unsafe_plan = SurfaceRuntime::babble_default()
             .prepare_surface(&unsafe_entry, SurfaceRole::Feed, &[])
             .unwrap();
         assert_eq!(unsafe_plan.admission, RuntimeAdmissionStatus::Blocked);
@@ -1383,7 +1383,7 @@ mod tests {
             .unwrap()
             .sign(&identity, &keypair)
             .unwrap();
-        let media_plan = SurfaceRuntime::babel_default()
+        let media_plan = SurfaceRuntime::babble_default()
             .prepare_surface(&wrong_media, SurfaceRole::Feed, &[])
             .unwrap();
         assert_eq!(media_plan.admission, RuntimeAdmissionStatus::Blocked);
@@ -1405,7 +1405,7 @@ mod tests {
             .unwrap()
             .sign(&identity, &keypair)
             .unwrap();
-        let traversal_plan = SurfaceRuntime::babel_default()
+        let traversal_plan = SurfaceRuntime::babble_default()
             .prepare_surface(&traversal, SurfaceRole::Feed, &[])
             .unwrap();
         assert_eq!(traversal_plan.admission, RuntimeAdmissionStatus::Blocked);
@@ -1418,11 +1418,11 @@ mod tests {
     }
 
     #[test]
-    fn runtime_accepts_integrity_addressed_babel_blob_surface_entries() {
+    fn runtime_accepts_integrity_addressed_babble_blob_surface_entries() {
         let keypair = Keypair::generate();
         let identity = Identity::create(IdentityKind::Person, "alice", &keypair).unwrap();
-        let hash = Hash::from_bytes(b"console.log('babel')");
-        let uri = format!("babel://blobs/{hash}");
+        let hash = Hash::from_bytes(b"console.log('babble')");
+        let uri = format!("babble://blobs/{hash}");
         let object = Object::text(&identity, "active object")
             .unwrap()
             .with_resources(vec![Resource {
@@ -1442,7 +1442,7 @@ mod tests {
             .sign(&identity, &keypair)
             .unwrap();
 
-        let plan = SurfaceRuntime::babel_default()
+        let plan = SurfaceRuntime::babble_default()
             .prepare_surface(&object, SurfaceRole::Feed, &[])
             .unwrap();
 
@@ -1455,7 +1455,7 @@ mod tests {
     fn runtime_blocks_ambiguous_surface_roles_and_webgpu_without_capability() {
         let keypair = Keypair::generate();
         let identity = Identity::create(IdentityKind::Person, "alice", &keypair).unwrap();
-        let hash = Hash::from_bytes(b"console.log('babel')");
+        let hash = Hash::from_bytes(b"console.log('babble')");
         let object = Object::text(&identity, "active object")
             .unwrap()
             .with_resources(vec![Resource {
@@ -1484,7 +1484,7 @@ mod tests {
             .sign(&identity, &keypair)
             .unwrap();
 
-        let plan = SurfaceRuntime::babel_default()
+        let plan = SurfaceRuntime::babble_default()
             .prepare_surface(&object, SurfaceRole::Feed, &[])
             .unwrap();
 
@@ -1497,7 +1497,7 @@ mod tests {
         assert!(
             plan.blocked_reasons
                 .iter()
-                .any(|reason| reason.contains("babel.graphics.webgpu"))
+                .any(|reason| reason.contains("babble.graphics.webgpu"))
         );
     }
 
@@ -1505,9 +1505,9 @@ mod tests {
     fn runtime_admits_surface_after_required_grant_exists() {
         let keypair = Keypair::generate();
         let identity = Identity::create(IdentityKind::Person, "alice", &keypair).unwrap();
-        let hash = Hash::from_bytes(b"console.log('babel')");
+        let hash = Hash::from_bytes(b"console.log('babble')");
         let request = CapabilityRequest {
-            id: "babel.network.fetch".to_string(),
+            id: "babble.network.fetch".to_string(),
             version: 1,
             scope: json!({"origins": ["https://example.com"]}),
         };
@@ -1531,7 +1531,7 @@ mod tests {
             .unwrap()
             .sign(&identity, &keypair)
             .unwrap();
-        let broker = CapabilityBroker::babel_default();
+        let broker = CapabilityBroker::babble_default();
         let grant = broker
             .issue_grant(object.id.clone(), request, GrantDecision::Approved, None)
             .unwrap();
@@ -1553,16 +1553,16 @@ mod tests {
     fn runtime_wasm_policy_uses_isolated_store_and_granted_capability_imports() {
         let keypair = Keypair::generate();
         let identity = Identity::create(IdentityKind::Person, "alice", &keypair).unwrap();
-        let hash = Hash::from_bytes(b"\0asm babel module");
+        let hash = Hash::from_bytes(b"\0asm babble module");
         let request = CapabilityRequest {
-            id: "babel.storage.object".to_string(),
+            id: "babble.storage.object".to_string(),
             version: 1,
             scope: json!({"namespace": "state"}),
         };
         let object = Object::text(&identity, "wasm object")
             .unwrap()
             .with_resources(vec![Resource {
-                uri: format!("babel://blobs/{hash}"),
+                uri: format!("babble://blobs/{hash}"),
                 media_type: "application/wasm".to_string(),
                 integrity: hash.clone(),
             }])
@@ -1571,7 +1571,7 @@ mod tests {
                 bundle: None,
                 role: SurfaceRole::Feed,
                 target: SurfaceTarget::Wasm,
-                entry: format!("babel://blobs/{hash}"),
+                entry: format!("babble://blobs/{hash}"),
                 integrity: Some(hash),
             }])
             .unwrap()
@@ -1580,7 +1580,7 @@ mod tests {
             .sign(&identity, &keypair)
             .unwrap();
 
-        let pending = SurfaceRuntime::babel_default()
+        let pending = SurfaceRuntime::babble_default()
             .prepare_surface(&object, SurfaceRole::Feed, &[])
             .unwrap();
         assert_eq!(pending.admission, RuntimeAdmissionStatus::NeedsPermission);
@@ -1592,7 +1592,7 @@ mod tests {
         assert!(!pending_policy.wasi_network);
         assert!(pending_policy.allowed_imports.is_empty());
 
-        let broker = CapabilityBroker::babel_default();
+        let broker = CapabilityBroker::babble_default();
         let grant = broker
             .issue_grant(object.id.clone(), request, GrantDecision::Approved, None)
             .unwrap();
@@ -1610,10 +1610,10 @@ mod tests {
         assert!(!policy.wasi_filesystem);
         assert!(!policy.wasi_network);
         assert_eq!(policy.allowed_imports.len(), 1);
-        assert_eq!(policy.allowed_imports[0].capability, "babel.storage.object");
+        assert_eq!(policy.allowed_imports[0].capability, "babble.storage.object");
         assert_eq!(
             policy.allowed_imports[0].module,
-            "babel:capability/babel.storage.object@1"
+            "babble:capability/babble.storage.object@1"
         );
         assert_eq!(policy.allowed_imports[0].function, "storage_object");
         assert_eq!(
@@ -1654,7 +1654,7 @@ mod tests {
     fn runtime_surface_sessions_track_lifecycle_and_budget_events() {
         let keypair = Keypair::generate();
         let identity = Identity::create(IdentityKind::Person, "alice", &keypair).unwrap();
-        let hash = Hash::from_bytes(b"console.log('babel')");
+        let hash = Hash::from_bytes(b"console.log('babble')");
         let object = Object::text(&identity, "active object")
             .unwrap()
             .with_resources(vec![Resource {
@@ -1674,7 +1674,7 @@ mod tests {
             .sign(&identity, &keypair)
             .unwrap();
 
-        let runtime = SurfaceRuntime::babel_default();
+        let runtime = SurfaceRuntime::babble_default();
         let plan = runtime
             .prepare_surface(&object, SurfaceRole::Feed, &[])
             .unwrap();
@@ -1741,7 +1741,7 @@ mod tests {
     fn scheduler_suspends_offscreen_surfaces_with_zero_cpu_under_pressure() {
         let keypair = Keypair::generate();
         let identity = Identity::create(IdentityKind::Person, "alice", &keypair).unwrap();
-        let hash = Hash::from_bytes(b"console.log('babel')");
+        let hash = Hash::from_bytes(b"console.log('babble')");
         let object = Object::text(&identity, "active object")
             .unwrap()
             .with_resources(vec![Resource {
@@ -1760,7 +1760,7 @@ mod tests {
             .unwrap()
             .sign(&identity, &keypair)
             .unwrap();
-        let plan = SurfaceRuntime::babel_default()
+        let plan = SurfaceRuntime::babble_default()
             .prepare_surface(&object, SurfaceRole::Feed, &[])
             .unwrap();
         let input = SurfaceSchedulingInput {
@@ -1793,7 +1793,7 @@ mod tests {
     fn scheduler_prefetches_approaching_surfaces_and_evicts_under_critical_pressure() {
         let keypair = Keypair::generate();
         let identity = Identity::create(IdentityKind::Person, "alice", &keypair).unwrap();
-        let hash = Hash::from_bytes(b"console.log('babel')");
+        let hash = Hash::from_bytes(b"console.log('babble')");
         let object = Object::text(&identity, "active object")
             .unwrap()
             .with_resources(vec![Resource {
@@ -1812,7 +1812,7 @@ mod tests {
             .unwrap()
             .sign(&identity, &keypair)
             .unwrap();
-        let plan = SurfaceRuntime::babel_default()
+        let plan = SurfaceRuntime::babble_default()
             .prepare_surface(&object, SurfaceRole::Feed, &[])
             .unwrap();
         let scheduler = SurfaceScheduler::new();

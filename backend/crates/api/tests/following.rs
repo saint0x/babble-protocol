@@ -3,9 +3,9 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode},
 };
-use babel_api::{ApiState, router};
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
+use babble_api::{ApiState, router};
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -19,7 +19,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         Self(std::env::temp_dir().join(format!(
-            "babel-follow-http-{}-{}-{}",
+            "babble-follow-http-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed)
@@ -113,7 +113,7 @@ async fn set(
     assert_eq!(status, StatusCode::OK, "{body}");
     body
 }
-async fn publish(app: &Router, actor: &Account, text: &str) -> babel_object::Object {
+async fn publish(app: &Router, actor: &Account, text: &str) -> babble_object::Object {
     let (status, body) = request(
         app,
         "POST",
@@ -126,7 +126,7 @@ async fn publish(app: &Router, actor: &Account, text: &str) -> babel_object::Obj
     serde_json::from_value(body["object"].clone()).unwrap()
 }
 fn cursor_url(path: &str, cursor: &Value, limit: usize) -> String {
-    let mut url = reqwest::Url::parse(&format!("http://babel.test{path}")).unwrap();
+    let mut url = reqwest::Url::parse(&format!("http://babble.test{path}")).unwrap();
     url.query_pairs_mut()
         .append_pair("cursor", cursor.as_str().unwrap())
         .append_pair("limit", &limit.to_string());

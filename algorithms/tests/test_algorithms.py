@@ -1,4 +1,4 @@
-from babel_algorithms import (
+from babble_algorithms import (
     CandidateEngine,
     CommunityModerator,
     ConsensusAnalyzer,
@@ -20,9 +20,9 @@ from babel_algorithms import (
     TemporalScorer,
     UserProfile,
 )
-from babel_algorithms.discovery import DiscoveryRequest
-from babel_algorithms.lens import BuiltInLens, LensWeight
-from babel_algorithms.types import (
+from babble_algorithms.discovery import DiscoveryRequest
+from babble_algorithms.lens import BuiltInLens, LensWeight
+from babble_algorithms.types import (
     Candidate,
     CandidateSource,
     ObjectId,
@@ -35,11 +35,11 @@ def test_local_judgment_is_deterministic() -> None:
     provider = LocalJudgmentProvider()
 
     first = provider.judge(
-        "babel.judgment.evidence_quality.v1",
+        "babble.judgment.evidence_quality.v1",
         "According to the dataset, replication confirms the measurement.",
     )
     second = provider.judge(
-        "babel.judgment.evidence_quality.v1",
+        "babble.judgment.evidence_quality.v1",
         "According to the dataset, replication confirms the measurement.",
     )
 

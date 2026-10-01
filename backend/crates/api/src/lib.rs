@@ -6,7 +6,7 @@ mod execution;
 mod following;
 mod safety;
 mod moderation;
-pub use babel_graph::moderation::{ReportRequest, DecisionRequest, AppealRequest};
+pub use babble_graph::moderation::{ReportRequest, DecisionRequest, AppealRequest};
 pub use safety::SetSafetyRequest;
 mod invocations;
 pub use invocations::schema::{
@@ -14,7 +14,7 @@ pub use invocations::schema::{
     InvocationSocialResult, InvocationSource, PrepareInvocationRequest, RecoverInvocationRequest,
     RegisterHostDocumentRequest, BrowserInvocationResponse,
 };
-pub use babel_capabilities::invocation::browser::{
+pub use babble_capabilities::invocation::browser::{
     AcknowledgeBrowserInvocationRequest, BrowserExecutionTicket, BrowserInvocationResult,
     BrowserFailureCode,
 };

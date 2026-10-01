@@ -1,15 +1,15 @@
 use super::invocation_tests::{approve, at, bare_intent};
 use super::tests::Root;
 use super::*;
-use babel_capabilities::{CapabilityId, invocation::*};
+use babble_capabilities::{CapabilityId, invocation::*};
 use serde_json::json;
 use std::sync::{Arc, Barrier};
 
 fn browser_intent(key: &str) -> InvocationIntent {
     let mut intent = bare_intent();
     intent.request_key = key.into();
-    intent.method = "babel.fullscreen.enter.v2".into();
-    intent.capability = CapabilityId::new("babel.fullscreen.enter").unwrap();
+    intent.method = "babble.fullscreen.enter".into();
+    intent.capability = CapabilityId::new("babble.fullscreen.enter").unwrap();
     intent.scope = json!({});
     intent.payload = json!({"target_hint":null,"navigation_ui":"auto"});
     intent.executor = InvocationExecutor::External {
@@ -113,11 +113,11 @@ fn browser_cancel_and_dispatch_compete_for_one_preimage() {
 
 #[test]
 fn browser_crash_child() {
-    let Some(root) = std::env::var_os("BABEL_BROWSER_CRASH_ROOT") else {
+    let Some(root) = std::env::var_os("BABBLE_BROWSER_CRASH_ROOT") else {
         return;
     };
-    let phase = std::env::var("BABEL_BROWSER_CRASH_PHASE").unwrap();
-    let operation = std::env::var("BABEL_BROWSER_CRASH_OPERATION").unwrap();
+    let phase = std::env::var("BABBLE_BROWSER_CRASH_PHASE").unwrap();
+    let operation = std::env::var("BABBLE_BROWSER_CRASH_OPERATION").unwrap();
     let store = FileStore::open(PathBuf::from(root)).unwrap();
     let approved = approve(&store, browser_intent("crash"));
     let (mut batch, running) = dispatch_batch(&approved);
@@ -180,9 +180,9 @@ fn browser_dispatch_and_ack_crash_at_each_journal_boundary() {
                     "publication::browser_invocation_tests::browser_crash_child",
                     "--nocapture",
                 ])
-                .env("BABEL_BROWSER_CRASH_ROOT", &root.0)
-                .env("BABEL_BROWSER_CRASH_PHASE", phase)
-                .env("BABEL_BROWSER_CRASH_OPERATION", operation)
+                .env("BABBLE_BROWSER_CRASH_ROOT", &root.0)
+                .env("BABBLE_BROWSER_CRASH_PHASE", phase)
+                .env("BABBLE_BROWSER_CRASH_OPERATION", operation)
                 .output()
                 .unwrap();
             assert_eq!(

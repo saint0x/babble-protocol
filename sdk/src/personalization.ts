@@ -17,7 +17,7 @@ import { assertFiniteNumbers, compareIds, diversifyRanked, validateDiversityInpu
 export type LocalUserModelInput = Partial<PersonalizationLocalUserModel>;
 export type PersonalizationSyncRecipientInput = PersonalizationPersonalizationSyncRecipient;
 
-export const PERSONALIZATION_SYNC_VERSION = "babel.personalization.sync.v1";
+export const PERSONALIZATION_SYNC_VERSION = "babble.personalization.sync.v1";
 export const PERSONALIZATION_SYNC_DATA_CLASS = "encrypted_synchronized_state";
 export const PERSONALIZATION_SYNC_ALGORITHM = "XChaCha20-Poly1305";
 

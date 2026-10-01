@@ -1,17 +1,17 @@
-use babel_crypto::Keypair;
-use babel_discovery::{
+use babble_crypto::Keypair;
+use babble_discovery::{
     NativeTemporalScorer, TemporalClass, TemporalProvider, TemporalProviderVersion,
     TemporalRequest, TemporalResult,
 };
-use babel_graph::{Edge, EdgeOrigin, Relation};
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_lens::{
+use babble_graph::{Edge, EdgeOrigin, Relation};
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_lens::{
     NativeRanker, RankingProvider, RankingProviderVersion, RankingRequest, RankingResult,
 };
-use babel_node::{DiscoveryQuery, DiscoveryResult, FollowingQuery, ImportBundle, LocalNode};
-use babel_object::Object;
-use babel_types::{Error, Result, Timestamp};
+use babble_node::{DiscoveryQuery, DiscoveryResult, FollowingQuery, ImportBundle, LocalNode};
+use babble_object::Object;
+use babble_types::{Error, Result, Timestamp};
 use std::{
     collections::{BTreeMap, BTreeSet},
     path::PathBuf,
@@ -76,7 +76,7 @@ impl TemporalProvider for RecordingTemporal {
             Behavior::Reordered => result.scores.reverse(),
             Behavior::Foreign => {
                 result.scores[0].object_id =
-                    babel_types::ObjectId::new_unchecked(format!("obj_{}", "f".repeat(64)))
+                    babble_types::ObjectId::new_unchecked(format!("obj_{}", "f".repeat(64)))
             }
             Behavior::WrongProvider => result.provider.version = "999".into(),
             Behavior::WrongTime => {
@@ -116,7 +116,7 @@ impl Fixture {
     fn new(behavior: Behavior) -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-temporal-node-{}-{}-{}",
+            "babble-temporal-node-{}-{}-{}",
             std::process::id(),
             OffsetDateTime::now_utc().unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed)
@@ -206,10 +206,10 @@ fn query(limit: usize) -> DiscoveryQuery {
         followed_objects: BTreeSet::new(),
         limit,
         exploration_slots: 1,
-        lens: babel_lens::LensStack::new(
+        lens: babble_lens::LensStack::new(
             "temporal-test",
-            vec![babel_lens::LensWeight {
-                lens: babel_lens::BuiltInLens::Research,
+            vec![babble_lens::LensWeight {
+                lens: babble_lens::BuiltInLens::Research,
                 weight: 1.0,
             }],
         ),

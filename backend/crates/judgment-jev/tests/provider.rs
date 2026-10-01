@@ -1,9 +1,9 @@
-use babel_judgment::{
+use babble_judgment::{
     DefinitionId, JudgmentCache, JudgmentOrchestrator, JudgmentProvider, JudgmentRequest,
     JudgmentState, ProviderRole,
 };
-use babel_judgment_jev::{JevConfig, JevProvider, JevRequest, JevResponse, JevTransport};
-use babel_types::Result;
+use babble_judgment_jev::{JevConfig, JevProvider, JevRequest, JevResponse, JevTransport};
+use babble_types::Result;
 use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex};
 
@@ -70,7 +70,7 @@ impl JevTransport for ScriptedTransport {
 }
 
 #[test]
-fn jev_provider_maps_babel_request_without_leaking_jev_types_to_callers() {
+fn jev_provider_maps_babble_request_without_leaking_jev_types_to_callers() {
     let transport = ScriptedTransport::default();
     let seen = transport.seen.clone();
     let provider = JevProvider::with_transport(

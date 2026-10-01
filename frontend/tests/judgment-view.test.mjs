@@ -4,7 +4,7 @@ import { setImmediate } from "node:timers/promises";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
-import * as sdk from "@babel-protocol/sdk";
+import * as sdk from "@babble-protocol/sdk";
 
 class Element {
   children = []; attributes = {}; events = {}; textContent = ""; open = false;
@@ -95,13 +95,13 @@ test("input fetch binds returned IDs, handles legacy absence, and refuses failed
   let status = 200, requested;
   const profiles = load("profile-response");
   const invocations = load("invocations", {}, () => sdk);
-  const { BabelFrontendClient } = load("protocol", { fetch: async (url, options) => {
+  const { BabbleFrontendClient } = load("protocol", { fetch: async (url, options) => {
     requested = { url, options };
     return Response.json(response, { status });
-  } }, name => name === "./invocations" ? invocations : name === "@babel-protocol/sdk" ? sdk : profiles);
-  const client = new BabelFrontendClient("https://babel.example");
+  } }, name => name === "./invocations" ? invocations : name === "@babble-protocol/sdk" ? sdk : profiles);
+  const client = new BabbleFrontendClient("https://babble.example");
   assert.equal((await client.judgmentInput("jud_test")).judgment_id, "jud_test");
-  assert.equal(requested.url.href, "https://babel.example/judgments/jud_test");
+  assert.equal(requested.url.href, "https://babble.example/judgments/jud_test");
   assert.ok(requested.options.signal instanceof AbortSignal);
   for (const bad of [
     { judgment: { id: "jud_other" }, input: null },
@@ -131,7 +131,7 @@ function panelHarness() {
     setAnimatedVisibility: (panel, visible) => { panel.visible = visible; },
     setJudgmentStatus: (...status) => statuses.push(status), renderJudgments: value => rendered.push(value),
     judgmentMessage: String, compactId: String, errorMessage: String, definitionLabel: String,
-    selectedJudgmentDefinition: () => "babel.judgment.source_agreement.v1", judgmentParameters: () => ({}),
+    selectedJudgmentDefinition: () => "babble.judgment.source_agreement.v1", judgmentParameters: () => ({}),
     syncJudgmentParameterInputs() {},
     client: {
       objectJudgments: id => new Promise((resolve, reject) => pending.push({ id, resolve, reject })),

@@ -17,7 +17,7 @@ production algorithms.
 
 This is complete **audit coverage**, not complete migration or runtime coverage.
 The six families have executable Python implementations. The served API now calls
-`babel_algorithms` for seven Judgment definitions, including content, moderation,
+`babble_algorithms` for seven Judgment definitions, including content, moderation,
 and on-demand [source agreement](source-agreement.md). This closes concrete portions
 of R1/R3, not the full migration. Python private recommendation and engagement
 still lack complete live consumers. Temporal scoring has a versioned public discovery consumer;
@@ -29,7 +29,7 @@ or whole-platform privacy compliance.
 Status vocabulary: **implemented** means executable typed Python behavior;
 **changed** means the concept exists with different rules/output; **partial** means
 named sub-behavior remains absent; **retired** means legacy infrastructure is not
-part of the v2 Python library; **missing** means no implementation of that concept.
+part of the  Python library; **missing** means no implementation of that concept.
 Implemented/changed Python rows must be read against R1-R8 below; only the
 explicitly verified worker slice is closed.
 
@@ -82,7 +82,7 @@ Evidence shorthand refers to files under `algorithms/`:
 ## Content Analysis: 10 Functions
 
 Legacy `deprecated/algorithms-deprec/content_analysis.py` maps to
-`algorithms/src/babel_algorithms/content.py` and `text.py`.
+`algorithms/src/babble_algorithms/content.py` and `text.py`.
 
 | Legacy functions/models | Actual Python behavior and evidence | Status / remaining work |
 | --- | --- | --- |
@@ -196,7 +196,7 @@ does not resurrect the old shared mutable user profile store.
 | `main.py`: `ContentRequest`, `ContentResponse`, `FeedbackRequest`, `FeedbackResponse`, `RecommendationRequest`; `health_check`, `process_content`, `record_feedback`, `get_recommendations`, `get_related_content`, `get_status`, `general_exception_handler` | Retired broken FastAPI contract. Several routes awaited synchronous methods or invoked absent `record_user_feedback`/`get_related_content`; output shapes disagreed with models. | No Python HTTP replacement or related-content query exists. R1 defines core-owned validated contracts and real error mapping; R2 supplies related graph/semantic retrieval; R6 health. |
 | `run.py` (no function declarations) | Retired dotenv/uvicorn `algorithms.main:app` launcher. | The Rust API now starts the real configured isolated Python worker; there is no replacement public Python HTTP server. Other family consumers remain open. |
 | `models/recommendation.py` (no methods) | Duplicate legacy `RecommendationScore` model replaced by the sole recommendation result dataclass. | `score`/`final_score`, metadata, timestamp and Candidate fields differ. R1 schema mapping is mandatory. |
-| `__init__.py`, `models/__init__.py` (no functions) | Current `babel_algorithms.__init__` exports actual implementations, including typed feedback and weights. | ContentAnalyzer/ModerationPolicy/LensWeight remain available from their modules. No alias imports of deprecated code. |
+| `__init__.py`, `models/__init__.py` (no functions) | Current `babble_algorithms.__init__` exports actual implementations, including typed feedback and weights. | ContentAnalyzer/ModerationPolicy/LensWeight remain available from their modules. No alias imports of deprecated code. |
 
 There is no production `feedback_loop_optimization.py` in the deprecated tree.
 Legacy feedback-loop settings and recommender adjustment were audited above;
@@ -305,13 +305,13 @@ consensus -> established.
 
 Fozzy engine: `/Users/deepsaint/.cargo/bin/fozzy`, version 0.1.0. All test artifacts
 use `/tmp` so parallel agents' repository artifacts are untouched. Final scenario:
-`/tmp/babel-algorithm-migration-290929-checks.fozzy.json`; host runner:
-`/tmp/babel-algorithm-migration-290929-checks.py`; seed **290929**.
+`/tmp/babble-algorithm-migration-290929-checks.fozzy.json`; host runner:
+`/tmp/babble-algorithm-migration-290929-checks.py`; seed **290929**.
 
 - Strict `doctor --deep --scenario ... --runs 5 --seed 290929 --json` and
   `test --det --strict ... --proc-backend host --json` pass.
 - `run --det --proc-backend host --fs-backend host --http-backend host --record
-  /tmp/babel-algorithm-migration-290929-verified.fozzy --json` ran the actual uv
+  /tmp/babble-algorithm-migration-290929-verified.fozzy --json` ran the actual uv
   environment, full pytest suite, basedpyright and ruff. Run ID:
   `062c9623-bc46-4e88-9929-fb0e7d75b6a4`.
 - The host runner emits stable success lines only after child exit code zero and

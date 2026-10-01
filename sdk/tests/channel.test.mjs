@@ -167,7 +167,7 @@ for (const stage of ["connecting", "ready"]) {
       queued({ data: rpc(request("queued")) });
       release?.();
       await Promise.resolve();
-      assert.equal(port.messages.filter(value => value.type === "babel.rpc.response").length, 0);
+      assert.equal(port.messages.filter(value => value.type === "babble.rpc.response").length, 0);
       assert.equal(port.closed, 1);
       assert.equal(port.listenerCount, 0);
       assert.equal(h.listeners.size, 0);

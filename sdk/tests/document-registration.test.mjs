@@ -74,7 +74,7 @@ test("confirmation registers once, gates readiness/RPC and injects only the host
   assert.equal(contexts[0].surfaceDocumentId, documentId);
   assert.ok(contexts[0].signal instanceof AbortSignal);
   assert.notEqual(contexts[0].signal, signal);
-  assert.equal(new Headers(fetched[0].headers).get("x-babel-surface-document"), documentId);
+  assert.equal(new Headers(fetched[0].headers).get("x-babble-surface-document"), documentId);
   const binding = JSON.parse(fetched[0].body).binding;
   assert.equal(binding.object_id, "object");
   assert.equal(binding.surface_session_id, "session");
@@ -120,7 +120,7 @@ for (const cause of ["timeout", "unmount", "suspend", "evict", "navigation", "cl
       await Promise.resolve();
       assert.equal(calls, 1);
       assert.equal(h.calls.length, 0);
-      assert.equal(port.messages.some(message => message.type === "babel.surface.ready"), false);
+      assert.equal(port.messages.some(message => message.type === "babble.surface.ready"), false);
     });
   }
 }
@@ -195,7 +195,7 @@ test("JavaScript registration hooks must return a promise or thenable", async (t
     assert.equal(h.frame.removed, 1);
     assert.equal(port.closed, 1);
     assert.equal(h.calls.length, 0);
-    assert.equal(port.messages.some(message => message.type === "babel.surface.ready"), false);
+    assert.equal(port.messages.some(message => message.type === "babble.surface.ready"), false);
   }
   const h = harness(t, { registerDocument: () => ({ then(resolve) { resolve(); } }) });
   const port = new FakePort();
@@ -230,7 +230,7 @@ for (const stage of ["confirm", "registration"]) {
     if (signal) assert.equal(signal.aborted, true);
     assert.equal(port.closed, 1);
     assert.equal(timers.size, 0);
-    assert.equal(port.messages.some(message => message.type === "babel.surface.ready"), false);
+    assert.equal(port.messages.some(message => message.type === "babble.surface.ready"), false);
   });
 }
 

@@ -1,10 +1,10 @@
-use babel_graph::Edge;
-use babel_identity::Identity;
-use babel_judgment::Judgment;
-use babel_object::Object;
-use babel_personalization::EncryptedLocalUserModel;
-use babel_state::Event;
-use babel_types::{
+use babble_graph::Edge;
+use babble_identity::Identity;
+use babble_judgment::Judgment;
+use babble_object::Object;
+use babble_personalization::EncryptedLocalUserModel;
+use babble_state::Event;
+use babble_types::{
     Canonical, EdgeId, Error as CoreError, EventId, Hash, IdentityId, JudgmentId, ObjectId, Result,
     Timestamp,
 };

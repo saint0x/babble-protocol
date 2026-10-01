@@ -1,7 +1,7 @@
 use crate::error::ApiError;
 use axum::http::HeaderMap;
-use babel_store::PublicationRequest;
-use babel_types::{Canonical, IdentityId};
+use babble_store::PublicationRequest;
+use babble_types::{Canonical, IdentityId};
 use serde::Serialize;
 
 /// REST callers opt into retry safety; RPC already requires its envelope key.
@@ -28,7 +28,7 @@ pub(crate) fn rest_request(
     }
     Ok(Some(PublicationRequest {
         id:
-            serde_json::json!({"version":1,"domain":"babel.consent.rest","author":author,"key":key})
+            serde_json::json!({"version":1,"domain":"babble.consent.rest","author":author,"key":key})
                 .canonical_hash()?,
         fingerprint: serde_json::json!({"version":1,"method":method,"payload":payload})
             .canonical_hash()?,

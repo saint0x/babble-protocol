@@ -1,8 +1,8 @@
 use crate::{BlobUploadReport, CliError};
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
-use babel_object::bundle::{MAX_BUNDLE_BYTES, MAX_BUNDLE_FILE_BYTES, MAX_BUNDLE_MANIFEST_BYTES};
-use babel_types::Hash;
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
+use babble_object::bundle::{MAX_BUNDLE_BYTES, MAX_BUNDLE_FILE_BYTES, MAX_BUNDLE_MANIFEST_BYTES};
+use babble_types::Hash;
 use std::{
     collections::BTreeMap,
     fs::File,

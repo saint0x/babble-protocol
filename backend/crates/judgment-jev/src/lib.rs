@@ -1,8 +1,8 @@
-use babel_judgment::{
+use babble_judgment::{
     Judgment, JudgmentPrivacyPolicy, JudgmentProvider, JudgmentRegistry, JudgmentRequest,
     ProviderRole, ProviderVersion,
 };
-use babel_types::{Canonical, Error as CoreError, JudgmentId, Result, Timestamp};
+use babble_types::{Canonical, Error as CoreError, JudgmentId, Result, Timestamp};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::time::Duration;
@@ -41,7 +41,7 @@ impl JevConfig {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JevRequest {
     pub definition: String,
-    pub state: babel_judgment::JudgmentState,
+    pub state: babble_judgment::JudgmentState,
     pub parameters: serde_json::Map<String, Value>,
     pub input_hash: String,
 }
@@ -94,7 +94,7 @@ impl<T: JevTransport> JudgmentProvider for JevProvider<T> {
     }
 
     fn judge(&self, request: &JudgmentRequest) -> Result<Judgment> {
-        JudgmentRegistry::babel_core().validate_request(request)?;
+        JudgmentRegistry::babble_core().validate_request(request)?;
         let input_hash = request.state.canonical_hash()?;
         let jev_request = JevRequest {
             definition: request.definition.as_str().to_string(),
@@ -131,7 +131,7 @@ impl<T: JevTransport> JudgmentProvider for JevProvider<T> {
             confidence: response.confidence.clamp(0.0, 1.0),
             created_at: Timestamp::now(),
         };
-        JudgmentRegistry::babel_core().validate_output(&judgment.definition, &judgment.output)?;
+        JudgmentRegistry::babble_core().validate_output(&judgment.definition, &judgment.output)?;
         Ok(judgment)
     }
 }

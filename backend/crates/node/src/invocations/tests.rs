@@ -1,13 +1,13 @@
 use super::*;
 
 #[test]
-fn safety_v2_invocations_check_live_blocks_after_approval_and_allow_unfollow() {
+fn safety_invocations_check_live_blocks_after_approval_and_allow_unfollow() {
     for action in ["follow", "reply", "share", "unfollow"] {
         for reverse in [false, true] {
             let mut f = Fixture::new();
             let other = f.node.create_identity(IdentityKind::Person, "other").unwrap();
             let draft = ObjectDraft::text("owned controller").unwrap().with_capability(CapabilityRequest {
-                id: format!("babel.social.{action}"), version: 1, scope: json!({"object_id":f.target.id})
+                id: format!("babble.social.{action}"), version: 1, scope: json!({"object_id":f.target.id})
             }).unwrap();
             f.source = f.node.publish_draft(&other.id, draft).unwrap();
             f.context = host_context(&f.node, &other.id, &f.source);
@@ -37,7 +37,7 @@ fn safety_v2_invocations_check_live_blocks_after_approval_and_allow_unfollow() {
 }
 
 #[test]
-fn safety_v2_unfollow_can_withdraw_own_follow_from_an_application_controller() {
+fn safety_unfollow_can_withdraw_own_follow_from_an_application_controller() {
     let mut f = Fixture::new();
     let viewer = f.node.create_identity(IdentityKind::Person, "viewer").unwrap();
     f.context.actor = viewer.id.clone();
@@ -48,10 +48,10 @@ fn safety_v2_unfollow_can_withdraw_own_follow_from_an_application_controller() {
     f.node.set_safety(&viewer.id, &f.actor.id, true, false, 0, "block").unwrap();
     f.execute(&record).unwrap();
 }
-use babel_capabilities::GrantDecision;
-use babel_identity::{Identity, IdentityKind};
-use babel_judgment_local::LocalProvider;
-use babel_object::{CapabilityRequest, Surface, SurfaceRole, SurfaceTarget};
+use babble_capabilities::GrantDecision;
+use babble_identity::{Identity, IdentityKind};
+use babble_judgment_local::LocalProvider;
+use babble_object::{CapabilityRequest, Surface, SurfaceRole, SurfaceTarget};
 use std::{
     fs,
     path::PathBuf,
@@ -60,7 +60,7 @@ use std::{
 
 pub(crate) fn host_context<P: JudgmentProvider>(
     node: &LocalNode<P>,
-    actor: &babel_types::IdentityId,
+    actor: &babble_types::IdentityId,
     object: &Object,
 ) -> InvocationContext {
     InvocationContext {
@@ -78,7 +78,7 @@ pub(crate) fn host_context<P: JudgmentProvider>(
 
 pub(crate) fn invoke<P: JudgmentProvider>(
     node: &mut LocalNode<P>,
-    actor: &babel_types::IdentityId,
+    actor: &babble_types::IdentityId,
     source: &Object,
     target: &ObjectId,
     action: &str,
@@ -91,7 +91,7 @@ pub(crate) fn invoke<P: JudgmentProvider>(
     let record = node.prepare_social_invocation(
         context.clone(),
         &key,
-        &format!("babel.social.{action}.v2"),
+        &format!("babble.social.{action}"),
         SocialInvocationPayload {
             target_object_id: target.clone(),
             text: text.map(str::to_string),
@@ -116,7 +116,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         let root = std::env::temp_dir().join(format!(
-            "babel-social-invocations-{}-{}",
+            "babble-social-invocations-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
@@ -143,7 +143,7 @@ impl Fixture {
         for action in ["follow", "unfollow", "share", "reply"] {
             draft = draft
                 .with_capability(CapabilityRequest {
-                    id: format!("babel.social.{action}"),
+                    id: format!("babble.social.{action}"),
                     version: 1,
                     scope: json!({"object_id": target.id}),
                 })
@@ -172,7 +172,7 @@ impl Fixture {
             .prepare_social_invocation(
                 self.context.clone(),
                 key,
-                &format!("babel.social.{action}.v2"),
+                &format!("babble.social.{action}"),
                 self.payload(action),
                 Timestamp(Timestamp::now().0 + time::Duration::seconds(60)),
             )
@@ -272,7 +272,7 @@ fn invocation_retry_freezes_deadline_payload_context_and_challenge() {
             .prepare_social_invocation(
                 f.context.clone(),
                 "retry",
-                "babel.social.reply.v2",
+                "babble.social.reply",
                 payload,
                 original.intent().deadline
             )
@@ -401,7 +401,7 @@ fn invocation_aggregate_quota_is_shared_by_login_and_checked_again_at_consumptio
             .prepare_social_invocation(
                 other_login,
                 "new-login",
-                "babel.social.follow.v2",
+                "babble.social.follow",
                 f.payload("follow"),
                 records[0].intent().deadline
             )
@@ -449,7 +449,7 @@ fn invocation_native_grants_and_v1_cannot_bypass_one_use_social_authority() {
             .prepare_social_invocation(
                 f.context.clone(),
                 "v1",
-                "babel.social.follow.v1",
+                "babble.social.follow.v1",
                 f.payload("follow"),
                 Timestamp::now()
             )
@@ -473,7 +473,7 @@ fn invocation_media_is_validated_before_prompt_and_rechecked_before_commit() {
             .prepare_social_invocation(
                 f.context.clone(),
                 action,
-                &format!("babel.social.{action}.v2"),
+                &format!("babble.social.{action}"),
                 payload,
                 Timestamp(Timestamp::now().0 + time::Duration::seconds(60)),
             )
@@ -481,7 +481,7 @@ fn invocation_media_is_validated_before_prompt_and_rechecked_before_commit() {
         assert_eq!(record.intent().payload["media"]["title"], "attached");
         f.approve(&record);
         let result = f.execute(&record).unwrap();
-        assert_eq!(result.object.as_ref().unwrap().kind.as_str(), "babel.media");
+        assert_eq!(result.object.as_ref().unwrap().kind.as_str(), "babble.media");
         assert_eq!(
             result.object.as_ref().unwrap().payload["resources"],
             json!(media.resources)
@@ -495,7 +495,7 @@ fn invocation_media_is_validated_before_prompt_and_rechecked_before_commit() {
         .prepare_social_invocation(
             f.context.clone(),
             "missing",
-            "babel.social.reply.v2",
+            "babble.social.reply",
             payload,
             Timestamp(Timestamp::now().0 + time::Duration::seconds(60)),
         )
@@ -526,12 +526,12 @@ fn invocation_surface_suspension_invalidates_approval_even_after_resume() {
     let mut f = Fixture::new();
     // Exercise native lifecycle invalidation independently of API admission tests.
     let surface = f.source.surfaces[0].clone();
-    let mut plan = babel_runtime::SurfaceRuntime::babel_default()
+    let mut plan = babble_runtime::SurfaceRuntime::babble_default()
         .prepare_surface(&f.source, SurfaceRole::Expanded, &[])
         .unwrap();
-    plan.admission = babel_runtime::RuntimeAdmissionStatus::Ready;
+    plan.admission = babble_runtime::RuntimeAdmissionStatus::Ready;
     let id = SurfaceSessionId::from_material("invocation-surface");
-    let mut session = babel_runtime::SurfaceSession::start(id.clone(), plan, "test").unwrap();
+    let mut session = babble_runtime::SurfaceSession::start(id.clone(), plan, "test").unwrap();
     session.transition(SurfaceLifecycle::Warm, "warm").unwrap();
     session
         .transition(SurfaceLifecycle::Active, "active")
@@ -598,7 +598,7 @@ fn invocation_pending_bound_preserves_retries_and_releases_cancelled_capacity() 
             .prepare_social_invocation(
                 f.context.clone(),
                 "overflow",
-                "babel.social.follow.v2",
+                "babble.social.follow",
                 f.payload("follow"),
                 first.intent().deadline
             )
@@ -641,7 +641,7 @@ fn invocation_byte_quota_is_cumulative_and_commit_rechecks_preapproved_requests(
             .prepare_social_invocation(
                 f.context.clone(),
                 key,
-                "babel.social.share.v2",
+                "babble.social.share",
                 SocialInvocationPayload {
                     target_object_id: f.target.id.clone(),
                     text: Some("x".repeat(8192)),
@@ -673,7 +673,7 @@ fn invocation_completed_result_survives_deadline_and_cancel_without_duplicate_ef
         .prepare_social_invocation(
             f.context.clone(),
             "completed",
-            "babel.social.follow.v2",
+            "babble.social.follow",
             f.payload("follow"),
             deadline,
         )
@@ -692,7 +692,7 @@ fn invocation_completed_result_survives_deadline_and_cancel_without_duplicate_ef
                 &f.context.login_id,
                 &f.source.id,
                 "completed",
-                "babel.social.follow.v2",
+                "babble.social.follow",
                 f.payload("follow")
             )
             .unwrap(),
@@ -720,8 +720,8 @@ fn invocation_social_lookup_and_invalidation_leave_external_records_untouched() 
     let mut f = Fixture::new();
     let mut intent = f.prepare("social", "reply").intent().clone();
     intent.request_key = "external".into();
-    intent.capability = babel_capabilities::CapabilityId::new("babel.ai.generate").unwrap();
-    intent.method = "babel.ai.generate.v1".into();
+    intent.capability = babble_capabilities::CapabilityId::new("babble.ai.generate").unwrap();
+    intent.method = "babble.ai.generate.v1".into();
     intent.method_version = 1;
     intent.executor = InvocationExecutor::External {
         provider: "test".into(),

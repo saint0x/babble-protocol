@@ -2,12 +2,12 @@
 //! One node writer per root, as for publication/following. SQL CAS also serializes clones.
 //! Histories and receipt keys are retained indefinitely; deleting them breaks retry safety.
 use crate::FileStore;
-use babel_graph::{
+use babble_graph::{
     Appreciation, Engagement, REACTION_MAX_REVISION, ReactionAction, ReactionReceipt,
     ReactionRecord, ReactionRequest, ReactionState, ReactionSummary, ReactionValue, Stance,
 };
-use babel_identity::Identity;
-use babel_types::{Canonical, Error, Hash, IdentityId, ObjectId, Result, Timestamp};
+use babble_identity::Identity;
+use babble_types::{Canonical, Error, Hash, IdentityId, ObjectId, Result, Timestamp};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, TransactionBehavior, params};
 
 fn db_error(_: rusqlite::Error) -> Error {
@@ -693,7 +693,7 @@ mod tests {
     fn reactions_first_install_is_atomic_and_interrupted_staging_is_retryable() {
         for phase in ["directory", "database", "schema", "synced"] {
             let root = std::env::temp_dir().join(format!(
-                "babel-reactions-install-{}-{}-{phase}",
+                "babble-reactions-install-{}-{}-{phase}",
                 std::process::id(),
                 std::time::SystemTime::now()
                     .duration_since(std::time::UNIX_EPOCH)

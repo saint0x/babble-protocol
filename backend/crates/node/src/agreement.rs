@@ -1,10 +1,10 @@
 //! Public source comparison. Signed relationships select evidence; they do not
 //! certify source independence, authority, or the truth of a claim.
 use crate::LocalNode;
-use babel_graph::{EdgeOrigin, Relation};
-use babel_judgment::{DefinitionId, JudgmentProvider, JudgmentRequest, JudgmentState};
-use babel_object::Object;
-use babel_types::{Error, ObjectId, Result, Timestamp};
+use babble_graph::{EdgeOrigin, Relation};
+use babble_judgment::{DefinitionId, JudgmentProvider, JudgmentRequest, JudgmentState};
+use babble_object::Object;
+use babble_types::{Error, ObjectId, Result, Timestamp};
 use serde_json::{Value, json};
 use std::collections::BTreeMap;
 use std::time::{Duration, Instant};

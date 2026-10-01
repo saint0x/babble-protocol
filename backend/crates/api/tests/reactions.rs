@@ -3,12 +3,12 @@ use axum::{
     body::{Body, to_bytes},
     http::{Request, StatusCode},
 };
-use babel_api::{ApiState, router};
-use babel_graph::ReactionRecord;
-use babel_identity::Identity;
-use babel_judgment_local::LocalProvider;
-use babel_node::LocalNode;
-use babel_rpc::{RpcBinding, RpcRequestEnvelope, babel_rpc_catalog};
+use babble_api::{ApiState, router};
+use babble_graph::ReactionRecord;
+use babble_identity::Identity;
+use babble_judgment_local::LocalProvider;
+use babble_node::LocalNode;
+use babble_rpc::{RpcBinding, RpcRequestEnvelope, babble_rpc_catalog};
 use serde_json::{Value, json};
 use std::{
     fs,
@@ -22,7 +22,7 @@ impl Fixture {
     fn new() -> Self {
         static NEXT: AtomicU64 = AtomicU64::new(0);
         Self(std::env::temp_dir().join(format!(
-            "babel-reactions-http-{}-{}-{}",
+            "babble-reactions-http-{}-{}-{}",
             std::process::id(),
             time::OffsetDateTime::now_utc().unix_timestamp_nanos(),
             NEXT.fetch_add(1, Ordering::Relaxed)
@@ -202,7 +202,7 @@ async fn record(app: &Router, actor: &Account, object: &str) -> Value {
     .await)
 }
 fn host() -> RpcBinding {
-    RpcBinding::host("reactions-test", "https://babel.test").unwrap()
+    RpcBinding::host("reactions-test", "https://babble.test").unwrap()
 }
 fn envelope(
     method: &str,
@@ -211,9 +211,9 @@ fn envelope(
     key: Option<&str>,
 ) -> RpcRequestEnvelope {
     let request = RpcRequestEnvelope::new(
-        &babel_rpc_catalog().unwrap(),
+        &babble_rpc_catalog().unwrap(),
         "reaction-regression",
-        &format!("babel.social.reactions.{method}.v1"),
+        &format!("babble.social.reactions.{method}.v1"),
         binding,
         payload,
     )
@@ -765,7 +765,7 @@ async fn reactions_unknown_and_malformed_objects_do_not_create_records() {
     let f = Fixture::new();
     let app = f.app();
     let alice = register(&app, "alice").await;
-    let missing = babel_types::ObjectId::from_hash(&babel_types::Hash::from_bytes(
+    let missing = babble_types::ObjectId::from_hash(&babble_types::Hash::from_bytes(
         b"missing reaction object",
     ))
     .to_string();
@@ -811,7 +811,7 @@ async fn reactions_unknown_and_malformed_objects_do_not_create_records() {
     }
     let object = publish(&app, &alice, "Actor lookup errors").await;
     let unknown_actor =
-        babel_types::IdentityId::from_hash(&babel_types::Hash::from_bytes(b"unknown actor"))
+        babble_types::IdentityId::from_hash(&babble_types::Hash::from_bytes(b"unknown actor"))
             .to_string();
     for (actor, expected) in [
         ("not-an-identity", StatusCode::BAD_REQUEST),
@@ -867,7 +867,7 @@ async fn reactions_object_and_surface_bound_mutations_are_denied_even_for_the_au
             };
             let env = envelope(method, binding.clone(), payload, Some("bound"));
             rejected(request(&app, "POST", "/rpc", Some(&alice.token), json!(env)).await);
-            assert!(babel_api::dispatch_rpc_request(&state, env).error.is_some());
+            assert!(babble_api::dispatch_rpc_request(&state, env).error.is_some());
         }
     }
     assert_eq!(mine(&app, &alice, &object).await, first);
@@ -893,7 +893,7 @@ async fn reactions_native_trusted_identity_binding_works_but_is_not_http_authent
         request(&app, "POST", "/rpc", None, json!(env)).await.0,
         StatusCode::UNAUTHORIZED
     );
-    let response = babel_api::dispatch_rpc_request(&state, env);
+    let response = babble_api::dispatch_rpc_request(&state, env);
     assert!(response.error.is_none(), "{response:?}");
     assert_eq!(response.result.unwrap(), mine(&app, &alice, &object).await);
 }

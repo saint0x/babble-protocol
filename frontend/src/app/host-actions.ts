@@ -1,4 +1,4 @@
-import type { BridgeDispatch, JsonValue, RpcRequestEnvelope, RpcResponseEnvelope } from "@babel-protocol/sdk";
+import type { BridgeDispatch, JsonValue, RpcRequestEnvelope, RpcResponseEnvelope } from "@babble-protocol/sdk";
 import { promptBrowserAction, type BrowserAction } from "./browser-action-prompt";
 import { BrowserInvocationApi, isBrowserInvocationMethod, normalizedBrowserPayload, parseBrowserInvocation,
   type BrowserInvocation, type BrowserInvocationExpectation, type BrowserInvocationResult } from "./browser-invocations";
@@ -36,8 +36,8 @@ export class HostActions {
 
   wrap(dispatch: BridgeDispatch): BridgeDispatch {
     return (request, context) => {
-      if (["babel.clipboard.write.v1", "babel.fullscreen.enter.v1"].includes(request.method)) {
-        return failure(request, "UNSUPPORTED_VERSION", "This action requires the version 2 SDK and one-use consent.");
+      if (["babble.clipboard.write.v1", "babble.fullscreen.enter.v1"].includes(request.method)) {
+        return failure(request, "UNSUPPORTED_VERSION", "This action requires one-use consent with the unversioned Babble browser action method.");
       }
       if (!isBrowserInvocationMethod(request.method)) return dispatch(request, context);
       if (!this.#live() || context?.signal.aborted) return failure(request, "CANCELLED", "The Object is no longer active.");
@@ -95,7 +95,7 @@ export class HostActions {
   #exitOwnedFullscreen(): void {
     if (!this.#ownsFullscreen || this.#document.fullscreenElement !== this.options.target) return;
     this.#ownsFullscreen = false;
-    void this.#document.exitFullscreen().catch(error => console.warn("Babel could not exit its Object fullscreen", error));
+    void this.#document.exitFullscreen().catch(error => console.warn("Babble could not exit its Object fullscreen", error));
   }
 
   #run(dispatch: BridgeDispatch, request: RpcRequestEnvelope, context: NonNullable<Parameters<BridgeDispatch>[1]>,
@@ -128,7 +128,7 @@ export class HostActions {
         else if (["pending", "approved"].includes(invocation.state.kind)) {
           invocation = await this.options.api.advance("cancel", invocation, expected, AbortSignal.timeout(5000));
         }
-      } catch (cause) { console.warn("Babel could not confirm browser action cancellation", cause); }
+      } catch (cause) { console.warn("Babble could not confirm browser action cancellation", cause); }
     };
     const work = (async (): Promise<RpcResponseEnvelope> => {
       try {
@@ -223,7 +223,7 @@ function record(value: unknown): value is Record<string, unknown> {
 }
 function actionFrom(method: string, payload: JsonValue): BrowserAction {
   const value = payload as Record<string, JsonValue>;
-  return method === "babel.clipboard.write.v2" ? { kind: "clipboard", text: value.text as string }
+  return method === "babble.clipboard.write" ? { kind: "clipboard", text: value.text as string }
     : { kind: "fullscreen", navigationUI: value.navigation_ui as FullscreenNavigationUI, targetHint: value.target_hint as string | null };
 }
 function isCompletedResult(value: unknown, action: BrowserAction): boolean {

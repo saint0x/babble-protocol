@@ -1,9 +1,9 @@
-import type { BridgeDispatch, RpcOutput } from "@babel-protocol/sdk";
-import { mountSurface, type BabelFrontendClient } from "./protocol";
+import type { BridgeDispatch, RpcOutput } from "@babble-protocol/sdk";
+import { mountSurface, type BabbleFrontendClient } from "./protocol";
 
-export type SurfacePlan = RpcOutput<"babel.runtime.surface.prepare.v1">["plan"];
-export type SurfaceSession = RpcOutput<"babel.runtime.surface.session.start.v1">["session"];
-type SurfaceLease = RpcOutput<"babel.runtime.surface.session.heartbeat.v1">["lease"];
+export type SurfacePlan = RpcOutput<"babble.runtime.surface.prepare.v1">["plan"];
+export type SurfaceSession = RpcOutput<"babble.runtime.surface.session.start.v1">["session"];
+type SurfaceLease = RpcOutput<"babble.runtime.surface.session.heartbeat.v1">["lease"];
 export type SurfacePhase = "idle" | "preparing" | "blocked" | "mounting" | "active" | "error";
 export interface SurfaceState {
   readonly phase: SurfacePhase;
@@ -16,7 +16,7 @@ export interface SurfaceOpen {
   readonly objectId: string;
   readonly container: HTMLElement;
   readonly currentIdentityId: string | null;
-  readonly source: Pick<BabelFrontendClient, "prepareSurface" | "startSurfaceSession" | "transitionSurfaceSession" | "heartbeatSurfaceSession" | "registerSurfaceDocument">;
+  readonly source: Pick<BabbleFrontendClient, "prepareSurface" | "startSurfaceSession" | "transitionSurfaceSession" | "heartbeatSurfaceSession" | "registerSurfaceDocument">;
   readonly dispatch: BridgeDispatch;
   readonly authorized: () => boolean;
 }

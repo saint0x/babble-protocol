@@ -1,8 +1,8 @@
 //! Private signed audit, receipts, and projections share one durable transaction.
 use crate::FileStore;
-use babel_graph::moderation::*;
-use babel_identity::Identity;
-use babel_types::{Error, Hash, IdentityId, ObjectId, Result, Timestamp};
+use babble_graph::moderation::*;
+use babble_identity::Identity;
+use babble_types::{Error, Hash, IdentityId, ObjectId, Result, Timestamp};
 use rusqlite::{Connection, OpenFlags, OptionalExtension, TransactionBehavior, params};
 use std::collections::{BTreeMap, BTreeSet};
 
