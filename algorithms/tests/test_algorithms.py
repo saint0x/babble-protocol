@@ -1,3 +1,4 @@
+import math
 from typing import cast
 
 import pytest
@@ -8,10 +9,12 @@ from babble_algorithms import (
     ConsensusAnalyzer,
     ConsensusSource,
     ConsensusState,
+    ContentPerformance,
     ContentProfile,
     ContentTimeClass,
     EngagementAnalyzer,
     EngagementEvent,
+    EngagementSummary,
     EngagementWindow,
     FeedDiversifier,
     FeedObjectContext,
@@ -132,12 +135,10 @@ def test_spec_lenses_are_available_and_policy_distinct() -> None:
         )
     )
 
-    serendipity = LensStack(
-        (LensWeight(BuiltInLens.INTELLECTUAL_SERENDIPITY, 1.0),)
-    ).rank(candidates)
-    contradictions = LensStack((LensWeight(BuiltInLens.CONTRADICTIONS, 1.0),)).rank(
+    serendipity = LensStack((LensWeight(BuiltInLens.INTELLECTUAL_SERENDIPITY, 1.0),)).rank(
         candidates
     )
+    contradictions = LensStack((LensWeight(BuiltInLens.CONTRADICTIONS, 1.0),)).rank(candidates)
     emerging = LensStack((LensWeight(BuiltInLens.EMERGING, 1.0),)).rank(candidates)
     slow = LensStack((LensWeight(BuiltInLens.SLOW_INTERNET, 1.0),)).rank(candidates)
 
@@ -211,9 +212,10 @@ def test_engagement_analyzer_summarizes_segments_and_content_performance() -> No
     assert summary.user_segments["highly_engaged"] == 1
     assert summary.user_segments["low_engagement"] == 1
     assert summary.content_performance["obj:a"].interaction_rate == 1.0
-    assert summary.content_performance["obj:a"].engagement_score > summary.content_performance[
-        "obj:b"
-    ].engagement_score
+    assert (
+        summary.content_performance["obj:a"].engagement_score
+        > summary.content_performance["obj:b"].engagement_score
+    )
 
 
 def test_engagement_analyzer_validates_domain_inputs() -> None:
@@ -231,10 +233,63 @@ def test_engagement_analyzer_validates_domain_inputs() -> None:
         _ = EngagementEvent(
             "user", "obj", 0.0, 0.0, 0.0, cast(InteractionType, cast(object, "unknown"))
         )
+    with pytest.raises(ValueError, match="events"):
+        _ = EngagementAnalyzer().summarize(
+            cast(tuple[EngagementEvent, ...], cast(object, [])),
+            reference_time=1.0,
+            window_seconds=1.0,
+        )
+    with pytest.raises(ValueError, match="EngagementEvent"):
+        _ = EngagementAnalyzer().summarize(
+            cast(tuple[EngagementEvent, ...], cast(object, (object(),))),
+            reference_time=1.0,
+            window_seconds=1.0,
+        )
     with pytest.raises(ValueError, match="reference_time"):
         _ = EngagementAnalyzer().summarize((), reference_time=True, window_seconds=1.0)
     with pytest.raises(ValueError, match="window_seconds"):
         _ = EngagementAnalyzer().summarize((), reference_time=1.0, window_seconds=float("nan"))
+    with pytest.raises(ValueError, match="window_seconds"):
+        _ = EngagementAnalyzer().summarize((), reference_time=1.0, window_seconds=0.0)
+    with pytest.raises(ValueError, match="window start"):
+        _ = EngagementAnalyzer().summarize((), reference_time=-1e308, window_seconds=1e308)
+
+
+def test_engagement_result_dtos_reject_invalid_direct_values() -> None:
+    performance = ContentPerformance("obj", 1, 20.0, 0.5, 0.0, 0.3)
+    summary = EngagementSummary(
+        1,
+        20.0,
+        0.5,
+        (1,),
+        {"period_1": 0.3},
+        {"low_engagement": 1},
+        {"obj": performance},
+    )
+    assert summary.content_performance["obj"] == performance
+
+    with pytest.raises(ValueError, match="sessions"):
+        _ = ContentPerformance("obj", 0, 20.0, 0.5, 0.0, 0.3)
+    with pytest.raises(ValueError, match="avg_scroll_depth"):
+        _ = ContentPerformance("obj", 1, 20.0, math.nan, 0.0, 0.3)
+    with pytest.raises(ValueError, match="interaction_rate"):
+        _ = ContentPerformance("obj", 1, 20.0, 0.5, 1.1, 0.3)
+    with pytest.raises(ValueError, match="peak_hours"):
+        _ = EngagementSummary(0, 0.0, 0.0, (2, 1), {}, {}, {})
+    with pytest.raises(ValueError, match="trend"):
+        _ = EngagementSummary(
+            1,
+            20.0,
+            0.5,
+            (),
+            {"period_1": float("inf")},
+            {},
+            {},
+        )
+    with pytest.raises(ValueError, match="user segment"):
+        _ = EngagementSummary(1, 20.0, 0.5, (), {}, {"low_engagement": -1}, {})
+    with pytest.raises(ValueError, match="content_performance keys"):
+        _ = EngagementSummary(1, 20.0, 0.5, (), {}, {}, {"other": performance})
 
 
 def test_consensus_establishes_and_can_revoke_previous_consensus() -> None:
@@ -261,9 +316,7 @@ def test_consensus_establishes_and_can_revoke_previous_consensus() -> None:
             vote=0.92,
         ),
     )
-    established = analyzer.evaluate(
-        "obj:claim", strong_sources, reference_time=901_000.0
-    )
+    established = analyzer.evaluate("obj:claim", strong_sources, reference_time=901_000.0)
     weak = analyzer.evaluate(
         "obj:claim",
         (

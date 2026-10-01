@@ -3,11 +3,12 @@ from __future__ import annotations
 import math
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Literal, get_args
+from typing import Literal, cast
 
 from babble_algorithms.types import clamp_score
 
 InteractionType = Literal["view", "expand", "react", "reply", "share", "save", "surface_open"]
+INTERACTION_TYPES = ("view", "expand", "react", "reply", "share", "save", "surface_open")
 MAX_SAFE_INTEGER = 9007199254740991
 
 
@@ -29,13 +30,38 @@ def _finite_number(
     return number
 
 
-def _nonempty_string(value: object, name: str) -> None:
+def _nonempty_string(value: object, name: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{name} must be a nonempty string")
     try:
         _ = value.encode("utf-8", errors="strict")
     except UnicodeError:
         raise ValueError(f"{name} must contain Unicode scalar values") from None
+    return value
+
+
+def _count(value: object, name: str, *, minimum: int = 0) -> int:
+    if type(value) is not int or not minimum <= value <= MAX_SAFE_INTEGER:
+        raise ValueError(f"{name} must be a bounded integer")
+    return value
+
+
+def _hour_tuple(value: object) -> tuple[int, ...]:
+    if type(value) is not tuple:
+        raise ValueError("peak_hours must be a tuple")
+    hours = cast(tuple[object, ...], value)
+    result: list[int] = []
+    seen: set[int] = set()
+    for hour in hours:
+        if type(hour) is not int or not 0 <= hour <= 23:
+            raise ValueError("peak_hours entries must be hours")
+        if hour in seen:
+            raise ValueError("peak_hours must be unique")
+        seen.add(hour)
+        result.append(hour)
+    if tuple(result) != tuple(sorted(result)):
+        raise ValueError("peak_hours must be sorted")
+    return tuple(result)
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,17 +74,29 @@ class EngagementEvent:
     interaction: InteractionType = "view"
 
     def __post_init__(self) -> None:
-        _nonempty_string(self.user_id, "engagement user_id")
-        _nonempty_string(self.content_id, "engagement content_id")
-        _ = _finite_number(self.timestamp, "engagement timestamp")
-        _ = _finite_number(
-            self.session_duration_seconds,
-            "engagement session_duration_seconds",
-            minimum=0,
-            maximum=MAX_SAFE_INTEGER,
+        object.__setattr__(self, "user_id", _nonempty_string(self.user_id, "engagement user_id"))
+        object.__setattr__(
+            self, "content_id", _nonempty_string(self.content_id, "engagement content_id")
         )
-        _ = _finite_number(self.scroll_depth, "engagement scroll_depth", minimum=0, maximum=1)
-        if self.interaction not in get_args(InteractionType):
+        object.__setattr__(
+            self, "timestamp", _finite_number(self.timestamp, "engagement timestamp")
+        )
+        object.__setattr__(
+            self,
+            "session_duration_seconds",
+            _finite_number(
+                self.session_duration_seconds,
+                "engagement session_duration_seconds",
+                minimum=0,
+                maximum=MAX_SAFE_INTEGER,
+            ),
+        )
+        object.__setattr__(
+            self,
+            "scroll_depth",
+            _finite_number(self.scroll_depth, "engagement scroll_depth", minimum=0, maximum=1),
+        )
+        if self.interaction not in INTERACTION_TYPES:
             raise ValueError("engagement interaction must be a supported literal")
 
 
@@ -71,6 +109,45 @@ class ContentPerformance:
     interaction_rate: float
     engagement_score: float
 
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self, "content_id", _nonempty_string(self.content_id, "performance content_id")
+        )
+        object.__setattr__(
+            self, "sessions", _count(self.sessions, "performance sessions", minimum=1)
+        )
+        object.__setattr__(
+            self,
+            "avg_session_duration_seconds",
+            _finite_number(
+                self.avg_session_duration_seconds,
+                "performance avg_session_duration_seconds",
+                minimum=0,
+                maximum=MAX_SAFE_INTEGER,
+            ),
+        )
+        object.__setattr__(
+            self,
+            "avg_scroll_depth",
+            _finite_number(
+                self.avg_scroll_depth, "performance avg_scroll_depth", minimum=0, maximum=1
+            ),
+        )
+        object.__setattr__(
+            self,
+            "interaction_rate",
+            _finite_number(
+                self.interaction_rate, "performance interaction_rate", minimum=0, maximum=1
+            ),
+        )
+        object.__setattr__(
+            self,
+            "engagement_score",
+            _finite_number(
+                self.engagement_score, "performance engagement_score", minimum=0, maximum=1
+            ),
+        )
+
 
 @dataclass(frozen=True, slots=True)
 class EngagementSummary:
@@ -81,6 +158,52 @@ class EngagementSummary:
     trend: dict[str, float]
     user_segments: dict[str, int]
     content_performance: dict[str, ContentPerformance]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "total_sessions", _count(self.total_sessions, "total_sessions"))
+        object.__setattr__(
+            self,
+            "avg_session_duration_seconds",
+            _finite_number(
+                self.avg_session_duration_seconds,
+                "avg_session_duration_seconds",
+                minimum=0,
+                maximum=MAX_SAFE_INTEGER,
+            ),
+        )
+        object.__setattr__(
+            self,
+            "avg_scroll_depth",
+            _finite_number(self.avg_scroll_depth, "avg_scroll_depth", minimum=0, maximum=1),
+        )
+        object.__setattr__(self, "peak_hours", _hour_tuple(self.peak_hours))
+        if type(self.trend) is not dict:
+            raise ValueError("engagement trend must be a dict")
+        trend: dict[str, float] = {}
+        for period, score in cast(dict[object, object], self.trend).items():
+            if not isinstance(period, str) or not period.strip():
+                raise ValueError("engagement trend periods must be strings")
+            trend[period] = _finite_number(score, "engagement trend score", minimum=0, maximum=1)
+        object.__setattr__(self, "trend", trend)
+        if type(self.user_segments) is not dict:
+            raise ValueError("engagement user_segments must be a dict")
+        segments: dict[str, int] = {}
+        for segment, count in cast(dict[object, object], self.user_segments).items():
+            if not isinstance(segment, str) or not segment.strip():
+                raise ValueError("engagement user segment names must be strings")
+            segments[segment] = _count(count, "engagement user segment count")
+        object.__setattr__(self, "user_segments", segments)
+        if type(self.content_performance) is not dict:
+            raise ValueError("content_performance must be a dict")
+        performance: dict[str, ContentPerformance] = {}
+        for content_id, value in cast(dict[object, object], self.content_performance).items():
+            key = _nonempty_string(content_id, "content_performance key")
+            if type(value) is not ContentPerformance:
+                raise ValueError("content_performance values must be ContentPerformance")
+            if value.content_id != key:
+                raise ValueError("content_performance keys must match content IDs")
+            performance[key] = value
+        object.__setattr__(self, "content_performance", performance)
 
 
 @dataclass(frozen=True, slots=True)
@@ -97,14 +220,23 @@ class EngagementAnalyzer:
         reference_time: float,
         window_seconds: float,
     ) -> EngagementSummary:
+        if type(events) is not tuple:
+            raise ValueError("engagement events must be a tuple")
+        typed_events: list[EngagementEvent] = []
+        for event in events:
+            if type(event) is not EngagementEvent:
+                raise ValueError("engagement events must contain EngagementEvent values")
+            typed_events.append(event)
         reference_time = _finite_number(reference_time, "reference_time")
         window_seconds = _finite_number(window_seconds, "window_seconds", minimum=0)
         if window_seconds <= 0.0:
             raise ValueError("window_seconds must be positive")
         start = reference_time - window_seconds
+        if not math.isfinite(start):
+            raise ValueError("engagement window start must be finite")
         scoped = tuple(
             _ScoredEvent(event, _event_score(event))
-            for event in events
+            for event in typed_events
             if start <= event.timestamp <= reference_time
         )
         if not scoped:
@@ -112,9 +244,7 @@ class EngagementAnalyzer:
 
         return EngagementSummary(
             total_sessions=len(scoped),
-            avg_session_duration_seconds=sum(
-                item.event.session_duration_seconds for item in scoped
-            )
+            avg_session_duration_seconds=sum(item.event.session_duration_seconds for item in scoped)
             / len(scoped),
             avg_scroll_depth=sum(item.event.scroll_depth for item in scoped) / len(scoped),
             peak_hours=self._peak_hours(scoped),
@@ -143,8 +273,7 @@ class EngagementAnalyzer:
             index = min(5, max(0, int((item.event.timestamp - start) / period)))
             buckets[f"period_{index + 1}"].append(item.score)
         return {
-            name: (sum(values) / len(values) if values else 0.0)
-            for name, values in buckets.items()
+            name: (sum(values) / len(values) if values else 0.0) for name, values in buckets.items()
         }
 
     def _segments(self, events: tuple[_ScoredEvent, ...]) -> dict[str, int]:
