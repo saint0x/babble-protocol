@@ -39,10 +39,14 @@ STOP_WORDS = frozenset(
 
 
 def sentences(text: str) -> tuple[str, ...]:
+    text = _text(text, "text")
     return tuple(sentence.strip() for sentence in re.split(r"[.!?]+", text) if sentence.strip())
 
 
-def tokens(text: str, *, remove_stop_words: bool = True) -> tuple[str, ...]:
+def tokens(text: str, *, remove_stop_words: object = True) -> tuple[str, ...]:
+    text = _text(text, "text")
+    if type(remove_stop_words) is not bool:
+        raise ValueError("remove_stop_words must be boolean")
     words = cast(
         tuple[str, ...], tuple(re.findall(r"\w+", unicodedata.normalize("NFC", text.casefold())))
     )
@@ -57,7 +61,7 @@ def keyword_counts(text: str) -> Counter[str]:
 
 def top_terms(text: str, *, limit: int = 10) -> tuple[str, ...]:
     counts = keyword_counts(text)
-    return tuple(term for term, _count in counts.most_common(limit))
+    return tuple(term for term, _count in counts.most_common(_positive_int(limit, "limit")))
 
 
 def jaccard(left: set[str], right: set[str]) -> float:
@@ -67,7 +71,7 @@ def jaccard(left: set[str], right: set[str]) -> float:
 
 
 def cosine(left: tuple[float, ...], right: tuple[float, ...]) -> float:
-    if len(left) != len(right) or not left:
+    if len(left) != len(right) or not left or not _finite_vector(left) or not _finite_vector(right):
         return 0.0
     numerator = sum(a * b for a, b in zip(left, right, strict=True))
     left_norm = math.sqrt(sum(value * value for value in left))
@@ -78,10 +82,9 @@ def cosine(left: tuple[float, ...], right: tuple[float, ...]) -> float:
 
 
 def hashed_vector(terms: tuple[str, ...], *, dimensions: int = 64) -> tuple[float, ...]:
-    if dimensions <= 0:
-        raise ValueError("vector dimensions must be positive")
+    dimensions = _positive_int(dimensions, "vector dimensions")
     values = [0.0] * dimensions
-    counts = Counter(terms)
+    counts = Counter(_term(term) for term in terms)
     for term, count in counts.items():
         index = _fnv1a(term) % dimensions
         values[index] += float(count)
@@ -89,6 +92,28 @@ def hashed_vector(terms: tuple[str, ...], *, dimensions: int = 64) -> tuple[floa
     if norm == 0.0:
         return tuple(values)
     return tuple(value / norm for value in values)
+
+
+def _text(value: object, label: str) -> str:
+    if not isinstance(value, str):
+        raise ValueError(f"{label} must be a string")
+    return value
+
+
+def _term(value: object) -> str:
+    if not isinstance(value, str):
+        raise ValueError("vector terms must be strings")
+    return value
+
+
+def _positive_int(value: object, label: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+        raise ValueError(f"{label} must be a positive integer")
+    return value
+
+
+def _finite_vector(values: tuple[float, ...]) -> bool:
+    return all(not isinstance(value, bool) and math.isfinite(value) for value in values)
 
 
 def _fnv1a(value: str) -> int:

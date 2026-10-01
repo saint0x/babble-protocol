@@ -22,7 +22,7 @@ from babble_algorithms.recommendation import (
     RecommendationWeights,
     UserProfile,
 )
-from babble_algorithms.text import tokens
+from babble_algorithms.text import cosine, hashed_vector, sentences, tokens, top_terms
 from babble_algorithms.types import (
     Candidate,
     CandidateSource,
@@ -266,6 +266,26 @@ def test_content_evidence_references_use_precomputed_sentence_folds() -> None:
         "According to the DATASET, replication works",
         "Methodology confirms it",
     )
+
+
+def test_text_helpers_reject_invalid_domain_inputs() -> None:
+    with pytest.raises(ValueError, match="text"):
+        _ = tokens(cast(str, cast(object, True)))
+    with pytest.raises(ValueError, match="text"):
+        _ = sentences(cast(str, cast(object, 123)))
+    with pytest.raises(ValueError, match="remove_stop_words"):
+        _ = tokens("hello", remove_stop_words=cast(bool, cast(object, 1)))
+    with pytest.raises(ValueError, match="limit"):
+        _ = top_terms("hello", limit=cast(int, cast(object, True)))
+
+
+def test_vector_helpers_reject_invalid_domains_and_nonfinite_similarity() -> None:
+    with pytest.raises(ValueError, match="vector dimensions"):
+        _ = hashed_vector(("term",), dimensions=cast(int, cast(object, True)))
+    with pytest.raises(ValueError, match="vector terms"):
+        _ = hashed_vector((cast(str, cast(object, 1)),))
+    assert cosine((1.0, float("nan")), (1.0, 1.0)) == 0.0
+    assert cosine((cast(float, cast(object, True)),), (1.0,)) == 0.0
 
 
 def test_tokenizer_preserves_unicode_words() -> None:
